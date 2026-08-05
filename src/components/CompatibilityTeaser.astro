@@ -1,0 +1,52 @@
+<section class="band" id="compatibility">
+  <div class="wrap dropin">
+    <div>
+      <div class="band-head tight">
+        <h2>Turf loves HCL.</h2>
+        <p>Turf is a drop-in replacement — your configs, your modules, your providers, your mental
+        model. With agentic superpowers on top.</p>
+        <p class="provenance">Turf is an independent product built on the OpenTofu engine — not
+        affiliated with or endorsed by HashiCorp.</p>
+      </div>
+      <ul class="ticklist">
+        <li><span class="g">✓</span><div><b>Full Terraform HCL</b> <span>— the entire expression language and
+          function library, inherited from the OpenTofu engine.</span></div></li>
+        <li><span class="g">✓</span><div><b>Module registry</b> <span>— build on battle-tested community modules,
+          from AVM on down.</span></div></li>
+        <li><span class="g">✓</span><div><b>OpenTofu providers</b> <span>— the whole provider ecosystem, unmodified.</span></div></li>
+        <li><span class="g">✓</span><div><b>Terraform Actions</b> <span>— the 1.14 action model, carried on Turf’s
+          fork.</span><span class="pill ok">ahead of OpenTofu</span></div></li>
+        <li><span class="g">✓</span><div><b>Deferred changes</b> <span>— a first-class, agent-resolved convergence
+          loop, no experimental flags.</span><span class="pill ok">ahead of OpenTofu</span></div></li>
+        <li><span class="g">◑</span><div><b>Stacks-class multi-environment deploys</b> <span>— one configuration,
+          fanned out across workspaces, converged by phases.</span><span class="pill soon">coming soon</span></div></li>
+      </ul>
+      <div class="honesty">
+        <b>Radically honest compatibility.</b> Where a construct isn’t supported yet, Turf refuses
+        loudly — it never silently mis-plans. Every gap is published and labeled
+        <em>coming&nbsp;soon</em> on the matrix.
+        <div style="margin-top:10px;"><a href="/compatibility">See the full compatibility matrix →</a></div>
+      </div>
+    </div>
+    <div>
+      <div class="term" role="img" aria-label="Example turf up session converging a Kubernetes stack across three phases">
+        <div class="term-head"><span>turf up · kind-helm example</span></div>
+        <div class="term-body">
+<div class="t"><span class="p">$</span> <span class="b">turf up</span></div>
+<div class="t"><span class="dim">plan · phase 1 —</span> <span class="ok">1 to add</span><span class="dim">,</span> <span class="amber">3 deferred</span></div>
+<div class="t"><span class="dim">approve?</span> <span class="b">yes</span> <span class="dim">(policy checks passed)</span></div>
+<div class="t"><span class="ok">✓</span> kind_cluster.demo <span class="dim">              32s</span></div>
+<div class="t"><span class="dim">plan · phase 2 —</span> <span class="ok">2 to add</span><span class="dim">,</span> <span class="amber">1 deferred</span></div>
+<div class="t"><span class="dim">approve?</span> <span class="b">yes</span></div>
+<div class="t"><span class="ok">✓</span> helm_release.cert_manager <span class="dim">      41s</span></div>
+<div class="t"><span class="ok">✓</span> helm_release.external_dns <span class="dim">      12s</span></div>
+<div class="t"><span class="dim">plan · phase 3 —</span> <span class="ok">1 to add</span></div>
+<div class="t"><span class="dim">approve?</span> <span class="b">yes</span></div>
+<div class="t"><span class="ok">✓</span> kubernetes_manifest.issuer <span class="dim">      2s</span></div>
+<div class="t"><span class="ok">converged</span> <span class="dim">— 4 applied across 3 phases · 0 drift</span></div>
+        </div>
+      </div>
+      <p class="pp-caption left">cluster → operators → CRDs → workloads. no <span class="mono">-target</span> hacks, no two-stage applies.</p>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,116 @@
+---
+import Layout from '../layouts/Layout.astro';
+const title = 'Turf — Get started';
+const description = 'Install Turf with Homebrew or the signed container image, wire it into any MCP client, and run your first governed plan.';
+---
+
+<Layout title={title} description={description}>
+  <section class="subhero">
+    <div class="wrap">
+      <p class="eyebrow"><span class="dot"></span> Get started · free while in alpha</p>
+      <h1>Install Turf and run your first governed plan.</h1>
+      <p class="lede">Homebrew installs both the CLI and the MCP server. Bring your own model —
+        hosted, local, or a private GPU endpoint. The alpha is free under an evaluation license.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap prose">
+      <h2>1 · Install</h2>
+      <p>The tap installs the <code>turf</code> CLI and the <code>turf-mcp-server</code> binary.</p>
+      <div class="codeblock">
+        <div class="cb-head"><span>Homebrew · macOS &amp; Linux</span></div>
+<pre><span class="ps1">$</span> brew install turfbuild/tap/turf
+<span class="cm"># later: brew upgrade turf</span></pre>
+      </div>
+
+      <h2>2 · Point Turf at a model</h2>
+      <p>Set a key for a hosted model, or run fully local with no key and no cost.</p>
+      <div class="codeblock">
+        <div class="cb-head"><span>Choose a model</span></div>
+<pre><span class="cm"># hosted frontier model</span>
+<span class="ps1">$</span> export ANTHROPIC_API_KEY=<span class="str">sk-...</span>
+
+<span class="cm"># or a local model — no API key, no cost</span>
+<span class="ps1">$</span> turf --model <span class="str">dmr/ai/qwen3</span> chat
+
+<span class="cm"># or a private GPU endpoint (vLLM, LM Studio, gateways)</span>
+<span class="ps1">$</span> turf --base-url <span class="str">https://gpu.internal/v1</span> --model <span class="str">my-model</span> chat</pre>
+      </div>
+
+      <h2>3 · Run it</h2>
+      <p>Chat interactively, or converge a whole stack from a config directory.</p>
+      <div class="codeblock">
+        <div class="cb-head"><span>The Turf CLI</span></div>
+<pre><span class="ps1">$</span> turf chat
+<span class="ps1">$</span> turf up ./path/to/config
+<span class="ps1">$</span> turf destroy ./path/to/config</pre>
+      </div>
+      <p>Every change is planned, shown to you, and applied one effect at a time — with an approval
+        gate in between. Nothing runs off-plan.</p>
+    </div>
+  </section>
+
+  <section class="section alt">
+    <div class="wrap prose">
+      <h2>Use Turf from any MCP client</h2>
+      <p>Turf is an MCP server first. Add it to Claude Desktop, Claude Code, or any MCP-capable agent.</p>
+
+      <h3>Claude Desktop</h3>
+      <p>Add this to <code>claude_desktop_config.json</code>:</p>
+      <div class="codeblock">
+        <div class="cb-head"><span>claude_desktop_config.json</span></div>
+<pre>&#123;
+  <span class="str">"mcpServers"</span>: &#123;
+    <span class="str">"turf"</span>: &#123;
+      <span class="str">"command"</span>: <span class="str">"turf-mcp-server"</span>
+    &#125;
+  &#125;
+&#125;</pre>
+      </div>
+
+      <h3>Claude Code</h3>
+      <div class="codeblock">
+        <div class="cb-head"><span>Register the server</span></div>
+<pre><span class="ps1">$</span> claude mcp add turf --scope user -- turf-mcp-server</pre>
+      </div>
+      <p>The server speaks MCP over stdio by default, or over HTTP with
+        <code>turf-mcp-server --transport http</code> (binds loopback).</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap prose">
+      <h2>Container image &amp; supply-chain verification</h2>
+      <p>A multi-arch image is published to GHCR and signed with cosign (keyless, via GitHub OIDC).</p>
+      <div class="codeblock">
+        <div class="cb-head"><span>Pull &amp; verify</span></div>
+<pre><span class="ps1">$</span> docker pull ghcr.io/turfbuild/turf-mcp-server:latest
+
+<span class="cm"># verify the signature</span>
+<span class="ps1">$</span> cosign verify ghcr.io/turfbuild/turf-mcp-server:latest \
+    --certificate-identity-regexp <span class="str">'^https://github.com/turfbuild/turf-mcp-server/'</span> \
+    --certificate-oidc-issuer <span class="str">https://token.actions.githubusercontent.com</span>
+
+<span class="cm"># verify the SBOM attestation</span>
+<span class="ps1">$</span> cosign verify-attestation --type cyclonedx ghcr.io/turfbuild/turf-mcp-server:latest \
+    --certificate-identity-regexp <span class="str">'^https://github.com/turfbuild/turf-mcp-server/'</span> \
+    --certificate-oidc-issuer <span class="str">https://token.actions.githubusercontent.com</span></pre>
+      </div>
+      <p>Prefer the CLI? Verify the Homebrew binary's provenance with
+        <code>gh attestation verify turf --repo turfbuild/turf</code>.</p>
+    </div>
+  </section>
+
+  <section class="section alt">
+    <div class="wrap prose">
+      <h2>Next</h2>
+      <ul>
+        <li>See what Turf supports today on the <a href="/compatibility">Compatibility</a> page.</li>
+        <li>Browse runnable stacks in <a href="https://github.com/turfbuild/turf-examples">turf-examples</a>.</li>
+        <li>Deploying layered infrastructure under governance constraints?
+          <a href="mailto:contact@turf.build?subject=Design%20partner">Become a design partner</a>.</li>
+      </ul>
+    </div>
+  </section>
+</Layout>

@@ -1,0 +1,69 @@
+---
+// Shared footer: repeat CTA, sitemap, newsletter, and the trademark fineprint
+// (required on every page). The newsletter posts to Buttondown — create the
+// "turf" newsletter there before launch; the mailto below is the fallback.
+const year = 2026;
+---
+
+<footer id="get-started">
+  <div class="wrap">
+    <div class="foot-cta">
+      <p class="eyebrow"><span class="dot"></span> Free while in alpha</p>
+      <h2>Control your infrastructure AI with <span class="plan-word">Terraform plans</span>.</h2>
+      <div class="cta-row">
+        <a class="btn primary" href="/get-started">Try Turf free</a>
+        <a class="btn ghost" href="mailto:contact@turf.build">Talk to us</a>
+      </div>
+      <div class="install"><span class="ps1">$</span> brew install turfbuild/tap/turf</div>
+    </div>
+
+    <div class="foot-grid" id="sitemap">
+      <div class="foot-col">
+        <h4>Stay in the loop</h4>
+        <p class="blurb">Release notes, new capabilities, design-partner openings.</p>
+        <form
+          class="newsletter"
+          action="https://buttondown.email/api/emails/embed-subscribe/turf"
+          method="post"
+          target="popupwindow"
+        >
+          <input type="email" name="email" placeholder="you@company.com" aria-label="Email address" required />
+          <button class="btn primary small" type="submit">Subscribe</button>
+        </form>
+        <p class="blurb" style="margin-top:8px;">or email <a href="mailto:contact@turf.build?subject=Subscribe">contact@turf.build</a></p>
+      </div>
+      <div class="foot-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="/#product">How it works</a></li>
+          <li><a href="/compatibility">Compatibility</a></li>
+          <li><a href="/#solutions">Solutions</a></li>
+          <li><a href="/pricing">Pricing</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="/get-started">Get started</a></li>
+          <li><a href="/docs">Docs</a></li>
+          <li><a href="https://github.com/turfbuild/turf">GitHub</a></li>
+          <li><a href="https://github.com/turfbuild/turf-examples">Examples</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="mailto:contact@turf.build">contact@turf.build</a></li>
+          <li><a href="mailto:contact@turf.build?subject=Design%20partner">Design partners</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="fineprint">
+      <span class="full">Terraform® is a registered trademark of HashiCorp, Inc. OpenTofu™ is a trademark of the Linux Foundation. Turf is not affiliated with, endorsed by, or sponsored by HashiCorp, IBM, or the OpenTofu project.</span>
+      <span>© {year} turf.build — Turf is commercial software. The alpha is free under an evaluation license; the CLI source is MPL-2.0.</span>
+      <span class="mono">turf.build</span>
+    </div>
+  </div>
+</footer>

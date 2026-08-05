@@ -1,0 +1,26 @@
+---
+import Layout from '../layouts/Layout.astro';
+const title = 'Turf — Not found';
+const description = 'That page could not be found.';
+---
+
+<Layout title={title} description={description}>
+  <section class="subhero">
+    <div class="wrap">
+      <p class="eyebrow"><span class="dot"></span> 404</p>
+      <h1>Nothing planned here.</h1>
+      <p class="lede">That page doesn’t exist — nothing runs off-plan, after all. Head back to
+        solid ground:</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="cta-row">
+        <a class="btn primary" href="/">Home</a>
+        <a class="btn ghost" href="/get-started">Get started</a>
+        <a class="btn ghost" href="/compatibility">Compatibility</a>
+      </div>
+    </div>
+  </section>
+</Layout>

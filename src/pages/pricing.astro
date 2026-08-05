@@ -1,0 +1,63 @@
+---
+import Layout from '../layouts/Layout.astro';
+const title = 'Turf — Pricing';
+const description = 'Turf is free while in alpha. Design partners get discounted commercial terms and direct roadmap influence. Commercial licensing is coming.';
+---
+
+<Layout title={title} description={description}>
+  <section class="subhero">
+    <div class="wrap">
+      <p class="eyebrow"><span class="dot"></span> Pricing</p>
+      <h1>Free while in alpha.</h1>
+      <p class="lede">Use Turf today at no cost under an evaluation license. When you’re ready to run it
+        in earnest, partner with us early or talk to us about commercial terms.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="tiers">
+        <div class="tier">
+          <span class="name">Alpha</span>
+          <div class="price">Free <small>· evaluation license</small></div>
+          <p class="blurb">Everything Turf can do today, self-serve.</p>
+          <ul>
+            <li>CLI + MCP server via Homebrew</li>
+            <li>Signed container image on GHCR</li>
+            <li>Any MCP client; any model, including local</li>
+            <li>Community support</li>
+          </ul>
+          <div class="cta"><a class="btn ghost" href="/get-started">Get started</a></div>
+        </div>
+
+        <div class="tier featured">
+          <span class="name">Design partner</span>
+          <div class="price">Discounted <small>· commercial terms</small></div>
+          <p class="blurb">Build Turf with us around your real use case.</p>
+          <ul>
+            <li>White-glove onboarding</li>
+            <li>Direct roadmap influence</li>
+            <li>Discounted commercial terms while we build together</li>
+            <li>We work your layered-infra and policy-gate scenarios directly</li>
+          </ul>
+          <div class="cta"><a class="btn primary" href="mailto:contact@turf.build?subject=Design%20partner">Become a design partner</a></div>
+        </div>
+
+        <div class="tier">
+          <span class="name">Commercial</span>
+          <div class="price">Contact us</div>
+          <p class="blurb">Production licensing for teams and organizations.</p>
+          <ul>
+            <li>Commercial licensing (coming)</li>
+            <li>Support and SLAs</li>
+            <li>Deployment guidance (CLI, in-cluster via kagent)</li>
+          </ul>
+          <div class="cta"><a class="btn ghost" href="mailto:contact@turf.build?subject=Commercial">Talk to us</a></div>
+        </div>
+      </div>
+
+      <p class="foot-note">The Turf MCP server is commercial software; the Turf CLI source is MPL-2.0.
+        The alpha is free to use under an evaluation license — please don’t redistribute it.</p>
+    </div>
+  </section>
+</Layout>

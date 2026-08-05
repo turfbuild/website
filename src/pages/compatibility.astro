@@ -1,0 +1,193 @@
+---
+import Layout from '../layouts/Layout.astro';
+const title = 'Turf — Compatibility with Terraform & OpenTofu';
+const description = 'A three-way, radically honest comparison of Terraform 1.14, OpenTofu 1.11, and Turf — what Turf supports today, where it is ahead, and what is coming soon.';
+---
+<Layout title={title} description={description}>
+  <section class="subhero"><div class="wrap">
+    <p class="eyebrow"><span class="dot"></span> Compatibility · Terraform 1.14 · OpenTofu 1.11</p>
+    <h1>Radically honest compatibility.</h1>
+    <p class="lede">Turf inherits the OpenTofu engine wholesale — the whole expression language,
+    the function library, and the provider ecosystem. It runs <strong>ahead of OpenTofu</strong> on
+    actions and deferred changes, and it publishes every gap. Where a construct isn&rsquo;t supported
+    yet, Turf <strong>refuses loudly — it never silently mis-plans.</strong></p>
+  </div></section>
+
+  <section class="section"><div class="wrap">
+    <div class="prose">
+      <p>Terraform® and OpenTofu™ have genuinely diverged since the 2023 fork, so a three-way comparison
+      is the only honest one. The <strong>Turf</strong> column measures the drop-in, hand-authored form —
+      a <code>.tf</code> root module walked directly through the engine — because that is Turf&rsquo;s
+      real Terraform-replacement surface. A limitation there is a real language gap; a refusal is a
+      loud, deliberate one.</p>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+      <span class="li"><span class="sym s-yes">✅</span> Supported</span>
+      <span class="li"><span class="sym s-yes">⤵</span> Inherited from the OpenTofu engine</span>
+      <span class="li"><span class="sym s-part">◑</span> Partial — improving</span>
+      <span class="li"><span class="sym s-no">⚠️</span> Parsed, but diverges</span>
+      <span class="li"><span class="sym s-no">⛔</span> Refuses loudly (never mis-plans)</span>
+      <span class="li"><span class="sym s-no">➖</span> Coming soon</span>
+    </div>
+
+    <!-- 2.1 Top-level blocks -->
+    <div class="matrix-wrap"><table class="matrix">
+      <caption>Top-level blocks</caption>
+      <thead><tr><th>Construct</th><th class="c">Terraform 1.14</th><th class="c">OpenTofu 1.11</th><th class="c">Turf</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><th><code>resource</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Full resource support; also on the plot authoring whitelist.</td></tr>
+        <tr><th><code>data</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Data sources, read directly.</td></tr>
+        <tr><th><code>module</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Recursive registry / local / git module install and expansion.</td></tr>
+        <tr><th><code>variable</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Fully honored. The declared surface (type / default / sensitive) is modeled and values are supplied at plan time. <code>-var</code> is the value mechanism today; <code>.tfvars</code> / var-file inputs are coming soon.</td></tr>
+        <tr><th><code>output</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Outputs, including sensitive ones — a sensitive-valued output must be declared <code>sensitive</code> (a loud error, never silent auto-inference).</td></tr>
+        <tr><th><code>locals</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Fully honored in the codified walk. Authoring an ad-hoc plot local isn&rsquo;t wired yet — an additive convenience, not a language gap (author in codified form or promote).</td></tr>
+        <tr><th><code>provider</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">The non-secret provider block is written to config; credentials are supplied out-of-band, session-side.</td></tr>
+        <tr><th><code>terraform &#123;&#125;</code> settings</th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Hand-authored and read by the walk. In a plot, <code>backend</code> / <code>required_providers</code> / <code>provider_meta</code> are folded from per-unit metadata.</td></tr>
+        <tr><th><code>terraform.required_version</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-no">⚠️➖</td><td class="note-cell">Parsed but not yet enforced — version constraints aren&rsquo;t checked today. Coming soon.</td></tr>
+        <tr><th><code>backend</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">State backends. OpenTofu adds state / plan encryption; Turf inherits it through the backend (end-to-end verification coming).</td></tr>
+        <tr><th><code>provisioner</code> / <code>connection</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-no">⛔/⚠️</td><td class="note-cell">Refused as config keys — there is no provisioner runtime, so they never run silently. Use a provider or an action instead.</td></tr>
+        <tr><th><code>moved</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-no">⛔</td><td class="note-cell">Refused at plan today — Turf keeps addresses stable, so a rename plans no change. Honored <code>moved</code> state moves are coming soon; until then it refuses loudly rather than destroy-and-recreate.</td></tr>
+        <tr><th><code>import</code> block</th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-no">⚠️</td><td class="note-cell">The <code>import</code> block is parsed but not yet honored by the walk; the imperative resource-import tool is the supported path today. Coming soon.</td></tr>
+        <tr><th><code>removed</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Aggregated and folded into orphan / forget planning; <code>lifecycle &#123; destroy = false &#125;</code> becomes a state-only forget.</td></tr>
+        <tr><th><code>check</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-no">⚠️➖</td><td class="note-cell">Parsed but not yet evaluated — check assertions don&rsquo;t run today. Coming soon.</td></tr>
+        <tr><th><code>action</code> + <code>action_trigger</code></th><td class="c s-yes">✅</td><td class="c s-no">➖</td><td class="c s-yes">✅</td><td class="note-cell">The Terraform 1.14 action model, carried on Turf&rsquo;s engine — OpenTofu has no action blocks yet. <span class="pill ok">ahead of OpenTofu</span></td></tr>
+        <tr><th><code>ephemeral</code> resource</th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-no">➖</td><td class="note-cell">Ephemeral resources aren&rsquo;t supported yet — coming soon (parity with Terraform and OpenTofu).</td></tr>
+        <tr><th>write-only arguments</th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-no">➖</td><td class="note-cell">Write-only attributes aren&rsquo;t handled yet — coming soon (parity with Terraform and OpenTofu).</td></tr>
+        <tr><th>List resources / <code>list</code> block / <code>query</code></th><td class="c s-yes">✅</td><td class="c s-no">➖</td><td class="c s-no">➖</td><td class="note-cell">The Terraform 1.14 query paradigm (<code>list</code> blocks, <code>.tfquery.hcl</code>, <code>terraform query</code>) for bulk discovery and import. Coming soon; OpenTofu doesn&rsquo;t have it yet either.</td></tr>
+        <tr><th>resource identity (provider-declared)</th><td class="c s-yes">✅</td><td class="c s-no">➖</td><td class="c s-no">⚠️</td><td class="note-cell">Provider-declared resource identity (Terraform 1.12+) is not yet read or persisted, so a state carrying an identity object loses it on the next write. A round-trip fix is coming soon; see Known divergences below.</td></tr>
+        <tr><th>identity-based import</th><td class="c s-yes">✅</td><td class="c s-no">➖</td><td class="c s-no">➖</td><td class="note-cell">Import today adopts by string ID only; identity-object import is coming soon (it depends on the identity round-trip above).</td></tr>
+      </tbody>
+    </table></div>
+
+    <!-- 2.2 Meta-arguments -->
+    <div class="matrix-wrap"><table class="matrix">
+      <caption>Meta-arguments</caption>
+      <thead><tr><th>Meta-argument</th><th class="c">Terraform 1.14</th><th class="c">OpenTofu 1.11</th><th class="c">Turf</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><th><code>count</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Fully supported on codified resources and on modules. A plot&rsquo;s single-resource declare doesn&rsquo;t model it — author via a module or the codified form (ergonomics, not a gap).</td></tr>
+        <tr><th><code>for_each</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Same as <code>count</code> — codified resources and modules.</td></tr>
+        <tr><th><code>enabled</code> (module)</th><td class="c s-no">➖</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Turf&rsquo;s module-level <code>enabled</code> for conditional instantiation; mutually exclusive with <code>count</code> / <code>for_each</code>. Convergent with OpenTofu 1.11; absent from Terraform.</td></tr>
+        <tr><th><code>depends_on</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Modules and codified resources.</td></tr>
+        <tr><th><code>lifecycle.create_before_destroy</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Supported; forced create-before-destroy is propagated through the plan at approval.</td></tr>
+        <tr><th><code>lifecycle.prevent_destroy</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Errors if the plan would destroy the resource.</td></tr>
+        <tr><th><code>lifecycle.ignore_changes</code> (incl. <code>["all"]</code>)</th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-part">◑</td><td class="note-cell">Honored at preview today, but not yet consistent across every path (indexed paths and the apply path need work). Improving.</td></tr>
+        <tr><th><code>lifecycle.replace_triggered_by</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-no">➖</td><td class="note-cell">Not supported yet — coming soon.</td></tr>
+        <tr><th><code>lifecycle.precondition</code> / <code>postcondition</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-no">➖</td><td class="note-cell">Custom condition checks aren&rsquo;t modeled or evaluated yet — coming soon.</td></tr>
+        <tr><th><code>lifecycle.action_trigger</code></th><td class="c s-yes">✅</td><td class="c s-no">➖</td><td class="c s-yes">✅</td><td class="note-cell">The 1.14 action trigger. <code>on_failure = taint</code> is parsed but currently behaves as halt, and <code>condition</code> isn&rsquo;t evaluated yet — both coming soon. <span class="pill ok">ahead of OpenTofu</span></td></tr>
+        <tr><th><code>provider</code> / <code>providers = &#123;&#125;</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Resource <code>provider =</code> and module <code>providers = &#123;&#125;</code>, validated against <code>configuration_aliases</code>.</td></tr>
+        <tr><th><code>timeouts &#123;&#125;</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-no">➖</td><td class="note-cell">Not yet parsed or forwarded to the provider; providers run with their SDK defaults. Coming soon.</td></tr>
+      </tbody>
+    </table></div>
+
+    <!-- 2.3 Expressions & functions -->
+    <div class="matrix-wrap"><table class="matrix">
+      <caption>Expressions &amp; functions</caption>
+      <thead><tr><th>Feature</th><th class="c">Terraform 1.14</th><th class="c">OpenTofu 1.11</th><th class="c">Turf</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><th>for-expressions, conditionals, splat, <code>dynamic</code> blocks, string templates, full builtin function library</th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">⤵</td><td class="note-cell">Inherited wholesale from the OpenTofu engine — Turf imposes no function allow / deny list. All config expressions evaluate through the engine, and composite expressions and <code>dynamic</code> blocks survive the declare &rarr; unit &rarr; walk round-trip.</td></tr>
+        <tr><th>provider-defined functions (<code>provider::…</code>)</th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">⤵</td><td class="note-cell">Inherited via the engine; verify against a provider that exports functions.</td></tr>
+      </tbody>
+    </table></div>
+
+    <!-- 2.4 Plan / apply options & workflow -->
+    <div class="matrix-wrap"><table class="matrix">
+      <caption>Plan / apply options &amp; workflow</caption>
+      <thead><tr><th>Feature</th><th class="c">Terraform 1.14</th><th class="c">OpenTofu 1.11</th><th class="c">Turf</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><th><code>-target</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-no">⛔</td><td class="note-cell">Accepted by the schema but refused at runtime today — Turf plans the whole configuration rather than a silent partial apply. Coming soon.</td></tr>
+        <tr><th><code>-exclude</code></th><td class="c s-no">➖</td><td class="c s-yes">✅</td><td class="c s-no">⛔</td><td class="note-cell">Refused at runtime today; coming soon. (An OpenTofu-only flag — Terraform has no <code>-exclude</code>.)</td></tr>
+        <tr><th><code>-refresh-only</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-no">⛔</td><td class="note-cell">Refused at runtime today — coming soon.</td></tr>
+        <tr><th><code>-var-file</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-no">⛔</td><td class="note-cell">Refused today; use <code>-var</code>. File-based var inputs are coming soon.</td></tr>
+        <tr><th><code>-replace</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Honored — force replacement of a target resource.</td></tr>
+        <tr><th>destroy</th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Destroy plans the configuration plus every state orphan, reverse-dependency ordered; config files are left untouched.</td></tr>
+        <tr><th><code>-var</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">The single variables mechanism; in-memory only.</td></tr>
+        <tr><th>saved planfile round-trip</th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-no">➖</td><td class="note-cell">The copy-on-approve seal directory is the plan snapshot; <code>.tfplan</code> file emission and ingestion are coming soon.</td></tr>
+        <tr><th>provider <code>for_each</code> (multi-instance providers)</th><td class="c s-no">➖</td><td class="c s-yes">✅</td><td class="c s-no">⛔</td><td class="note-cell">Turf&rsquo;s provider model is strictly per-(name, alias) today, so a <code>for_each</code> provider can&rsquo;t be routed — it refuses rather than mis-route. Coming soon. (OpenTofu-only; Terraform has no provider <code>for_each</code>.)</td></tr>
+        <tr><th>state / plan encryption</th><td class="c s-no">➖</td><td class="c s-yes">✅</td><td class="c s-part">⤵?</td><td class="note-cell">Inherited through the backend; not yet verified end-to-end. (An OpenTofu-only feature.)</td></tr>
+        <tr><th>early variable evaluation</th><td class="c s-part">◑</td><td class="c s-yes">✅</td><td class="c s-yes">⤵</td><td class="note-cell">Inherited from the engine; verify.</td></tr>
+        <tr><th><code>.tftest.hcl</code> / <code>.tofutest.hcl</code> test runner</th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-no">➖</td><td class="note-cell">Turf is an MCP server, not a test runner, so the native HCL test files aren&rsquo;t executed.</td></tr>
+        <tr><th>deferred changes / deferral (&ldquo;try again later&rdquo;)</th><td class="c s-yes">✅</td><td class="c s-part">◑</td><td class="c s-yes">✅</td><td class="note-cell">A real Terraform capability — the mechanism behind unknown <code>count</code> / <code>for_each</code> / provider config, and the substrate for Stacks. Turf&rsquo;s distinctive form is a first-class, agent-driven, replan-based multi-phase convergence for any config — no experimental flag. <span class="pill ok">ahead of OpenTofu</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <!-- 2.5 HCL Stacks -->
+    <div class="matrix-wrap"><table class="matrix">
+      <caption>HCL Stacks (components &amp; deployments)</caption>
+      <thead><tr><th>Construct / capability</th><th class="c">Terraform 1.14</th><th class="c">OpenTofu 1.11</th><th class="c">Turf</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><th>Component config — <code>.tfcomponent.hcl</code>: <code>component</code> (wraps a module) plus stack-level <code>variable</code> / <code>output</code> / <code>provider</code> / <code>removed</code></th><td class="c s-yes">✅</td><td class="c s-no">➖</td><td class="c s-no">➖</td><td class="note-cell">Not parsed — Turf has no <code>component</code> block. Stacks is Terraform-only; OpenTofu has none of it either. Turf&rsquo;s multi-environment story is workspace fan-out (below).</td></tr>
+        <tr><th>Deployment config — <code>.tfdeploy.hcl</code>: <code>deployment</code>, <code>orchestrate</code>, <code>identity_token</code>, <code>publish_output</code> / <code>upstream_input</code>, <code>store</code></th><td class="c s-yes">✅</td><td class="c s-no">➖</td><td class="c s-no">➖</td><td class="note-cell">Not parsed — no <code>deployment</code> / <code>orchestrate</code> blocks. Terraform-only.</td></tr>
+        <tr><th>Capability: multi-environment, multi-round deployment</th><td class="c s-yes">✅</td><td class="c s-no">➖</td><td class="c s-part">◑</td><td class="note-cell">A different model, not the Stacks language: one registered configuration bound by N workspaces, each with its own backend and state — the staging / prod idiom — driven across rounds by phases and deferral. Honest caveat: this is workspace fan-out, not a single object that rolls out across deployments as a unit, and there&rsquo;s no <code>orchestrate</code> / <code>identity_token</code> / cross-stack output wiring yet.</td></tr>
+      </tbody>
+    </table></div>
+  </div></section>
+
+  <section class="section alt"><div class="wrap">
+    <h2>Known divergences from Terraform</h2>
+    <p class="prose">Published on purpose — Turf tells you where it differs, rather than surprising you later.</p>
+
+    <div class="callout warn"><h3>Discarding a plan and destroy leave your config files intact</h3><p>Cancelling a plan never rewrites files — that&rsquo;s git&rsquo;s job — and destroy empties <em>state</em>, not <em>configuration</em>. This is Terraform-convergent for destroy; it diverges only from older Turf behavior.</p></div>
+
+    <div class="callout warn"><h3><code>path.module</code> / <code>path.root</code> / <code>path.cwd</code> resolve in the executed view</h3><p>They resolve against the walked view, not the durable directory, so a <code>path.*</code>-derived attribute can differ between the two. Feeding one into a replacement-forcing attribute can cause churn — prefer stable inputs there. An in-memory overlay that removes the difference is coming soon.</p></div>
+
+    <div class="callout warn"><h3>A backend other than the declared one may be opened</h3><p>Opening a workspace binds a backend by its own arguments, independent of the config block — something Terraform can&rsquo;t do, because <code>init</code> always reads the block.</p></div>
+
+    <div class="callout warn"><h3>A config edited while its phase is executing doesn&rsquo;t affect that phase</h3><p>The sealed plan is authoritative — the same guarantee as Terraform applying a saved plan file.</p></div>
+
+    <div class="callout warn"><h3>Companion files that aren&rsquo;t plot units are invisible to staleness and the seal</h3><p>In a plot directory, only the <code>*.tfplot.hcl</code> units (and <code>.tf</code> files in a codified directory) participate in staleness checks and the seal.</p></div>
+
+    <div class="callout warn"><h3>Sensitive-value handling deliberately diverges</h3><p>Turf redacts by default (inverting OpenTofu&rsquo;s opt-out behavior), uses a sentinel marker rather than prose, tracks marks at top-level-attribute granularity for config-flow values, and doesn&rsquo;t serialize marks into a plan file. One open behavioral difference: a sensitivity-only change stays a no-op where OpenTofu would plan an update.</p></div>
+
+    <div class="callout warn"><h3>Resource identity is currently dropped on write (data-loss)</h3><p>A provider-declared resource identity (Terraform 1.12+) isn&rsquo;t yet read or persisted, so a state loaded with an <code>identity</code> object loses it on the next apply, import, or refresh. This is worse than merely unsupported — it can corrupt an otherwise-valid state on round-trip. A round-trip fix is coming soon; until then, avoid relying on identity with Turf.</p></div>
+
+    <p class="prose">Some boundaries match Terraform exactly, listed to pre-empt the question: module internals are
+    addressable only through declared outputs (<code>module.X.&lt;type&gt;.&lt;name&gt;.attr</code> is
+    rejected at plan, the same boundary Terraform enforces), and destroy is state-driven — it tears
+    down everything in state.</p>
+  </div></section>
+
+  <section class="section"><div class="wrap">
+    <h2>Beyond Terraform &amp; OpenTofu</h2>
+    <p class="prose">Turf inherits the whole engine — then adds an agent-oriented execution model on top.
+    A handful of capabilities have no Terraform or OpenTofu equivalent.</p>
+    <div class="pillars">
+      <div class="pillar">
+        <div class="glyph">if</div>
+        <h3>Module-level <code>enabled</code></h3>
+        <p>Conditional module instantiation, parallel to OpenTofu 1.11&rsquo;s <code>enabled</code> meta-argument.</p>
+      </div>
+      <div class="pillar">
+        <div class="glyph">▶</div>
+        <h3><code>turf_*</code> in-process actions</h3>
+        <p><code>turf_confirm</code> (agent elicitation) and <code>turf_action</code>, served by Turf&rsquo;s built-in provider identity and validated natively at plan time.</p>
+      </div>
+      <div class="pillar">
+        <div class="glyph">✎</div>
+        <h3>Per-declaration <code>intent</code></h3>
+        <p>Every unit carries an <code>intent</code> string that becomes a leading comment when a plot is promoted to idiomatic <code>.tf</code>.</p>
+      </div>
+      <div class="pillar">
+        <div class="glyph">∅</div>
+        <h3>State-only <code>forget</code></h3>
+        <p>Remove a resource from state while leaving the infrastructure running — no Terraform CLI equivalent — unioned with HCL <code>removed &#123; … destroy = false &#125;</code>.</p>
+      </div>
+      <div class="pillar">
+        <div class="glyph">⏸</div>
+        <h3>Agent-in-the-loop apply</h3>
+        <p>There is deliberately no <code>apply_all</code>; changes are enacted one effect at a time, so the agent — and you — can intervene between every step.</p>
+      </div>
+      <div class="pillar">
+        <div class="glyph">⇄</div>
+        <h3>Plot ↔ tofu + <code>config_promote</code></h3>
+        <p>Ad-hoc agent authoring graduates to idiomatic <code>.tf</code> via a walk-equivalent strip-fold-rename.</p>
+      </div>
+      <div class="pillar">
+        <div class="glyph">↻</div>
+        <h3>Agentic multi-phase deferral</h3>
+        <p>Deferral isn&rsquo;t Turf-native, but making it a first-class, agent-resolved convergence loop for <em>any</em> config is: a &ldquo;try again later&rdquo; records what to resolve, the agent resolves it, and replan re-walks until nothing remains — no experimental flag, no Stacks required.</p>
+      </div>
+    </div>
+  </div></section>
+</Layout>

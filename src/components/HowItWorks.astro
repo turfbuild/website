@@ -1,0 +1,41 @@
+<section class="band alt" id="product">
+  <div class="wrap">
+    <div class="band-head">
+      <h2>The plan is the governor.</h2>
+      <p>AI does the work. The plan keeps it honest. Here’s the loop every Turf change goes through.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <span class="n">step 1</span>
+        <h3>Declare intent</h3>
+        <p>Natural language, a diagram, or Terraform HCL — desired state always lands in a reviewable
+        configuration directory.</p>
+      </div>
+      <div class="step">
+        <span class="n">step 2</span>
+        <h3>Plan</h3>
+        <p>Turf produces a standard Terraform plan. Its effects become the agent’s TODO list —
+        it can’t act outside them.</p>
+      </div>
+      <div class="step gate">
+        <span class="n">step 3 · the gate</span>
+        <h3>You approve</h3>
+        <p>Humans and policy checks sign off on the plan. Nothing crosses the gate without approval
+        and clearance.</p>
+      </div>
+      <div class="step">
+        <span class="n">step 4</span>
+        <h3>Apply, one effect at a time</h3>
+        <p>There is deliberately no <code>apply_all</code>. Between effects the agent can pause,
+        take a backup, or ask for help.</p>
+      </div>
+      <div class="step">
+        <span class="n">step 5</span>
+        <h3>Replan &amp; converge</h3>
+        <p>Deferred work — the CRD that didn’t exist yet — loops back through a fresh plan until
+        the graph settles.</p>
+      </div>
+    </div>
+    <p class="loopnote"><span class="arr">↻</span> step 5 feeds back into step 2 — every round crosses the approval gate again</p>
+  </div>
+</section>

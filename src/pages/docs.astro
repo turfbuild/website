@@ -1,0 +1,28 @@
+---
+import Layout from '../layouts/Layout.astro';
+const title = 'Turf — Docs';
+const description = 'Turf documentation is on the way — versioned by release. In the meantime, get started and browse runnable examples.';
+---
+
+<Layout title={title} description={description}>
+  <section class="subhero">
+    <div class="wrap">
+      <p class="eyebrow"><span class="dot"></span> Docs · coming soon</p>
+      <h1>Documentation is on the way.</h1>
+      <p class="lede">We’re writing versioned docs to match each Turf release. Until they land, these
+        get you moving:</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap prose">
+      <ul>
+        <li><a href="/get-started">Get started</a> — install, wire up a model, run your first plan.</li>
+        <li><a href="/compatibility">Compatibility</a> — a three-way comparison of Terraform, OpenTofu, and Turf.</li>
+        <li><a href="https://github.com/turfbuild/turf-examples">Examples</a> — runnable stacks, including the Kubernetes deferral-convergence demo.</li>
+        <li><a href="https://github.com/turfbuild/turf">Turf on GitHub</a> — the CLI and release notes.</li>
+      </ul>
+      <p>Want a heads-up when docs go live? Subscribe from the footer.</p>
+    </div>
+  </section>
+</Layout>
