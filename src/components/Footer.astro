@@ -22,11 +22,13 @@ const year = 2026;
         <h4>Stay in the loop</h4>
         <p class="blurb">Release notes, new capabilities, design-partner openings.</p>
         <form
-          class="newsletter"
-          action="https://buttondown.email/api/emails/embed-subscribe/turf"
+          class="newsletter embeddable-buttondown-form"
+          action="https://buttondown.com/api/emails/embed-subscribe/turf"
           method="post"
           target="popupwindow"
+          onsubmit="window.open('https://buttondown.com/turf', 'popupwindow')"
         >
+          <input type="hidden" name="embed" value="1" />
           <input type="email" name="email" placeholder="you@company.com" aria-label="Email address" required />
           <button class="btn primary small" type="submit">Subscribe</button>
         </form>
@@ -56,6 +58,7 @@ const year = 2026;
           <li><a href="mailto:contact@turf.build">contact@turf.build</a></li>
           <li><a href="mailto:contact@turf.build?subject=Design%20partner">Design partners</a></li>
           <li><a href="/contact">Contact</a></li>
+          <li><a href="https://www.linkedin.com/company/turfbuild/">LinkedIn</a></li>
         </ul>
       </div>
     </div>
