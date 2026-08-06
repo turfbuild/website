@@ -1,0 +1,286 @@
+---
+import Layout from '../layouts/Layout.astro';
+const title = 'Turf — Kubernetes stack demo';
+const description =
+  'Watch Turf converge a Kubernetes stack — a kind cluster, a CRD, and a custom resource — in a single governed `turf up`, then tear it down with `turf destroy`. Every phase is planned and approved.';
+const exampleUrl =
+  'https://github.com/turfbuild/turf-examples/tree/main/terraform/kubernetes/kind-crd';
+---
+
+<Layout title={title} description={description}>
+  <section class="subhero">
+    <div class="wrap">
+      <p class="eyebrow"><span class="dot"></span> Demo · Kubernetes stacks</p>
+      <h1>One <code class="mono">turf up</code>. The whole stack converges.</h1>
+      <p class="lede">A kind cluster, a <code>CustomResourceDefinition</code>, and an instance of
+        it — three resources that each depend on the previous one <strong>existing</strong>.
+        Terraform makes you apply these in awkward stages. Turf converges all three in a single,
+        governed run.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <figure class="demo-figure">
+        <video
+          class="demo-video"
+          controls
+          autoplay
+          muted
+          playsinline
+          preload="metadata"
+          poster="/demos/kind-crd-up-poster.png"
+        >
+          <source src="/demos/kind-crd-up.webm" type="video/webm" />
+          <source src="/demos/kind-crd-up.mp4" type="video/mp4" />
+          Your browser can't play this video —
+          <a href="/demos/kind-crd-up.mp4">download the MP4</a>.
+        </video>
+        <figcaption class="demo-cap">
+          <code class="mono">turf up</code> — cluster → CRD → custom resource, converged in one run.
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section alt">
+    <div class="wrap">
+      <div class="prose demo-config-head">
+        <h2>One config. Three phases.</h2>
+        <p>The whole demo is a single Terraform file. Each resource can only be created once the one
+          above it exists — so Turf converges it in three planned, approved phases, configuring the
+          kubernetes provider in Phase 2 once the cluster's endpoint is known. The phase labels and
+          effects below are exactly what <code class="mono">turf up</code> computes; nothing is edited
+          or staged by hand.</p>
+      </div>
+
+      <div class="codeblock demo-config">
+        <div class="cb-head">
+          <span>main.tf</span>
+          <span class="cb-legend"><span class="mk">+</span> create · each phase planned &amp; approved</span>
+        </div>
+        <div class="demo-config-body">
+          <div class="ph ph-1">
+            <div class="ph-tag">
+              <span class="ph-name">Phase 1 · create</span>
+              <span class="ph-eff"><span class="mk">+</span> kind_cluster.demo</span>
+            </div>
+<pre><span class="cm"># A local Kubernetes cluster running as Docker containers via kind.</span>
+<span class="kw">resource</span> <span class="str">"kind_cluster"</span> <span class="str">"demo"</span> &#123;
+  name           = var.cluster_name
+  node_image     = var.node_image
+  wait_for_ready = true
+&#125;</pre>
+          </div>
+
+          <div class="ph ph-2">
+            <div class="ph-tag">
+              <span class="ph-name">Phase 2 · create</span>
+              <span class="ph-eff"><span class="mk">+</span> kubernetes_manifest.crd</span>
+            </div>
+<pre><span class="cm"># The kubernetes provider binds to the cluster's computed endpoint — unknown</span>
+<span class="cm"># until Phase 1 applied. Turf configures it here, then reloads it so the new</span>
+<span class="cm"># CRD's API is discoverable.</span>
+<span class="kw">provider</span> <span class="str">"kubernetes"</span> &#123;
+  host                   = kind_cluster.demo.endpoint
+  client_certificate     = kind_cluster.demo.client_certificate
+  client_key             = kind_cluster.demo.client_key
+  cluster_ca_certificate = kind_cluster.demo.cluster_ca_certificate
+&#125;
+
+<span class="cm"># Registers a new API kind, demo.local/v1 "Turf".</span>
+<span class="kw">resource</span> <span class="str">"kubernetes_manifest"</span> <span class="str">"crd"</span> &#123;
+  manifest = &#123; <span class="cm"># … CustomResourceDefinition for turfs.demo.local (elided) …</span> &#125;
+&#125;</pre>
+          </div>
+
+          <div class="ph ph-3">
+            <div class="ph-tag">
+              <span class="ph-name">Phase 3 · create</span>
+              <span class="ph-eff"><span class="mk">+</span> kubernetes_manifest.instance</span>
+            </div>
+<pre><span class="cm"># The "Turf" kind does not exist until the CRD applies, so this cannot be</span>
+<span class="cm"># planned until Phase 2 is live. depends_on orders it; Turf defers it here.</span>
+<span class="kw">resource</span> <span class="str">"kubernetes_manifest"</span> <span class="str">"instance"</span> &#123;
+  <span class="kw">depends_on</span> = [kubernetes_manifest.crd]
+  manifest   = &#123;
+    apiVersion = <span class="str">"demo.local/v1"</span>
+    kind       = <span class="str">"Turf"</span>
+    metadata   = &#123; name = <span class="str">"example-turf"</span> &#125;
+    spec       = &#123; message = var.cr_message &#125;
+  &#125;
+&#125;</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="prose demo-config-foot">
+        <p>No <code>-target</code>, no staged applies, no edits to your <code>.tf</code> — the
+          deferral loop converges the file as-is. Browse the full configuration
+          <a href={exampleUrl}>on GitHub</a>.</p>
+        <p class="demo-ctas">
+          <a class="btn primary" href={exampleUrl}>Run it yourself →</a>
+          <a class="btn ghost" href="/get-started">Install Turf →</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <figure class="demo-figure">
+        <video
+          class="demo-video"
+          controls
+          muted
+          playsinline
+          preload="metadata"
+          poster="/demos/kind-crd-destroy-poster.png"
+        >
+          <source src="/demos/kind-crd-destroy.webm" type="video/webm" />
+          <source src="/demos/kind-crd-destroy.mp4" type="video/mp4" />
+          Your browser can't play this video —
+          <a href="/demos/kind-crd-destroy.mp4">download the MP4</a>.
+        </video>
+        <figcaption class="demo-cap">
+          <code class="mono">turf destroy</code> — reverse-dependency teardown: custom resource → CRD →
+          cluster.
+        </figcaption>
+      </figure>
+
+      <div class="prose demo-prose">
+        <p>Tear it all down the same way it came up — planned and approved, in reverse dependency
+          order. No cloud account or credentials required: kind runs the cluster as local Docker
+          containers, so the whole demo is free to run yourself.</p>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .demo-figure {
+    margin: 0 0 clamp(20px, 3vw, 32px);
+  }
+  .demo-video {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--hair-strong);
+    background: var(--term-bg);
+  }
+  .demo-cap {
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 14px;
+    text-align: center;
+  }
+  .demo-cap code {
+    font-size: 12.5px;
+  }
+  .demo-prose {
+    margin-top: clamp(20px, 3vw, 32px);
+  }
+  .demo-ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 22px;
+  }
+
+  /* ── HCL phase diagram ─────────────────────────────────────────────
+     A raised, theme-aware PANEL (not the terminal-black of the videos),
+     with a solid colored header bar per convergence phase.            */
+  .demo-config-head {
+    margin-bottom: clamp(18px, 2.5vw, 26px);
+  }
+  .demo-config-foot {
+    margin-top: clamp(18px, 2.5vw, 26px);
+  }
+  .demo-config {
+    border: 1px solid var(--hair-strong);
+  }
+  .demo-config .cb-head {
+    background: var(--panel-2);
+    color: var(--muted);
+    border-bottom: 1px solid var(--hair);
+  }
+  .cb-legend {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--faint);
+    letter-spacing: 0.02em;
+  }
+  .mk {
+    color: var(--ok);
+    font-weight: 700;
+  }
+  .demo-config-body {
+    background: var(--panel);
+  }
+
+  .ph {
+    --ph: var(--ok);
+    --ph-bg: var(--ok-bg);
+    --ph-fg: var(--ok-deep);
+    border-left: 4px solid var(--ph);
+    background: color-mix(in srgb, var(--ph) 6%, var(--panel));
+  }
+  .ph-2 {
+    --ph: var(--inh);
+    --ph-bg: var(--inh-bg);
+    --ph-fg: var(--inh);
+  }
+  .ph-3 {
+    --ph: var(--part);
+    --ph-bg: var(--part-bg);
+    --ph-fg: var(--part);
+  }
+  .ph + .ph {
+    border-top: 1px solid var(--hair);
+  }
+  .ph-tag {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    padding: 9px 16px;
+    background: var(--ph-bg);
+    color: var(--ph-fg);
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-bottom: 1px solid color-mix(in srgb, var(--ph) 30%, transparent);
+  }
+  .ph-name {
+    color: var(--ph-fg);
+  }
+  .ph-eff {
+    color: var(--ph-fg);
+    font-weight: 700;
+  }
+  /* panel-tuned syntax colors + tighter padding; beats the global `.codeblock pre` */
+  .demo-config .ph pre {
+    margin: 0;
+    padding: 12px 16px 16px;
+    background: transparent;
+    overflow-x: auto;
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .demo-config pre .cm {
+    color: var(--faint);
+  }
+  .demo-config pre .kw {
+    color: var(--inh);
+    font-weight: 600;
+  }
+  .demo-config pre .str {
+    color: var(--ok-deep);
+  }
+</style>

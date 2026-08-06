@@ -11,7 +11,10 @@
         <h3>Kubernetes stacks</h3>
         <p>Cluster + addons (operators, CRDs) + workloads (manifests, Helm charts) in one converging
         deploy. Deferrals bridge the “CRD doesn’t exist yet” gap natively.</p>
-        <a class="runit" href="https://github.com/turfbuild/turf-examples/tree/main/terraform/kubernetes/kind-crd">run it yourself →</a>
+        <div class="sol-cta">
+          <a class="runit" href="/demo">watch the demo →</a>
+          <a class="runit" href="https://github.com/turfbuild/turf-examples/tree/main/terraform/kubernetes/kind-crd">run it yourself →</a>
+        </div>
       </div>
       <div class="sol">
         <span class="tagline">Fits your stack</span>
@@ -30,3 +33,9 @@
     </div>
   </div>
 </section>
+
+<style>
+  /* Flagship card: two CTAs (watch the demo · run it yourself) on one row. */
+  .sol-cta { display: flex; flex-wrap: wrap; gap: 16px; }
+  .sol-cta .runit { margin-top: 12px; }
+</style>
