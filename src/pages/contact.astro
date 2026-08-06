@@ -39,4 +39,99 @@ const description = 'Talk to the Turf team — design-partner inquiries, commerc
         any page, or follow <a href="https://www.linkedin.com/company/turfbuild/">Turf on LinkedIn</a>.</p>
     </div>
   </section>
+
+  <section class="section alt" id="about">
+    <div class="wrap">
+      <p class="eyebrow"><span class="dot"></span> About us</p>
+      <h2>Meet the founders.</h2>
+      <p class="lede">We’re Eron and Tonya Wright, co-founders of Turf LLC, a family-run business
+        operating out of Depoe Bay, Oregon, USA. We started Turf because we think the IaC community is
+        ready for a new Terraform®-class tool, one with semantic reasoning and built for integrators.</p>
+
+      <div class="founders">
+        <div class="founder">
+          <img class="headshot" src="/eron-wright.jpg" alt="Eron Wright, co-founder of Turf"
+            width="150" height="188" loading="lazy" />
+          <div class="prose">
+            <h3>Eron Wright — Co-founder</h3>
+            <p>Eron has spent his career at the foundations of cloud infrastructure. As a former
+              principal engineer at <a href="https://www.pulumi.com/">Pulumi</a>, he was a developer and
+              maintainer of the Pulumi Kubernetes Operator, Pulumi providers, and the Pulumi Go Provider
+              SDK.</p>
+            <p>Before Pulumi, he built SaaS data-streaming platforms based on Kubernetes and Apache
+              Flink, and earlier still he helped shape Microsoft’s first Infrastructure-as-a-Service
+              offering as part of the core Azure team. Across all of it, one thread holds: a focus on
+              making powerful infrastructure safer and easier to operate.</p>
+            <p>At Turf, Eron leads the engineering team — turning years of hands-on IaC experience into a
+              reconciliation engine that reasons about your infrastructure instead of blindly grinding
+              through a dependency graph.</p>
+            <p><a href="https://www.linkedin.com/in/eronwright/">Connect with Eron on LinkedIn →</a></p>
+          </div>
+        </div>
+
+        <div class="founder">
+          <img class="headshot" src="/tonya-wright.jpg" alt="Tonya Wright, co-founder of Turf"
+            width="150" height="188" loading="lazy" />
+          <div class="prose">
+            <h3>Tonya Wright — Co-founder</h3>
+            <p>Tonya is the founder and photographer behind Nest &amp; Love Photography, a business
+              she’s run on the Oregon Coast for nearly a decade. A commercial and lifestyle photographer
+              known for moody, cinematic imagery — blending photojournalism with a nostalgic,
+              film-inspired aesthetic — she has documented more than 200 weddings and 300 couples’
+              sessions, and created brand work for dozens of small businesses. Her photography has been
+              published in multiple magazines, including two covers.</p>
+            <p>Running a client-driven business for that long takes exactly the instincts a young company
+              needs: earning trust, understanding what people truly want, and delivering it on time and
+              with care. That customer obsession is Tonya’s north star, and it’s the standard she holds
+              Turf to. Where Eron thinks about what Turf <em>can</em> do, Tonya keeps us honest about
+              what our customers actually <em>need</em>.</p>
+            <p>She also brings a deep commitment to community. Through Nest &amp; Love she has donated
+              thousands of dollars, hundreds of hours, and more than 90 photo sessions to nonprofits,
+              schools, and neighbors who deserved to be seen — supporting causes from ocean conservation
+              with the Marine Mammal Institute to the West Columbia Gorge Humane Society and Habitat for
+              Humanity. That same generosity of spirit is one we want at the heart of how Turf treats its
+              customers and its community.</p>
+            <p>Tonya handles daily operations at Turf.</p>
+            <p><a href="https://www.linkedin.com/in/tonya-wright-932414159/">Connect with Tonya on LinkedIn →</a></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="prose why">
+        <h2>Why we built Turf</h2>
+        <p>Every day, we trust infrastructure tools to make changes to our most important environments
+          and resources. The risk of disruption and data loss is frankly understated, and increases as
+          these tools are hidden below layers of automation, simply because visibility decreases.</p>
+        <p>We believe reasoning LLMs, used safely and deliberately, bring much-needed supervision to
+          infrastructure ops. We want to “shift-right” the semantic knowledge about your resources and
+          policies towards the point where infrastructure is actually touched. Meanwhile, users want to
+          “shift-left” their infrastructure configurations using Terraform modules and HCL. LLMs are
+          increasingly responsible for writing those configurations — how about implementing them?</p>
+        <p>At the same time, users and organizations don’t want click-ops at AI speed. Turf drives
+          infrastructure change using Terraform plans that are subject to human approval, policy checks,
+          and more. The LLM serves as the executor of the plan, following a strict TODO list and
+          observing the effects.</p>
+        <p>We’re thrilled to bring this modern approach to the IaC community — and we’d love for you to
+          be part of it. Have a question, or just want to talk shop?
+          <a href="mailto:contact@turf.build">Get in touch</a>.</p>
+      </div>
+    </div>
+  </section>
 </Layout>
+
+<style>
+  .founders { display: flex; flex-direction: column; gap: clamp(28px, 4vw, 44px); margin-top: 30px; }
+  .founder { display: grid; grid-template-columns: 150px 1fr; gap: clamp(20px, 3vw, 36px); align-items: start; }
+  .founder .prose { max-width: 62ch; }
+  .founder .prose h3 { margin-top: 0; }
+  .headshot {
+    width: 150px; aspect-ratio: 4 / 5; object-fit: cover;
+    border-radius: 16px; border: 1px solid var(--hair);
+    box-shadow: var(--shadow); background: var(--panel-2);
+  }
+  .why { max-width: 70ch; margin-top: clamp(30px, 4vw, 48px); }
+  @media (max-width: 620px) {
+    .founder { grid-template-columns: 1fr; }
+    .headshot { width: 128px; }
+  }
+</style>
