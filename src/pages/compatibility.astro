@@ -1,11 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
 const title = 'Turf — Compatibility with Terraform & OpenTofu';
-const description = 'A three-way, radically honest comparison of Terraform 1.14, OpenTofu 1.11, and Turf — what Turf supports today, where it is ahead, and what is coming soon.';
+const description = 'A three-way, radically honest comparison of Terraform 1.14, OpenTofu 1.12, and Turf — what Turf supports today, where it is ahead, and what is coming soon.';
 ---
 <Layout title={title} description={description}>
   <section class="subhero"><div class="wrap">
-    <p class="eyebrow"><span class="dot"></span> Compatibility · Terraform 1.14 · OpenTofu 1.11</p>
+    <p class="eyebrow"><span class="dot"></span> Compatibility · Terraform 1.14 · OpenTofu 1.12</p>
     <h1>Radically honest compatibility.</h1>
     <p class="lede">Turf is built on the OpenTofu framework — the whole expression language,
     the function library, and the provider ecosystem. It runs <strong>ahead of OpenTofu</strong> on
@@ -27,7 +27,7 @@ const description = 'A three-way, radically honest comparison of Terraform 1.14,
     <!-- 2.1 Top-level blocks -->
     <div class="matrix-wrap"><table class="matrix">
       <caption>Top-level blocks</caption>
-      <thead><tr><th>Construct</th><th class="c">Terraform 1.14</th><th class="c">OpenTofu 1.11</th><th class="c">Turf</th><th>Notes</th></tr></thead>
+      <thead><tr><th>Construct</th><th class="c">Terraform 1.14</th><th class="c">OpenTofu 1.12</th><th class="c">Turf</th><th>Notes</th></tr></thead>
       <tbody>
         <tr><th><code>resource</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Full resource support; also on the plot authoring whitelist.</td></tr>
         <tr><th><code>data</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Data sources, read directly.</td></tr>
@@ -48,15 +48,15 @@ const description = 'A three-way, radically honest comparison of Terraform 1.14,
         <tr><th><code>ephemeral</code> resource</th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-no">➖</td><td class="note-cell">Ephemeral resources aren&rsquo;t supported yet — coming soon (parity with Terraform and OpenTofu).</td></tr>
         <tr><th>write-only arguments</th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-no">➖</td><td class="note-cell">Write-only attributes aren&rsquo;t handled yet — coming soon (parity with Terraform and OpenTofu).</td></tr>
         <tr><th>List resources / <code>list</code> block / <code>query</code></th><td class="c s-yes">✅</td><td class="c s-no">➖</td><td class="c s-no">➖</td><td class="note-cell">The Terraform 1.14 query paradigm (<code>list</code> blocks, <code>.tfquery.hcl</code>, <code>terraform query</code>) for bulk discovery and import. Coming soon; OpenTofu doesn&rsquo;t have it yet either.</td></tr>
-        <tr><th>resource identity (provider-declared)</th><td class="c s-yes">✅</td><td class="c s-no">➖</td><td class="c s-no">⚠️</td><td class="note-cell">Provider-declared resource identity (Terraform 1.12+) is not yet read or persisted, so a state carrying an identity object loses it on the next write. A round-trip fix is coming soon.</td></tr>
-        <tr><th>identity-based import</th><td class="c s-yes">✅</td><td class="c s-no">➖</td><td class="c s-no">➖</td><td class="note-cell">Import today adopts by string ID only; identity-object import is coming soon (it depends on the identity round-trip above).</td></tr>
+        <tr><th>resource identity (provider-declared)</th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Provider-declared resource identity (Terraform 1.12+, OpenTofu 1.12+) is read from the provider on read / plan / apply / import and persisted in the state file itself — so a state carrying an identity object round-trips through Turf unchanged, and identity Turf writes is readable by <code>tofu</code>. Identity-schema upgrades are handled. It’s informational: it never changes a plan action.</td></tr>
+        <tr><th>identity-based import</th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Import adopts a resource by either a string ID or a structured <code>identity</code> object, validated against the provider’s identity schema before the call so a malformed identity is reported against that schema rather than as a provider error.</td></tr>
       </tbody>
     </table></div>
 
     <!-- 2.2 Meta-arguments -->
     <div class="matrix-wrap"><table class="matrix">
       <caption>Meta-arguments</caption>
-      <thead><tr><th>Meta-argument</th><th class="c">Terraform 1.14</th><th class="c">OpenTofu 1.11</th><th class="c">Turf</th><th>Notes</th></tr></thead>
+      <thead><tr><th>Meta-argument</th><th class="c">Terraform 1.14</th><th class="c">OpenTofu 1.12</th><th class="c">Turf</th><th>Notes</th></tr></thead>
       <tbody>
         <tr><th><code>count</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Fully supported on codified resources and on modules. A plot&rsquo;s single-resource declare doesn&rsquo;t model it — author via a module or the codified form (ergonomics, not a gap).</td></tr>
         <tr><th><code>for_each</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Same as <code>count</code> — codified resources and modules.</td></tr>
@@ -76,7 +76,7 @@ const description = 'A three-way, radically honest comparison of Terraform 1.14,
     <!-- 2.3 Expressions & functions -->
     <div class="matrix-wrap"><table class="matrix">
       <caption>Expressions &amp; functions</caption>
-      <thead><tr><th>Feature</th><th class="c">Terraform 1.14</th><th class="c">OpenTofu 1.11</th><th class="c">Turf</th><th>Notes</th></tr></thead>
+      <thead><tr><th>Feature</th><th class="c">Terraform 1.14</th><th class="c">OpenTofu 1.12</th><th class="c">Turf</th><th>Notes</th></tr></thead>
       <tbody>
         <tr><th>for-expressions, conditionals, splat, <code>dynamic</code> blocks, string templates, full builtin function library</th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">The whole expression language and builtin function library — Turf imposes no function allow / deny list. Composite expressions and <code>dynamic</code> blocks survive the declare &rarr; unit &rarr; walk round-trip.</td></tr>
         <tr><th>provider-defined functions (<code>provider::…</code>)</th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Supported — verify against a provider that exports functions.</td></tr>
@@ -86,7 +86,7 @@ const description = 'A three-way, radically honest comparison of Terraform 1.14,
     <!-- 2.4 Plan / apply options & workflow -->
     <div class="matrix-wrap"><table class="matrix">
       <caption>Plan / apply options &amp; workflow</caption>
-      <thead><tr><th>Feature</th><th class="c">Terraform 1.14</th><th class="c">OpenTofu 1.11</th><th class="c">Turf</th><th>Notes</th></tr></thead>
+      <thead><tr><th>Feature</th><th class="c">Terraform 1.14</th><th class="c">OpenTofu 1.12</th><th class="c">Turf</th><th>Notes</th></tr></thead>
       <tbody>
         <tr><th><code>-target</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-no">⛔</td><td class="note-cell">Accepted by the schema but refused at runtime today — Turf plans the whole configuration rather than a silent partial apply. Coming soon.</td></tr>
         <tr><th><code>-exclude</code></th><td class="c s-no">➖</td><td class="c s-yes">✅</td><td class="c s-no">⛔</td><td class="note-cell">Refused at runtime today; coming soon. (An OpenTofu-only flag — Terraform has no <code>-exclude</code>.)</td></tr>
@@ -107,7 +107,7 @@ const description = 'A three-way, radically honest comparison of Terraform 1.14,
     <!-- 2.5 HCL Stacks -->
     <div class="matrix-wrap"><table class="matrix">
       <caption>HCL Stacks (components &amp; deployments)</caption>
-      <thead><tr><th>Construct / capability</th><th class="c">Terraform 1.14</th><th class="c">OpenTofu 1.11</th><th class="c">Turf</th><th>Notes</th></tr></thead>
+      <thead><tr><th>Construct / capability</th><th class="c">Terraform 1.14</th><th class="c">OpenTofu 1.12</th><th class="c">Turf</th><th>Notes</th></tr></thead>
       <tbody>
         <tr><th>Component config — <code>.tfcomponent.hcl</code>: <code>component</code> (wraps a module) plus stack-level <code>variable</code> / <code>output</code> / <code>provider</code> / <code>removed</code></th><td class="c s-yes">✅</td><td class="c s-no">➖</td><td class="c s-no">➖</td><td class="note-cell">Not parsed — Turf has no <code>component</code> block. Stacks is Terraform-only; OpenTofu has none of it either. Turf&rsquo;s multi-environment story is workspace fan-out (below).</td></tr>
         <tr><th>Deployment config — <code>.tfdeploy.hcl</code>: <code>deployment</code>, <code>orchestrate</code>, <code>identity_token</code>, <code>publish_output</code> / <code>upstream_input</code>, <code>store</code></th><td class="c s-yes">✅</td><td class="c s-no">➖</td><td class="c s-no">➖</td><td class="note-cell">Not parsed — no <code>deployment</code> / <code>orchestrate</code> blocks. Terraform-only.</td></tr>
