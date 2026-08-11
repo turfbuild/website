@@ -1,0 +1,271 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const title = 'Turf — Scalr integration demo';
+const description =
+  "Turf is an MCP server at its core. Point it at the Terraform automation platform you already run and it brings that platform's state backend, variables, and OPA policy checks into its own planning and execution loop. Worked here with Scalr.";
+const exampleUrl =
+  'https://github.com/turfbuild/turf-examples/tree/main/integrations/scalr';
+---
+
+<Layout title={title} description={description}>
+  <section class="subhero">
+    <div class="wrap">
+      <p class="eyebrow"><span class="dot"></span> Demo · Turf loves TACOs</p>
+      <h1>Turf speaks your control plane's language.</h1>
+      <p class="lede">Turf is an MCP server at its core, and a drop-in replacement for
+        Terraform®. Point it at the automation platform you already run and it brings that
+        platform — <strong>your state backend, your variables, your OPA policy checks</strong> —
+        into its own planning and execution loop, through the platform's own MCP tools and a
+        skill that knows how to drive them. Worked here with <a href="https://scalr.io">Scalr</a>.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="prose">
+        <p class="eyebrow"><span class="dot"></span> How it works</p>
+        <h2>Two MCP servers and a skill.</h2>
+        <p>There is no Scalr plugin inside Turf. The integration is configuration: a
+          <code>mcps:</code> block naming the servers to connect to, and a skill that carries the
+          call sequences. Turf reads both at start-up, and the platform's tools sit alongside its
+          own for the rest of the session.</p>
+      </div>
+
+      <div class="codeblock">
+        <div class="cb-head">
+          <span>.turf/turf.yaml</span>
+          <span class="cb-legend">the whole integration</span>
+        </div>
+<pre><span class="cm"># External MCP servers the Turf session connects to alongside its own</span>
+<span class="cm"># turf-mcp-server. Tools arrive namespaced: scalr_* and opa_*.</span>
+<span class="kw">mcps</span>:
+  <span class="kw">scalr</span>:
+    command: docker
+    args: [run, --rm, -i, --env, SCALR_API_TOKEN, --env, SCALR_API_URL, scalr/mcp-server:latest]
+  <span class="kw">opa</span>:
+    command: docker
+    args: [run, --rm, -i, orygn/opa-mcp:latest]</pre>
+      </div>
+
+      <div class="prose demo-prose">
+        <p>The skill sits beside it in <code>.turf/skills/scalr/</code> — when to load, which call
+          resolves a workspace name to an ID, how a policy group leads to the rego that governs
+          it. The tools are the reach; the skill is knowing what to do with them. That is how a
+          platform teaches Turf its own conventions without anyone shipping a new Turf.</p>
+        <p>And because Turf is an MCP server first, none of this is tied to a terminal. The same
+          session runs under any MCP client over stdio or HTTP, inside a container in CI, or
+          in-cluster as an agent via <a href="https://kagent.dev">kagent</a> — interactively, as
+          in the run below, or unattended with tool approval delegated for the whole session.
+          Driving Turf from other agents over the network is coming soon.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section alt">
+    <div class="wrap">
+      <div class="prose">
+        <p class="eyebrow"><span class="dot"></span> 01 · State</p>
+        <h2>Your platform holds the state.</h2>
+        <p>The Scalr workspace here is <strong>state-storage-only</strong>: it holds state and
+          executes nothing. Turf declares a <code>remote</code> backend against it and opens it
+          for the session. Turf is the engine, Scalr is the control plane — and everything that
+          follows happens because Scalr never gets a run of its own to hang its features on.</p>
+      </div>
+
+      <figure class="shot-figure">
+        <img
+          class="shot"
+          src="/demos/scalr/02-backend.png"
+          alt="Turf's session log: Declare Backend remote, declared into main.tfplot.hcl, with hostname turf.scalr.io, organization turf-demo, and workspaces name turf-scalr-chat; then Open Workspace default, remote."
+          width="1600"
+          height="444"
+          loading="lazy"
+        />
+        <figcaption class="pp-caption left">The backend is authored in the session, then opened —
+          state lives in the <code>turf-scalr-chat</code> workspace from here on.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="prose">
+        <p class="eyebrow"><span class="dot"></span> 02 · Variables</p>
+        <h2>Your platform holds the variables.</h2>
+        <p>Scalr injects workspace variables into runs that Scalr executes. There is no such run
+          here — so nothing is injected, and on a state-storage-only workspace those variables
+          would simply go unused. Turf asks the Scalr API for them instead, over the same MCP
+          connection, and they are available to the plan like any other input.</p>
+      </div>
+
+      <figure class="shot-figure">
+        <img
+          class="shot"
+          src="/demos/scalr/03-vars.png"
+          alt="Turf's session log: a scalr_list_variables call against the turf-scalr-chat workspace, the raw Scalr API response, and Turf's summary table listing the Terraform variables region = us-east-1 and greeting = hello-from-scalr. A closing line reads: no config was initialized, no backend declared, and no workspace was opened — this was a direct read via the Scalr API only."
+          width="1600"
+          height="526"
+          loading="lazy"
+        />
+        <figcaption class="pp-caption left">Variables read straight from the control plane, in the
+          middle of the session that needs them — no config, no backend, no workspace opened.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section alt">
+    <div class="wrap">
+      <div class="prose">
+        <p class="eyebrow"><span class="dot"></span> 03 · Policy checks</p>
+        <h2>Your platform's policy, at the decision point.</h2>
+        <p>Same shape, higher stakes. Scalr's OPA policy checks also fire only on Scalr-executed
+          runs, so this workspace gets none of them. Turf goes and finds them: which policy group
+          governs the workspace's environment, which rego it points at, and what each policy's
+          enforcement level is. Then it exports the plan and hands both to OPA.</p>
+        <p>The ask was <em>a random pet with name length 1</em>. Nothing told Turf that was a
+          problem — <code>readable_pet_names</code> is <strong>hard-mandatory</strong> and
+          requires 2.</p>
+      </div>
+
+      <figure class="shot-figure">
+        <img
+          class="shot"
+          src="/demos/scalr/04-gate.png"
+          alt="Turf's session log: Scalr's hard-mandatory policy readable_pet_names, from policy group turf-demo-guardrails, denies the current plan because random_pet length should be at least 2 and got 1. Turf proposes raising length to 2 and asks whether to apply that remedy and re-plan, with a yes / no / cancel prompt."
+          width="1600"
+          height="370"
+          loading="lazy"
+        />
+        <figcaption class="pp-caption left">The check runs on the plan, before the apply — and the
+          denial stops it there.</figcaption>
+      </figure>
+
+      <div class="prose demo-prose">
+        <p>Hard-mandatory is not advice a session can talk its way past. The plan is not
+          approvable, so the only way forward is a plan that complies — and changing what you
+          asked for is itself a decision, so it comes back to you as a question rather than
+          something quietly fixed on the way through.</p>
+        <p>Nothing here is a Turf-specific rewrite of your governance. It is the rego already
+          synced into the policy group, in the shape Scalr expects — package
+          <code>terraform</code>, a <code>deny</code> set of readable strings, the plan at
+          <code>input.tfplan</code>:</p>
+      </div>
+
+      <div class="codeblock">
+        <div class="cb-head">
+          <span>policies/readable_pet_names.rego</span>
+          <span class="cb-legend">hard-mandatory · synced to the Scalr policy group</span>
+        </div>
+<pre><span class="kw">package</span> terraform
+
+<span class="kw">import</span> rego.v1
+
+deny contains reason <span class="kw">if</span> &#123;
+  <span class="kw">some</span> rc <span class="kw">in</span> input.tfplan.resource_changes
+  rc.type == <span class="str">"random_pet"</span>
+  rc.change.after.length &lt; <span class="str">2</span>
+  reason := sprintf(
+    <span class="str">"%s: random_pet length should be &gt;= 2 for readable names (got %d)"</span>,
+    [rc.address, rc.change.after.length],
+  )
+&#125;</pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="prose">
+        <p class="eyebrow"><span class="dot"></span> 04 · The apply</p>
+        <h2>Remedied, re-checked, applied.</h2>
+        <p>You approve the remedy. Turf re-plans at the compliant length, re-evaluates both
+          policies, and brings the corrected plan back for the ordinary approval — then applies
+          it and writes the state to Scalr.</p>
+      </div>
+
+      <figure class="shot-figure">
+        <video
+          class="demo-video"
+          controls
+          muted
+          loop
+          playsinline
+          preload="metadata"
+          poster="/demos/scalr/finale-poster.png"
+          width="1600"
+          height="550"
+        >
+          <source src="/demos/scalr-finale.webm" type="video/webm" />
+          <source src="/demos/scalr-finale.mp4" type="video/mp4" />
+          Your browser can't play this video —
+          <a href="/demos/scalr-finale.mp4">download the MP4</a>.
+        </video>
+        <figcaption class="pp-caption left">The last seven seconds of the run: both policies pass,
+          the plan is approved, and <code>model-goshawk</code> is created at the length the policy
+          requires — with Turf saying plainly why you didn't get the 1 you asked for.</figcaption>
+      </figure>
+
+      <div class="prose demo-prose">
+        <p>The same composition reaches the rest of the platform: a module from your private
+          registry, your org's own skills, whatever else the control plane exposes. And it matters
+          most where nobody is watching — the session runs unattended just as well, and a policy
+          check that lives inside the loop still stops the plan when it has to.</p>
+        <p class="demo-ctas">
+          <a class="btn primary" href={exampleUrl}>Run it yourself →</a>
+          <a class="btn ghost" href="/get-started">Install Turf →</a>
+        </p>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  /* Terminal stills. Framed like .codeblock rather than like .demo-video: a border
+     mixed mostly from --term-bg reads as a deliberate object in BOTH themes, where a
+     plain --hair-strong hairline leaves a dark screenshot looking like a hole punched
+     in the dark-mode panel. */
+  .shot {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    border: 1px solid color-mix(in srgb, var(--term-bg) 70%, var(--hair-strong));
+    background: var(--term-bg);
+  }
+  .shot-figure {
+    margin: 0;
+  }
+  .pp-caption.left {
+    margin-top: 10px;
+    max-width: 80ch;
+  }
+  /* Mirrors pages/demo.astro — same video treatment, kept page-local. */
+  .demo-video {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--hair-strong);
+    background: var(--term-bg);
+  }
+  .demo-prose {
+    margin-top: clamp(20px, 3vw, 32px);
+  }
+  .demo-ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 22px;
+  }
+  .cb-legend {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--faint);
+    letter-spacing: 0.02em;
+  }
+  .prose > h2 {
+    margin-bottom: 12px;
+  }
+</style>
