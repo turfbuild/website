@@ -216,6 +216,13 @@ deny contains reason <span class="kw">if</span> &#123;
           <a class="btn ghost" href="/demo">Kubernetes demo →</a>
         </p>
       </div>
+
+      <p class="legal-note">Scalr is a trademark of Scalr, Inc., referred to here only to describe
+        interoperability. Turf is not affiliated with, endorsed by, or sponsored by Scalr, Inc.
+        Every screenshot and clip on this page is Turf's own terminal output from a live session;
+        use of the Scalr service is governed by
+        <a href="https://scalr.com/legal/terms-and-conditions" rel="nofollow">Scalr's terms and
+        conditions</a>.</p>
     </div>
   </section>
 </Layout>
@@ -268,5 +275,24 @@ deny contains reason <span class="kw">if</span> &#123;
   }
   .prose > h2 {
     margin-bottom: 12px;
+  }
+  /* Nominative-use disclaimer for the third-party mark. The global footer fineprint
+     covers HashiCorp/OpenTofu only, and Scalr is named on this page alone. Matched to
+     .fineprint's size/color so it reads as legal text, not as body copy. */
+  .legal-note {
+    margin-top: clamp(28px, 4vw, 44px);
+    padding-top: 18px;
+    border-top: 1px solid var(--hair);
+    max-width: 92ch;
+    color: var(--faint);
+    font-size: 12.5px;
+    line-height: 1.6;
+  }
+  .legal-note a {
+    color: inherit;
+    text-decoration: underline;
+  }
+  .legal-note a:hover {
+    color: var(--ink);
   }
 </style>
