@@ -441,6 +441,35 @@ footer { border-top: 1px solid var(--hair); background: var(--panel); }
   display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between;
 }
 .fineprint .full { flex-basis: 100%; }
+.fineprint .linkish {
+  font: inherit; color: var(--faint); background: none; border: 0; padding: 0;
+  cursor: pointer; text-decoration: underline;
+}
+.fineprint .linkish:hover { color: var(--ink); }
+
+/* cookie consent */
+.consent {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+  background: var(--panel); border-top: 1px solid var(--hair-strong); box-shadow: var(--shadow);
+}
+.consent[hidden] { display: none; }
+.consent-inner {
+  max-width: var(--maxw); margin: 0 auto; padding: 14px clamp(20px, 5vw, 40px);
+  display: flex; align-items: center; flex-wrap: wrap; gap: 12px 24px;
+}
+.consent p { margin: 0; flex: 1 1 340px; color: var(--muted); font-size: 13.5px; }
+.consent a { color: var(--ok-deep); }
+.consent-actions { display: flex; gap: 10px; margin-left: auto; }
+@media (max-width: 560px) {
+  .consent-actions { width: 100%; margin-left: 0; }
+  .consent-actions .btn { flex: 1; justify-content: center; }
+}
+.consent:not([hidden]) { animation: consent-in .26s ease-out both; }
+@keyframes consent-in {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .consent:not([hidden]) { animation: none; } }
 
 /* ---------- subpages (Compatibility, Get started, Pricing, Contact, Docs) ---------- */
 .subhero { position: relative; border-bottom: 1px solid var(--hair); background: var(--panel); overflow: hidden; }

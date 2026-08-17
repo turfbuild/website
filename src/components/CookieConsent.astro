@@ -1,0 +1,97 @@
+---
+// Opt-in cookie consent. Nothing tracking-related loads until the visitor accepts:
+// both Google Analytics and the LinkedIn Insight Tag are injected at runtime by
+// loadTags() below, which is why they no longer appear as markup in Layout.astro.
+//
+// LinkedIn's snippet ships a <noscript> pixel too. It's deliberately omitted — it
+// can't read a consent choice, so including it would fire unconditionally.
+//
+// The script is `is:inline`, so Vite never touches it and import.meta.env is NOT
+// substituted inside it. The dev/prod split therefore happens here, at build time.
+const tagLoader = import.meta.env.PROD
+  ? `
+    /* Google tag (gtag.js) */
+    var g = document.createElement('script');
+    g.async = true;
+    g.src = 'https://www.googletagmanager.com/gtag/js?id=G-HYNQ83NRR2';
+    document.head.appendChild(g);
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-HYNQ83NRR2');
+
+    /* LinkedIn Insight Tag */
+    _linkedin_partner_id = "9817980";
+    window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || [];
+    window._linkedin_data_partner_ids.push(_linkedin_partner_id);
+    (function(l) {
+    if (!l){window.lintrk = function(a,b){window.lintrk.q.push([a,b])};
+    window.lintrk.q=[]}
+    var s = document.getElementsByTagName("script")[0];
+    var b = document.createElement("script");
+    b.type = "text/javascript";b.async = true;
+    b.src = "https://snap.licdn.com/li.lms-analytics/insight.min.js";
+    s.parentNode.insertBefore(b, s);})(window.lintrk);
+`
+  : `    /* dev build: consent is recorded, but no tags are loaded */
+    console.info('[consent] granted — tags are disabled in dev builds');
+`;
+
+const script = `(function () {
+  var KEY = 'turf.consent';
+  var el = document.getElementById('consent');
+  var loaded = false;
+
+  function loadTags() {
+    if (loaded) return;
+    loaded = true;
+${tagLoader}  }
+
+  function read() {
+    try { return localStorage.getItem(KEY); } catch (e) { return null; }
+  }
+  function write(value) {
+    try { localStorage.setItem(KEY, value); } catch (e) {}
+  }
+
+  var stored = read();
+  if (stored === 'granted') loadTags();
+  else if (stored !== 'denied' && el) el.hidden = false;
+
+  if (el) {
+    el.addEventListener('click', function (e) {
+      var btn = e.target.closest && e.target.closest('[data-consent]');
+      if (!btn) return;
+      var choice = btn.getAttribute('data-consent');
+      write(choice);
+      el.hidden = true;
+      if (choice === 'granted') loadTags();
+    });
+  }
+
+  /* Footer "Cookie settings": clears the stored choice and re-shows the banner.
+     Hidden in markup so it never appears without JS to make it work. */
+  Array.prototype.forEach.call(document.querySelectorAll('[data-consent-reopen]'), function (b) {
+    b.hidden = false;
+  });
+  document.addEventListener('click', function (e) {
+    var reopen = e.target.closest && e.target.closest('[data-consent-reopen]');
+    if (!reopen || !el) return;
+    try { localStorage.removeItem(KEY); } catch (err) {}
+    el.hidden = false;
+  });
+})();`;
+---
+
+<div class="consent" id="consent" role="region" aria-label="Cookie consent" hidden>
+  <div class="consent-inner">
+    <p>Turf uses cookies to measure site traffic and how our ads perform. Nothing is set until you
+      accept — see the <a href="/privacy">privacy policy</a>.</p>
+    <div class="consent-actions">
+      <button class="btn ghost small" type="button" data-consent="denied">Decline</button>
+      <button class="btn primary small" type="button" data-consent="granted">Accept</button>
+    </div>
+  </div>
+</div>
+
+<script is:inline set:html={script} />
