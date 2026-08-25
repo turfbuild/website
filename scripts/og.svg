@@ -26,14 +26,14 @@
   </g>
 
   <!-- eyebrow -->
-  <text x="82" y="548" class="mono" font-size="21" letter-spacing="3" fill="#52c88a">INFRASTRUCTURE AGENT · GOVERNED BY THE PLAN</text>
+  <text x="82" y="548" class="mono" font-size="21" letter-spacing="3" fill="#52c88a">AI-NATIVE INFRASTRUCTURE ENGINE · GOVERNED BY THE PLAN</text>
 
   <!-- headline -->
-  <text x="78" y="622" class="disp" font-size="62" letter-spacing="-2" fill="#e7efeb">Control your infrastructure AI</text>
-  <text x="78" y="696" class="disp" font-size="62" letter-spacing="-2" fill="#e7efeb">with <tspan class="mono" font-size="52" fill="#6fdba1">Terraform plans</tspan>.</text>
+  <text x="78" y="622" class="disp" font-size="62" letter-spacing="-2" fill="#e7efeb">The infrastructure engine</text>
+  <text x="78" y="696" class="disp" font-size="62" letter-spacing="-2" fill="#e7efeb">built for <tspan class="mono" font-size="52" fill="#6fdba1">AI agents</tspan>.</text>
 
   <!-- subline -->
-  <text x="82" y="772" class="disp" font-weight="500" font-size="25" fill="#9baba4">A drop-in replacement for Terraform — every change planned, visible, approved.</text>
+  <text x="82" y="772" class="disp" font-weight="500" font-size="25" fill="#9baba4">Terraform-compatible at any scale — every change planned, visible, approved.</text>
 
   <!-- accent bar -->
   <rect x="82" y="806" width="132" height="6" rx="3" fill="#147a48"/>

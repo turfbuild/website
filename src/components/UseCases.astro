@@ -1,0 +1,75 @@
+<section class="band" id="use-cases">
+  <!-- Legacy anchor: this section replaced Solutions (#solutions), so stale
+       inbound links still land on product content. -->
+  <span id="solutions"></span>
+  <div class="wrap">
+    <div class="band-head">
+      <h2>One engine. Five ways to put it to work.</h2>
+      <p>From a laptop experiment to a datacenter build-out — the same plans, the same gate,
+      the same converging loop.</p>
+    </div>
+    <div class="solutions use-cases">
+      <div class="sol">
+        <span class="tagline">Scale</span>
+        <h3>Terraform at 10x scale</h3>
+        <p>Thousands of resources per stack. Turf’s durable, scale-out engine parallelizes
+        provider operations until the cloud API — not the tool — is the ceiling. Run a
+        Kubernetes cluster as your control plane for infrastructure ops, or run it all on
+        a laptop.</p>
+      </div>
+      <div class="sol">
+        <span class="tagline">Datacenter</span>
+        <h3>Datacenter automation</h3>
+        <p>Orchestrate the build-out: servers, networks, Kubernetes, workloads. <b>Terraform</b>,
+        <b>Ansible</b>, and <b>Helm</b> converge in one governed run — powered by Terraform Actions,
+        which Turf runs and stock OpenTofu doesn’t — and day-2 operations are plannable too.</p>
+        <div class="sol-cta">
+          <a class="runit" href="/demo">watch the demo →</a>
+          <a class="runit" href="https://github.com/turfbuild/turf-examples/tree/main/terraform/language/actions">run day-2 actions →</a>
+        </div>
+      </div>
+      <div class="sol">
+        <span class="tagline">Embedded</span>
+        <h3>Autonomous products</h3>
+        <p>Turf is a smart installation tool for your AI product: it automates the
+        infrastructure layer — in your cloud or your customer’s account — from any mix of
+        HCL and natural language. Deploy an enterprise data lake from a reference
+        architecture; Turf auto-detects and heals drift.</p>
+        <a class="runit" href="mailto:contact@turf.build?subject=Autonomous%20products">talk to us →</a>
+      </div>
+      <div class="sol">
+        <span class="tagline">Governed</span>
+        <h3>AI under control</h3>
+        <p>Every change is planned, visible, and approved before it happens. The Terraform
+        plan becomes the agent’s TODO list — worked one effect at a time, with a gate
+        between every round. Nothing runs off-plan.</p>
+        <a class="runit" href="/#product">see how it works →</a>
+      </div>
+      <div class="sol">
+        <span class="tagline">MCP-native</span>
+        <h3>Agentic infrastructure-as-code</h3>
+        <p>Turf is an MCP server at its core. Drive it from Claude Code, Claude Desktop,
+        Codex, or VS Code — natural language or HCL, or both — to plan and carry out any
+        sort of infrastructure change.</p>
+        <a class="runit" href="/get-started">get started →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Five cards on the 3-column .solutions grid: 3 on the first row, 2 wider on
+     the second. Cards with two CTAs keep them on one row (as Solutions did). */
+  .use-cases { grid-template-columns: repeat(6, 1fr); }
+  .use-cases .sol { grid-column: span 2; }
+  .use-cases .sol:nth-child(4) { grid-column: 1 / span 3; }
+  .use-cases .sol:nth-child(5) { grid-column: 4 / span 3; }
+  @media (max-width: 860px) {
+    .use-cases { grid-template-columns: 1fr; }
+    .use-cases .sol,
+    .use-cases .sol:nth-child(4),
+    .use-cases .sol:nth-child(5) { grid-column: auto; }
+  }
+  .sol-cta { display: flex; flex-wrap: wrap; gap: 16px; }
+  .sol-cta .runit { margin-top: 12px; }
+</style>

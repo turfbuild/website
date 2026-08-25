@@ -1,7 +1,7 @@
 # turf.build
 
-The product marketing site for **Turf** — a drop-in replacement for Terraform that lets an AI
-agent operate your infrastructure, governed by the plan.
+The product marketing site for **Turf** — the infrastructure engine built for AI agents:
+Terraform-compatible, MCP-native, governed by the plan.
 
 Built with [Astro](https://astro.build), deployed to **GitHub Pages** at the apex domain
 `turf.build`. Ships as a static site with zero client JS except one small inlined hero animation.

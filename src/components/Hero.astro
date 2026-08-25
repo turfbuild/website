@@ -7,10 +7,10 @@
 <header class="hero" id="top">
   <div class="wrap hero-grid">
     <div>
-      <p class="eyebrow"><span class="dot"></span> Infrastructure agent · governed by the plan</p>
-      <h1>Control your infrastructure AI with <span class="plan-word">Terraform plans</span>.</h1>
-      <p class="lede">Turf is a drop-in replacement for Terraform® that lets an AI agent
-        operate your infrastructure — governed by the artifact your team already trusts. Every change is
+      <p class="eyebrow"><span class="dot"></span> AI-native infrastructure engine · governed by the plan</p>
+      <h1>The infrastructure engine built for <span class="plan-word rotor" id="hero-rotor">AI agents</span>.</h1>
+      <p class="lede">Turf plans, applies, and converges Terraform®-compatible infrastructure
+        at any scale — driven by agents in natural language or HCL. Every change is
         <strong>planned, visible, and approved</strong> before it happens.
         <strong>Nothing runs off-plan.</strong></p>
       <div class="cta-row">
@@ -143,4 +143,29 @@
     }
     run();
   })();
+
+  // Rotating headline: the four positioning pillars cycle through the
+  // highlighted phrase. Static "AI agents" under prefers-reduced-motion
+  // (and with JS disabled — the markup renders it).
+  (function () {
+    const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const rotor = document.getElementById('hero-rotor');
+    if (reduced || !rotor) return;
+    const phrases = ['AI agents', '10x scale', 'datacenters', 'data products'];
+    let i = 0;
+    setInterval(function () {
+      rotor.classList.add('fade');
+      setTimeout(function () {
+        i = (i + 1) % phrases.length;
+        rotor.textContent = phrases[i];
+        rotor.classList.remove('fade');
+      }, 350);
+    }, 3200);
+  })();
 </script>
+
+<style>
+  /* Cross-fade for the rotating headline phrase. */
+  .rotor { transition: opacity 0.35s ease; }
+  .rotor.fade { opacity: 0; }
+</style>
