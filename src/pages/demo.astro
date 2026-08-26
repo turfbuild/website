@@ -1,13 +1,50 @@
 ---
 import Layout from '../layouts/Layout.astro';
-const title = 'Turf — Kubernetes stack demo';
+const title = 'Turf — Kubernetes stack demo: one turf up, converged';
 const description =
-  'Watch Turf converge a Kubernetes stack — a kind cluster, a CRD, and a custom resource — in a single governed `turf up`, then tear it down with `turf destroy`. Every phase is planned and approved.';
+  'Watch Turf converge a Kubernetes stack — a kind cluster, a CRD, and a custom resource — in one governed turf up, then tear it down with turf destroy.';
 const exampleUrl =
   'https://github.com/turfbuild/turf-examples/tree/main/terraform/kubernetes/kind-crd';
+
+// VideoObject per screencast. `uploadDate` is the date the asset landed in git and
+// `duration` comes from ffprobe — re-derive both if the recordings are replaced:
+//   git log --diff-filter=A --format=%aI -1 -- public/demos/<name>.mp4
+//   ffprobe -v error -show_entries format=duration -of csv=p=0 public/demos/<name>.mp4
+const site = 'https://turf.build';
+// Inlined rather than an `@id` reference to the home page's Organization node —
+// a cross-page @id doesn't resolve, so the publisher would read as an empty node.
+const publisher = { '@type': 'Organization', '@id': `${site}/#organization`, name: 'Turf' };
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'VideoObject',
+    name: 'Turf converges a Kubernetes stack in one turf up',
+    description:
+      'A kind cluster, a CustomResourceDefinition, and an instance of it — three resources that each depend on the previous one existing. Turf plans them across phases and converges all three in a single governed run.',
+    thumbnailUrl: `${site}/demos/kind-crd-up-poster.png`,
+    contentUrl: `${site}/demos/kind-crd-up.mp4`,
+    encodingFormat: 'video/mp4',
+    duration: 'PT34S',
+    uploadDate: '2026-08-06',
+    publisher: publisher,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'VideoObject',
+    name: 'Turf tears the stack down with turf destroy',
+    description:
+      'Reverse-dependency teardown of the same Kubernetes stack: custom resource, then CustomResourceDefinition, then the kind cluster — planned and approved before anything is removed.',
+    thumbnailUrl: `${site}/demos/kind-crd-destroy-poster.png`,
+    contentUrl: `${site}/demos/kind-crd-destroy.mp4`,
+    encodingFormat: 'video/mp4',
+    duration: 'PT20S',
+    uploadDate: '2026-08-06',
+    publisher: publisher,
+  },
+];
 ---
 
-<Layout title={title} description={description}>
+<Layout title={title} description={description} jsonLd={jsonLd}>
   <section class="subhero">
     <div class="wrap">
       <p class="eyebrow"><span class="dot"></span> Demo · Kubernetes stacks</p>
@@ -120,8 +157,8 @@ const exampleUrl =
           <a href={exampleUrl}>on GitHub</a>.</p>
         <p class="demo-ctas">
           <a class="btn primary" href={exampleUrl}>Run it yourself →</a>
-          <a class="btn ghost" href="/get-started">Install Turf →</a>
-          <a class="btn ghost" href="/demo/scalr">Scalr demo →</a>
+          <a class="btn ghost" href="/get-started/">Install Turf →</a>
+          <a class="btn ghost" href="/demo/scalr/">Scalr demo →</a>
         </p>
       </div>
     </div>

@@ -1,0 +1,12 @@
+---
+// Renders a schema.org JSON-LD block. Pages never hand-write the <script> tag —
+// they pass a plain object (or array of objects) to Layout's `jsonLd` prop and it
+// arrives here. `set:html` keeps Astro from parsing the JSON's braces as JSX
+// expressions, and `is:inline` keeps Vite from treating it as a module to bundle.
+interface Props {
+  schema: unknown;
+}
+const { schema } = Astro.props;
+---
+
+<script type="application/ld+json" is:inline set:html={JSON.stringify(schema)} />

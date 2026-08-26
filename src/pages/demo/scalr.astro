@@ -1,13 +1,43 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-const title = 'Turf — Scalr integration demo';
+const title = 'Turf — Scalr integration: MCP-native state & policy';
 const description =
-  "Turf is an MCP server at its core. Point it at the Terraform automation platform you already run and it brings that platform's state backend, variables, and OPA policy checks into its own planning and execution loop. Worked here with Scalr.";
+  'An MCP server at its core, Turf folds the Terraform automation platform you already run — its state backend, variables, and OPA policy checks — into the plan.';
 const exampleUrl =
   'https://github.com/turfbuild/turf-examples/tree/main/integrations/scalr';
+
+// See demo.astro for how `duration` and `uploadDate` are derived. The BreadcrumbList
+// is here and nowhere else — this is the only page on the site two levels deep.
+const site = 'https://turf.build';
+// See demo.astro: inlined, not an `@id` reference to the home page's node.
+const publisher = { '@type': 'Organization', '@id': `${site}/#organization`, name: 'Turf' };
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'VideoObject',
+    name: 'Turf applies a plan through Scalr policy checks',
+    description:
+      'The last seven seconds of the run: both OPA policies pass, the plan is approved, and the resource is created at the length the policy requires — with Turf saying plainly why.',
+    thumbnailUrl: `${site}/demos/scalr/finale-poster.png`,
+    contentUrl: `${site}/demos/scalr-finale.mp4`,
+    encodingFormat: 'video/mp4',
+    duration: 'PT7S',
+    uploadDate: '2026-08-11',
+    publisher: publisher,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Turf', item: `${site}/` },
+      { '@type': 'ListItem', position: 2, name: 'Demo', item: `${site}/demo/` },
+      { '@type': 'ListItem', position: 3, name: 'Scalr integration' },
+    ],
+  },
+];
 ---
 
-<Layout title={title} description={description}>
+<Layout title={title} description={description} jsonLd={jsonLd}>
   <section class="subhero">
     <div class="wrap">
       <p class="eyebrow"><span class="dot"></span> Demo · Turf loves TACOs</p>
@@ -212,8 +242,8 @@ deny contains reason <span class="kw">if</span> &#123;
           check that lives inside the loop still stops the plan when it has to.</p>
         <p class="demo-ctas">
           <a class="btn primary" href={exampleUrl}>Run it yourself →</a>
-          <a class="btn ghost" href="/get-started">Install Turf →</a>
-          <a class="btn ghost" href="/demo">Kubernetes demo →</a>
+          <a class="btn ghost" href="/get-started/">Install Turf →</a>
+          <a class="btn ghost" href="/demo/">Kubernetes demo →</a>
         </p>
       </div>
 

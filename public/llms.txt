@@ -1,0 +1,51 @@
+# Turf
+
+> The infrastructure engine built for AI agents. Turf plans, applies, and converges
+> Terraform-compatible infrastructure at any scale — driven by agents in natural language
+> or HCL. Every change is planned, visible, and approved before it happens.
+
+Turf is Terraform-compatible infrastructure as code exposed to AI agents as an MCP server,
+built on OpenTofu providers. It runs your existing configurations — HCL, modules, providers —
+unchanged. The engine (`turf-mcp-server`) is the product; the Turf CLI (`turf`) is one way to
+consume it, and any MCP client is another. Installing with `brew install turfbuild/tap/turf`
+puts both on your PATH.
+
+The governing idea: Turf produces the plan, and the Terraform plan becomes the agent's TODO
+list — worked one effect at a time, with an approval gate between rounds. Nothing runs
+off-plan. Turf is alpha software; some capabilities are marked coming soon on the site.
+
+## Start here
+
+- [Get started](https://turf.build/get-started/): install the CLI and MCP server, wire it into Claude Code, Codex, Gemini CLI, VS Code, or any MCP client, and run a first plan.
+- [Compatibility](https://turf.build/compatibility/): a three-way comparison of Terraform 1.14, OpenTofu 1.12, and Turf — what is supported today, where Turf is ahead (actions, deferred changes), and what is coming soon.
+- [Kubernetes stack demo](https://turf.build/demo/): a kind cluster, a CRD, and a custom resource converged in one governed run, then torn down.
+- [Scalr integration demo](https://turf.build/demo/scalr/): folding an existing Terraform automation platform's state backend, variables, and OPA policy checks into the plan.
+
+## Use cases
+
+The five positioning pillars, all covered at [turf.build/#use-cases](https://turf.build/#use-cases):
+
+- **Terraform at 10x scale** — thousands of resources per stack; a durable, scale-out engine parallelizes provider operations until the cloud API, not the tool, is the ceiling. Run a Kubernetes cluster as a control plane for infrastructure ops, or run it all on a laptop.
+- **Datacenter automation** — orchestrate the build-out of servers, networks, Kubernetes, and workloads. Terraform, Ansible, and Helm converge in one governed run via Terraform actions. Day-2 operations are plannable too.
+- **Autonomous products** — Turf as a smart installation tool for an AI-native application or data product: it automates the infrastructure layer, in your cloud or a customer's account, from any mix of HCL and natural language, and auto-detects and heals drift.
+- **Governed AI operations** — every change planned, visible, and approved, with a gate between every round.
+- **Agentic infrastructure as code** — an MCP server at its core, driven from any MCP client to plan and carry out any sort of infrastructure change.
+
+## Source and examples
+
+- [turfbuild/turf](https://github.com/turfbuild/turf): the Turf CLI and `turf-mcp-server`, alpha binary releases.
+- [turfbuild/turf-examples](https://github.com/turfbuild/turf-examples): runnable HCL examples, agent definitions, and integrations.
+- [turfbuild/opentofu](https://github.com/turfbuild/opentofu): the OpenTofu fork Turf builds on (MPL-2.0), alongside forks of the provider client and the tfcoremock test provider.
+
+## Company
+
+- [Pricing](https://turf.build/pricing/): self-serve alpha evaluation, design-partner terms, and commercial licensing.
+- [Contact](https://turf.build/contact/): design-partner engagements, licensing, and `security@turf.build` for private security reports.
+- [Privacy](https://turf.build/privacy/)
+
+## Notes
+
+Turf is an independent product built on the OpenTofu framework. Terraform® is a registered
+trademark of HashiCorp, Inc. OpenTofu™ is a trademark of the Linux Foundation. Turf is not
+affiliated with, endorsed by, or sponsored by HashiCorp, IBM, or the OpenTofu project.
+"Terraform" is used here only to describe compatibility.

@@ -21,6 +21,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          # Full history: astro.config.mjs derives each sitemap `lastmod` from the
+          # page's last commit date. Under the default shallow clone `git log`
+          # returns nothing for most paths and every lastmod would silently
+          # collapse to the build commit.
+          fetch-depth: 0
       - uses: actions/setup-node@v7
         with:
           node-version: 22

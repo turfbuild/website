@@ -38,10 +38,25 @@ Any new token must be added to all of those blocks, or it will break in one mode
 hex value in markup — use `var(--ink)`, `var(--ok)`, `var(--muted)`, etc.
 
 **Layout owns all `<head>` concerns.** `Layout.astro` derives the canonical URL and OG image from
-`Astro.site`, renders OG/Twitter meta, preloads the self-hosted woff2, and gates the Google Analytics
-tag behind `import.meta.env.PROD` (so dev never sends hits). Pages pass only `title` / `description`.
-Titles are Turf-leading (`Turf — …`). `TopNav` and `Footer` are rendered by the layout, so pages
-render body content only.
+`Astro.site`, renders OG/Twitter meta (including the image's declared type/dimensions/alt, so
+scrapers that never fetch `og.png` still render a full card), preloads the self-hosted woff2, and
+gates the Google Analytics tag behind `import.meta.env.PROD` (so dev never sends hits). `TopNav` and
+`Footer` are rendered by the layout, so pages render body content only.
+
+Pages pass four props, all optional: `title`, `description`, `noindex`, `jsonLd`.
+- **`noindex`** emits `robots: noindex,follow` *and* suppresses `canonical`/`og:url` — only `404.astro`
+  uses it. A self-canonical pointing at a route that doesn't exist is worse than no canonical.
+- **`jsonLd`** takes a schema.org node or array of them and renders each through
+  `components/JsonLd.astro` (`set:html` + `is:inline`, which keeps Astro from parsing the JSON's
+  braces as JSX). **Never hand-write an `application/ld+json` script tag into a page.** Home carries
+  `Organization` + `WebSite` + `SoftwareApplication` cross-referenced by `@id`; the two demo pages
+  carry `VideoObject` per screencast, and `/demo/scalr/` adds the site's only `BreadcrumbList`.
+  The `SoftwareApplication` node **deliberately omits `offers`** — a `price: 0` would assert the
+  product is free, contradicting `/pricing/`. Don't add one.
+- **Titles stay Turf-leading (`Turf — …`)** — reaffirmed 2026-08-25 — but must earn the full SERP
+  budget: aim 50-60 characters and put query terms after the dash (`Turf — Get started: install the
+  CLI and MCP server`, not `Turf — Get started`). **Descriptions run 140-158 characters, plain text**
+  — no backticks or markdown; they render literally in a result snippet.
 
 **Pages compose components; the home page composes them all.** `pages/index.astro` is nothing but an
 ordered list of section components — Hero, UseCases, FearStrip, HowItWorks, CompatibilityTeaser,
@@ -115,6 +130,17 @@ any copy round. Treat the headline as fixed unless the user reopens it.
 - **Literal `{` / `}` inside `<pre>` must be escaped as `&#123;` / `&#125;`.** Astro parses them as JSX
   expressions and the build dies with a hard `CompilerError`. Every HCL/JSON sample on the site
   (`get-started`, `compatibility`, `demo`) is written this way.
+- **Internal route links must end in a trailing slash** (`/get-started/`, not `/get-started`). The
+  build emits directory routes, so the canonical and the sitemap both carry one, and GitHub Pages
+  301s anything else — a slashless link costs a redirect on every click and every crawl.
+  `trailingSlash: 'always'` makes the dev server fail on it rather than let it through. Asset paths
+  (`/fonts/…`, `/demos/….mp4`) and anchors (`/#product`) must *not* get one.
+- The sitemap's per-page `lastmod` comes from `git log` inside `astro.config.mjs`, which is why the
+  deploy workflow pins `fetch-depth: 0`. Under the default shallow checkout `git log` returns nothing
+  for most paths and every lastmod silently disappears in CI while still working locally.
+- `public/llms.txt` is public marketing copy under all the voice rules below — update it when routes,
+  pillars, or the headline change. `public/logo.png` exists only as `Organization.logo` for JSON-LD;
+  no page loads it.
 - `public/CNAME` carries the custom domain into every build. Deleting it breaks the apex domain.
 - There is no `base` in the Astro config, so assets are root-absolute (`/_astro/`, `/fonts/`). The
   site only works served from a domain root — a `turfbuild.github.io/website/` preview 404s its assets.

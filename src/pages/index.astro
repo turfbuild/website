@@ -8,9 +8,66 @@ import CompatibilityTeaser from '../components/CompatibilityTeaser.astro';
 import Pillars from '../components/Pillars.astro';
 import Flexibility from '../components/Flexibility.astro';
 import Partner from '../components/Partner.astro';
+
+const site = 'https://turf.build';
+
+// Organization + WebSite + SoftwareApplication. The nodes cross-reference by @id
+// so crawlers read them as one graph rather than three unrelated entities.
+//
+// SoftwareApplication deliberately carries NO `offers` node: a price of 0 would
+// assert the product is free, which contradicts /pricing/ (alpha evaluation is
+// self-serve, but the license is commercial). Don't "fix" this by adding one.
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    '@id': `${site}/#organization`,
+    name: 'Turf',
+    url: `${site}/`,
+    logo: `${site}/logo.png`,
+    description:
+      'Turf builds the infrastructure engine for AI agents — Terraform-compatible infrastructure as code, exposed to agents as an MCP server and built on OpenTofu providers.',
+    sameAs: [
+      'https://github.com/turfbuild',
+      'https://www.linkedin.com/company/turfbuild/',
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${site}/#website`,
+    name: 'Turf',
+    url: `${site}/`,
+    publisher: { '@id': `${site}/#organization` },
+    inLanguage: 'en-US',
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    '@id': `${site}/#software`,
+    name: 'Turf',
+    applicationCategory: 'DeveloperApplication',
+    applicationSubCategory: 'Infrastructure as code',
+    operatingSystem: 'macOS, Linux',
+    url: `${site}/`,
+    downloadUrl: `${site}/get-started/`,
+    softwareHelp: `${site}/docs/`,
+    description:
+      'Turf is a Terraform-compatible infrastructure engine exposed to AI agents as an MCP server. It plans, applies, and converges infrastructure from HCL or natural language, and every change is planned, visible, and approved before it happens.',
+    featureList: [
+      'Terraform HCL and module-registry support',
+      'MCP server for Claude, Codex, Gemini, and any MCP client',
+      'Plan-gated apply — nothing runs off-plan',
+      'Deferred changes that converge across phases',
+      'Terraform actions and provider-hosted operations',
+      'Built on OpenTofu providers',
+    ],
+    publisher: { '@id': `${site}/#organization` },
+  },
+];
 ---
 
-<Layout>
+<Layout jsonLd={jsonLd}>
   <Hero />
   <UseCases />
   <FearStrip />
