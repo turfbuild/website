@@ -10,6 +10,8 @@ const exampleUrl =
 // `duration` comes from ffprobe — re-derive both if the recordings are replaced:
 //   git log --diff-filter=A --format=%aI -1 -- public/demos/<name>.mp4
 //   ffprobe -v error -show_entries format=duration -of csv=p=0 public/demos/<name>.mp4
+// Keep the whole %aI string, offset and all: Google rejects a date-only `uploadDate` as
+// missing a timezone, and the demo pages are the site's only VideoObject nodes.
 const site = 'https://turf.build';
 // Inlined rather than an `@id` reference to the home page's Organization node —
 // a cross-page @id doesn't resolve, so the publisher would read as an empty node.
@@ -25,7 +27,7 @@ const jsonLd = [
     contentUrl: `${site}/demos/kind-crd-up.mp4`,
     encodingFormat: 'video/mp4',
     duration: 'PT34S',
-    uploadDate: '2026-08-06',
+    uploadDate: '2026-08-06T14:18:18-07:00',
     publisher: publisher,
   },
   {
@@ -38,7 +40,7 @@ const jsonLd = [
     contentUrl: `${site}/demos/kind-crd-destroy.mp4`,
     encodingFormat: 'video/mp4',
     duration: 'PT20S',
-    uploadDate: '2026-08-06',
+    uploadDate: '2026-08-06T14:18:18-07:00',
     publisher: publisher,
   },
 ];
