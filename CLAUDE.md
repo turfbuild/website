@@ -190,17 +190,6 @@ any copy round. Treat the headline as fixed unless the user reopens it.
   counts the click and redirects to `https://turf.build/papers/<file>.pdf`.
 - There is no mobile hamburger menu — below 860px `.nav-links a:not(.btn)` is hidden and only the CTA
   shows. Adding a nav link means it's desktop-only unless you also add it to the footer sitemap.
-- **Install script follow-up — decided 2026-10-03, NOT yet built.** The neocloud
-  reference-architecture PDF (`headquarters/marketing/launch/refarch-neocloud.md`, back page) prints
-  the install line `curl -fsSL https://turf.build/install.sh | bash`. That script does not exist.
-  It must be written and deployed as `public/install.sh` (a static asset, so no trailing slash).
-  The PDF is already public (v0.19 at `/papers/`, shared 2026-10-16), so until the script ships
-  that install line 404s; launch plan row 20 and D17 track it. Today the site installs through
-  Homebrew only (`brew install turfbuild/tap/turf` in `pages/get-started.astro` and
-  `public/llms.txt`). Delete this note once the script is live. Decided shape (launch plan D17,
-  2026-10-14): a thin script over Homebrew (`brew install turfbuild/tap/turf`, `brew services
-  start turf`), and the download page's license and telemetry sentences come from
-  `headquarters/marketing/licensing.md`.
 
 ## Content provenance
 
@@ -216,6 +205,25 @@ doc changes first and this page second. It is a disclosure, so it names restate-
 `restate_version` field as the engine reports them, the one site page where Restate is named
 (launch plan §4.2, decided 2026-10-16). It promises no retention period, because Scarf's terms
 and DPA set none.
+
+`public/install.sh` is the installer behind `curl -fsSL https://get.turf.build/install.sh | bash`
+(the line the PDF prints from v0.20; `get.turf.build/install.sh` is the Scarf file package
+`turf-install-script`, which counts the fetch and redirects to `turf.build/install.sh`, the
+script itself). It is POSIX `sh`, a static asset (no trailing slash),
+and nothing in the build checks it: run `shellcheck -s sh` and `dash -n` on it before pushing. With
+Homebrew it installs `turfbuild/tap/turf` and starts the service; without, it unpacks the release
+archive and restate-server into `~/.turf/bin`, and the user runs `turf-mcp-server engine run`
+(launch plan D17, decided 2026-10-16). Until a release with the engine is Latest on
+`turfbuild/turf`, it prints "Turf 1.0 isn't available yet" and exits 1. It copies from other repos,
+so change it when they change:
+- the release gate reads `checksums.txt` for `turf_<tag>_<os>_<arch>.tar.gz` and a
+  `turf-engine-<os>_<arch>` line (turf's `.github/workflows/release.yml`);
+- `RESTATE_VERSION` and its four sha256 pins are the restate-server the engine is tested on (doof
+  CI); bump them together, from the `.sha256` files on Restate's GitHub release;
+- `resolve_telemetry` is doof's `telemetryconf.Resolve`, and the `engine status` lines it reads
+  come from doof's `cmd/turf-mcp-server/engine.go`;
+- its license and telemetry sentences come from `headquarters/marketing/licensing.md`. It names
+  restate-server, as install surfaces may (launch plan §4.2, D18).
 
 `pages/demo.astro` mirrors the kind-crd example at `turfbuild/turf-examples`; the phase labels and
 effects shown in the HCL diagram are exactly what `turf up` computes, so they must be re-checked

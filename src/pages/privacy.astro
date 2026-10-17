@@ -51,6 +51,13 @@ const description =
           lands in our inbox and stays there while we're in touch.</li>
       </ul>
 
+      <h3>Downloads</h3>
+      <p>Our links to papers and to the install script go through <code>get.turf.build</code>, where
+        Scarf counts each download and estimates the organization it comes from, as it does for the
+        pixel, then redirects to the file on turf.build. A request that sends <code>DNT: 1</code> or
+        <code>Sec-GPC: 1</code> is not counted, and <code>https://turf.build/install.sh</code> serves the
+        same script directly. The script downloads Turf and the engine's dependency from GitHub.</p>
+
       <h3>Hosting</h3>
       <p>The site is served by GitHub Pages, which records standard request logs including IP
         addresses. That happens at the network level, before any page of ours runs, and is covered by
