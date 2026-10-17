@@ -38,6 +38,12 @@ const description =
         </tbody>
       </table></div>
       <div class="prose">
+        <p>To install with telemetry off from the start, run the installer with
+          <code>--no-telemetry</code>
+          (<code>curl -fsSL https://get.turf.build/install.sh | bash -s -- --no-telemetry</code>), or with
+          <code>TURF_TELEMETRY=off</code> or <code>DO_NOT_TRACK=1</code> in your shell. It runs
+          <code>turf telemetry off</code> before the engine starts, so the setting covers the Homebrew
+          service too.</p>
         <p><code>turf telemetry off</code> writes the setting to <code>$TURF_HOME/telemetry.json</code>
           (<code>~/.turf</code> by default). <code>turf-mcp-server engine run</code>, which the Homebrew
           service runs, reads it each time it starts the engine, so a change takes effect at the next
