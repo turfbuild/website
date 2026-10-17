@@ -89,6 +89,38 @@ only ever used nominatively (compatibility, comparison), never in a product name
 Never write "the Terraform Registry" — its ToS restricts non-Terraform use; say "module registry",
 "modules", or "OpenTofu registry".
 
+**Trademark follow-up — decided 2026-10-03, only partly applied to this site.** The mark rules widened
+while the neocloud reference-architecture PDF was being marked (source of truth: the Marks section of
+`headquarters/marketing/launch/refarch-neocloud.md`). Bring the site into line, then fold these rules
+into the paragraph above and delete this note. The placement rule is unchanged: the symbol appears
+once per page, at the first prominent body use, and headlines and `<title>`s stay clean.
+- **Turf™.** The mark is not registered yet; `™` is public notice that Turf LLC claims rights to it.
+  Mark the first prominent body use on each page (the hero lede on home: "Turf™ plans, applies, …").
+  The footer fineprint opens with "Turf™ is a trademark of Turf LLC."
+- **Ansible®.** Red Hat's guidelines
+  (<https://docs.ansible.com/projects/ansible/latest/dev_guide/style_guide/trademarks.html>) ask for
+  the symbol on the first reference and this attribution: "Ansible® is a registered trademark of
+  Red Hat, Inc. in the United States and other countries." The site names Ansible once today, in
+  `components/UseCases.astro`.
+- **Helm®, Kubernetes®, Prometheus®.** All three are on the Linux Foundation's list of registered
+  marks (<https://www.linuxfoundation.org/legal/trademarks>), and its usage rules ask for `®`
+  "immediately after the first usage". Helm appears in `components/UseCases.astro`. Kubernetes
+  appears in `Flexibility`, `UseCases`, `CompatibilityTeaser`, and the `contact`, `docs`, `demo` and
+  `demo/scalr` pages. Prometheus is not on the site today.
+- **Never possessive.** Both sets of guidelines say a mark is never written as a possessive or a
+  plural: "Ansible playbooks", "Helm charts", not "Ansible's playbooks". The site has none today.
+- **Footer fineprint, and the same block in `public/llms.txt`.** Target wording, as printed in the
+  PDF: "Turf™ is a trademark of Turf LLC. Terraform® is a registered trademark of HashiCorp, Inc.
+  Ansible® is a registered trademark of Red Hat, Inc. in the United States and other countries.
+  Helm®, Kubernetes® and Prometheus® are registered trademarks, and OpenTofu™ is a trademark, of the
+  Linux Foundation. Turf is not affiliated with, endorsed by, or sponsored by HashiCorp, IBM,
+  Red Hat, the Linux Foundation or the OpenTofu project." Drop Prometheus if the site still doesn't
+  name it.
+- **Open:** whether the `turf.build` wordmark itself carries `™`. The PDF leaves it unmarked.
+- **Applied so far (2026-10-16):** `/telemetry/` marks Turf™ in its lede. Every other page, the
+  footer fineprint and `llms.txt` are still on the old rules; the launch site build (launch plan §8)
+  brings them into line.
+
 **Technical accuracy that copy keeps getting wrong.**
 - Say "**OpenTofu framework**", never "OpenTofu engine" — Turf does *not* use OpenTofu's planner or
   execution engine, and "engine" misstates the product. Also never "upstream OpenTofu", just "OpenTofu".
@@ -105,7 +137,8 @@ Never write "the Terraform Registry" — its ToS restricts non-Terraform use; sa
   2026-08-25; the site is forward-looking because development is fast).
 - **Never name or describe Restate** or any internal scale-out mechanism (virtual objects,
   workflows, journals). Scale claims use capability framing: "the cloud API is the ceiling",
-  "thousands of resources per stack", "durable execution".
+  "thousands of resources per stack", "durable execution". The one exception is `/telemetry/`, a
+  disclosure that names restate-server as the engine reports it (see Content provenance).
 - **"Drop-in replacement" never leads** (de-emphasized 2026-08-25; greenfield-first). Compatibility
   is a supporting message: say "Terraform-compatible" or "runs your existing configurations — HCL,
   modules, providers — unchanged". The provenance line ("independent product built on the OpenTofu
@@ -150,8 +183,24 @@ any copy round. Treat the headline as fixed unless the user reopens it.
   (`rm -rf node_modules package-lock.json && npm install`). A lockfile from a targeted
   `npm install <pkg>` on macOS omits Linux-only optional native deps and CI's `npm ci` fails EUSAGE.
 - `dist/` is build output listed in `.gitignore`; never hand-edit it.
+- **Papers live in `public/papers/`.** `public/reference-architectures/turf-neocloud-reference-architecture.pdf`
+  is a symlink to the `papers/` copy, kept so the first URL still works (GitHub Pages can't redirect a
+  PDF); the build writes a real file at both paths. Replace a new version in `papers/` only, and never
+  delete the symlink. Links we share go through Scarf, `https://get.turf.build/papers/<file>.pdf`, which
+  counts the click and redirects to `https://turf.build/papers/<file>.pdf`.
 - There is no mobile hamburger menu — below 860px `.nav-links a:not(.btn)` is hidden and only the CTA
   shows. Adding a nav link means it's desktop-only unless you also add it to the footer sitemap.
+- **Install script follow-up — decided 2026-10-03, NOT yet built.** The neocloud
+  reference-architecture PDF (`headquarters/marketing/launch/refarch-neocloud.md`, back page) prints
+  the install line `curl -fsSL https://turf.build/install.sh | bash`. That script does not exist.
+  It must be written and deployed as `public/install.sh` (a static asset, so no trailing slash).
+  The PDF is already public (v0.19 at `/papers/`, shared 2026-10-16), so until the script ships
+  that install line 404s; launch plan row 20 and D17 track it. Today the site installs through
+  Homebrew only (`brew install turfbuild/tap/turf` in `pages/get-started.astro` and
+  `public/llms.txt`). Delete this note once the script is live. Decided shape (launch plan D17,
+  2026-10-14): a thin script over Homebrew (`brew install turfbuild/tap/turf`, `brew services
+  start turf`), and the download page's license and telemetry sentences come from
+  `headquarters/marketing/licensing.md`.
 
 ## Content provenance
 
@@ -159,6 +208,14 @@ any copy round. Treat the headline as fixed unless the user reopens it.
 `doof/docs/development/analysis/language-feature-conformance.md`. When syncing it: strip `FU-####`
 ids, `internal/…​.go:NNN` code anchors, and design-doc paths; the "Known divergences" section was
 removed on purpose (inaccurate and off-message) — don't reinstate it.
+
+`pages/telemetry.astro` mirrors turf's public `docs/telemetry.md`
+(`github.com/turfbuild/turf`) field for field: every field, value, switch and precedence rule is
+copied exactly, and only the layout is the site's. When the engine's telemetry schema changes, the
+doc changes first and this page second. It is a disclosure, so it names restate-server and the
+`restate_version` field as the engine reports them, the one site page where Restate is named
+(launch plan §4.2, decided 2026-10-16). It promises no retention period, because Scarf's terms
+and DPA set none.
 
 `pages/demo.astro` mirrors the kind-crd example at `turfbuild/turf-examples`; the phase labels and
 effects shown in the HCL diagram are exactly what `turf up` computes, so they must be re-checked
