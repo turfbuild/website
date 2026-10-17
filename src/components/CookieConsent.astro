@@ -1,7 +1,11 @@
 ---
 // Opt-in cookie consent. Nothing tracking-related loads until the visitor accepts:
-// both Google Analytics and the LinkedIn Insight Tag are injected at runtime by
-// loadTags() below, which is why they no longer appear as markup in Layout.astro.
+// Google Analytics, the LinkedIn Insight Tag and the Scarf pixel are injected at
+// runtime by loadTags() below, which is why they don't appear as markup in Layout.astro.
+//
+// The Scarf pixel sets no cookie, but it measures, so it waits for consent like the
+// rest. It's an Image() rather than an <img> in the page, so it never affects layout,
+// and it fires once per page view because the site has no client-side router.
 //
 // LinkedIn's snippet ships a <noscript> pixel too. It's deliberately omitted — it
 // can't read a consent choice, so including it would fire unconditionally.
@@ -32,6 +36,11 @@ const tagLoader = import.meta.env.PROD
     b.type = "text/javascript";b.async = true;
     b.src = "https://snap.licdn.com/li.lms-analytics/insight.min.js";
     s.parentNode.insertBefore(b, s);})(window.lintrk);
+
+    /* Scarf pixel: one page view (px.turf.build is a CNAME to Scarf's gateway) */
+    var px = new Image();
+    px.referrerPolicy = 'no-referrer-when-downgrade';
+    px.src = 'https://px.turf.build/a.png?x-pxid=65e45e55-4862-4099-892c-0b3ed4db2fdb';
 `
   : `    /* dev build: consent is recorded, but no tags are loaded */
     console.info('[consent] granted — tags are disabled in dev builds');
