@@ -23,6 +23,12 @@ const description = 'Install the Terraform-compatible Turf CLI and MCP server wi
 <pre><span class="ps1">$</span> brew install turfbuild/tap/turf
 <span class="cm"># later: brew upgrade turf</span></pre>
       </div>
+      <p>Turf sends anonymous usage telemetry to Turf LLC by default: the version, the platform,
+        counts of resources, changes and runs, and an anonymous installation id. It never sends
+        resource contents, credentials, state, variable values or names. Turn it off with
+        <code>turf telemetry off</code>, or with <code>TURF_TELEMETRY=off</code> or
+        <code>DO_NOT_TRACK=1</code> in the engine's environment; the full field list and the endpoint
+        are at <a href="/telemetry/">turf.build/telemetry</a>.</p>
 
       <h2>2 · Point Turf at a model</h2>
       <p>Set a key for a hosted model, or run fully local with no key and no cost.</p>

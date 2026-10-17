@@ -42,6 +42,7 @@ The five positioning pillars, all covered at [turf.build/#use-cases](https://tur
 - [Pricing](https://turf.build/pricing/): self-serve alpha evaluation, design-partner terms, and commercial licensing.
 - [Contact](https://turf.build/contact/): design-partner engagements, licensing, and `security@turf.build` for private security reports.
 - [Privacy](https://turf.build/privacy/)
+- [Telemetry](https://turf.build/telemetry/): every field the Turf engine sends as anonymous usage telemetry, what it never sends, where the events go, and how to turn it off.
 
 ## Notes
 

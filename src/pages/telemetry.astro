@@ -1,0 +1,210 @@
+---
+import Layout from '../layouts/Layout.astro';
+// Mirrors turf's docs/telemetry.md (github.com/turfbuild/turf), field for field. A schema
+// change lands in that doc first, then here; see "Content provenance" in CLAUDE.md.
+const title = 'Turf — Telemetry: what it sends and how to turn it off';
+const description =
+  'Every field the Turf engine sends as anonymous usage telemetry, what it never sends, where the events go, and how to turn it off with one command.';
+---
+
+<Layout title={title} description={description}>
+  <section class="subhero">
+    <div class="wrap">
+      <p class="eyebrow"><span class="dot"></span> Telemetry</p>
+      <h1>What Turf sends, and how to turn it off.</h1>
+      <p class="lede">Turf™ sends anonymous usage telemetry to Turf LLC by default: the version, the
+        platform, counts of resources, changes and runs, and an anonymous installation id. It never
+        sends resource contents, credentials, state, variable values or names.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <h2>Turn it off</h2>
+      <div class="matrix-wrap"><table class="matrix fields">
+        <thead><tr><th>Where Turf runs</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><th>The Homebrew service</th><td class="note-cell"><code>turf telemetry off</code>, then
+            <code>brew services restart turf</code>. Or put <code>TURF_TELEMETRY=off</code> or
+            <code>DO_NOT_TRACK=1</code> in <code>~/.homebrew/services/turf.env</code> and restart the
+            service. With Homebrew's analytics off (<code>brew analytics off</code> or
+            <code>HOMEBREW_NO_ANALYTICS</code>), the service starts with telemetry off.</td></tr>
+          <tr><th><code>turf-mcp-server engine run</code> in a terminal</th><td class="note-cell"><code>turf telemetry off</code>
+            before you start it, or <code>TURF_TELEMETRY=off</code> or <code>DO_NOT_TRACK=1</code> in
+            that terminal.</td></tr>
+          <tr><th>A container or CI</th><td class="note-cell"><code>TURF_TELEMETRY=off</code> or
+            <code>DO_NOT_TRACK=1</code> in the engine's environment, or
+            <code>turf-engine --telemetry=off</code>.</td></tr>
+        </tbody>
+      </table></div>
+      <div class="prose">
+        <p><code>turf telemetry off</code> writes the setting to <code>$TURF_HOME/telemetry.json</code>
+          (<code>~/.turf</code> by default). <code>turf-mcp-server engine run</code>, which the Homebrew
+          service runs, reads it each time it starts the engine, so a change takes effect at the next
+          start. A setting that is not valid JSON, or whose <code>enabled</code> is not
+          <code>true</code> or <code>false</code>, starts the engine with telemetry off until
+          <code>turf telemetry on</code> or <code>off</code> rewrites it. A <code>turf-engine</code> you
+          run yourself, in a container or CI, reads no file: use the variables or the flag.</p>
+        <p><code>TURF_TELEMETRY</code> takes precedence over <code>DO_NOT_TRACK</code>, and both take
+          precedence over the setting. Setting either in your shell does not reach the Homebrew
+          service, whose environment is <code>turf.env</code>. That file is
+          <code>$XDG_CONFIG_HOME/homebrew/services/turf.env</code> if you set
+          <code>XDG_CONFIG_HOME</code>, and Homebrew skips it if it is group- or world-writable.</p>
+        <p><code>turf telemetry status</code> shows the setting and your installation id.
+          <code>turf-mcp-server engine status</code> shows whether the running engine sends.
+          <code>TURF_TELEMETRY_DEBUG=1</code> in the engine's environment writes each event to the
+          engine's log instead of sending it, so you can read exactly what would leave.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section alt">
+    <div class="wrap">
+      <h2>What it sends</h2>
+      <div class="prose">
+        <p>The Turf engine sends it: <code>turf-engine</code>, which the <code>turf</code> Homebrew
+          service runs. The <code>turf</code> CLI and <code>turf-mcp-server</code> send none of their
+          own. The components Turf is built on send nothing either: restate-server's telemetry and the
+          embedded agent runtime's are always off.</p>
+        <p>There are three events. Each one is a single JSON <code>POST</code> to
+          <code>https://telemetry.turf.build/v1/events</code>, whose only headers beyond the HTTP basics
+          are <code>Content-Type: application/json</code> and
+          <code>User-Agent: turf-engine/&lt;version&gt; (&lt;platform&gt;; &lt;arch&gt;)</code>.</p>
+      </div>
+
+      <div class="matrix-wrap"><table class="matrix fields">
+        <caption>On every event</caption>
+        <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><th><code>schema</code></th><td class="note-cell">The event schema's version, <code>1</code></td></tr>
+          <tr><th><code>event</code></th><td class="note-cell"><code>engine.start</code>, <code>engine.daily</code> or <code>convergence</code></td></tr>
+          <tr><th><code>installation_id</code></th><td class="note-cell">A random UUID generated for your
+            installation, stored in <code>telemetry.json</code>. It identifies an installation, not a
+            person. An engine with no setting, such as one in a container or CI, sends none unless
+            <code>TURF_INSTALLATION_ID</code> gives it one.</td></tr>
+          <tr><th><code>version</code></th><td class="note-cell">Turf's version</td></tr>
+          <tr><th><code>platform</code>, <code>arch</code></th><td class="note-cell">The operating system
+            and CPU architecture, such as <code>darwin</code> and <code>arm64</code></td></tr>
+          <tr><th><code>deployment</code></th><td class="note-cell"><code>local</code> (the per-user
+            engine), <code>container</code> or <code>standalone</code></td></tr>
+          <tr><th><code>install_method</code></th><td class="note-cell"><code>homebrew</code>, <code>archive</code> or <code>container</code></td></tr>
+          <tr><th><code>ci</code></th><td class="note-cell">Whether the engine runs under a CI system</td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="matrix-wrap"><table class="matrix fields">
+        <caption><code>engine.start</code>, once each time the engine starts</caption>
+        <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><th><code>restate_version</code></th><td class="note-cell">The restate-server version the engine runs on</td></tr>
+          <tr><th><code>scopes</code>, <code>mise</code>, <code>plugin_cache</code>, <code>request_identity</code></th><td class="note-cell">Whether each engine feature is on</td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="matrix-wrap"><table class="matrix fields">
+        <caption><code>engine.daily</code>, every 24 hours the engine has been running, idle or not</caption>
+        <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><th><code>uptime_days</code></th><td class="note-cell">Days since the engine started</td></tr>
+          <tr><th><code>convergences_24h</code>, <code>converged_24h</code>, <code>failed_24h</code></th><td class="note-cell">Runs in the last day: all, finished, failed</td></tr>
+          <tr><th><code>workspaces_24h</code>, <code>workspaces</code></th><td class="note-cell">How many
+            workspaces ran in the last day, and since the engine started</td></tr>
+          <tr><th><code>managed_resources</code>, <code>managed_bucket</code></th><td class="note-cell">Managed
+            resources across those workspaces, exact and bucketed</td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="matrix-wrap"><table class="matrix fields">
+        <caption><code>convergence</code>, once per run (<code>turf up</code>, a destroy, a refresh, an import, an action invoke)</caption>
+        <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><th><code>mode</code></th><td class="note-cell"><code>up</code>, <code>destroy</code>,
+            <code>refresh</code>, <code>import</code>, <code>invoke</code>, or <code>other</code></td></tr>
+          <tr><th><code>outcome</code></th><td class="note-cell"><code>converged</code>,
+            <code>stalled</code>, <code>exhausted</code>, <code>failed</code>, <code>declined</code>,
+            <code>stale</code>, <code>cancelled</code>, <code>error</code>, or <code>other</code></td></tr>
+          <tr><th><code>failure</code></th><td class="note-cell">For a failed run: <code>plan</code>,
+            <code>apply</code>, <code>checks</code>, <code>refused</code> or <code>engine</code>; else
+            <code>none</code></td></tr>
+          <tr><th><code>refused</code></th><td class="note-cell">For a run refused over a Terraform®
+            construct Turf does not run, the construct's name (such as <code>provisioners</code>).
+            Always one of a fixed list, never your configuration's text.</td></tr>
+          <tr><th><code>rounds</code>, <code>deferred</code></th><td class="note-cell">How many
+            plan-and-apply rounds the run took, and the changes it deferred between them</td></tr>
+          <tr><th><code>auto_approve</code>, <code>approvals_asked</code>, <code>approvals_auto</code>, <code>declined</code></th><td class="note-cell">How plans were approved</td></tr>
+          <tr><th><code>creates</code>, <code>updates</code>, <code>replaces</code>, <code>deletes</code>,
+            <code>reads</code>, <code>noops</code>, <code>taints</code>, <code>forgets</code>,
+            <code>imports</code>, <code>moves</code>, <code>drifted</code></th><td class="note-cell">How
+            many planned changes of each kind, summed over the run's rounds</td></tr>
+          <tr><th><code>applied</code>, <code>failed</code>, <code>cancelled</code></th><td class="note-cell">How
+            many changes applied, failed or were cancelled</td></tr>
+          <tr><th><code>actions</code>, <code>actions_failed</code>, <code>turf_actions</code></th><td class="note-cell">How
+            many actions ran, failed, and were Turf's own</td></tr>
+          <tr><th><code>providers</code>, <code>modules</code></th><td class="note-cell">The most providers
+            and module instances any round's plan used. Never which.</td></tr>
+          <tr><th><code>managed_resources</code>, <code>data_sources</code></th><td class="note-cell">How
+            many the workspace holds afterwards</td></tr>
+          <tr><th><code>backend</code></th><td class="note-cell">The state backend's type, such as
+            <code>local</code> or <code>s3</code>, one of the backends built into OpenTofu™; any other is
+            <code>other</code></td></tr>
+          <tr><th><code>duration_s</code>, <code>plan_s</code>, <code>apply_s</code>, <code>wait_s</code></th><td class="note-cell">Seconds
+            the run took, spent planning, applying, and waiting for approval</td></tr>
+          <tr><th><code>changes_bucket</code>, <code>managed_bucket</code>, <code>duration_bucket</code></th><td class="note-cell">The
+            same numbers in ranges, such as <code>6-25</code> or <code>1-5m</code>;
+            <code>duration_bucket</code> is <code>unknown</code> for a run that failed before its plan
+            was ready</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <h2>What it never sends</h2>
+      <div class="prose">
+      <ul>
+        <li>Resource addresses, names or ids, and the values or contents of anything you manage.</li>
+        <li>Workspace names, state, plans, configuration files or paths, and module sources.</li>
+        <li>Provider names or registry hosts.</li>
+        <li>Variable or output values, credentials, and backend configuration.</li>
+        <li>Error messages, diagnostics, prompts and model output.</li>
+        <li>Hostnames, user names and cloud account ids.</li>
+      </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section alt">
+    <div class="wrap">
+      <h2>Where it goes</h2>
+      <div class="prose">
+      <p>Events go to <code>telemetry.turf.build</code>, a hostname Turf LLC controls, which Scarf
+        operates for Turf LLC. Like any HTTP request, an event arrives from your network's IP address.
+        Scarf uses the address to estimate the organization and the approximate location the event
+        comes from, then discards it (<a href="https://docs.scarf.sh/company-matching/">how</a>). For
+        the address, Scarf is Turf LLC's data processor under a data processing agreement, and acts
+        only on Turf LLC's instructions. Scarf's terms of use also give Scarf a license to use, and to
+        share, the rest of what it receives for its own purposes, such as running and improving its services
+        (<a href="https://about.scarf.sh/terms-of-use/#4-data">section 4</a>). Turf LLC uses events to
+        understand how Turf is used, to see which installations are active, and to size commercial
+        licenses.</p>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  /* Page-local: every table here is name | meaning, and a shared first-column width keeps the
+     five lined up as one reference instead of each sizing to its longest field list. */
+  table.fields { table-layout: fixed; }
+  table.fields th:first-child { width: 38%; }
+  /* At phone width a two-column table would scroll sideways inside .matrix-wrap and hide the
+     meanings, so each field stacks over its meaning instead. */
+  @media (max-width: 600px) {
+    table.fields { min-width: 0; table-layout: auto; }
+    table.fields thead { display: none; }
+    table.fields tr, table.fields th, table.fields td { display: block; }
+    table.fields th:first-child { width: auto; }
+    table.fields tbody td { border-top: 0; padding-top: 0; }
+  }
+</style>
