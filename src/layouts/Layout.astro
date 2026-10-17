@@ -71,6 +71,7 @@ const schemas = jsonLd === undefined ? [] : Array.isArray(jsonLd) ? jsonLd : [js
     {schemas.map((schema) => <JsonLd schema={schema} />)}
   </head>
   <body>
+    <slot name="banner" />
     <TopNav />
     <slot />
     <Footer />

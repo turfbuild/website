@@ -8,6 +8,7 @@ import CompatibilityTeaser from '../components/CompatibilityTeaser.astro';
 import Pillars from '../components/Pillars.astro';
 import Flexibility from '../components/Flexibility.astro';
 import Partner from '../components/Partner.astro';
+import Announcement from '../components/Announcement.astro';
 
 const site = 'https://turf.build';
 
@@ -68,6 +69,7 @@ const jsonLd = [
 ---
 
 <Layout jsonLd={jsonLd}>
+  <Announcement slot="banner" />
   <Hero />
   <UseCases />
   <FearStrip />

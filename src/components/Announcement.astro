@@ -1,0 +1,14 @@
+---
+// Home-page announcement strip, rendered above the nav through Layout's "banner" slot.
+// Interim until the launch site build (launch plan §8). The link goes through Scarf, tagged
+// so the banner's clicks are told apart from the paper's other links.
+const pdf = 'https://get.turf.build/papers/turf-neocloud-reference-architecture.pdf?src=home-banner';
+---
+
+<a class="announce" href={pdf}>
+  <span class="wrap">
+    <span class="tag">New</span>
+    <span><span class="title">Metal to Tokens</span><span class="desc">: a reference architecture for managed GPU cloud infrastructure, as&nbsp;code.</span></span>
+    <span class="cta">Read the PDF →</span>
+  </span>
+</a>

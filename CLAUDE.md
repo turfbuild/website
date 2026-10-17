@@ -41,7 +41,10 @@ hex value in markup — use `var(--ink)`, `var(--ok)`, `var(--muted)`, etc.
 `Astro.site`, renders OG/Twitter meta (including the image's declared type/dimensions/alt, so
 scrapers that never fetch `og.png` still render a full card), preloads the self-hosted woff2, and
 gates the Google Analytics tag behind `import.meta.env.PROD` (so dev never sends hits). `TopNav` and
-`Footer` are rendered by the layout, so pages render body content only.
+`Footer` are rendered by the layout, so pages render body content only. The one exception is the
+`banner` slot, rendered above `TopNav`: only home fills it, with `components/Announcement.astro`, the
+interim *Metal to Tokens* strip (10/16). It goes when the launch site build puts the announcement in
+the hero's CTA row (launch plan §8).
 
 Pages pass four props, all optional: `title`, `description`, `noindex`, `jsonLd`.
 - **`noindex`** emits `robots: noindex,follow` *and* suppresses `canonical`/`og:url` — only `404.astro`
@@ -187,7 +190,9 @@ any copy round. Treat the headline as fixed unless the user reopens it.
   is a symlink to the `papers/` copy, kept so the first URL still works (GitHub Pages can't redirect a
   PDF); the build writes a real file at both paths. Replace a new version in `papers/` only, and never
   delete the symlink. Links we share go through Scarf, `https://get.turf.build/papers/<file>.pdf`, which
-  counts the click and redirects to `https://turf.build/papers/<file>.pdf`.
+  counts the click and redirects to `https://turf.build/papers/<file>.pdf`. Our own pages may tag the
+  link (home's banner adds `?src=home-banner`; Scarf stores the query and passes it through the
+  redirect); links in other people's files stay plain.
 - There is no mobile hamburger menu — below 860px `.nav-links a:not(.btn)` is hidden and only the CTA
   shows. Adding a nav link means it's desktop-only unless you also add it to the footer sitemap.
 
