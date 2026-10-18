@@ -27,7 +27,8 @@ src/
   layouts/Layout.astro  <head>, Turf-leading <title>, footer disclaimer on every page
   components/*.astro     Hero (+ animation), FearStrip, HowItWorks, Compatibility, Solutions,
                          Pillars, Flexibility, Partner, TopNav, Footer
-  pages/*.astro          index, compatibility, get-started, pricing, contact, docs, 404
+  pages/*.astro          index, compatibility, get-started, pricing, licensing,
+                         reference-architectures, contact, docs, 404
 scripts/og.svg           source for public/og.png (see "Regenerate the OG image")
 ```
 

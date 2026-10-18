@@ -16,8 +16,9 @@ const site = 'https://turf.build';
 // so crawlers read them as one graph rather than three unrelated entities.
 //
 // SoftwareApplication deliberately carries NO `offers` node: a price of 0 would
-// assert the product is free, which contradicts /pricing/ (alpha evaluation is
-// self-serve, but the license is commercial). Don't "fix" this by adding one.
+// assert the product is free for everyone, when commercial use is licensed
+// (/pricing/, /licensing/). Its `license` points at /licensing/ instead. Don't
+// "fix" this by adding an offer.
 const jsonLd = [
   {
     '@context': 'https://schema.org',
@@ -53,6 +54,7 @@ const jsonLd = [
     url: `${site}/`,
     downloadUrl: `${site}/get-started/`,
     softwareHelp: `${site}/docs/`,
+    license: `${site}/licensing/`,
     description:
       'Turf is a Terraform-compatible infrastructure engine exposed to AI agents as an MCP server. It plans, applies, and converges infrastructure from HCL or natural language, and every change is planned, visible, and approved before it happens.',
     featureList: [
