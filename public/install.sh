@@ -5,8 +5,9 @@
 #
 # Installs the latest Turf release on macOS or Linux, arm64 or x86_64.
 #
-# - With Homebrew on PATH: brew install turfbuild/tap/turf, then the engine
-#   starts as the turf Homebrew service (brew services start turf).
+# - With Homebrew on PATH: brew install restatedev/tap/restate-server
+#   turfbuild/tap/turf, then the engine starts as the turf Homebrew service
+#   (brew services start turf).
 # - Without it: the release archive, into ~/.turf/bin, with no sudo. That is
 #   turf, turf-mcp-server, turf-engine and turf-builtin-provider, plus
 #   restate-server, the engine's dependency, as Restate's own build from its
@@ -321,7 +322,10 @@ install_brew() {
   if [ -n "$_before" ]; then
     brew upgrade turfbuild/tap/turf </dev/null
   else
-    brew install turfbuild/tap/turf </dev/null
+    # Homebrew loads a formula from a third-party tap only when it is named,
+    # so name turf's dependency on Restate's tap too: as turf's dependency
+    # alone, Homebrew neither taps restatedev/tap nor trusts restate-server.
+    brew install restatedev/tap/restate-server turfbuild/tap/turf </dev/null
   fi
   _after=$(brew list --versions turfbuild/tap/turf </dev/null 2>/dev/null || :)
   _prefix=$(brew --prefix)
