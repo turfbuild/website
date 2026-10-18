@@ -42,9 +42,9 @@ hex value in markup — use `var(--ink)`, `var(--ok)`, `var(--muted)`, etc.
 scrapers that never fetch `og.png` still render a full card), preloads the self-hosted woff2, and
 gates the Google Analytics tag behind `import.meta.env.PROD` (so dev never sends hits). `TopNav` and
 `Footer` are rendered by the layout, so pages render body content only. The one exception is the
-`banner` slot, rendered above `TopNav`: only home fills it, with `components/Announcement.astro`, the
-interim *Metal to Tokens* strip (10/16; since 10/18 it links `/reference-architectures/`). It goes
-when the launch site build puts the announcement in the hero's CTA row (launch plan §8).
+`banner` slot, rendered above `TopNav`: only home fills it, with `components/Announcement.astro`: the
+*Metal to Tokens* strip until the 1.0 release (10/16; from 10/18 it linked `/reference-architectures/`),
+the Turf 1.0 strip linking `/engine/` from the release on (launch plan §8).
 
 Pages pass four props, all optional: `title`, `description`, `noindex`, `jsonLd`.
 - **`noindex`** emits `robots: noindex,follow` *and* suppresses `canonical`/`og:url` — only `404.astro`
@@ -183,7 +183,8 @@ any copy round. Treat the headline as fixed unless the user reopens it.
   paper's page: its abstract, at-a-glance ideas, chapter list and marks note are the text of record,
   `headquarters/marketing/launch/refarch-neocloud.md` (the intro, "At a glance", the chapter titles
   and the Marks section), so a new paper version means re-checking the page against it. Its
-  download button is the Scarf link with `?src=refarch-page`; the home banner links the page.
+  download button is the Scarf link with `?src=refarch-page`; the home banner linked the page until
+  the 1.0 release, and the Datacenter card, the footer and `/engine/` link it.
   `public/papers/turf-neocloud-reference-architecture-cover.jpg` is page 1 of the PDF
   (`qlmanage -t -s 1600` on the PDF, `sips -Z 960`, then JPEG at quality 82); re-render it when the
   cover changes.
@@ -218,6 +219,17 @@ route, and posts and listings link `/get-started/`), so it prints that document'
 line ("Turf is free for noncommercial use under PolyForm Noncommercial 1.0.0. Companies can evaluate
 Turf free for 60 days and license it for production at turf.build/licensing.") beside the install,
 above the telemetry sentence: a download surface carries both (launch plan §4.2).
+
+`pages/engine.astro` is the Turf 1.0 announcement (launch plan §3, §8). Its sources, in order: the
+launch paragraph and the two-layer frame from `headquarters/marketing/launch-plan.md` §1 and §3;
+the ten engine points and the three-ecosystems chapter of *Metal to Tokens* (`refarch-neocloud.md`,
+"The Turf engine" and chapter 9, whose counts are the paper's, dated October 2026); the 1.0
+acceptance pass (`headquarters/research/rc1-acceptance-2026-10-17.md`) for "What's in 1.0"; and
+`licensing.md`'s announcement line, byte for byte, under the CTAs. The headline is launch plan D2's
+first candidate ("Turf 1.0 is available now."). The NVIDIA quotation is AICR's README ("Not a cluster
+provisioner or lifecycle management system"), so the page carries the NVIDIA marks note. Its
+`TechArticle` has no `datePublished`: set it to T-0's date when the page goes live. Home's
+`SoftwareApplication` carries `softwareVersion` and `releaseNotes` → `/engine/` from the release on.
 
 `public/install.sh` is the installer behind `curl -fsSL https://get.turf.build/install.sh | bash`
 (the line the PDF prints from v0.20; `get.turf.build/install.sh` is the Scarf file package
