@@ -384,7 +384,7 @@ connect_hint() {
     say "That needs Node 18+. Without it, your agent's own command does the same, e.g."
     say "  claude mcp add turf --scope user -- \"$1\""
   fi
-  say "Then, in your agent: /mcp__turf__guide. Turf's own agent is \`turf chat\` (needs a model API key)."
+  say "Then, in your agent: /turf:guide. Turf's own agent is \`turf chat\` (needs a model API key)."
 }
 
 stage() {
