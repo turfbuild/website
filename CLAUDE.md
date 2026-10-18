@@ -216,8 +216,10 @@ and DPA set none.
 `turf-install-script`, which counts the fetch and redirects to `turf.build/install.sh`, the
 script itself). It is POSIX `sh`, a static asset (no trailing slash),
 and nothing in the build checks it: run `shellcheck -s sh` and `dash -n` on it before pushing. With
-Homebrew it installs `turfbuild/tap/turf` and starts the service; without, it unpacks the release
-archive and restate-server into `~/.turf/bin`, and the user runs `turf-mcp-server engine run`
+Homebrew it installs `restatedev/tap/restate-server turfbuild/tap/turf`, both named because
+Homebrew 7 refuses an unnamed formula from a second third-party tap, and starts the service;
+without, it unpacks the release archive and restate-server into `~/.turf/bin`, and the user runs
+`turf-mcp-server engine run`
 (launch plan D17, decided 2026-10-16). Until a release with the engine is Latest on
 `turfbuild/turf`, it prints "Turf 1.0 isn't available yet" and exits 1. It copies from other repos,
 so change it when they change:
