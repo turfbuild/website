@@ -1,0 +1,243 @@
+---
+import Layout from '../layouts/Layout.astro';
+// The page for *Metal to Tokens*. Its abstract, the three at-a-glance ideas, the chapter list and
+// the marks note are the paper's own words, from headquarters/marketing/launch/refarch-neocloud.md
+// (v1.0): the intro, "At a glance", the chapter titles and the Marks section. A new version of
+// the paper means re-checking this page against it. See "Papers" in CLAUDE.md.
+const title = 'Turf — Metal to Tokens: a GPU cloud reference architecture';
+const description =
+  'Metal to Tokens, a Turf reference architecture for managed GPU cloud infrastructure as code: pools of inventory to a cluster that passed NVCRE certification.';
+
+const site = 'https://turf.build';
+// Shared through Scarf, which counts the click and redirects to the turf.build copy; the tag
+// tells this page's clicks apart from the paper's other links (CLAUDE.md, "Papers").
+const pdfShared = 'https://get.turf.build/papers/turf-neocloud-reference-architecture.pdf?src=refarch-page';
+const pdfHosted = `${site}/papers/turf-neocloud-reference-architecture.pdf`;
+const cover = `${site}/papers/turf-neocloud-reference-architecture-cover.jpg`;
+const examplesUrl = 'https://github.com/turfbuild/turf-examples';
+
+// See demo.astro: inlined, not an `@id` reference to the home page's node.
+const publisher = { '@type': 'Organization', '@id': `${site}/#organization`, name: 'Turf' };
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'TechArticle',
+    '@id': `${site}/reference-architectures/#paper`,
+    name: 'Metal to Tokens',
+    headline: 'Metal to Tokens',
+    alternativeHeadline: 'A reference architecture for managed GPU cloud infrastructure, as code',
+    description,
+    url: `${site}/reference-architectures/`,
+    datePublished: '2026-10-16',
+    version: '1.0',
+    inLanguage: 'en-US',
+    isAccessibleForFree: true,
+    author: publisher,
+    publisher: publisher,
+    image: cover,
+    associatedMedia: {
+      '@type': 'MediaObject',
+      name: 'Metal to Tokens (PDF)',
+      contentUrl: pdfHosted,
+      encodingFormat: 'application/pdf',
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Turf', item: `${site}/` },
+      { '@type': 'ListItem', position: 2, name: 'Metal to Tokens' },
+    ],
+  },
+];
+
+const parts = [
+  { k: 'Day 0 · the provider’s', chapters: [[1, 'Hardware: pools of inventory']] },
+  {
+    k: 'Day 1 · bring-up',
+    chapters: [
+      [2, 'The host'],
+      [3, 'The cluster'],
+      [4, 'The AI runtime'],
+      [5, 'Certification and handover'],
+      [6, 'The AI workload'],
+    ],
+  },
+  {
+    k: 'The cluster as code',
+    chapters: [
+      [7, 'The unified planner'],
+      [8, 'The convergence loop'],
+      [9, 'Built on three ecosystems'],
+    ],
+  },
+  {
+    k: 'Day 2',
+    chapters: [
+      [10, 'Day-2 runs on the runbook'],
+      [11, 'The decision layer'],
+      [12, 'Thousands of stacks'],
+    ],
+  },
+];
+---
+
+<Layout title={title} description={description} jsonLd={jsonLd}>
+  <section class="subhero">
+    <div class="wrap">
+      <p class="eyebrow"><span class="dot"></span> Reference architecture · v1.0 · October 2026</p>
+      <h1>Metal to Tokens.</h1>
+      <p class="lede">A reference architecture for managed GPU cloud infrastructure, as code.
+        <strong>Turf™ is cluster orchestration software for neocloud providers, built on
+        OpenTofu™.</strong></p>
+      <div class="cta-row">
+        <a class="btn primary" href={pdfShared}>Read the PDF</a>
+        <a class="btn ghost" href={examplesUrl}>The stacks on GitHub</a>
+      </div>
+      <p class="meta">17 pages · PDF · for the teams who bring up, certify, sell and service managed GPU clusters</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="paper">
+        <figure class="cover">
+          <a href={pdfShared}>
+            <img
+              src="/papers/turf-neocloud-reference-architecture-cover.jpg"
+              alt="The cover of Metal to Tokens: the title over an isometric data hall, with the stack rising out of it, control planes to hardware, labelled as code."
+              width="741"
+              height="960"
+              loading="lazy"
+            />
+          </a>
+        </figure>
+        <div class="prose">
+          <p class="eyebrow"><span class="dot"></span> The managed cluster</p>
+          <h2>Goal: full orchestration and remediation.</h2>
+          <p>A neocloud doesn’t sell GPUs by the hour. It sells a managed cluster: qualified before
+            handover, current on drivers and firmware, the same on every node, and back in service
+            soon after a fault.</p>
+          <p>That is what the market grades. SemiAnalysis’s ClusterMAX 3.0 rates GPU clouds on the
+            operating discipline above the hardware, and it sets the bar in two sentences:
+            “Handling a failure takes two things: Identify it happened. Fix it properly.”</p>
+          <p>Today that discipline is spread across tools. Terraform® for the cloud API. Ansible®
+            for the hosts and devices. Helm® for the runtime. Scripts for burn-in. A runbook in a
+            wiki, and a person on call to stitch them together.</p>
+          <p>One convergence loop brings up the whole managed cluster, from the metal to the tokens,
+            NVCRE certification included. Every change, from a person or an agent, arrives as a
+            change plan that is checked and approved before it runs. Turf deploys the stack and
+            then services it, across a fleet of clusters.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section alt">
+    <div class="wrap">
+      <div class="band-head">
+        <h2>At a glance.</h2>
+        <p>Turf builds and operates managed clusters in three ways.</p>
+      </div>
+      <div class="beats">
+        <div class="beat">
+          <span class="k">01 · A golden recipe</span>
+          <h3>One body of Terraform code</h3>
+          <p>The managed cluster is one body of Terraform code: the provider’s whole stack, from
+            the hardware pool to the tenant’s agent. Terraform resources are the desired state at
+            every layer. Terraform actions are the steps between them: run the host playbook, wait
+            for the GPU census. One change plan covers all of it. → Chapters 7 and 12.</p>
+        </div>
+        <div class="beat">
+          <span class="k">02 · A day-2 runbook</span>
+          <h3>The agent follows the provider’s runbook</h3>
+          <p>The health checks find the fault. What happens next is the provider’s remediation
+            runbook, and the agent follows it. Each step is a change plan, approved by policy or a
+            person and carried out by the engine, with the agent overseeing. → Chapters 10 and 11.</p>
+        </div>
+        <div class="beat">
+          <span class="k">03 · A convergence loop</span>
+          <h3>Plan, approve, apply, plan again</h3>
+          <p>Turf plans what it can know, applies it, and plans again. Every round’s change plan is
+            checked and approved before it runs. Then the engine reports the outcome, and the
+            outputs, to the agent and the provider’s control plane. → Chapter 8.</p>
+        </div>
+      </div>
+      <p class="walk">The paper walks the cluster stack three times. Part I zooms in, one layer at a
+        time. Part II zooms out to the convergence loop. Part III zooms out again, to day-2 across
+        the data center.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="band-head">
+        <h2>What’s inside.</h2>
+        <p>Twelve chapters in three parts, a page on the Turf engine, and the stacks to run.</p>
+      </div>
+      <div class="toc">
+        {parts.map((part) => (
+          <div class="part">
+            <span class="k">{part.k}</span>
+            <ol>
+              {part.chapters.map(([n, name]) => (
+                <li><span class="n">{n}</span><span>{name}</span></li>
+              ))}
+            </ol>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section alt">
+    <div class="wrap prose">
+      <h2>Get Turf: download it, run it.</h2>
+      <p>Turf is available now, as a download. No form, no login. Free for noncommercial use.
+        Commercial use, including a company’s internal use, requires a license; companies evaluate
+        Turf under a free pilot. The stacks in this paper are in
+        <a href={examplesUrl}>github.com/turfbuild/turf-examples</a>.</p>
+      <p class="ctas">
+        <a class="btn primary" href="/get-started/">Get started</a>
+        <a class="btn ghost" href="/licensing/">Licensing</a>
+        <a class="btn ghost" href={pdfShared}>Read the PDF</a>
+      </p>
+
+      <p class="legal-note">NVIDIA and NVCRE are trademarks or product names of NVIDIA Corporation,
+        referred to here only to describe interoperability. Turf is not affiliated with, endorsed
+        by, or sponsored by NVIDIA. ClusterMAX is SemiAnalysis’s rating of GPU clouds. Quotations are
+        from ClusterMAX 3.0 (September 2026) and are attributed. Turf has no relationship with
+        SemiAnalysis, and nothing here implies a rating. All other marks belong to their owners.</p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .meta { font-family: var(--mono); font-size: 12.5px; color: var(--faint); margin: 0; }
+  /* The cover beside the abstract; the cover stacks above it on a phone. */
+  .paper { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: clamp(24px, 4vw, 52px); align-items: start; }
+  .paper .prose > h2 { margin-top: 8px; }
+  .cover { margin: 0; max-width: 280px; }
+  .cover img {
+    display: block; width: 100%; height: auto; border-radius: 12px;
+    box-shadow: var(--shadow); border: 1px solid var(--hair-strong); background: var(--term-bg);
+  }
+  @media (max-width: 760px) { .paper { grid-template-columns: 1fr; } }
+  .walk { color: var(--muted); max-width: 68ch; margin: clamp(20px, 3vw, 28px) 0 0; }
+  /* The chapter list: one card per part, framed like the use-case cards. */
+  .toc { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  @media (max-width: 860px) { .toc { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 520px) { .toc { grid-template-columns: 1fr; } }
+  .part { border: 1px solid var(--hair); border-radius: 13px; background: var(--panel); padding: 18px 20px; }
+  .part .k { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ok); display: block; margin-bottom: 10px; }
+  .part ol { list-style: none; margin: 0; padding: 0; }
+  .part li { display: flex; gap: 10px; font-size: 14px; color: var(--muted); margin: 6px 0; }
+  .part li .n { font-family: var(--mono); font-size: 12px; color: var(--faint); flex: none; width: 1.6em; }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
+  /* Nominative-use note for the marks the footer fineprint doesn't cover; matches demo/scalr. */
+  .legal-note {
+    margin-top: clamp(28px, 4vw, 44px); padding-top: 18px; border-top: 1px solid var(--hair);
+    max-width: 92ch; color: var(--faint); font-size: 12.5px; line-height: 1.6;
+  }
+</style>

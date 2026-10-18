@@ -43,8 +43,8 @@ scrapers that never fetch `og.png` still render a full card), preloads the self-
 gates the Google Analytics tag behind `import.meta.env.PROD` (so dev never sends hits). `TopNav` and
 `Footer` are rendered by the layout, so pages render body content only. The one exception is the
 `banner` slot, rendered above `TopNav`: only home fills it, with `components/Announcement.astro`, the
-interim *Metal to Tokens* strip (10/16). It goes when the launch site build puts the announcement in
-the hero's CTA row (launch plan §8).
+interim *Metal to Tokens* strip (10/16; since 10/18 it links `/reference-architectures/`). It goes
+when the launch site build puts the announcement in the hero's CTA row (launch plan §8).
 
 Pages pass four props, all optional: `title`, `description`, `noindex`, `jsonLd`.
 - **`noindex`** emits `robots: noindex,follow` *and* suppresses `canonical`/`og:url` — only `404.astro`
@@ -53,7 +53,8 @@ Pages pass four props, all optional: `title`, `description`, `noindex`, `jsonLd`
   `components/JsonLd.astro` (`set:html` + `is:inline`, which keeps Astro from parsing the JSON's
   braces as JSX). **Never hand-write an `application/ld+json` script tag into a page.** Home carries
   `Organization` + `WebSite` + `SoftwareApplication` cross-referenced by `@id`; the two demo pages
-  carry `VideoObject` per screencast, and `/demo/scalr/` adds the site's only `BreadcrumbList`.
+  carry `VideoObject` per screencast; `/demo/scalr/` and `/reference-architectures/` carry a
+  `BreadcrumbList`, and the paper's page is a `TechArticle` whose `associatedMedia` is the PDF.
   The `SoftwareApplication` node **deliberately omits `offers`** — a `price: 0` would assert the
   product is free for everyone, when commercial use is licensed (`/pricing/`, `/licensing/`); its
   `license` points at `/licensing/` instead. Don't add an offer.
@@ -179,7 +180,14 @@ any copy round. Treat the headline as fixed unless the user reopens it.
   delete the symlink. Links we share go through Scarf, `https://get.turf.build/papers/<file>.pdf`, which
   counts the click and redirects to `https://turf.build/papers/<file>.pdf`. Our own pages may tag the
   link (home's banner adds `?src=home-banner`; Scarf stores the query and passes it through the
-  redirect); links in other people's files stay plain.
+  redirect); links in other people's files stay plain. `pages/reference-architectures.astro` is the
+  paper's page: its abstract, at-a-glance ideas, chapter list and marks note are the text of record,
+  `headquarters/marketing/launch/refarch-neocloud.md` (the intro, "At a glance", the chapter titles
+  and the Marks section), so a new paper version means re-checking the page against it. Its
+  download button is the Scarf link with `?src=refarch-page`; the home banner links the page.
+  `public/papers/turf-neocloud-reference-architecture-cover.jpg` is page 1 of the PDF
+  (`qlmanage -t -s 1600` on the PDF, `sips -Z 960`, then JPEG at quality 82); re-render it when the
+  cover changes.
 - There is no mobile hamburger menu — below 860px `.nav-links a:not(.btn)` is hidden and only the CTA
   shows. Adding a nav link means it's desktop-only unless you also add it to the footer sitemap.
 
