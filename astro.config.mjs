@@ -44,6 +44,8 @@ const WEIGHTS = {
   '/demo/scalr/': { priority: 0.7, changefreq: MONTHLY },
   '/docs/': { priority: 0.6, changefreq: MONTHLY },
   '/pricing/': { priority: 0.6, changefreq: MONTHLY },
+  '/licensing/': { priority: 0.7, changefreq: MONTHLY },
+  '/reference-architectures/': { priority: 0.8, changefreq: MONTHLY },
   '/contact/': { priority: 0.5, changefreq: YEARLY },
   '/privacy/': { priority: 0.3, changefreq: YEARLY },
   '/telemetry/': { priority: 0.3, changefreq: MONTHLY },

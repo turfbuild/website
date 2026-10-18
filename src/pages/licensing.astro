@@ -1,0 +1,95 @@
+---
+import Layout from '../layouts/Layout.astro';
+// Every sentence here is drawn from headquarters/marketing/licensing.md ("Copy to publish");
+// the license sentence and the telemetry sentence are byte-identical to it. Change that
+// document first, then this page. See "Content provenance" in CLAUDE.md.
+const title = 'Turf — Licensing: free noncommercial use, pilots, production';
+const description =
+  'Free for noncommercial use under PolyForm Noncommercial 1.0.0. Companies evaluate Turf in a free 60-day pilot and license production use. One binary, no key.';
+---
+
+<Layout title={title} description={description}>
+  <section class="subhero">
+    <div class="wrap">
+      <p class="eyebrow"><span class="dot"></span> Licensing</p>
+      <h1>Free for noncommercial use. Licensed for commercial use.</h1>
+      <p class="lede">Turf™ is free for individuals, students, researchers, educational institutions,
+        public research organizations, charities and government institutions, under the PolyForm
+        Noncommercial License 1.0.0. Commercial use, including a company’s internal use, requires a
+        license from Turf LLC.</p>
+    </div>
+  </section>
+
+  <section class="section" id="pilot">
+    <div class="wrap prose">
+      <h2>Evaluating Turf at a company?</h2>
+      <p>We offer a free 60-day evaluation under the Common Paper Pilot Agreement, a standard
+        contract you can read in full at
+        <a href="https://commonpaper.com/standards/pilot-agreement/1.1/">commonpaper.com/standards/pilot-agreement</a>.
+        Email <a href="mailto:licensing@turf.build?subject=Pilot">licensing@turf.build</a> and we
+        will send a one-page cover page.</p>
+      <p>The pilot is for internal evaluation only. The binary you already have is the one you
+        evaluate; there is no separate build or key. If Turf works for you, the pilot rolls into a
+        production subscription.</p>
+      <p class="ctas"><a class="btn primary" href="mailto:licensing@turf.build?subject=Pilot">Start a pilot</a></p>
+    </div>
+  </section>
+
+  <section class="section alt" id="production">
+    <div class="wrap prose">
+      <h2>Running Turf in production?</h2>
+      <p>Production use is licensed under the Common Paper Software License Agreement
+        (<a href="https://commonpaper.com/standards/software-license-agreement/1.1/">commonpaper.com/standards/software-license-agreement</a>)
+        with an annual subscription that includes updates, support, a conformance warranty and IP
+        indemnity. Embedding Turf in your own product is available under a redistribution license;
+        ask us.</p>
+      <p class="ctas"><a class="btn ghost" href="mailto:licensing@turf.build?subject=Production%20license">Talk to us</a></p>
+    </div>
+  </section>
+
+  <section class="section" id="binary">
+    <div class="wrap prose">
+      <h2>One binary, no license key</h2>
+      <p>Every Turf build is the same binary with the same features and ships with an SBOM. There
+        is no license key and nothing to unlock: a commercial license is a contract and a support
+        relationship. We trust companies to license what they run.</p>
+    </div>
+  </section>
+
+  <section class="section alt" id="telemetry">
+    <div class="wrap prose">
+      <h2>Telemetry</h2>
+      <p>Turf sends anonymous usage telemetry to Turf LLC by default: the version, the platform,
+        counts of resources, changes and runs, and an anonymous installation id. It never sends
+        resource contents, credentials, state, variable values or names. Turn it off with
+        <code>turf telemetry off</code>, or with <code>TURF_TELEMETRY=off</code> or
+        <code>DO_NOT_TRACK=1</code> in the engine's environment; the full field list and the endpoint
+        are at <a href="/telemetry/">turf.build/telemetry</a>.</p>
+    </div>
+  </section>
+
+  <section class="section" id="source">
+    <div class="wrap prose">
+      <h2>Source</h2>
+      <p>The <code>turf</code> CLI’s source, at
+        <a href="https://github.com/turfbuild/turf">github.com/turfbuild/turf</a>, is licensed under
+        the Mozilla Public License 2.0. Turf as a whole, the CLI together with the engine and the MCP
+        server in every release archive and in the Homebrew formula, is licensed under the
+        <a href="https://polyformproject.org/licenses/noncommercial/1.0.0">PolyForm Noncommercial
+        License 1.0.0</a> (SPDX <code>PolyForm-Noncommercial-1.0.0</code>). The license text ships in
+        every release, with its required notice: Copyright Turf LLC.</p>
+    </div>
+  </section>
+
+  <section class="section alt" id="questions">
+    <div class="wrap prose">
+      <h2>Questions</h2>
+      <p>Anything this page doesn’t answer: <a href="mailto:licensing@turf.build">licensing@turf.build</a>.</p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  /* A single CTA under a prose block, spaced like the demo pages' CTA rows. */
+  .ctas { margin-top: 18px; }
+</style>
