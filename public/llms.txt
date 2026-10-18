@@ -19,6 +19,7 @@ on the site.
 ## Start here
 
 - [Get started](https://turf.build/get-started/): install the CLI and MCP server, wire it into Claude Code, Codex, Gemini CLI, VS Code, or any MCP client, and run a first plan.
+- [Metal to Tokens](https://turf.build/reference-architectures/): a reference architecture for managed GPU cloud infrastructure, as code — a neocloud from pools of inventory to a cluster that has passed NVCRE certification, with day 2 on the provider's runbook. The PDF: https://get.turf.build/papers/turf-neocloud-reference-architecture.pdf
 - [Compatibility](https://turf.build/compatibility/): a three-way comparison of Terraform 1.14, OpenTofu 1.12, and Turf — what is supported today, where Turf is ahead (actions, deferred changes), and what is coming soon.
 - [Kubernetes stack demo](https://turf.build/demo/): a kind cluster, a CRD, and a custom resource converged in one governed run, then torn down.
 - [Scalr integration demo](https://turf.build/demo/scalr/): folding an existing Terraform automation platform's state backend, variables, and OPA policy checks into the plan.
