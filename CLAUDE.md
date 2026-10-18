@@ -55,7 +55,8 @@ Pages pass four props, all optional: `title`, `description`, `noindex`, `jsonLd`
   `Organization` + `WebSite` + `SoftwareApplication` cross-referenced by `@id`; the two demo pages
   carry `VideoObject` per screencast, and `/demo/scalr/` adds the site's only `BreadcrumbList`.
   The `SoftwareApplication` node **deliberately omits `offers`** — a `price: 0` would assert the
-  product is free, contradicting `/pricing/`. Don't add one.
+  product is free for everyone, when commercial use is licensed (`/pricing/`, `/licensing/`); its
+  `license` points at `/licensing/` instead. Don't add an offer.
 - **Titles stay Turf-leading (`Turf — …`)** — reaffirmed 2026-08-25 — but must earn the full SERP
   budget: aim 50-60 characters and put query terms after the dash (`Turf — Get started: install the
   CLI and MCP server`, not `Turf — Get started`). **Descriptions run 140-158 characters, plain text**
@@ -85,44 +86,27 @@ This is marketing copy for commercial software with a legally-sensitive competit
 The following were decided deliberately during authoring; re-deriving them from the rendered site is
 not possible, and "improving" the wording usually breaks one of them.
 
-**Trademark.** Terraform® is HashiCorp's mark; OpenTofu™ is the Linux Foundation's. Rules: `®` appears
-**once per page, at the first prominent body use** (e.g. the hero lede) — headlines stay clean; the
-footer disclaimer carries the attribution + non-affiliation statement on every page. "Terraform" is
-only ever used nominatively (compatibility, comparison), never in a product name, domain, or logo.
-Never write "the Terraform Registry" — its ToS restricts non-Terraform use; say "module registry",
-"modules", or "OpenTofu registry".
-
-**Trademark follow-up — decided 2026-10-03, only partly applied to this site.** The mark rules widened
-while the neocloud reference-architecture PDF was being marked (source of truth: the Marks section of
-`headquarters/marketing/launch/refarch-neocloud.md`). Bring the site into line, then fold these rules
-into the paragraph above and delete this note. The placement rule is unchanged: the symbol appears
-once per page, at the first prominent body use, and headlines and `<title>`s stay clean.
-- **Turf™.** The mark is not registered yet; `™` is public notice that Turf LLC claims rights to it.
-  Mark the first prominent body use on each page (the hero lede on home: "Turf™ plans, applies, …").
-  The footer fineprint opens with "Turf™ is a trademark of Turf LLC."
-- **Ansible®.** Red Hat's guidelines
-  (<https://docs.ansible.com/projects/ansible/latest/dev_guide/style_guide/trademarks.html>) ask for
-  the symbol on the first reference and this attribution: "Ansible® is a registered trademark of
-  Red Hat, Inc. in the United States and other countries." The site names Ansible once today, in
-  `components/UseCases.astro`.
-- **Helm®, Kubernetes®, Prometheus®.** All three are on the Linux Foundation's list of registered
-  marks (<https://www.linuxfoundation.org/legal/trademarks>), and its usage rules ask for `®`
-  "immediately after the first usage". Helm appears in `components/UseCases.astro`. Kubernetes
-  appears in `Flexibility`, `UseCases`, `CompatibilityTeaser`, and the `contact`, `docs`, `demo` and
-  `demo/scalr` pages. Prometheus is not on the site today.
-- **Never possessive.** Both sets of guidelines say a mark is never written as a possessive or a
-  plural: "Ansible playbooks", "Helm charts", not "Ansible's playbooks". The site has none today.
-- **Footer fineprint, and the same block in `public/llms.txt`.** Target wording, as printed in the
-  PDF: "Turf™ is a trademark of Turf LLC. Terraform® is a registered trademark of HashiCorp, Inc.
-  Ansible® is a registered trademark of Red Hat, Inc. in the United States and other countries.
-  Helm®, Kubernetes® and Prometheus® are registered trademarks, and OpenTofu™ is a trademark, of the
-  Linux Foundation. Turf is not affiliated with, endorsed by, or sponsored by HashiCorp, IBM,
-  Red Hat, the Linux Foundation or the OpenTofu project." Drop Prometheus if the site still doesn't
-  name it.
-- **Open:** whether the `turf.build` wordmark itself carries `™`. The PDF leaves it unmarked.
-- **Applied so far (2026-10-16):** `/telemetry/` marks Turf™ in its lede. Every other page, the
-  footer fineprint and `llms.txt` are still on the old rules; the launch site build (launch plan §8)
-  brings them into line.
+**Trademark.** Turf™ is Turf LLC's mark, unregistered: the filing is in flight, and `™` stays
+until registration issues. Terraform® is HashiCorp's. Ansible® is Red Hat's, whose guidelines
+(<https://docs.ansible.com/projects/ansible/latest/dev_guide/style_guide/trademarks.html>) ask for
+the symbol on the first reference. Helm® and Kubernetes® are registered marks, and OpenTofu™ a
+trademark, of the Linux Foundation (<https://www.linuxfoundation.org/legal/trademarks>, "immediately
+after the first usage"); Prometheus® joins that clause if the site ever names it (the PDF does).
+Rules: the symbol appears **once per page, at the first prominent body use** (the hero lede on
+home, "Turf™ plans, applies, …"; a subpage's lede) — headlines, `<title>`s, eyebrows, buttons and
+code stay clean; a mark is never possessive or plural ("Ansible playbooks", not "Ansible's"); the
+`turf.build` wordmark itself is unmarked, as in the PDF. The footer fineprint carries the attribution
+and non-affiliation statement on every page, and `public/llms.txt` the same block: "Turf™ is a
+trademark of Turf LLC. Terraform® is a registered trademark of HashiCorp, Inc. Ansible® is a
+registered trademark of Red Hat, Inc. in the United States and other countries. Helm® and
+Kubernetes® are registered trademarks, and OpenTofu™ is a trademark, of the Linux Foundation. Turf
+is not affiliated with, endorsed by, or sponsored by HashiCorp, IBM, Red Hat, the Linux Foundation
+or the OpenTofu project." "Terraform" is only ever used nominatively (compatibility, comparison),
+never in a product name, domain, or logo. Never write "the Terraform Registry" — its ToS restricts
+non-Terraform use; say "module registry", "modules", or "OpenTofu registry". (Decided 2026-10-03
+while the neocloud PDF was marked — source of truth: the Marks section of
+`headquarters/marketing/launch/refarch-neocloud.md` — and applied site-wide 2026-10-18, except
+`get-started.astro`, left to the install round.)
 
 **Technical accuracy that copy keeps getting wrong.**
 - Say "**OpenTofu framework**", never "OpenTofu engine" — Turf does *not* use OpenTofu's planner or
@@ -148,7 +132,10 @@ once per page, at the first prominent body use, and headlines and `<title>`s sta
   framework") stays.
 
 **Tone.** No lean-startup vocabulary in public copy — in particular avoid "pain" / "pain point". Do not
-imply existing design partners, customers, or a team the company doesn't have. Page `<title>`s are
+imply existing customers, pilots, partners, or a team the company doesn't have: seeking pilot users
+is fine, naming one is not. Since 2026-10-14 the launch is Turf 1.0, "available now": never "beta",
+"alpha", "design partner", "evaluation license", "on request" or "waitlist" in copy, and the license
+terms are those of `headquarters/marketing/licensing.md` (launch plan §4). Page `<title>`s are
 Turf-leading (`Turf — …`).
 
 **Locked messaging.** The hero headline is "**The infrastructure engine built for AI agents.**"
@@ -210,6 +197,15 @@ doc changes first and this page second. It is a disclosure, so it names restate-
 `restate_version` field as the engine reports them, the one site page where Restate is named
 (launch plan §4.2, decided 2026-10-16). It promises no retention period, because Scarf's terms
 and DPA set none.
+
+`pages/licensing.astro` and `pages/pricing.astro` draw every sentence from
+`headquarters/marketing/licensing.md` ("Copy to publish" and "Who gets what"): PolyForm Noncommercial
+1.0.0, the Common Paper Pilot Agreement (free, 60 days) and Software License Agreement (the 1.1
+Standard Terms are linked), one binary, no license key, `licensing@turf.build`. The license sentence
+and the telemetry sentence are byte-identical to that document's (a launch hard line), and there are
+no prices (launch plan D20). The "Source" section mirrors turf's README License section (the CLI's
+source is MPL-2.0; Turf as a whole is PolyForm). Change the document first, then the page. The pilot
+band on home (`components/Partner.astro`) and `/contact/` repeat those sentences.
 
 `public/install.sh` is the installer behind `curl -fsSL https://get.turf.build/install.sh | bash`
 (the line the PDF prints from v0.20; `get.turf.build/install.sh` is the Scarf file package
