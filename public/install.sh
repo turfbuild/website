@@ -12,6 +12,9 @@
 #   turf, turf-mcp-server, turf-engine and turf-builtin-provider, plus
 #   restate-server, the engine's dependency, as Restate's own build from its
 #   GitHub release. You start the engine yourself: turf-mcp-server engine run.
+# - Either way it ends with how to connect your agent (Claude Code, Claude Desktop,
+#   Cursor, Codex, Gemini CLI, VS Code): the npx add-mcp line for the installed
+#   turf-mcp-server. It prints the line; it never runs it.
 #
 # Options (curl -fsSL https://get.turf.build/install.sh | bash -s -- OPTIONS):
 #   --no-brew        install from the release archive even when Homebrew is here
@@ -367,7 +370,21 @@ install_brew() {
     say "  turf-mcp-server engine run"
   fi
   say ""
-  say "Then: turf chat, or connect your agent: claude mcp add turf -- \"$_mcp\""
+  connect_hint "$_mcp"
+}
+
+# connect_hint SERVER prints how to register the installed turf-mcp-server with
+# the user's agents. It only prints: add-mcp is interactive, and stdin here is
+# the pipe this script arrived on. SERVER is the absolute path (or $HOME/...,
+# which the user's shell expands): GUI apps miss /opt/homebrew/bin on PATH.
+connect_hint() {
+  say "Connect your agent (Claude Code, Claude Desktop, Cursor, Codex, Gemini CLI, VS Code, ...):"
+  say "  npx add-mcp@2 \"$1\" --name turf -g"
+  if ! has npx; then
+    say "That needs Node 18+. Without it, your agent's own command does the same, e.g."
+    say "  claude mcp add turf --scope user -- \"$1\""
+  fi
+  say "Then, in your agent: /turf:guide. Turf's own agent is \`turf chat\` (needs a model API key)."
 }
 
 stage() {
@@ -512,8 +529,7 @@ install_archive() {
     say "Check it with: turf-mcp-server engine status"
   fi
   say ""
-  say "Then: turf chat, or connect your agent:"
-  say "  claude mcp add turf -- \"$(pretty "$dir")/turf-mcp-server\""
+  connect_hint "$(pretty "$dir")/turf-mcp-server"
   say ""
   if [ -d "$share/restate-server" ]; then
     say "To uninstall, delete those files from $(pretty "$dir"), and $(pretty "$share/turf")"

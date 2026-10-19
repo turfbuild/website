@@ -106,8 +106,7 @@ or the OpenTofu project." "Terraform" is only ever used nominatively (compatibil
 never in a product name, domain, or logo. Never write "the Terraform Registry" — its ToS restricts
 non-Terraform use; say "module registry", "modules", or "OpenTofu registry". (Decided 2026-10-03
 while the neocloud PDF was marked — source of truth: the Marks section of
-`headquarters/marketing/launch/refarch-neocloud.md` — and applied site-wide 2026-10-18, except
-`get-started.astro`, left to the install round.)
+`headquarters/marketing/launch/refarch-neocloud.md` — and applied site-wide 2026-10-18.)
 
 **Technical accuracy that copy keeps getting wrong.**
 - Say "**OpenTofu framework**", never "OpenTofu engine" — Turf does *not* use OpenTofu's planner or
@@ -214,6 +213,11 @@ and the telemetry sentence are byte-identical to that document's (a launch hard 
 no prices (launch plan D20). The "Source" section mirrors turf's README License section (the CLI's
 source is MPL-2.0; Turf as a whole is PolyForm). Change the document first, then the page. The pilot
 band on home (`components/Partner.astro`) and `/contact/` repeat those sentences.
+`/get-started/` is the download page (launch plan D22, closed 2026-10-18; there is no `/download/`
+route, and posts and listings link `/get-started/`), so it prints that document's announcement
+line ("Turf is free for noncommercial use under PolyForm Noncommercial 1.0.0. Companies can evaluate
+Turf free for 60 days and license it for production at turf.build/licensing.") beside the install,
+above the telemetry sentence: a download surface carries both (launch plan §4.2).
 
 `public/install.sh` is the installer behind `curl -fsSL https://get.turf.build/install.sh | bash`
 (the line the PDF prints from v0.20; `get.turf.build/install.sh` is the Scarf file package

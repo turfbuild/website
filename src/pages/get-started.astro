@@ -1,28 +1,45 @@
 ---
 import Layout from '../layouts/Layout.astro';
-const title = 'Turf — Get started: install the CLI and MCP server';
-const description = 'Install the Terraform-compatible Turf CLI and MCP server with Homebrew or the signed container image, wire it into any MCP client, and run your first plan.';
+const title = 'Turf — Get started: add the Turf MCP server to your agent';
+const description = 'Install Turf with Homebrew or one script, connect it to Claude Code, Cursor, Codex or any MCP client in one command, and deploy a first stack from your agent.';
 ---
 
 <Layout title={title} description={description}>
   <section class="subhero">
     <div class="wrap">
-      <p class="eyebrow"><span class="dot"></span> Get started · alpha</p>
-      <h1>Install Turf and run your first governed plan.</h1>
-      <p class="lede">Homebrew installs both the CLI and the Terraform®-compatible MCP server.
-        Bring your own model — hosted, local, or a private GPU endpoint.</p>
+      <p class="eyebrow"><span class="dot"></span> Get started · Turf 1.0</p>
+      <h1>Install Turf and connect it to your agent.</h1>
+      <p class="lede">Homebrew installs the Turf™ MCP server and its engine. One command registers it with
+        Claude Code, Claude Desktop, Cursor, Codex, Gemini CLI or VS Code. In Claude Code and Claude
+        Desktop, Turf runs on your Claude subscription — no model API key.</p>
     </div>
   </section>
 
   <section class="section">
     <div class="wrap prose">
       <h2>1 · Install</h2>
-      <p>The tap installs the <code>turf</code> CLI and the <code>turf-mcp-server</code> binary.</p>
+      <p>The tap installs four binaries: <code>turf-mcp-server</code>, the MCP server your agent talks
+        to; the engine behind it, <code>turf-engine</code> and <code>turf-builtin-provider</code>, which
+        runs as a service so a rollout keeps going when the conversation that started it ends; and the
+        <code>turf</code> CLI.</p>
       <div class="codeblock">
         <div class="cb-head"><span>Homebrew · macOS &amp; Linux</span></div>
 <pre><span class="ps1">$</span> brew install restatedev/tap/restate-server turfbuild/tap/turf
-<span class="cm"># later: brew upgrade turf</span></pre>
+<span class="ps1">$</span> brew services start turf
+<span class="cm"># the engine, now and at every login</span>
+<span class="ps1">$</span> turf-mcp-server engine status
+<span class="cm"># later: brew upgrade turf &amp;&amp; brew services restart turf</span></pre>
       </div>
+      <div class="codeblock">
+        <div class="cb-head"><span>One script · with or without Homebrew</span></div>
+<pre><span class="ps1">$</span> curl -fsSL https://get.turf.build/install.sh | bash</pre>
+      </div>
+      <p>With Homebrew on your PATH the script runs the same install and starts the service. Without it,
+        the script unpacks the release into <code>~/.turf/bin</code>, and you run the engine yourself:
+        <code>turf-mcp-server engine run</code>.</p>
+      <p>Turf is free for noncommercial use under PolyForm Noncommercial 1.0.0. Companies can evaluate
+        Turf free for 60 days and license it for production at
+        <a href="/licensing/">turf.build/licensing</a>.</p>
       <p>Turf sends anonymous usage telemetry to Turf LLC by default: the version, the platform,
         counts of resources, changes and runs, and an anonymous installation id. It never sends
         resource contents, credentials, state, variable values or names. Turn it off with
@@ -30,8 +47,71 @@ const description = 'Install the Terraform-compatible Turf CLI and MCP server wi
         <code>DO_NOT_TRACK=1</code> in the engine's environment; the full field list and the endpoint
         are at <a href="/telemetry/">turf.build/telemetry</a>.</p>
 
-      <h2>2 · Point Turf at a model</h2>
-      <p>Set a key for a hosted model, or run fully local with no key and no cost.</p>
+      <h2 id="connect">2 · Connect your agent</h2>
+      <p>One command registers Turf with every agent on this machine. It finds the ones you have
+        installed, lets you pick from the list, and writes each config with the server's absolute path,
+        so an app launched from the Dock finds it too. It needs Node 18+ and uses
+        <a href="https://github.com/neon-solutions/add-mcp">add-mcp</a>, Neon's open-source installer;
+        running it again replaces the entry.</p>
+      <div class="codeblock">
+        <div class="cb-head"><span>Register the server</span></div>
+<pre><span class="ps1">$</span> npx add-mcp@2 <span class="str">"$(command -v turf-mcp-server)"</span> --name turf -g</pre>
+      </div>
+      <p>In Claude Code and Claude Desktop, Turf runs on your Claude subscription — no model API key.
+        Restart Claude Desktop or Cursor after the config changes.</p>
+
+      <h3>Without Node: your client's own command</h3>
+      <div class="codeblock">
+        <div class="cb-head"><span>Register the server</span></div>
+<pre><span class="cm"># Claude Code</span>
+<span class="ps1">$</span> claude mcp add turf --scope user -- turf-mcp-server
+<span class="cm"># Codex CLI</span>
+<span class="ps1">$</span> codex mcp add turf -- turf-mcp-server
+<span class="cm"># Gemini CLI</span>
+<span class="ps1">$</span> gemini mcp add -s user turf turf-mcp-server
+<span class="cm"># VS Code</span>
+<span class="ps1">$</span> code --add-mcp <span class="str">'&#123;"name":"turf","command":"turf-mcp-server"&#125;'</span></pre>
+      </div>
+      <p>Claude Desktop and Cursor read the same block from their config file. Use the path
+        <code>command -v turf-mcp-server</code> prints, then restart the app:</p>
+      <div class="codeblock">
+        <div class="cb-head"><span>claude_desktop_config.json · ~/.cursor/mcp.json</span></div>
+<pre>&#123;
+  <span class="str">"mcpServers"</span>: &#123;
+    <span class="str">"turf"</span>: &#123;
+      <span class="str">"command"</span>: <span class="str">"/path/to/turf-mcp-server"</span>
+    &#125;
+  &#125;
+&#125;</pre>
+      </div>
+      <p>The server speaks MCP over stdio by default, or over HTTP with
+        <code>turf-mcp-server --transport http</code> (binds loopback).</p>
+
+      <h2>3 · Deploy from your agent</h2>
+      <p>Turf's prompts are slash commands in Claude Code. Start with the walkthrough: it runs a real
+        example from <a href="https://github.com/turfbuild/turf-examples">turf-examples</a> and shows
+        the approval gate on the way.</p>
+      <div class="codeblock">
+        <div class="cb-head"><span>In Claude Code</span></div>
+<pre><span class="cm"># first-run walkthrough</span>
+<span class="ps1">&gt;</span> /turf:guide
+<span class="cm"># deploy or reconcile a configuration directory</span>
+<span class="ps1">&gt;</span> /turf:up path/to/config
+<span class="cm"># tear it down</span>
+<span class="ps1">&gt;</span> /turf:destroy path/to/config</pre>
+      </div>
+      <p>In any other client, ask in words: “deploy the configuration in ./infra with Turf”.
+        Slash-command arguments are one word each, so the path has no spaces. Every change is planned,
+        shown to you, and applied one effect at a time — with an approval gate in between. Nothing runs
+        off-plan.</p>
+    </div>
+  </section>
+
+  <section class="section alt">
+    <div class="wrap prose">
+      <h2>Prefer a standalone agent? The Turf CLI</h2>
+      <p>Turf's own agent, <code>turf chat</code>, drives the same server and engine with a model you
+        bring. Set a key for a hosted model, or run fully local with no key and no cost.</p>
       <div class="codeblock">
         <div class="cb-head"><span>Choose a model</span></div>
 <pre><span class="cm"># hosted frontier model</span>
@@ -43,8 +123,6 @@ const description = 'Install the Terraform-compatible Turf CLI and MCP server wi
 <span class="cm"># or a private GPU endpoint (vLLM, LM Studio, gateways)</span>
 <span class="ps1">$</span> turf --base-url <span class="str">https://gpu.internal/v1</span> --model <span class="str">my-model</span> chat</pre>
       </div>
-
-      <h2>3 · Run it</h2>
       <p>Chat interactively, or converge a whole stack from a config directory.</p>
       <div class="codeblock">
         <div class="cb-head"><span>The Turf CLI</span></div>
@@ -52,48 +130,6 @@ const description = 'Install the Terraform-compatible Turf CLI and MCP server wi
 <span class="ps1">$</span> cd path/to/config &amp;&amp; turf up
 <span class="ps1">$</span> cd path/to/config &amp;&amp; turf destroy</pre>
       </div>
-      <p>Every change is planned, shown to you, and applied one effect at a time — with an approval
-        gate in between. Nothing runs off-plan.</p>
-    </div>
-  </section>
-
-  <section class="section alt">
-    <div class="wrap prose">
-      <h2>Use Turf from any MCP client</h2>
-      <p>Turf is an MCP server first. Add it to Claude Desktop, Claude Code, Codex, VS Code, or any MCP-capable agent.</p>
-
-      <h3>Claude Desktop</h3>
-      <p>Add this to <code>claude_desktop_config.json</code>:</p>
-      <div class="codeblock">
-        <div class="cb-head"><span>claude_desktop_config.json</span></div>
-<pre>&#123;
-  <span class="str">"mcpServers"</span>: &#123;
-    <span class="str">"turf"</span>: &#123;
-      <span class="str">"command"</span>: <span class="str">"turf-mcp-server"</span>
-    &#125;
-  &#125;
-&#125;</pre>
-      </div>
-
-      <h3>Claude Code</h3>
-      <div class="codeblock">
-        <div class="cb-head"><span>Register the server</span></div>
-<pre><span class="ps1">$</span> claude mcp add turf --scope user -- turf-mcp-server</pre>
-      </div>
-
-      <h3>Codex CLI</h3>
-      <div class="codeblock">
-        <div class="cb-head"><span>Register the server</span></div>
-<pre><span class="ps1">$</span> codex mcp add turf -- turf-mcp-server</pre>
-      </div>
-
-      <h3>VS Code</h3>
-      <div class="codeblock">
-        <div class="cb-head"><span>Register the server</span></div>
-<pre><span class="ps1">$</span> code --add-mcp <span class="str">'&#123;"name":"turf","command":"turf-mcp-server"&#125;'</span></pre>
-      </div>
-      <p>The server speaks MCP over stdio by default, or over HTTP with
-        <code>turf-mcp-server --transport http</code> (binds loopback).</p>
     </div>
   </section>
 
@@ -115,7 +151,7 @@ const description = 'Install the Terraform-compatible Turf CLI and MCP server wi
     --certificate-identity-regexp <span class="str">'^https://github.com/turfbuild/turf-mcp-server/'</span> \
     --certificate-oidc-issuer <span class="str">https://token.actions.githubusercontent.com</span></pre>
       </div>
-      <p>Prefer the CLI? Verify the Homebrew binary's provenance with
+      <p>Installed with Homebrew? Verify the binary's provenance with
         <code>gh attestation verify turf --repo turfbuild/turf</code>.</p>
     </div>
   </section>
@@ -126,8 +162,9 @@ const description = 'Install the Terraform-compatible Turf CLI and MCP server wi
       <ul>
         <li>See what Turf supports today on the <a href="/compatibility/">Compatibility</a> page.</li>
         <li>Browse runnable stacks in <a href="https://github.com/turfbuild/turf-examples">turf-examples</a>.</li>
-        <li>Deploying layered infrastructure under governance constraints?
-          <a href="mailto:contact@turf.build?subject=Design%20partner">Become a design partner</a>.</li>
+        <li>Building a GPU cloud? Read <a href="/reference-architectures/">Metal to Tokens</a>, the
+          reference architecture.</li>
+        <li>Evaluating Turf at a company? <a href="/licensing/#pilot">Start a free 60-day pilot</a>.</li>
       </ul>
     </div>
   </section>
