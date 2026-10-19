@@ -14,7 +14,7 @@
       <div class="step">
         <span class="n">step 2</span>
         <h3>Plan</h3>
-        <p>Turf produces a standard Terraform plan. Its effects become the agent’s TODO list —
+        <p>Turf produces a standard Terraform plan. Its changes become the agent’s TODO list —
         it can’t act outside them.</p>
       </div>
       <div class="step gate">
@@ -25,9 +25,9 @@
       </div>
       <div class="step">
         <span class="n">step 4</span>
-        <h3>Apply, one effect at a time</h3>
-        <p>There is deliberately no <code>apply_all</code>. Between effects the agent can pause,
-        take a backup, or ask for help.</p>
+        <h3>Apply, with the agent overseeing</h3>
+        <p>The engine applies the approved plan. A turf action stops it for a check, a backup or a
+        question — the agent, and you, step in there.</p>
       </div>
       <div class="step">
         <span class="n">step 5</span>

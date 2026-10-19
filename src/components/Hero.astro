@@ -1,5 +1,5 @@
 ---
-// Hero with the 3-phase deferral-convergence animation. The panel renders its
+// Hero with the 3-round deferral-convergence animation. The panel renders its
 // planned/deferred state statically; the script below animates it and jumps
 // straight to the converged state under prefers-reduced-motion.
 ---
@@ -28,11 +28,11 @@
       </div>
     </div>
     <div>
-      <div class="planpanel" aria-label="Animated example: a Turf plan converging across three phases">
+      <div class="planpanel" aria-label="Animated example: a Turf plan converging across three rounds">
         <div class="pp-head">
           <span class="pp-dots"><i></i><i></i><i></i></span>
-          <span class="pp-title" id="pp-title">plan — 1 effect · 3 deferred</span>
-          <span class="pp-phase" id="pp-phase">phase 1</span>
+          <span class="pp-title" id="pp-title">plan — 1 change · 3 deferred</span>
+          <span class="pp-phase" id="pp-phase">round 1</span>
         </div>
         <div class="pp-body">
           <div class="pp-row" id="row0">
@@ -57,9 +57,9 @@
           </div>
         </div>
         <div class="pp-gate" id="pp-gate"><span id="pp-gate-text">⏸ awaiting your approval</span></div>
-        <div class="pp-banner" id="pp-banner">✓ converged — 4 applied · 3 phases · 0 drift</div>
+        <div class="pp-banner" id="pp-banner">✓ converged — 4 applied · 3 rounds · 0 drift</div>
       </div>
-      <p class="pp-caption">the Terraform plan becomes the agent’s TODO list — worked one effect at a time</p>
+      <p class="pp-caption">the Terraform plan becomes the agent’s TODO list — approved round by round</p>
     </div>
   </div>
 </header>
@@ -95,13 +95,13 @@
     function setTitle(text: string) { title!.textContent = text; }
 
     function initial() {
-      setTitle('plan — 1 effect · 3 deferred');
+      setTitle('plan — 1 change · 3 deferred');
       setRow(0, '', '○', 'planned');
       setRow(1, 'deferred', '◌', 'deferred · cluster not yet known');
       setRow(2, 'deferred', '◌', 'deferred · cluster not yet known');
       setRow(3, 'deferred', '◌', 'deferred · CRD not yet known');
       setGate(false, '⏸ awaiting your approval');
-      setPhase('phase 1', false);
+      setPhase('round 1', false);
       banner!.className = 'pp-banner';
     }
     function finalState() {
@@ -110,7 +110,7 @@
       setRow(1, 'applied', '✓', 'applied · 41s');
       setRow(2, 'applied', '✓', 'applied · 12s');
       setRow(3, 'applied', '✓', 'applied · 2s');
-      setGate(true, '✓ approved by you — phase 3');
+      setGate(true, '✓ approved by you — round 3');
       setPhase('converged', false);
       banner!.className = 'pp-banner show';
     }
@@ -119,18 +119,18 @@
 
     const timeline: [number, (() => void) | null][] = [
       [0,     initial],
-      [1600,  function () { setGate(true, '✓ approved by you — phase 1'); }],
+      [1600,  function () { setGate(true, '✓ approved by you — round 1'); }],
       [2400,  function () { setPhase('applying', true); setRow(0, 'applying', '▶', 'applying…'); }],
       [4000,  function () { setRow(0, 'applied', '✓', 'applied · 32s'); }],
-      [4900,  function () { setPhase('replanning', true); setGate(false, '↻ replanning — cluster known, 2 effects now plannable'); }],
-      [6400,  function () { setPhase('phase 2', false); setTitle('plan — 2 effects · 1 deferred'); setRow(1, '', '○', 'planned'); setRow(2, '', '○', 'planned'); setGate(false, '⏸ awaiting your approval'); }],
-      [7900,  function () { setGate(true, '✓ approved by you — phase 2'); }],
+      [4900,  function () { setPhase('replanning', true); setGate(false, '↻ replanning — cluster known, 2 changes now plannable'); }],
+      [6400,  function () { setPhase('round 2', false); setTitle('plan — 2 changes · 1 deferred'); setRow(1, '', '○', 'planned'); setRow(2, '', '○', 'planned'); setGate(false, '⏸ awaiting your approval'); }],
+      [7900,  function () { setGate(true, '✓ approved by you — round 2'); }],
       [8700,  function () { setPhase('applying', true); setRow(1, 'applying', '▶', 'applying…'); }],
       [10200, function () { setRow(1, 'applied', '✓', 'applied · 41s'); setRow(2, 'applying', '▶', 'applying…'); }],
       [11500, function () { setRow(2, 'applied', '✓', 'applied · 12s'); }],
-      [12400, function () { setPhase('replanning', true); setGate(false, '↻ replanning — CRD known, 1 effect now plannable'); }],
-      [13900, function () { setPhase('phase 3', false); setTitle('plan — 1 effect'); setRow(3, '', '○', 'planned'); setGate(false, '⏸ awaiting your approval'); }],
-      [15400, function () { setGate(true, '✓ approved by you — phase 3'); }],
+      [12400, function () { setPhase('replanning', true); setGate(false, '↻ replanning — CRD known, 1 change now plannable'); }],
+      [13900, function () { setPhase('round 3', false); setTitle('plan — 1 change'); setRow(3, '', '○', 'planned'); setGate(false, '⏸ awaiting your approval'); }],
+      [15400, function () { setGate(true, '✓ approved by you — round 3'); }],
       [16200, function () { setPhase('applying', true); setRow(3, 'applying', '▶', 'applying…'); }],
       [17500, function () { setRow(3, 'applied', '✓', 'applied · 2s'); setPhase('converged', false); setTitle('plan — converged'); banner!.className = 'pp-banner show'; }],
       [23000, null]  // loop

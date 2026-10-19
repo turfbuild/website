@@ -16,12 +16,14 @@
         <li><span class="g">✓</span><div><b>OpenTofu providers</b> <span>— the whole provider ecosystem, unmodified.</span></div></li>
         <li><span class="g">✓</span><div><b>Brownfield adoption</b> <span>— an <code>import</code> block brings existing
           infrastructure under management, reviewed as a real diff before anything changes.</span></div></li>
-        <li><span class="g">✓</span><div><b>Terraform Actions</b> <span>— the 1.14 action model, carried on Turf’s
-          fork.</span><span class="pill ok">ahead of OpenTofu</span></div></li>
-        <li><span class="g">✓</span><div><b>Deferred changes</b> <span>— a first-class, agent-resolved convergence
-          loop, no experimental flags.</span><span class="pill ok">ahead of OpenTofu</span></div></li>
-        <li><span class="g">◑</span><div><b>Stacks-class multi-environment deploys</b> <span>— one configuration,
-          fanned out across workspaces, converged by phases.</span><span class="pill soon">coming soon</span></div></li>
+        <li><span class="g">✓</span><div><b>Terraform Actions</b> <span>— the 1.16 action model, plus overlays that
+          add a trigger without touching the module.</span><span class="pill ok">ahead of OpenTofu</span></div></li>
+        <li><span class="g">✓</span><div><b>Multi-round convergence</b> <span>— plans what it can, defers the rest,
+          plans again; no experimental flags.</span><span class="pill ok">ahead of OpenTofu</span></div></li>
+        <li><span class="g">✓</span><div><b>Durable, encrypted, observable</b> <span>— runs survive restarts, state is
+          encrypted at rest, OpenTelemetry is built in.</span><span class="pill ok">ahead of OpenTofu</span></div></li>
+        <li><span class="g">✓</span><div><b>Multi-environment deploys</b> <span>— one configuration, a workspace per
+          environment, promoted with overlays.</span></div></li>
       </ul>
       <div class="honesty">
         <b>Radically honest compatibility.</b> Where a construct isn’t supported yet, Turf refuses
@@ -30,21 +32,21 @@
       </div>
     </div>
     <div>
-      <div class="term" role="img" aria-label="Example turf up session converging a Kubernetes stack across three phases">
+      <div class="term" role="img" aria-label="Example turf up session converging a Kubernetes stack across three rounds">
         <div class="term-head"><span>turf up · kind-helm example</span></div>
         <div class="term-body">
 <div class="t"><span class="p">$</span> <span class="b">turf up</span></div>
-<div class="t"><span class="dim">plan · phase 1 —</span> <span class="ok">1 to add</span><span class="dim">,</span> <span class="amber">3 deferred</span></div>
+<div class="t"><span class="dim">plan · round 1 —</span> <span class="ok">1 to add</span><span class="dim">,</span> <span class="amber">3 deferred</span></div>
 <div class="t"><span class="dim">approve?</span> <span class="b">yes</span> <span class="dim">(policy checks passed)</span></div>
 <div class="t"><span class="ok">✓</span> kind_cluster.demo <span class="dim">              32s</span></div>
-<div class="t"><span class="dim">plan · phase 2 —</span> <span class="ok">2 to add</span><span class="dim">,</span> <span class="amber">1 deferred</span></div>
+<div class="t"><span class="dim">plan · round 2 —</span> <span class="ok">2 to add</span><span class="dim">,</span> <span class="amber">1 deferred</span></div>
 <div class="t"><span class="dim">approve?</span> <span class="b">yes</span></div>
 <div class="t"><span class="ok">✓</span> helm_release.cert_manager <span class="dim">      41s</span></div>
 <div class="t"><span class="ok">✓</span> helm_release.external_dns <span class="dim">      12s</span></div>
-<div class="t"><span class="dim">plan · phase 3 —</span> <span class="ok">1 to add</span></div>
+<div class="t"><span class="dim">plan · round 3 —</span> <span class="ok">1 to add</span></div>
 <div class="t"><span class="dim">approve?</span> <span class="b">yes</span></div>
 <div class="t"><span class="ok">✓</span> kubernetes_manifest.issuer <span class="dim">      2s</span></div>
-<div class="t"><span class="ok">converged</span> <span class="dim">— 4 applied across 3 phases · 0 drift</span></div>
+<div class="t"><span class="ok">converged</span> <span class="dim">— 4 applied across 3 rounds · 0 drift</span></div>
         </div>
       </div>
       <p class="pp-caption left">cluster → operators → CRDs → workloads. no <span class="mono">-target</span> hacks, no two-stage applies.</p>
