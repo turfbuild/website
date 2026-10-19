@@ -122,10 +122,21 @@ while the neocloud PDF was marked — source of truth: the Marks section of
   capability level** (the Pillars grid, the compatibility matrix). The five *use-case narratives*
   are deliberately written present-tense with no shipped/coming-soon distinction (decided
   2026-08-25; the site is forward-looking because development is fast).
-- **Never name or describe Restate** or any internal scale-out mechanism (virtual objects,
-  workflows, journals). Scale claims use capability framing: "the cloud API is the ceiling",
-  "thousands of resources per stack", "durable execution". The one exception is `/telemetry/`, a
-  disclosure that names restate-server as the engine reports it (see Content provenance).
+- **Restate is named where the engine is described** (Eron, 2026-10-18: "we should be proud to be
+  using Restate"; this reversed the earlier never-name rule). `/engine/` carries a paragraph in
+  Restate's own words (from docs.restate.dev), linked to restate.dev, with an attribution line beside
+  the NVIDIA note, and the engine rows of `/compatibility/` ("Where Turf is ahead") name it;
+  `/telemetry/` and `install.sh` name restate-server as before. Home and the use-case cards keep
+  capability framing ("the cloud API is the ceiling", "thousands of resources per stack", "durable
+  runs") and link `/engine/`. Internal names (RocksDB, HCP, virtual objects, partition processors)
+  stay out; "journal" only as Restate itself describes durable execution. Nominative use only: no
+  Restate logo, no implied endorsement.
+- **Rounds, approval points and turf actions are the 1.0 vocabulary.** Say "round", never
+  "phase"; the engine applies the approved plan, and the agent (and the user) intervene at approval
+  points and at turf actions. Never "effect", "one effect at a time", `apply_all` or `effect_apply`:
+  those described the pre-1.0 engine. Plots (`.tfplot.hcl`, `declare_*`, `config_promote`) were
+  retired 2026-10-04: the agent writes ordinary `.tf` files. `turf_confirm` is gone: a question for
+  the user is a `turf_action` whose prompt says to ask.
 - **"Drop-in replacement" never leads** (de-emphasized 2026-08-25; greenfield-first). Compatibility
   is a supporting message: say "Terraform-compatible" or "runs your existing configurations — HCL,
   modules, providers — unchanged". The provenance line ("independent product built on the OpenTofu
@@ -193,10 +204,23 @@ any copy round. Treat the headline as fixed unless the user reopens it.
 
 ## Content provenance
 
-`pages/compatibility.astro` is adapted from the internal conformance report at
-`doof/docs/development/analysis/language-feature-conformance.md`. When syncing it: strip `FU-####`
-ids, `internal/…​.go:NNN` code anchors, and design-doc paths; the "Known divergences" section was
-removed on purpose (inaccurate and off-message) — don't reinstate it.
+`pages/compatibility.astro` was rewritten for 1.0 on 2026-10-18: the strengths table first ("Where
+Turf is ahead": durable runs, encryption at rest, OpenTelemetry, provider calls that scale out,
+Terraform actions with overlays, turf actions, multi-round convergence — Eron's list, in that
+spirit), then the three-way matrix. Its sources, in order: turf-engine's refusal list
+(`turf-engine/engine/tier2.go`, `refusedConstructs`); the deployment and authoring skills' reference
+files as the 1.0 server ships them (`doof/internal/skills/content/{deployment,authoring}/references/`:
+divergences, deferrals, imports, workspaces, lifecycle, actions, variables, providers, data sources);
+the internal conformance report `doof/docs/development/analysis/language-feature-conformance.md`
+(its 2026-10-08 "v1" entry; rows it did not re-verify are historical); the rc.1 acceptance pass
+(`headquarters/research/rc1-acceptance-2026-10-17.md`); and Restate's docs for the engine rows. The
+baselines are Terraform 1.16.x (October 2026) and OpenTofu 1.13.x (September 2026), re-grounded
+against the changelogs (Terraform has no `-exclude`; OpenTofu has no action blocks): re-ground them
+before each publish. `-target`/`-exclude` are divergences by design, not "coming soon"; the
+encryption row carries the honest clause that state encryption protects the backend's statefile, not
+the engine's store. When syncing from the report: strip `FU-####` ids, `internal/…​.go:NNN` code
+anchors, and design-doc paths; the "Known divergences" section was removed on purpose (inaccurate
+and off-message) — don't reinstate it.
 
 `pages/telemetry.astro` mirrors turf's public `docs/telemetry.md`
 (`github.com/turfbuild/turf`) field for field: every field, value, switch and precedence rule is
@@ -252,10 +276,14 @@ so change it when they change:
 - its license and telemetry sentences come from `headquarters/marketing/licensing.md`. It names
   restate-server, as install surfaces may (launch plan §4.2, D18).
 
-`pages/demo.astro` mirrors the kind-crd example at `turfbuild/turf-examples`; the phase labels and
-effects shown in the HCL diagram are exactly what `turf up` computes, so they must be re-checked
+`pages/demo.astro` mirrors the kind-crd example at `turfbuild/turf-examples`; the round labels and
+changes shown in the HCL diagram are exactly what `turf up` computes, so they must be re-checked
 against a real run rather than hand-authored. Demo videos live in `public/demos/` as webm+mp4 pairs
-with poster PNGs.
+with poster PNGs. Both demo pages' recordings are pre-1.0 takes (kind-crd 2026-08-06, Scalr
+2026-08-10, from `headquarters/recordings/`); the pages were moved to 1.0 vocabulary on 2026-10-18
+and `/demo/scalr/` dropped its backend still, which showed the retired plot flow. Re-record both on
+1.0 with `headquarters/recordings/render.sh` (the Scalr `setup` still pins OpenTofu 1.12.5 and must
+be unpinned first), then re-derive each `VideoObject`'s `uploadDate` and `duration`.
 
 ## Working style the user expects
 

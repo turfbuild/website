@@ -22,7 +22,7 @@ const jsonLd = [
     '@type': 'VideoObject',
     name: 'Turf converges a Kubernetes stack in one turf up',
     description:
-      'A kind cluster, a CustomResourceDefinition, and an instance of it — three resources that each depend on the previous one existing. Turf plans them across phases and converges all three in a single governed run.',
+      'A kind cluster, a CustomResourceDefinition, and an instance of it — three resources that each depend on the previous one existing. Turf plans them across rounds and converges all three in a single governed run.',
     thumbnailUrl: `${site}/demos/kind-crd-up-poster.png`,
     contentUrl: `${site}/demos/kind-crd-up.mp4`,
     encodingFormat: 'video/mp4',
@@ -85,10 +85,10 @@ const jsonLd = [
   <section class="section alt">
     <div class="wrap">
       <div class="prose demo-config-head">
-        <h2>One config. Three phases.</h2>
+        <h2>One config. Three rounds.</h2>
         <p>The whole demo is a single Terraform file. Each resource can only be created once the one
-          above it exists — so Turf converges it in three planned, approved phases, configuring the
-          kubernetes provider in Phase 2 once the cluster's endpoint is known. The phase labels and
+          above it exists — so Turf converges it in three planned, approved rounds, configuring the
+          kubernetes provider in round 2 once the cluster's endpoint is known. The round labels and
           effects below are exactly what <code class="mono">turf up</code> computes; nothing is edited
           or staged by hand.</p>
       </div>
@@ -96,12 +96,12 @@ const jsonLd = [
       <div class="codeblock demo-config">
         <div class="cb-head">
           <span>main.tf</span>
-          <span class="cb-legend"><span class="mk">+</span> create · each phase planned &amp; approved</span>
+          <span class="cb-legend"><span class="mk">+</span> create · each round planned &amp; approved</span>
         </div>
         <div class="demo-config-body">
           <div class="ph ph-1">
             <div class="ph-tag">
-              <span class="ph-name">Phase 1 · create</span>
+              <span class="ph-name">Round 1 · create</span>
               <span class="ph-eff"><span class="mk">+</span> kind_cluster.demo</span>
             </div>
 <pre><span class="cm"># A local Kubernetes cluster running as Docker containers via kind.</span>
@@ -114,11 +114,11 @@ const jsonLd = [
 
           <div class="ph ph-2">
             <div class="ph-tag">
-              <span class="ph-name">Phase 2 · create</span>
+              <span class="ph-name">Round 2 · create</span>
               <span class="ph-eff"><span class="mk">+</span> kubernetes_manifest.crd</span>
             </div>
 <pre><span class="cm"># The kubernetes provider binds to the cluster's computed endpoint — unknown</span>
-<span class="cm"># until Phase 1 applied. Turf configures it here, then reloads it so the new</span>
+<span class="cm"># until round 1 applied. Turf configures it here, then reloads it so the new</span>
 <span class="cm"># CRD's API is discoverable.</span>
 <span class="kw">provider</span> <span class="str">"kubernetes"</span> &#123;
   host                   = kind_cluster.demo.endpoint
@@ -135,11 +135,11 @@ const jsonLd = [
 
           <div class="ph ph-3">
             <div class="ph-tag">
-              <span class="ph-name">Phase 3 · create</span>
+              <span class="ph-name">Round 3 · create</span>
               <span class="ph-eff"><span class="mk">+</span> kubernetes_manifest.instance</span>
             </div>
 <pre><span class="cm"># The "Turf" kind does not exist until the CRD applies, so this cannot be</span>
-<span class="cm"># planned until Phase 2 is live. depends_on orders it; Turf defers it here.</span>
+<span class="cm"># planned until round 2 is live. depends_on orders it; Turf defers it here.</span>
 <span class="kw">resource</span> <span class="str">"kubernetes_manifest"</span> <span class="str">"instance"</span> &#123;
   <span class="kw">depends_on</span> = [kubernetes_manifest.crd]
   manifest   = &#123;
@@ -229,9 +229,9 @@ const jsonLd = [
     margin-top: 22px;
   }
 
-  /* ── HCL phase diagram ─────────────────────────────────────────────
+  /* ── HCL round diagram ─────────────────────────────────────────────
      A raised, theme-aware PANEL (not the terminal-black of the videos),
-     with a solid colored header bar per convergence phase.            */
+     with a solid colored header bar per convergence round.            */
   .demo-config-head {
     margin-bottom: clamp(18px, 2.5vw, 26px);
   }

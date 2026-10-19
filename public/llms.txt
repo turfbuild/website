@@ -12,17 +12,17 @@ the standalone CLI agent (`turf`) with your own model key. Install with
 `brew install restatedev/tap/restate-server turfbuild/tap/turf`, then `brew services start turf`.
 
 The governing idea: Turf produces the plan, and the Terraform plan becomes the agent's TODO
-list — worked one effect at a time, with an approval gate between rounds. Nothing runs
+list — approved round by round. Nothing runs
 off-plan. Turf is free for noncommercial use; commercial use, including a company's internal
 use, requires a license (https://turf.build/licensing/). Some capabilities are marked coming soon
 on the site.
 
 ## Start here
 
-- [Turf 1.0](https://turf.build/engine/): the announcement. A self-hosted, autonomous infrastructure-as-code tool built on OpenTofu: the operating model (every change a Terraform plan, reviewed and approved), the engine, the three ecosystems it runs as they are, what is in 1.0, and what comes next.
+- [Turf 1.0](https://turf.build/engine/): the announcement. A self-hosted, autonomous infrastructure-as-code tool built on OpenTofu: the operating model (every change a Terraform plan, reviewed and approved), the engine, built on Restate for durable execution, the three ecosystems it runs as they are, what is in 1.0, and what comes next.
 - [Get started](https://turf.build/get-started/): install, connect Turf to Claude Code, Cursor, Codex, Gemini CLI, VS Code or any MCP client, and deploy from your agent; or run the standalone CLI.
 - [Metal to Tokens](https://turf.build/reference-architectures/): a reference architecture for managed GPU cloud infrastructure, as code — a neocloud from pools of inventory to a cluster that has passed NVCRE certification, with day 2 on the provider's runbook. The PDF: https://get.turf.build/papers/turf-neocloud-reference-architecture.pdf
-- [Compatibility](https://turf.build/compatibility/): a three-way comparison of Terraform 1.14, OpenTofu 1.12, and Turf — what is supported today, where Turf is ahead (actions, deferred changes), and what is coming soon.
+- [Compatibility](https://turf.build/compatibility/): where Turf 1.0 is ahead of Terraform 1.16 and OpenTofu 1.13 — durable runs on Restate, encryption at rest, OpenTelemetry, provider calls that scale out, Terraform actions with overlays, turf actions, multi-round convergence — and an honest three-way matrix of every construct, with what is refused and what is coming soon.
 - [Kubernetes stack demo](https://turf.build/demo/): a kind cluster, a CRD, and a custom resource converged in one governed run, then torn down.
 - [Scalr integration demo](https://turf.build/demo/scalr/): folding an existing Terraform automation platform's state backend, variables, and OPA policy checks into the plan.
 

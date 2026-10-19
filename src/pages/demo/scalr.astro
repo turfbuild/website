@@ -97,23 +97,12 @@ const jsonLd = [
         <p class="eyebrow"><span class="dot"></span> 01 · State</p>
         <h2>Your platform holds the state.</h2>
         <p>The Scalr workspace here is <strong>state-storage-only</strong>: it holds state and
-          executes nothing. Turf declares a <code>remote</code> backend against it and opens it
-          for the session. Turf is the engine, Scalr is the control plane — and everything that
+          executes nothing. The agent writes a <code>remote</code> backend block against it and Turf
+          opens the workspace. Turf is the engine, Scalr is the control plane — and everything that
           follows happens because Scalr never gets a run of its own to hang its features on.</p>
       </div>
 
-      <figure class="shot-figure">
-        <img
-          class="shot"
-          src="/demos/scalr/02-backend.png"
-          alt="Turf's session log: Declare Backend remote, declared into main.tfplot.hcl, with hostname turf.scalr.io, organization turf-demo, and workspaces name turf-scalr-chat; then Open Workspace default, remote."
-          width="1600"
-          height="444"
-          loading="lazy"
-        />
-        <figcaption class="pp-caption left">The backend is authored in the session, then opened —
-          state lives in the <code>turf-scalr-chat</code> workspace from here on.</figcaption>
-      </figure>
+      <p class="prose demo-prose">State lives in the <code>turf-scalr-chat</code> workspace from here on.</p>
     </div>
   </section>
 

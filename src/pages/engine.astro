@@ -5,7 +5,8 @@ import Layout from '../layouts/Layout.astro';
 // the two-layer frame (launch-plan.md §1, §3); the engine list and the three-ecosystems chapter
 // of Metal to Tokens (refarch-neocloud.md, "The Turf engine", chapter 9, whose counts are the
 // paper's, dated October 2026); the 1.0 acceptance pass (research/rc1-acceptance-2026-10-17.md)
-// for what is in 1.0; licensing.md's announcement line, byte for byte. The headline is launch
+// for what is in 1.0; licensing.md's announcement line, byte for byte; Restate's own description
+// from docs.restate.dev (Eron, 2026-10-18: "be proud to be using Restate"). The headline is launch
 // plan D2's first candidate; see "Content provenance" in CLAUDE.md.
 const title = 'Turf — Turf 1.0 is available now: autonomous IaC on OpenTofu';
 const description =
@@ -32,14 +33,14 @@ const jsonLd = {
 
 const engine = [
   ['Laptop or Kubernetes', 'Runs on a workstation, or as a service in the cluster.'],
-  ['Durable execution with a full record', 'Every effect is recorded as it happens, and an interrupted run picks up where it stopped.'],
-  ['Built-in OpenTelemetry', 'Traces and metrics for every change and every effect.'],
+  ['Durable execution, on Restate', 'Every step is journaled as it happens, and an interrupted run picks up where it stopped.'],
+  ['Built-in OpenTelemetry', 'Traces of every run, exported over OTLP, and metrics in Prometheus format.'],
   ['Operator console', 'Every stack, run and approval in one place.'],
   ['The Terraform language', 'Configuration in HCL, with registry modules and providers.'],
   ['Terraform Actions', 'With lifecycle triggers and failure handling.'],
   ['Policy and governance', 'Change plans export for the provider’s own policy tools to check. Nothing runs until one is approved.'],
   ['An MCP server and skills', 'For any agent, and for the provider’s own control plane.'],
-  ['Encrypted at rest', 'State and the engine’s store.'],
+  ['Encrypted at rest', 'State encryption with a passphrase or key; the engine’s store under the disk encryption it runs on.'],
   ['Convergence', 'Plans what it can, defers the rest, and plans again until nothing is left.'],
 ];
 ---
@@ -74,14 +75,18 @@ const engine = [
           inventory to a GPU cluster that has passed NVCRE certification, on managed Kubernetes® or
           bare metal, and runs day 2 on the provider’s runbook: re-certify on change, replace a
           failed node, upgrade, retire.</p>
-        <p>Under the plan is Turf’s new engine, built for the scale and the multi-phase shape of
-          that stack. On top, agents drive the plan over MCP, and the provider’s own control plane
-          does the same. NVIDIA has shipped AI Cluster Runtime (AICR) 1.0 and says itself that it is
+        <p>Under the plan is Turf’s new engine, built for the scale and the multi-round shape of
+          that stack. It runs on <a href="https://restate.dev">Restate</a> — in Restate’s words, “a
+          lightweight runtime to turn AI agents, workflows, and backend services into durable
+          processes”: every step of a run is journaled as it happens, so an interrupted run resumes
+          where it stopped, a plan waiting for approval holds no process, and a rollout outlives the
+          conversation that started it. On top, agents drive the plan over MCP, and the provider’s
+          own control plane does the same. NVIDIA has shipped AI Cluster Runtime (AICR) 1.0 and says itself that it is
           “not a cluster provisioner or lifecycle management system”: you bring the cluster and the
           deployment tooling. Turf is what takes the cluster the rest of the way.</p>
       </div>
 
-      <div class="layers" role="img" aria-label="Two layers: the operating model decides what happens; the engine decides what is possible; both stand on the OpenTofu framework, providers and the module registry.">
+      <div class="layers" role="img" aria-label="Two layers: the operating model decides what happens; the engine decides what is possible; both stand on the OpenTofu framework, providers, the module registry and Restate.">
         <div class="layer">
           <span class="name">Operating model</span>
           <span class="items">the Terraform plan · review and approval · policy · agents over MCP</span>
@@ -94,7 +99,7 @@ const engine = [
         </div>
         <div class="layer base">
           <span class="name"></span>
-          <span class="items">OpenTofu framework · providers · module registry</span>
+          <span class="items">OpenTofu framework · providers · module registry · Restate</span>
           <span class="role"></span>
         </div>
       </div>
@@ -112,7 +117,7 @@ const engine = [
         <div class="beat">
           <span class="k">01 · The engine</span>
           <h3>Plans per resource, converges in rounds</h3>
-          <p>Durable per-resource state instead of one file and one lock. Multi-phase stacks, a
+          <p>Durable per-resource state instead of one file and one lock. Layered stacks, a
             cluster and then the runtime on it, converge in one run and tear down in the right
             order. An interrupted run picks up where it stopped; a plan waiting for approval holds
             no process.</p>
@@ -145,7 +150,7 @@ const engine = [
     </div>
   </section>
 
-  <section class="section">
+  <section class="section" id="engine">
     <div class="wrap">
       <div class="band-head">
         <h2>One engine, from a laptop to the data center.</h2>
@@ -199,8 +204,8 @@ const engine = [
     <div class="wrap prose">
       <h2>What’s in 1.0.</h2>
       <ul>
-        <li><b>The new engine.</b> Durable, resumable runs with per-resource state; convergence in
-          rounds, deferring what a round can’t know yet and planning again.</li>
+        <li><b>The new engine, on Restate.</b> Durable, resumable runs with per-resource state;
+          convergence in rounds, deferring what a round can’t know yet and planning again.</li>
         <li><b>Terraform actions, with overlays.</b> Lifecycle triggers with failure handling, halt
           or taint. Overlay files add triggers per environment, a production-only approval step, without
           touching the module; each action pauses for its answer, one at a time.</li>
@@ -247,8 +252,10 @@ const engine = [
       </div>
       <p class="legal-note">NVIDIA, AI Cluster Runtime, NVCRE, NVSentinel and KAI Scheduler are
         trademarks or product names of NVIDIA Corporation, referred to here only to describe
-        interoperability. Turf is not affiliated with, endorsed by, or sponsored by NVIDIA. All other
-        marks belong to their owners.</p>
+        interoperability. Turf is not affiliated with, endorsed by, or sponsored by NVIDIA. Restate is
+        a product of Restate Software, Inc. and Restate GmbH, named here to describe what Turf is built
+        on; Turf is not affiliated with or endorsed by Restate. All other marks belong to their
+        owners.</p>
     </div>
   </section>
 </Layout>
