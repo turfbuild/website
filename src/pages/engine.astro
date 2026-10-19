@@ -1,0 +1,291 @@
+---
+import Layout from '../layouts/Layout.astro';
+// The Turf 1.0 announcement (launch plan §3, §8: the descriptor, the two layers, the four
+// pillars, what is in 1.0, what comes next). Sources, in order of use: the launch paragraph and
+// the two-layer frame (launch-plan.md §1, §3); the engine list and the three-ecosystems chapter
+// of Metal to Tokens (refarch-neocloud.md, "The Turf engine", chapter 9, whose counts are the
+// paper's, dated October 2026); the 1.0 acceptance pass (research/rc1-acceptance-2026-10-17.md)
+// for what is in 1.0; licensing.md's announcement line, byte for byte. The headline is launch
+// plan D2's first candidate; see "Content provenance" in CLAUDE.md.
+const title = 'Turf — Turf 1.0 is available now: autonomous IaC on OpenTofu';
+const description =
+  'Turf 1.0 is out: a self-hosted, autonomous infrastructure-as-code tool built on OpenTofu, free for noncommercial use. What is in it, and how it works.';
+
+const site = 'https://turf.build';
+const publisher = { '@type': 'Organization', '@id': `${site}/#organization`, name: 'Turf' };
+// datePublished is the day the release and this page went live (2026-10-18).
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'TechArticle',
+  '@id': `${site}/engine/#announcement`,
+  headline: 'Turf 1.0 is available now',
+  name: 'Turf 1.0 is available now',
+  description,
+  url: `${site}/engine/`,
+  datePublished: '2026-10-18',
+  inLanguage: 'en-US',
+  isAccessibleForFree: true,
+  author: publisher,
+  publisher: publisher,
+  about: { '@type': 'SoftwareApplication', '@id': `${site}/#software`, name: 'Turf', softwareVersion: '1.0.0' },
+};
+
+const engine = [
+  ['Laptop or Kubernetes', 'Runs on a workstation, or as a service in the cluster.'],
+  ['Durable execution with a full record', 'Every effect is recorded as it happens, and an interrupted run picks up where it stopped.'],
+  ['Built-in OpenTelemetry', 'Traces and metrics for every change and every effect.'],
+  ['Operator console', 'Every stack, run and approval in one place.'],
+  ['The Terraform language', 'Configuration in HCL, with registry modules and providers.'],
+  ['Terraform Actions', 'With lifecycle triggers and failure handling.'],
+  ['Policy and governance', 'Change plans export for the provider’s own policy tools to check. Nothing runs until one is approved.'],
+  ['An MCP server and skills', 'For any agent, and for the provider’s own control plane.'],
+  ['Encrypted at rest', 'State and the engine’s store.'],
+  ['Convergence', 'Plans what it can, defers the rest, and plans again until nothing is left.'],
+];
+---
+
+<Layout title={title} description={description} jsonLd={jsonLd}>
+  <section class="subhero">
+    <div class="wrap">
+      <p class="eyebrow"><span class="dot"></span> Announcement · Turf 1.0</p>
+      <h1>Turf 1.0 is available now.</h1>
+      <p class="lede"><strong>Turf™ is a self-hosted, autonomous infrastructure-as-code tool, built on
+        OpenTofu™.</strong> It deploys the stack an AI factory runs on and keeps it that way, with an
+        agent overseeing.</p>
+      <div class="cta-row">
+        <a class="btn primary" href="/get-started/">Get Turf 1.0</a>
+        <a class="btn ghost" href="/reference-architectures/">Read Metal to Tokens</a>
+        <a class="btn ghost" href="/licensing/#pilot">Pilot program</a>
+      </div>
+      <p class="terms">Turf is free for noncommercial use under PolyForm Noncommercial 1.0.0. Companies
+        can evaluate Turf free for 60 days and license it for production at
+        <a href="/licensing/">turf.build/licensing</a>.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="prose">
+        <p class="eyebrow"><span class="dot"></span> What Turf is</p>
+        <h2>Governance and autonomy, the same feature.</h2>
+        <p>Turf’s operating model is the Terraform® plan: every change is planned, reviewed and
+          approved before it runs, the engine carries it out and the agent oversees it, so
+          governance and autonomy are the same feature. Turf takes an AI factory from pools of
+          inventory to a GPU cluster that has passed NVCRE certification, on managed Kubernetes® or
+          bare metal, and runs day 2 on the provider’s runbook: re-certify on change, replace a
+          failed node, upgrade, retire.</p>
+        <p>Under the plan is Turf’s new engine, built for the scale and the multi-phase shape of
+          that stack. On top, agents drive the plan over MCP, and the provider’s own control plane
+          does the same. NVIDIA has shipped AI Cluster Runtime (AICR) 1.0 and says itself that it is
+          “not a cluster provisioner or lifecycle management system”: you bring the cluster and the
+          deployment tooling. Turf is what takes the cluster the rest of the way.</p>
+      </div>
+
+      <div class="layers" role="img" aria-label="Two layers: the operating model decides what happens; the engine decides what is possible; both stand on the OpenTofu framework, providers and the module registry.">
+        <div class="layer">
+          <span class="name">Operating model</span>
+          <span class="items">the Terraform plan · review and approval · policy · agents over MCP</span>
+          <span class="role">decides what happens</span>
+        </div>
+        <div class="layer">
+          <span class="name">Engine</span>
+          <span class="items">plan · converge · apply · actions · state</span>
+          <span class="role">decides what is possible</span>
+        </div>
+        <div class="layer base">
+          <span class="name"></span>
+          <span class="items">OpenTofu framework · providers · module registry</span>
+          <span class="role"></span>
+        </div>
+      </div>
+      <p class="pp-caption layers-caption">The plan tells the agent what is possible; the agent decides what happens.</p>
+    </div>
+  </section>
+
+  <section class="section alt">
+    <div class="wrap">
+      <div class="band-head">
+        <h2>What 1.0 stands on.</h2>
+        <p>Four things, each shown rather than claimed.</p>
+      </div>
+      <div class="pillars4">
+        <div class="beat">
+          <span class="k">01 · The engine</span>
+          <h3>Plans per resource, converges in rounds</h3>
+          <p>Durable per-resource state instead of one file and one lock. Multi-phase stacks, a
+            cluster and then the runtime on it, converge in one run and tear down in the right
+            order. An interrupted run picks up where it stopped; a plan waiting for approval holds
+            no process.</p>
+          <a class="runit" href="/demo/">watch a stack converge →</a>
+        </div>
+        <div class="beat">
+          <span class="k">02 · The operating model</span>
+          <h3>Every change is a Terraform plan</h3>
+          <p>Reviewed and approved before it runs. Policy with the tools you already have: the plan
+            exports for OPA, and a hard-mandatory rule stops it before the apply. Agents drive the
+            plan over MCP, and so does the platform you already run.</p>
+          <a class="runit" href="/demo/scalr/">a policy the agent can’t approve its way past →</a>
+        </div>
+        <div class="beat">
+          <span class="k">03 · The range</span>
+          <h3>Three ecosystems, run as they are</h3>
+          <p>Terraform providers and modules, Ansible® playbooks, Helm® charts, each as it is.
+            Day 2 as planned Terraform actions, with lifecycle triggers and failure handling.</p>
+          <a class="runit" href="#range">what each one carries →</a>
+        </div>
+        <div class="beat">
+          <span class="k">04 · The reference architecture</span>
+          <h3>Metal to Tokens</h3>
+          <p>A golden recipe, one convergence loop, day 2 on the runbook: a neocloud from pools of
+            inventory to NVCRE certification and a served model, on managed Kubernetes or bare
+            metal. Seventeen pages, free.</p>
+          <a class="runit" href="/reference-architectures/">read the paper →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="band-head">
+        <h2>One engine, from a laptop to the data center.</h2>
+        <p>The same engine runs every stack, on a workstation or in the cluster.</p>
+      </div>
+      <ul class="engine-list">
+        {engine.map(([name, what]) => (
+          <li><b>{name}.</b> {what}</li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section alt" id="range">
+    <div class="wrap">
+      <div class="band-head">
+        <h2>Built on three ecosystems.</h2>
+        <p>Nothing in this stack is written from nothing. Terraform providers and modules, Ansible
+          playbooks and Helm charts already cover it, and Turf runs each as it is.</p>
+      </div>
+      <div class="beats">
+        <div class="beat">
+          <span class="k">Terraform · providers and modules</span>
+          <h3>As resources and modules</h3>
+          <p>7,388 providers and 24,728 modules on the public registry reach clouds, bare-metal
+            services, switch fabrics, storage arrays and Kubernetes. Modules package them into
+            golden recipes.</p>
+        </div>
+        <div class="beat">
+          <span class="k">Ansible · playbooks</span>
+          <h3>As a Terraform action</h3>
+          <p>4,568 collections on Ansible Galaxy cover what no API reaches: drivers, firmware,
+            kernel settings, switch operating systems, Kubernetes on bare metal. A playbook runs as
+            a Terraform action.</p>
+        </div>
+        <div class="beat">
+          <span class="k">Helm · charts</span>
+          <h3>As a Terraform resource</h3>
+          <p>18,096 charts on Artifact Hub are how the runtime ships: the GPU Operator, NVSentinel,
+            KAI Scheduler, Kubeflow Trainer. A chart installs as a Terraform resource.</p>
+        </div>
+      </div>
+      <p class="sources">Counts as of <em>Metal to Tokens</em>, October 2026. Day 2 is Terraform actions
+        too: a lifecycle trigger runs the host playbook after a node is created, waits on a
+        Kubernetes condition, or re-certifies after a change, and a failure halts the run or taints
+        the resource, as the trigger says.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap prose">
+      <h2>What’s in 1.0.</h2>
+      <ul>
+        <li><b>The new engine.</b> Durable, resumable runs with per-resource state; convergence in
+          rounds, deferring what a round can’t know yet and planning again.</li>
+        <li><b>Terraform actions, with overlays.</b> Lifecycle triggers with failure handling, halt
+          or taint. Overlay files add triggers per environment, a production-only approval step, without
+          touching the module; each action pauses for its answer, one at a time.</li>
+        <li><b>A round applies what was approved.</b> The approved plan runs from a frozen copy of the
+          configuration: an edit at the approval point ends the run as stale with nothing applied,
+          and an edit during the apply changes nothing until the next plan.</li>
+        <li><b>State encryption.</b> An <code>encryption</code> block with a passphrase or key
+          protects the statefile; migrating an existing state is a no-op run.</li>
+        <li><b>Tools pinned with the configuration.</b> A <code>mise.toml</code> beside the
+          configuration pins the tools a plan calls, and the engine refuses one you haven’t trusted.</li>
+        <li><b>The MCP server, with skills.</b> In Claude Code: <code>/turf:guide</code>,
+          <code>/turf:up</code> and <code>/turf:destroy</code>, and six guided journeys, from
+          deploying AICR to day-2 node maintenance, a product that installs itself, promotion across
+          environments, a TACO as the control plane, and guardrails. Any MCP client connects in one
+          command.</li>
+        <li><b>Your platform as the control plane.</b> Remote state, workspace variables and OPA policy
+          from the Terraform automation platform you already run, through its own MCP server.</li>
+        <li><b>The Turf CLI</b> as a standalone agent, on hosted models or local ones.</li>
+        <li><b>Telemetry you can read.</b> On by default, every field published, off with one
+          command.</li>
+        <li><b>Install.</b> A Homebrew formula that runs the engine as a service, and one script for
+          macOS and Linux without it.</li>
+      </ul>
+      <h3>What comes next</h3>
+      <p><code>turf setup</code> and a Claude Code plugin, so the connect step is one command inside
+        the agent; driving Turf from other agents over the network; provider skills that encode a
+        provider’s own rules; and the saved-planfile round-trip.</p>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <div class="partner">
+        <div>
+          <h2>Get Turf 1.0.</h2>
+          <p class="mt">A download, no form, no login. <b>Free for noncommercial use.</b> Commercial use,
+            including a company’s internal use, requires a license, and companies evaluate Turf under
+            a <b>free 60-day pilot</b> on a standard contract.</p>
+        </div>
+        <div class="side">
+          <a class="btn primary" href="/get-started/">Get started</a>
+          <span class="mail">or read the terms at <a href="/licensing/">turf.build/licensing</a></span>
+        </div>
+      </div>
+      <p class="legal-note">NVIDIA, AI Cluster Runtime, NVCRE, NVSentinel and KAI Scheduler are
+        trademarks or product names of NVIDIA Corporation, referred to here only to describe
+        interoperability. Turf is not affiliated with, endorsed by, or sponsored by NVIDIA. All other
+        marks belong to their owners.</p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .terms { color: var(--muted); font-size: 14.5px; max-width: 64ch; margin: 0; }
+  /* The two-layer frame: a label, what the layer holds, and what it decides. */
+  .layers { margin-top: clamp(26px, 4vw, 40px); border: 1px solid var(--hair-strong); border-radius: 14px; overflow: hidden; background: var(--panel); }
+  .layer { display: grid; grid-template-columns: 170px minmax(0, 1fr) 190px; gap: 16px; align-items: baseline; padding: 14px 20px; border-top: 1px solid var(--hair); }
+  .layer:first-child { border-top: 0; }
+  .layer .name { font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--ok); }
+  .layer .items { color: var(--ink); font-size: 15px; }
+  .layer .role { font-family: var(--mono); font-size: 12px; color: var(--muted); text-align: right; }
+  .layer.base { background: var(--panel-2); }
+  .layer.base .items { color: var(--muted); font-size: 13.5px; }
+  .layers-caption { text-align: left; margin-top: 10px; }
+  @media (max-width: 760px) {
+    .layer { grid-template-columns: 1fr; gap: 4px; }
+    .layer .role { text-align: left; }
+    .layer.base .name, .layer.base .role { display: none; }
+  }
+  /* Four pillar cards on two columns; one column on a phone. */
+  .pillars4 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 760px) { .pillars4 { grid-template-columns: 1fr; } }
+  .pillars4 .beat { display: flex; flex-direction: column; }
+  .pillars4 .runit { display: inline-block; margin-top: auto; padding-top: 12px; font-family: var(--mono); font-size: 12px; color: var(--ok-deep); }
+  /* The engine list, two columns of the paper's ten points. */
+  .engine-list { list-style: none; margin: 0; padding: 0; columns: 2; column-gap: 32px; max-width: 980px; }
+  .engine-list li { break-inside: avoid; color: var(--muted); font-size: 14.5px; margin: 0 0 12px; padding-left: 18px; position: relative; }
+  .engine-list li::before { content: "✓"; position: absolute; left: 0; color: var(--ok); font-family: var(--mono); font-weight: 700; }
+  .engine-list li b { color: var(--ink); font-weight: 600; }
+  @media (max-width: 760px) { .engine-list { columns: 1; } }
+  .sources { color: var(--muted); font-size: 14.5px; max-width: 72ch; margin: clamp(18px, 3vw, 26px) 0 0; }
+  .prose li b { color: var(--ink); font-weight: 600; }
+  /* Nominative-use note for the marks the footer fineprint doesn't cover; matches demo/scalr. */
+  .legal-note {
+    margin-top: clamp(28px, 4vw, 44px); padding-top: 18px; border-top: 1px solid var(--hair);
+    max-width: 92ch; color: var(--faint); font-size: 12.5px; line-height: 1.6;
+  }
+</style>
