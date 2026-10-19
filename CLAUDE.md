@@ -228,7 +228,7 @@ acceptance pass (`headquarters/research/rc1-acceptance-2026-10-17.md`) for "What
 `licensing.md`'s announcement line, byte for byte, under the CTAs. The headline is launch plan D2's
 first candidate ("Turf 1.0 is available now."). The NVIDIA quotation is AICR's README ("Not a cluster
 provisioner or lifecycle management system"), so the page carries the NVIDIA marks note. Its
-`TechArticle` has no `datePublished`: set it to T-0's date when the page goes live. Home's
+`TechArticle`'s `datePublished` is 2026-10-18, the day the release and the page went live. Home's
 `SoftwareApplication` carries `softwareVersion` and `releaseNotes` → `/engine/` from the release on.
 
 `public/install.sh` is the installer behind `curl -fsSL https://get.turf.build/install.sh | bash`

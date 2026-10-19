@@ -13,7 +13,7 @@ const description =
 
 const site = 'https://turf.build';
 const publisher = { '@type': 'Organization', '@id': `${site}/#organization`, name: 'Turf' };
-// No datePublished yet: it is T-0's date, set when this page goes live with the release.
+// datePublished is the day the release and this page went live (2026-10-18).
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'TechArticle',
@@ -22,6 +22,7 @@ const jsonLd = {
   name: 'Turf 1.0 is available now',
   description,
   url: `${site}/engine/`,
+  datePublished: '2026-10-18',
   inLanguage: 'en-US',
   isAccessibleForFree: true,
   author: publisher,
