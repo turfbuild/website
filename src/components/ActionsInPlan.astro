@@ -1,0 +1,87 @@
+---
+// Resources and actions in one plan: a GPU host whose playbook runs after it is created (illustrative,
+// after turf-examples/use-cases/datacenter/ansible-k3s; `caller` is the triggering instance, as the
+// engine evaluates it), an overlay trigger (verbatim from use-cases/datacenter/aicr-stack/aicr.turf.hcl),
+// and the plan's "Actions to be invoked" lines, abridged.
+---
+
+<section class="band alt">
+  <div class="wrap">
+    <div class="band-head">
+      <h2>Resources and actions, in one plan.</h2>
+      <p>Desired state, and the steps between it: a playbook run once the hosts exist, a wait for a
+        condition, a certification. Both are written in the Terraform language, both are planned, and
+        both cross the approval point.</p>
+    </div>
+
+    <div class="feature">
+      <div>
+        <div class="codeblock">
+          <div class="cb-head"><span>main.tf · a GPU host</span><span class="cb-legend">a playbook as a Terraform action</span></div>
+<pre><span class="kw">resource</span> <span class="str">"aws_instance"</span> <span class="str">"gpu_host"</span> &#123;
+  ami           = data.aws_ami.ubuntu.id
+  instance_type = <span class="str">"g6.xlarge"</span>
+  subnet_id     = aws_subnet.public.id
+  key_name      = aws_key_pair.ops.key_name
+
+  <span class="kw">lifecycle</span> &#123;
+    <span class="kw">action_trigger</span> &#123;
+      events     = [<span class="ev">after_create</span>]
+      actions    = [action.ansible_playbook_run.host]
+      on_failure = <span class="ev">taint</span>
+    &#125;
+  &#125;
+&#125;
+
+<span class="kw">action</span> <span class="str">"ansible_playbook_run"</span> <span class="str">"host"</span> &#123;
+  <span class="kw">config</span> &#123;
+    playbooks        = [<span class="str">"playbooks/gpu-host.yml"</span>]
+    inventory_files  = [<span class="str">"$&#123;caller.public_ip&#125;,"</span>]
+    user             = <span class="str">"ubuntu"</span>
+    private_key_file = var.private_key_file
+  &#125;
+&#125;</pre>
+          <div class="cb-note">illustrative · after turf-examples/use-cases/datacenter/ansible-k3s · <code>caller</code> is the instance that fired the trigger</div>
+        </div>
+        <div class="codeblock">
+          <div class="cb-head"><span>aicr.turf.hcl · an overlay</span><span class="cb-legend">a trigger added without touching the module</span></div>
+<pre><span class="kw">action_trigger</span> <span class="str">"certify"</span> &#123;
+  target     = module.stack.module.gpu_operator.helm_release.this
+  events     = [<span class="ev">after_create</span>]
+  actions    = [action.turf_action.certify]
+  on_failure = <span class="ev">taint</span>
+&#125;</pre>
+        </div>
+      </div>
+
+      <div>
+        <h3>Resource lifecycle hooks.</h3>
+        <p>Terraform 1.16 actions, carried by Turf: a provider-defined operation hooked to one of six
+          points in a resource’s lifecycle, planned beside the resource and applied inside the same run.
+          OpenTofu has no action blocks.</p>
+        <div class="term" role="img" aria-label="A plan excerpt: the GPU host will be created, and the host playbook action will be invoked after it.">
+          <div class="term-head"><span>turf up · round 1</span></div>
+          <div class="term-body">
+<div class="t"><span class="dim"># aws_instance.gpu_host will be created</span></div>
+<div class="t"><span class="ok">+ resource "aws_instance" "gpu_host"</span> <span class="dim">&#123; … &#125;</span></div>
+<div class="t"> </div>
+<div class="t"><span class="dim">  # Actions to be invoked after this change, in order:</span></div>
+<div class="t"><span class="amber">  # action.ansible_playbook_run.host</span></div>
+<div class="t"> </div>
+<div class="t"><span class="b">Plan:</span> <span class="ok">1 to add.</span> <span class="b">Actions:</span> <span class="amber">1 to invoke.</span></div>
+          </div>
+        </div>
+        <ul class="ticklist">
+          <li><span class="g">✓</span><div><b>Before and after create, update, destroy</b> <span>— with
+            <code>on_failure</code> set to halt, continue or taint, and a plan-time <code>condition</code>.</span></div></li>
+          <li><span class="g">✓</span><div><b>Overlays</b> <span>— a <code>*.turf.hcl</code> file adds a trigger with a
+            <code>target</code> into any module, per environment or in memory for one run.</span></div></li>
+          <li><span class="g">✓</span><div><b>Ad-hoc runs</b> <span>— <code>invoke</code> runs a declared action now,
+            with its own approval point and an audit record.</span></div></li>
+          <li><span class="g">✓</span><div><b>Day 2 is the same plan, again</b> <span>— a variable changes, the
+            triggers re-fire at the right points, under the same approval.</span></div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>

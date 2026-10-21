@@ -1,0 +1,58 @@
+---
+// Figure 8 of Metal to Tokens, ported: an agent with a shell, tangled paths and no record, beside
+// an agent with Turf: the agent edits code, and the Turf engine plans, has the plan approved, and
+// applies it, logged.
+---
+
+<svg class="fig" viewBox="0 0 672 196" role="img" aria-label="An agent with a shell, tangled paths and no record, beside an agent with Turf: the agent edits code, and the Turf engine plans, has the plan approved, and applies it, logged.">
+  <!-- left: shell -->
+  <rect x="0.5" y="0.5" width="318" height="194" rx="12" class="f-cream s-cream"/>
+  <text x="16" y="25" class="t-title">An agent with a shell</text>
+  <text x="16" y="39" class="t-mono">anything, once, no record</text>
+  <circle cx="40" cy="112" r="18" class="f-panel s-stroke"/>
+  <text x="40" y="115" text-anchor="middle" class="t-mono f-ink">agent</text>
+  <line x1="58" y1="112" x2="78" y2="112" class="s-stroke" stroke-width="1.3" marker-end="url(#a-ink)"/>
+  <rect x="80" y="98" width="44" height="28" rx="6" class="f-term"/>
+  <text x="102" y="116" text-anchor="middle" class="t-m11 f-termok">&gt;_</text>
+  <g class="f-none s-part" stroke-width="1" stroke-opacity=".75">
+    <path d="M124,108 C170,40 190,170 236,70"/>
+    <path d="M124,112 C180,150 160,60 236,104"/>
+    <path d="M124,116 C200,200 170,90 236,138"/>
+    <path d="M124,110 C150,180 210,190 236,172"/>
+    <path d="M124,114 C200,60 160,150 236,140" stroke-dasharray="3 3"/>
+    <path d="M124,118 C170,10 210,40 236,72" stroke-dasharray="3 3"/>
+    <path d="M124,111 C220,120 150,170 236,106" stroke-dasharray="3 3"/>
+  </g>
+  <g class="t-m8 f-muted">
+    <rect x="238" y="58"  width="64" height="24" rx="5" class="f-panel s-hair"/><text x="248" y="74">cluster</text>
+    <rect x="238" y="92"  width="64" height="24" rx="5" class="f-panel s-hair"/><text x="248" y="108">hosts</text>
+    <rect x="238" y="126" width="64" height="24" rx="5" class="f-panel s-hair"/><text x="248" y="142">BMCs</text>
+    <rect x="238" y="160" width="64" height="24" rx="5" class="f-panel s-hair"/><text x="248" y="176">storage</text>
+  </g>
+  <!-- right: the agent edits code, the engine does the rest -->
+  <rect x="353.5" y="0.5" width="318" height="194" rx="12" class="f-ground s-hair"/>
+  <text x="370" y="25" class="t-title">An agent with Turf</text>
+  <text x="370" y="39" class="t-mono">one path, logged</text>
+  <circle cx="378" cy="100" r="14" class="f-panel s-inh"/>
+  <text x="378" y="102.6" text-anchor="middle" class="t-mono f-inh" style="font-size:7px">agent</text>
+  <path d="M444,76 V70 H602 V76" class="f-none s-ok" stroke-width="1.2"/>
+  <text x="523" y="64" text-anchor="middle" class="t-mono f-ok">turf engine</text>
+  <g class="s-stroke" stroke-width="1.3">
+    <line x1="393" y1="100" x2="400" y2="100" marker-end="url(#a-ink)"/>
+    <line x1="436" y1="100" x2="442" y2="100" marker-end="url(#a-ink)"/>
+    <line x1="482" y1="100" x2="488" y2="100" marker-end="url(#a-ink)"/>
+    <line x1="550" y1="100" x2="556" y2="100" marker-end="url(#a-ink)"/>
+    <line x1="602" y1="100" x2="608" y2="100" marker-end="url(#a-ink)"/>
+  </g>
+  <g class="t-m8" text-anchor="middle">
+    <rect x="402" y="86" width="34" height="28" rx="6" class="f-panel s-inh"/><text x="419" y="104" class="f-inh">code</text>
+    <rect x="444" y="86" width="38" height="28" rx="6" class="f-panel s-hair"/><text x="463" y="104" class="f-ink">plan</text>
+    <rect x="490" y="86" width="60" height="28" rx="6" class="f-ok"/><text x="520" y="104" class="f-panel">approve</text>
+    <rect x="558" y="86" width="44" height="28" rx="6" class="f-okbg s-ok"/><text x="580" y="104" class="f-okdeep">apply</text>
+    <rect x="610" y="86" width="52" height="28" rx="6" class="f-panel s-hair"/><text x="636" y="104" class="f-muted">cluster</text>
+  </g>
+  <g class="s-faint" stroke-width="1" stroke-dasharray="2 2"><line x1="520" y1="115" x2="520" y2="132"/><line x1="580" y1="115" x2="580" y2="132"/></g>
+  <rect x="444" y="132" width="218" height="22" rx="6" class="f-panel s-hair"/>
+  <text x="553" y="146.5" text-anchor="middle" class="t-mono">log</text>
+  <text x="370" y="180" class="t-bold f-okdeep">The engine carries it out. The agent oversees.</text>
+</svg>

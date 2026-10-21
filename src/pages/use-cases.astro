@@ -1,0 +1,366 @@
+---
+import Layout from '../layouts/Layout.astro';
+import FigureDefs from '../components/FigureDefs.astro';
+import StackFigure from '../components/figures/StackFigure.astro';
+import FleetFigure from '../components/figures/FleetFigure.astro';
+import InstallerFigure from '../components/figures/InstallerFigure.astro';
+import ShellVsTurfFigure from '../components/figures/ShellVsTurfFigure.astro';
+import Partner from '../components/Partner.astro';
+import Still from '../components/Still.astro';
+// Four things people build with Turf, factored by the job (decided 2026-10-20; "use cases", not
+// "solutions", since 2026-10-21): each section is
+// who it is for, the stack, the HCL (none in 03 since 2026-10-21), day 1 and day 2, the proof, a CTA. Figures are ported from
+// Metal to Tokens (components/figures); HCL is quoted from turf-examples where a file exists and
+// marked "after …" or "illustrative" where it is adapted. No link to the pre-1.0 demo recordings.
+const title = 'Turf — Use cases: GPU clouds, fleets, installers, agents';
+const description =
+  'What people build with Turf: GPU clouds from metal to tokens, Kubernetes fleets, self-installing products and the agent toolkit, day 1 and day 2 for each.';
+
+const site = 'https://turf.build';
+const examples = 'https://github.com/turfbuild/turf-examples/tree/main';
+// See demo.astro: inlined, not an `@id` reference to the home page's node.
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Turf', item: `${site}/` },
+    { '@type': 'ListItem', position: 2, name: 'Use cases' },
+  ],
+};
+---
+
+<Layout title={title} description={description} jsonLd={jsonLd}>
+  <FigureDefs />
+  <section class="subhero">
+    <div class="wrap">
+      <p class="eyebrow"><span class="dot"></span> Use cases</p>
+      <h1>What people build with Turf.</h1>
+      <p class="lede">Turf™ is one engine for the whole stack: hosts, clusters, charts, playbooks and the
+        workload in the Terraform® language, planned as one and converged in rounds. Four ways teams put
+        it to work, each with its day 1 and its day 2.</p>
+      <div class="jumplist">
+        <a href="#gpu-clouds"><span class="n">01</span> GPU clouds</a>
+        <a href="#kubernetes-fleets"><span class="n">02</span> Kubernetes fleets</a>
+        <a href="#installers"><span class="n">03</span> Self-installing products</a>
+        <a href="#agents"><span class="n">04</span> The infrastructure agent</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 · GPU clouds -->
+  <section class="section" id="gpu-clouds">
+    <div class="wrap">
+      <div class="band-head">
+        <p class="eyebrow"><span class="dot"></span> 01 · Neocloud providers</p>
+        <h2>GPU clouds, from metal to tokens.</h2>
+        <p>A neocloud sells a managed cluster, not GPUs by the hour: qualified before handover, current on
+          drivers and firmware, back in service soon after a fault. Turf brings the whole managed cluster
+          up in one convergence loop, certification included, and services it on the provider’s runbook.</p>
+      </div>
+      <div class="feature center">
+        <div>
+          <StackFigure />
+          <p class="figcap"><b>Every layer is code</b>, brought up by one convergence loop. The decision
+            layer, the provider’s agent, runbook and policy, approves each change plan and oversees
+            remediation.</p>
+        </div>
+        <div class="codeblock">
+          <div class="cb-head"><span>certification.tf</span><span class="cb-legend">certification as a step of the run</span></div>
+<pre><span class="kw">resource</span> <span class="str">"kubernetes_manifest"</span> <span class="str">"certification"</span> &#123;
+  manifest = &#123;
+    apiVersion = <span class="str">"nvcre.nvidia.com/v1alpha1"</span>
+    kind       = <span class="str">"Certification"</span>
+    spec       = local.spec
+  &#125;
+  <span class="kw">lifecycle</span> &#123;
+    <span class="kw">action_trigger</span> &#123;
+      events  = [<span class="ev">before_create</span>]
+      actions = [action.kubewait_condition.gpu_census]
+    &#125;
+    <span class="kw">action_trigger</span> &#123;
+      events     = [<span class="ev">after_create</span>]
+      actions    = [action.kubewait_condition.certification_complete]
+      on_failure = <span class="ev">taint</span>
+    &#125;
+  &#125;
+&#125;</pre>
+          <div class="cb-note">adapted from turf-examples/use-cases/datacenter/aicr-eks-certification · the census before, the wait after</div>
+        </div>
+      </div>
+      <div class="beats two">
+        <div class="beat">
+          <span class="k">Day 1 · bring-up</span>
+          <h3>From pools of inventory to a certified cluster</h3>
+          <p>The provider offers hardware as a pool; Turf starts where the pool hands over a machine. The
+            host playbook runs as a Terraform action, the cluster comes up, the AI runtime installs as the
+            rendered recipe, and the certification runs as a resource with the GPU census before it and
+            the wait after. <b>One change plan covers all of it</b>, approved by policy or a person, round
+            by round, until nothing is left to defer.</p>
+        </div>
+        <div class="beat">
+          <span class="k">Day 2 · the runbook</span>
+          <h3>One approved step at a time</h3>
+          <p>The health checks find the fault. What happens next is the provider’s remediation runbook,
+            and the agent follows it: cordon and drain, repair or replace, re-certify, uncordon and
+            return, each step a change plan the engine carries out. A recipe upgrade re-fires the
+            certification under the same approval, and a fleet is many stacks from a few golden
+            recipes.</p>
+        </div>
+      </div>
+      <div class="feature center">
+        <div>
+          <Still id="certify" src="/console/aicr-round2-certify-action.png" soon
+            alt="A preview of the Turf console: round 2 of a deployment run is applying, paused at the certify action, with a lane for every Helm release of the runtime."
+            caption="A preview of the Turf console: the AI runtime applying in round 2, paused at the certify step. Click to enlarge." />
+        </div>
+        <div>
+          <h3>The reference architecture.</h3>
+          <p><em>Metal to Tokens</em> walks the cluster stack three times: one layer at a time, then the
+            convergence loop, then day 2 across the data center. Seventeen pages, free, with the stacks
+            on GitHub.</p>
+          <div class="proof">
+            <span class="lab">Proof</span>
+            <a href="/reference-architectures/">Metal to Tokens →</a>
+            <a href={`${examples}/use-cases/datacenter/aicr-stack`}>aicr-stack →</a>
+            <a href={`${examples}/terraform/kubernetes/node-maintenance`}>node-maintenance →</a>
+            <a href={`${examples}/use-cases/datacenter/slinky-stack`}>slinky-stack →</a>
+            <a href="/engine/">the engine →</a>
+          </div>
+          <div class="cta-row" style="margin-top:18px">
+            <a class="btn primary" href="/reference-architectures/">Read Metal to Tokens</a>
+            <a class="btn ghost" href="/get-started/">Get started</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 · Kubernetes fleets -->
+  <section class="section alt" id="kubernetes-fleets">
+    <div class="wrap">
+      <div class="band-head">
+        <p class="eyebrow"><span class="dot"></span> 02 · SaaS and platform providers</p>
+        <h2>Managed services on Kubernetes fleets.</h2>
+        <p>A control plane, a golden recipe, and a fleet of Kubernetes® clusters that each deliver your
+          service to a tenant. Turf runs in the cluster beside them: a tenant’s cluster is one module call, a change
+          arrives as a pull request or an MCP call, and every cluster is its own stack under approval.</p>
+      </div>
+      <div class="feature flip center">
+        <div class="codeblock">
+          <div class="cb-head"><span>tenants/acme.tf</span><span class="cb-legend">a tenant's cluster: one call to the recipe</span></div>
+<pre><span class="kw">module</span> <span class="str">"tenant_acme"</span> &#123;
+  source  = <span class="str">"registry.example.com/platform/gpu-cluster/kubernetes"</span>
+  version = <span class="str">"2.4.0"</span>
+
+  tenant    = <span class="str">"acme"</span>
+  recipe    = <span class="str">"h100-inference"</span>
+  gpu_nodes = 16
+&#125;
+
+<span class="kw">output</span> <span class="str">"acme"</span> &#123;
+  value = module.tenant_acme.endpoints   <span class="cm"># read back by the control plane</span>
+&#125;</pre>
+          <div class="cb-note">illustrative, after Metal to Tokens, chapter 12 · the golden recipe is a registry module with the variables the provider opens</div>
+        </div>
+        <div>
+          <FleetFigure />
+          <p class="figcap"><b>A tenant order, in the data center.</b> Each block is a tenant cluster, and the
+            green ones have a run in flight.</p>
+        </div>
+      </div>
+      <div class="beats two">
+        <div class="beat">
+          <span class="k">Day 1 · a tenant order</span>
+          <h3>A module call becomes a cluster</h3>
+          <p>The control plane writes the tenant’s cluster as HCL and opens a pull request, or calls Turf’s
+            MCP server directly: <code>open</code>, <code>up</code>, <code>apply</code>, <code>output</code>.
+            Either way the change is a plan, approved before it runs, and the outputs come back to the
+            control plane when the run converges. <b>Turf runs in Kubernetes</b>, deployed as an agent,
+            with its state in the cluster.</p>
+        </div>
+        <div class="beat">
+          <span class="k">Day 2 · the fleet</span>
+          <h3>Upgrades, cluster by cluster, under one approval policy</h3>
+          <p>Bump the recipe version and every cluster plans its own change; routine changes are approved
+            by policy, the rest by a person. Drift is found on every plan. Replacing a cluster plans the
+            orderly teardown of what it hosted instead of letting it vanish with the machine, and a
+            run that is interrupted picks up where it stopped.</p>
+        </div>
+      </div>
+      <div class="proof">
+        <span class="lab">Proof</span>
+        <a href={`${examples}/integrations/kagent`}>Turf in the cluster, via kagent →</a>
+        <a href={`${examples}/integrations/kubernetes-backend`}>state in a Kubernetes secret →</a>
+        <a href="/reference-architectures/">Metal to Tokens, chapter 12 →</a>
+        <a href="/engine/">the engine →</a>
+      </div>
+      <div class="cta-row" style="margin-top:18px">
+        <a class="btn primary" href="/get-started/">Get started</a>
+        <a class="btn ghost" href="/licensing/#pilot">Start a pilot</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 · Products that install themselves -->
+  <section class="section" id="installers">
+    <div class="wrap">
+      <div class="band-head">
+        <p class="eyebrow"><span class="dot"></span> 03 · ISVs and AI-native products</p>
+        <h2>Products that install themselves.</h2>
+        <p>Your product ships a reference architecture; the customer gets a forty-page deployment guide
+          and a solutions engineer. Make the installer part of the product instead: the architecture as
+          Terraform modules, planned in the customer’s account before anything exists, with the
+          installer’s own steps written in as turf actions.</p>
+      </div>
+      <div class="figwide">
+        <InstallerFigure />
+        <p class="figcap"><b>The installer is code too.</b> The product ships its architecture and its own
+          steps; Turf plans in the customer's account with no credentials, the customer approves, and the
+          loop creates identity, compute, network and storage until the app is up.</p>
+      </div>
+      <div class="beats two">
+        <div class="beat">
+          <span class="k">Day 1 · the install</span>
+          <h3>Planned before anything exists</h3>
+          <p>The reference architecture is Terraform modules the product ships. In the customer’s account
+            Turf plans it from empty, the customer approves, and the apply runs with the installer’s
+            steps inside it: verify the storage is private, send the welcome when the app is usable.
+            <b>Any mix of HCL and natural language</b>: the modules carry the architecture, the customer’s
+            specifics arrive as variables or as a sentence.</p>
+        </div>
+        <div class="beat">
+          <span class="k">Day 2 · the same plan, again</span>
+          <h3>Upgrades and drift, under the same approval</h3>
+          <p>A new version of the product is a new plan in the customer’s account. Drift is detected on
+            every plan and healed by the same loop. Nothing that holds the customer’s data is removed
+            without their word, because <code>consent</code> is bound before its destroy. The product
+            drives Turf over MCP, the same interface Claude Code uses, and runs where the product runs:
+            embedded, in a container, in the cluster, on a local model.</p>
+        </div>
+      </div>
+      <div class="proof">
+        <span class="lab">Proof</span>
+        <a href={`${examples}/use-cases/products/data-lake-installer`}>data-lake-installer →</a>
+        <a href="/get-started/#connect">drive Turf over MCP →</a>
+        <a href="/compatibility/">the compatibility matrix →</a>
+      </div>
+      <div class="cta-row" style="margin-top:18px">
+        <a class="btn primary" href="mailto:contact@turf.build?subject=Autonomous%20products">Talk to us</a>
+        <a class="btn ghost" href="/get-started/">Get started</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · The ultimate infrastructure agent -->
+  <section class="section alt" id="agents">
+    <div class="wrap">
+      <div class="band-head">
+        <p class="eyebrow"><span class="dot"></span> 04 · Teams adopting agents</p>
+        <h2>The ultimate infrastructure agent.</h2>
+        <p>Turf is an MCP server at its core: the tools and the skills an agent needs to take a sentence
+          to a running stack and to operate it afterwards, with the plan as the contract between them.
+          Designed for efficient reasoning models such as Claude Sonnet 5.5: the skills carry the
+          procedure, the results carry the summary, and the model carries the judgment.</p>
+      </div>
+      <div class="feature center">
+        <div>
+          <ShellVsTurfFigure />
+          <p class="figcap"><b>The same agent, with a shell or with Turf.</b> The engine carries it out; the
+            agent oversees, and every step leaves a record.</p>
+        </div>
+        <div>
+          <div class="term" role="img" aria-label="A session transcript: the agent searches for the AWS provider, describes a resource type, writes the configuration, initializes, opens a workspace, plans, checks the plan against policy and applies it.">
+            <div class="term-head"><span>a session, from a sentence</span></div>
+            <div class="term-body">
+<div class="t"><span class="p">&gt;</span> <span class="b">deploy a data lake for tenant acme with Turf</span></div>
+<div class="t"><span class="dim">provider search</span>   "aws"          <span class="dim">→</span> hashicorp/aws</div>
+<div class="t"><span class="dim">provider describe</span> aws_s3_bucket  <span class="dim">→</span> schema · identity</div>
+<div class="t"><span class="dim">(the authoring skill writes versions.tf, lake.tf)</span></div>
+<div class="t"><span class="dim">init</span>              ./lake         <span class="dim">→</span> providers locked</div>
+<div class="t"><span class="dim">open</span>              workspace acme</div>
+<div class="t"><span class="dim">up</span>                               <span class="dim">→</span> <span class="amber">approval point</span> · 7 to add</div>
+<div class="t"><span class="dim">show</span>              → input.tfplan <span class="dim">→</span> policy: no denials</div>
+<div class="t"><span class="dim">apply</span>             by its digest  <span class="dim">→</span> <span class="ok">converged</span> · outputs</div>
+            </div>
+          </div>
+          <div class="codeblock" style="margin-top:14px">
+            <div class="cb-head"><span>lake.tf</span><span class="cb-legend">from the console: the agent writes the import block</span></div>
+<pre><span class="kw">import</span> &#123;
+  to = aws_s3_bucket.raw
+  id = <span class="str">"acme-raw-data"</span>
+&#125;
+
+<span class="kw">resource</span> <span class="str">"aws_s3_bucket"</span> <span class="str">"raw"</span> &#123;
+  bucket = <span class="str">"acme-raw-data"</span>
+&#125;</pre>
+          </div>
+        </div>
+      </div>
+      <div class="toolgrid">
+        <div class="tool"><b>plan: up · destroy · import · refresh</b>Every change is a plan: converge the
+          directory, tear it down, adopt what exists by id or identity, or read the world back into state.
+          Each stops at its approval point with the plan's summary.</div>
+        <div class="tool"><b>approve: apply, by digest</b><code>apply</code> with the plan's digest is the
+          approval, of that plan and no other. Not calling it declines; <code>cancel</code> ends the run.
+          Auto-approval only where you said so.</div>
+        <div class="tool"><b>the planfile, for integration</b><code>show</code> returns the plan as
+          OpenTofu's own document: <code>input.tfplan</code> for OPA, conftest or Checkov, or your
+          platform's policy groups, before a non-trivial plan is approved.</div>
+        <div class="tool"><b>apply, with interaction points</b>The engine carries the plan out and stops at
+          every turf action it meets: a backup, a check, a question, a notification, answered by the agent
+          and recorded with the run.</div>
+        <div class="tool"><b>invoke: action-only plans, for day 2</b>One declared action, or an ad-hoc one
+          for this run alone, planned by itself under its own approval point: reboot, backup, cordon,
+          re-certify.</div>
+        <div class="tool"><b>state: list · show · output · taint</b>State, outputs and plans as OpenTofu's
+          own documents, sensitive values redacted unless asked; <code>taint</code> marks a replacement for
+          the next plan; workspaces listed and deleted.</div>
+        <div class="tool"><b>provider search · describe</b>Any provider on the registry, and the exact
+          schema of a type: required, computed, write-only, identity. Provider-linked skills
+          <span class="pill soon">coming soon</span></div>
+        <div class="tool"><b>resource query</b>Bulk discovery with <code>list</code> and <code>query</code>,
+          for import at scale.<span class="pill soon">coming soon</span></div>
+      </div>
+      <div class="beats two">
+        <div class="beat">
+          <span class="k">Day 1 · from a sentence</span>
+          <h3>To a running stack, in your directory</h3>
+          <p>The agent finds the provider, reads the schema it will write against, and writes ordinary
+            Terraform files you can read, commit and run anywhere. <code>up</code> plans the whole
+            directory and stops at the approval point with the plan’s summary; <b>you approve from Claude
+            Code, Cursor, Codex or any MCP client</b>, on the subscription you already have, and the
+            engine carries it out.</p>
+        </div>
+        <div class="beat">
+          <span class="k">Day 2 · the same agent operates</span>
+          <h3>Import, refresh, invoke, answer, check</h3>
+          <p>What was clicked together comes in through <code>import</code>. Drift shows on every plan. A declared action
+            runs on demand with its own approval point. The guardrails example scans every provider
+            before it runs, pins the workload to a commit and checks every plan against policy from the
+            planfile. Local models and private GPU clouds: <b>intent never has to leave your network</b>.</p>
+        </div>
+      </div>
+      <div class="proof">
+        <span class="lab">Proof</span>
+        <a href="/get-started/#connect">connect your agent →</a>
+        <a href={`${examples}/use-cases/guardrails`}>guardrails →</a>
+        <a href="https://github.com/turfbuild/turf-examples">the guided journeys, /turf:guide →</a>
+        <a href="/compatibility/">the compatibility matrix →</a>
+        <a href="/engine/">the engine →</a>
+      </div>
+      <div class="cta-row" style="margin-top:18px">
+        <a class="btn primary" href="/get-started/#connect">Connect your agent</a>
+        <a class="btn ghost" href="/get-started/">Get started</a>
+      </div>
+      <p class="legal-note">NVIDIA, AI Cluster Runtime, NVCRE, NVSentinel and KAI Scheduler are trademarks or product
+        names of NVIDIA Corporation, referred to here only to describe interoperability. Amazon EKS, Amazon S3,
+        Google Kubernetes Engine, Google Cloud Storage, Azure Kubernetes Service and Azure Blob Storage are
+        trademarks of their respective owners. GitHub, GitLab, JFrog Artifactory, HashiCorp Vault, Scalr and
+        Spacelift are trademarks of their respective owners, named here only to describe interoperability.
+        Claude is a trademark of Anthropic, PBC. Turf is not affiliated with, endorsed by, or sponsored by
+        any of them. All other marks belong to their owners.</p>
+    </div>
+  </section>
+
+  <Partner />
+</Layout>

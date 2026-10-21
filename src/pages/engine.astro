@@ -35,7 +35,7 @@ const engine = [
   ['Laptop or Kubernetes', 'Runs on a workstation, or as a service in the cluster.'],
   ['Durable execution, on Restate', 'Every step is journaled as it happens, and an interrupted run picks up where it stopped.'],
   ['Built-in OpenTelemetry', 'Traces of every run, exported over OTLP, and metrics in Prometheus format.'],
-  ['Operator console', 'Every stack, run and approval in one place.'],
+  ['Operator console', 'Every stack, run and approval in one place. Coming soon.'],
   ['The Terraform language', 'Configuration in HCL, with registry modules and providers.'],
   ['Terraform Actions', 'With lifecycle triggers and failure handling.'],
   ['Policy and governance', 'Change plans export for the provider’s own policy tools to check. Nothing runs until one is approved.'],
@@ -282,17 +282,7 @@ const engine = [
   @media (max-width: 760px) { .pillars4 { grid-template-columns: 1fr; } }
   .pillars4 .beat { display: flex; flex-direction: column; }
   .pillars4 .runit { display: inline-block; margin-top: auto; padding-top: 12px; font-family: var(--mono); font-size: 12px; color: var(--ok-deep); }
-  /* The engine list, two columns of the paper's ten points. */
-  .engine-list { list-style: none; margin: 0; padding: 0; columns: 2; column-gap: 32px; max-width: 980px; }
-  .engine-list li { break-inside: avoid; color: var(--muted); font-size: 14.5px; margin: 0 0 12px; padding-left: 18px; position: relative; }
-  .engine-list li::before { content: "✓"; position: absolute; left: 0; color: var(--ok); font-family: var(--mono); font-weight: 700; }
-  .engine-list li b { color: var(--ink); font-weight: 600; }
-  @media (max-width: 760px) { .engine-list { columns: 1; } }
+  /* The engine list (.engine-list) and the marks note (.legal-note) are global, in global.css. */
   .sources { color: var(--muted); font-size: 14.5px; max-width: 72ch; margin: clamp(18px, 3vw, 26px) 0 0; }
   .prose li b { color: var(--ink); font-weight: 600; }
-  /* Nominative-use note for the marks the footer fineprint doesn't cover; matches demo/scalr. */
-  .legal-note {
-    margin-top: clamp(28px, 4vw, 44px); padding-top: 18px; border-top: 1px solid var(--hair);
-    max-width: 92ch; color: var(--faint); font-size: 12.5px; line-height: 1.6;
-  }
 </style>

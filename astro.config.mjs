@@ -5,7 +5,7 @@ import sitemap, { ChangeFreqEnum } from '@astrojs/sitemap';
 
 // Per-page `lastmod` from git, so the sitemap says which pages actually changed
 // rather than stamping the whole site with the build time. `/` maps to the repo
-// HEAD (the home page composes eight components — any of them changing changes
+// HEAD (the home page composes ten components — any of them changing changes
 // the page); every other URL maps to its own page source.
 //
 // NOTE: this needs real history. The deploy workflow sets `fetch-depth: 0` on
@@ -38,6 +38,7 @@ const { WEEKLY, MONTHLY, YEARLY } = ChangeFreqEnum;
 /** @type {Record<string, {priority: number, changefreq: ChangeFreqEnum}>} */
 const WEIGHTS = {
   '/': { priority: 1.0, changefreq: WEEKLY },
+  '/use-cases/': { priority: 0.9, changefreq: WEEKLY },
   '/compatibility/': { priority: 0.9, changefreq: WEEKLY },
   '/get-started/': { priority: 0.9, changefreq: WEEKLY },
   '/demo/': { priority: 0.7, changefreq: MONTHLY },

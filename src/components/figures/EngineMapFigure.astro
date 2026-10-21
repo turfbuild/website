@@ -1,0 +1,57 @@
+---
+// The engine and what it connects: northbound, agents in any MCP client and the Turf CLI;
+// southbound, the same providers, modules and state backends Terraform uses. Few words on
+// purpose (Eron, 2026-10-21). Fills and strokes are tokens (global.css, "figures").
+const clients = ['Claude Code', 'Cursor', 'Codex', 'Gemini CLI', 'your platform'];
+const south = [
+  { x: 40, name: 'providers', what: 'unmodified' },
+  { x: 244, name: 'modules', what: 'from your registries' },
+  { x: 448, name: 'state', what: 'your backend' },
+];
+---
+
+<svg class="fig" viewBox="0 0 672 240" role="img" aria-label="The Turf engine in the middle: durable, scale-out, interactive; rounds of plan, approval point and apply; on a laptop or Kubernetes, built on Restate. Above it, agents in Claude Code, Cursor, Codex, Gemini CLI or your platform reach it over MCP, and the Turf CLI drives it directly. Below it, the same providers, modules and state backends Terraform uses.">
+  <!-- northbound: agents over MCP, and the CLI -->
+  <text x="0" y="10" class="t-cap">AGENTS · ANY MCP CLIENT</text>
+  {clients.map((c, i) => (
+    <g>
+      <rect x={0.5 + i * 96} y="16.5" width="86" height="36" rx="8" class="f-inhbg s-inh"/>
+      <text x={43.5 + i * 96} y="38.5" text-anchor="middle" class="t-name f-inh">{c}</text>
+      <line x1={43.5 + i * 96} y1="53" x2={43.5 + i * 96} y2="72" class="s-inh" stroke-width="1.2"/>
+    </g>
+  ))}
+  <line x1="43.5" y1="72.5" x2="427.5" y2="72.5" class="s-inh" stroke-width="1.4"/>
+  <line x1="235.5" y1="72.5" x2="235.5" y2="96" class="s-inh" stroke-width="1.6" marker-end="url(#a-inh)"/>
+  <text x="243" y="90" class="t-mono f-inh">MCP</text>
+
+  <text x="556" y="10" class="t-cap">THE TURF CLI</text>
+  <rect x="556.5" y="16.5" width="115" height="36" rx="8" class="f-panel s-hair"/>
+  <text x="614" y="32" text-anchor="middle" class="t-name">turf</text>
+  <text x="614" y="45" text-anchor="middle" class="t-mono">up · chat · destroy</text>
+  <line x1="614" y1="53" x2="614" y2="96" class="s-stroke" stroke-width="1.4" marker-end="url(#a-ink)"/>
+
+  <!-- the engine -->
+  <rect x="40.5" y="100.5" width="591" height="72" rx="11" class="f-ok"/>
+  <rect x="54" y="112" width="20" height="20" rx="5" class="f-panel"/>
+  <text x="64" y="126.5" text-anchor="middle" class="t-plus f-ok" style="font-size:13px">+</text>
+  <text x="80" y="128" class="t-wm f-panel" style="font-size:17px">turf</text>
+  <text x="124" y="128" class="t-m8 f-okbg">engine</text>
+  <g class="t-m9 f-okbg">
+    <text x="54" y="150">durable · scale-out · interactive</text>
+    <text x="54" y="164">rounds: plan → approval point → apply</text>
+  </g>
+  <g class="t-m8 f-okbg" text-anchor="end">
+    <text x="618" y="150">laptop or Kubernetes</text>
+    <text x="618" y="164">built on Restate</text>
+  </g>
+
+  <!-- southbound: the same ecosystem -->
+  {south.map((s) => (
+    <g>
+      <line x1={s.x + 92} y1="173" x2={s.x + 92} y2="198" class="s-stroke" stroke-width="1.4" marker-end="url(#a-ink)"/>
+      <rect x={s.x + 0.5} y="200.5" width="184" height="38" rx="8" class="f-panel s-hair"/>
+      <text x={s.x + 92} y="217" text-anchor="middle" class="t-name">{s.name}</text>
+      <text x={s.x + 92} y="231" text-anchor="middle" class="t-mono">{s.what}</text>
+    </g>
+  ))}
+</svg>

@@ -1,9 +1,91 @@
+---
+// Layered stacks converge in rounds: a cluster and a chart as a round-annotated code panel
+// (global.css, `.codeblock.rounds`), what each round does, and the loop as five steps. Keeps the
+// `#product` anchor. The HCL is after turf-examples/terraform/kubernetes/kind-helm, with the chart
+// swapped for cert-manager as the ngc-stack example installs it; the round labels are what
+// `turf up` computes for it.
+---
+
 <section class="band" id="product">
   <div class="wrap">
     <div class="band-head">
-      <h2>The plan is the governor.</h2>
-      <p>AI does the work. The plan keeps it honest. Here’s the loop every Turf change goes through.</p>
+      <h2>Layered stacks converge in rounds.</h2>
+      <p>A cluster, then the chart that runs on it. One configuration, one <code>turf up</code>: Turf
+        plans what it can know, applies it, and plans again, with an approval point at every round.</p>
     </div>
+
+    <div class="feature">
+      <div class="codeblock rounds">
+        <div class="cb-head">
+          <span>main.tf · a cluster, then a chart</span>
+          <span class="cb-legend">each round planned &amp; approved</span>
+        </div>
+        <div class="rounds-body">
+          <div class="round round-1">
+            <div class="round-tag">
+              <span class="round-name">Round 1 · create</span>
+              <span class="round-eff"><span class="mk">+</span> kind_cluster.demo</span>
+            </div>
+<pre><span class="cm"># A local Kubernetes cluster, as Docker containers.</span>
+<span class="kw">resource</span> <span class="str">"kind_cluster"</span> <span class="str">"demo"</span> &#123;
+  name           = <span class="str">"$&#123;var.cluster_name&#125;-$&#123;var.generation&#125;"</span>
+  node_image     = var.node_image
+  wait_for_ready = true
+&#125;</pre>
+          </div>
+          <div class="round round-2">
+            <div class="round-tag">
+              <span class="round-name">Round 2 · create</span>
+              <span class="round-eff"><span class="mk">+</span> helm_release.cert_manager</span>
+            </div>
+<pre><span class="cm"># The helm provider binds to the cluster's endpoint, unknown</span>
+<span class="cm"># until round 1 applied. Turf configures it here, then plans</span>
+<span class="cm"># the release.</span>
+<span class="kw">provider</span> <span class="str">"helm"</span> &#123;
+  kubernetes = &#123;
+    host                   = kind_cluster.demo.endpoint
+    client_certificate     = kind_cluster.demo.client_certificate
+    client_key             = kind_cluster.demo.client_key
+    cluster_ca_certificate = kind_cluster.demo.cluster_ca_certificate
+  &#125;
+&#125;
+
+<span class="kw">resource</span> <span class="str">"helm_release"</span> <span class="str">"cert_manager"</span> &#123;
+  name             = <span class="str">"cert-manager"</span>
+  repository       = <span class="str">"https://charts.jetstack.io"</span>
+  chart            = <span class="str">"cert-manager"</span>
+  version          = <span class="str">"v1.21.2"</span>
+  namespace        = <span class="str">"cert-manager"</span>
+  create_namespace = true
+  set  = [&#123; name = <span class="str">"crds.enabled"</span>, value = <span class="str">"true"</span> &#125;]
+  wait = true
+&#125;</pre>
+          </div>
+        </div>
+        <div class="cb-note">after turf-examples/terraform/kubernetes/kind-helm, the chart swapped for cert-manager as the ngc-stack example installs it</div>
+      </div>
+
+      <div>
+        <h3>A round plans what it can know.</h3>
+        <p><b>Round 1</b> creates the cluster. The helm provider reads the cluster’s endpoint, unknown
+          until then, so Turf defers the release instead of failing, applies what it can, and plans
+          again.</p>
+        <p><b>Round 2</b> configures the provider from the applied endpoint and syncs the release
+          through Helm itself: a true Helm release, CRDs and hooks included, that <code>helm list</code>
+          sees. Nothing is left deferred, so the run ends: converged, from empty, in one command.</p>
+        <ul class="ticklist">
+          <li><span class="g">✓</span><div><b>No <code>-target</code>, no staged applies</b> <span>— and no edits to
+            the <code>.tf</code>: the file converges as written.</span></div></li>
+          <li><span class="g">✓</span><div><b>An approval point on every round</b> <span>— each round’s plan is
+            reviewed, by you or by policy, before it applies.</span></div></li>
+          <li><span class="g">✓</span><div><b>A run that can’t progress says so</b> <span>— it ends
+            <code>stalled</code> and names what it is waiting on.</span></div></li>
+          <li><span class="g">✓</span><div><b>Teardown in reverse</b> <span>— <code>turf destroy</code> removes the
+            release through the cluster before the cluster goes.</span></div></li>
+        </ul>
+      </div>
+    </div>
+
     <div class="steps">
       <div class="step">
         <span class="n">step 1</span>
@@ -14,14 +96,14 @@
       <div class="step">
         <span class="n">step 2</span>
         <h3>Plan</h3>
-        <p>Turf produces a standard Terraform plan. Its changes become the agent’s TODO list —
-        it can’t act outside them.</p>
+        <p>Turf produces a standard Terraform plan of the whole directory: resources, actions, and what
+        this round defers.</p>
       </div>
-      <div class="step gate">
-        <span class="n">step 3 · the gate</span>
+      <div class="step approve">
+        <span class="n">step 3 · the approval point</span>
         <h3>You approve</h3>
-        <p>Humans and policy checks sign off on the plan. Nothing crosses the gate without approval
-        and clearance.</p>
+        <p>People and policy checks sign off on the plan. Nothing is applied until this plan, and no
+        other, is approved.</p>
       </div>
       <div class="step">
         <span class="n">step 4</span>
@@ -32,10 +114,10 @@
       <div class="step">
         <span class="n">step 5</span>
         <h3>Replan &amp; converge</h3>
-        <p>Deferred work — the CRD that didn’t exist yet — loops back through a fresh plan until
-        the graph settles.</p>
+        <p>Deferred work — the provider that couldn’t be configured yet — loops back through a fresh plan
+        until the graph settles.</p>
       </div>
     </div>
-    <p class="loopnote"><span class="arr">↻</span> step 5 feeds back into step 2 — every round crosses the approval gate again</p>
+    <p class="loopnote"><span class="arr">↻</span> step 5 feeds back into step 2 — every round crosses the approval point again</p>
   </div>
 </section>

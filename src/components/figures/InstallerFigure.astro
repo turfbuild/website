@@ -1,0 +1,76 @@
+---
+// A product that installs itself: the product ships its architecture as Terraform modules and its
+// installer steps as an overlay; Turf runs the convergence loop in the customer's account, reaching
+// south into their cloud account through a role they grant and presenting the product's app north as an
+// internal web app; south it creates identity, compute, network and storage. The customer approves
+// each plan and is asked before data is removed. Generic on purpose; the linked example is a data lake.
+---
+
+<svg class="fig" viewBox="0 0 672 320" role="img" aria-label="Your product ships its reference architecture as Terraform modules and its installer steps as an overlay, and its agent drives Turf over MCP. In the customer's account Turf runs the convergence loop: plan, approve, apply, and another round while anything is deferred. Southward, signed in through the customer's SSO, it creates identity, compute, network and storage in their cloud account. Northward, once converged, it presents the product's app, an internal web app for the customer's team. The customer approves each plan, gets the welcome and is asked before data is removed.">
+  <!-- north: the product, running -->
+  <path d="M208.5,0.5 h256 a8,8 0 0 1 8,8 v8 h-272 v-8 a8,8 0 0 1 8,-8 z" class="f-panel2"/>
+  <rect x="200.5" y="0.5" width="272" height="66" rx="8" class="f-none s-hair"/>
+  <line x1="200.5" y1="16.5" x2="472.5" y2="16.5" class="s-hair"/>
+  <g class="f-hair"><circle cx="212" cy="8.5" r="2.2"/><circle cx="220" cy="8.5" r="2.2"/><circle cx="228" cy="8.5" r="2.2"/></g>
+  <text x="240" y="11.5" class="t-m7 f-muted">https://app.acme.internal</text>
+  <text x="212" y="34" class="t-cap">THE PRODUCT, RUNNING</text>
+  <text x="212" y="50" class="t-name">The product's app</text>
+  <text x="212" y="61" class="t-mono">an internal web app for the customer's team</text>
+
+  <line x1="336" y1="96" x2="336" y2="70" class="s-ok" stroke-width="1.4" marker-end="url(#a-ok)"/>
+  <text x="344" y="86" class="t-mono f-okdeep">converged · the URL in the outputs</text>
+
+  <!-- your product -->
+  <rect x="0.5" y="96.5" width="168" height="148" rx="10" class="f-panel s-hair"/>
+  <text x="12" y="112" class="t-cap">YOUR PRODUCT</text>
+  <text x="12" y="134" class="t-name">Reference architecture</text>
+  <text x="12" y="147" class="t-mono">as Terraform modules</text>
+  <text x="12" y="170" class="t-name">installer.turf.hcl</text>
+  <text x="12" y="183" class="t-mono">its steps, as turf actions</text>
+  <text x="12" y="210" class="t-name f-inh">The product's agent</text>
+  <text x="12" y="223" class="t-mono f-inh">drives Turf over MCP</text>
+  <line x1="170" y1="172" x2="198" y2="172" class="s-stroke" stroke-width="1.3" marker-end="url(#a-ink)"/>
+  <text x="184" y="166" text-anchor="middle" class="t-mono">HCL</text>
+  <text x="184" y="183" text-anchor="middle" class="t-mono f-inh">MCP</text>
+
+  <!-- turf: the convergence loop -->
+  <rect x="200.5" y="96.5" width="272" height="148" rx="12" class="f-panel s-hair"/>
+  <text x="212" y="112" class="t-cap">TURF · THE CONVERGENCE LOOP</text>
+  <circle cx="336" cy="172" r="46" class="f-none s-hair" stroke-width="1.2"/>
+  <g class="f-none s-stroke" stroke-width="1.2">
+    <path d="M291.8,159.3 A46,46 0 0 1 298.8,145.0" marker-end="url(#a-ink)"/>
+    <path d="M369.1,140.0 A46,46 0 0 1 378.0,153.3" marker-end="url(#a-ink)"/>
+    <path d="M347.1,216.6 A46,46 0 0 1 331.2,217.7" marker-end="url(#a-ink)"/>
+  </g>
+  <g class="t-m8" text-anchor="middle">
+    <rect x="271.2" y="186.0" width="50" height="18" rx="9" class="f-panel s-hair"/><text x="296.2" y="198.5" class="f-ink">plan</text>
+    <rect x="307.0" y="117.0" width="58" height="18" rx="9" class="f-ok"/><text x="336.0" y="129.5" class="f-panel">approve</text>
+    <rect x="350.8" y="186.0" width="50" height="18" rx="9" class="f-okbg s-ok"/><text x="375.8" y="198.5" class="f-okdeep">apply</text>
+  </g>
+  <text x="336" y="235" text-anchor="middle" class="t-m7 f-muted">anything deferred? another round</text>
+
+  <line x1="336" y1="246" x2="336" y2="270" class="s-stroke" stroke-width="1.3" marker-end="url(#a-ink)"/>
+  <text x="344" y="262" class="t-mono">creates, signed in through the customer's SSO</text>
+
+  <!-- south: the customer's cloud account -->
+  <rect x="200.5" y="272.5" width="272" height="47" rx="10" class="f-panel2 s-hair" stroke-dasharray="4 3"/>
+  <text x="212" y="288" class="t-cap">THE CUSTOMER'S CLOUD ACCOUNT</text>
+  <g class="t-m8" text-anchor="middle">
+    <rect x="212" y="295" width="58" height="16" rx="8" class="f-okbg s-ok"/><text x="241" y="306.5" class="f-okdeep">+ identity</text>
+    <rect x="276" y="295" width="58" height="16" rx="8" class="f-okbg s-ok"/><text x="305" y="306.5" class="f-okdeep">+ compute</text>
+    <rect x="340" y="295" width="58" height="16" rx="8" class="f-okbg s-ok"/><text x="369" y="306.5" class="f-okdeep">+ network</text>
+    <rect x="404" y="295" width="58" height="16" rx="8" class="f-okbg s-ok"/><text x="433" y="306.5" class="f-okdeep">+ storage</text>
+  </g>
+
+  <!-- the customer -->
+  <rect x="504.5" y="96.5" width="167" height="148" rx="10" class="f-panel s-hair"/>
+  <text x="516" y="112" class="t-cap">THE CUSTOMER</text>
+  <g class="t-sans">
+    <text x="516" y="130">approves each plan</text>
+    <text x="516" y="199">gets the welcome</text>
+    <text x="516" y="213">is asked before</text>
+    <text x="516" y="225">data is removed</text>
+  </g>
+  <line x1="502" y1="126" x2="369.0" y2="126" class="s-ok" stroke-width="1.3" marker-end="url(#a-ok)"/>
+  <line x1="404.8" y1="195" x2="502" y2="195" class="s-part" stroke-width="1.3" marker-end="url(#a-part)"/>
+</svg>

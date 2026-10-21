@@ -1,0 +1,34 @@
+---
+// The distinction the home page has to draw in one screen: Turf is not an automation platform
+// over Terraform and not an agent wrapped around it, but a new engine underneath both. Two
+// figures carry it: the engine and what it connects (agents over MCP and the CLI above, the same
+// providers, modules and state below) and one run as a timeline. The three "not a …" beats were
+// dropped 2026-10-21 as superfluous. No competitor is named (launch plan D7); internal engine
+// names stay out (D18).
+import EngineMapFigure from './figures/EngineMapFigure.astro';
+import RunTimelineFigure from './figures/RunTimelineFigure.astro';
+---
+
+<section class="band alt">
+  <div class="wrap">
+    <div class="band-head">
+      <h2>Not a layer over Terraform. A new engine, with superpowers.</h2>
+      <p>Most automation platforms and agent tools shell out to terraform or tofu at some point. Turf
+        replaces that tool with a durable, scale-out, interactive engine. What you write is standard
+        Terraform, whether you have any yet or not.</p>
+    </div>
+
+    <div class="figwide">
+      <EngineMapFigure />
+      <p class="figcap"><b>The engine.</b> Agents reach it over MCP and the Turf CLI drives it directly;
+        underneath are the same providers, modules and state backends.</p>
+    </div>
+
+    <div class="figwide">
+      <RunTimelineFigure />
+      <p class="figcap"><b>One run.</b> Round 1 plans, approves and applies the cluster and defers the
+        chart; round 2 configures the Helm provider from the cluster’s endpoint and finishes the chart
+        and the manifest, pausing once for the agent at a turf action.</p>
+    </div>
+  </div>
+</section>
