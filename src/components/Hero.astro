@@ -1,22 +1,24 @@
 ---
-// Hero with the 3-round deferral-convergence animation. The panel renders its
-// planned/deferred state statically; the script below animates it and jumps
-// straight to the converged state under prefers-reduced-motion.
+// The hero. The headline was reopened on 2026-10-20 (CLAUDE.md, "Locked messaging"). The visual
+// beside it is components/StackBuild.astro, CSS only; the CTA row carries no demo link until the
+// 1.0 recording exists.
+import StackBuild from './StackBuild.astro';
 ---
 
 <header class="hero" id="top">
   <div class="wrap hero-grid">
     <div>
-      <p class="eyebrow"><span class="dot"></span> AI-native infrastructure engine · governed by the plan</p>
-      <h1>The infrastructure engine built for <span class="plan-word rotor" id="hero-rotor">AI agents</span>.</h1>
-      <p class="lede">Turf™ plans, applies, and converges Terraform®-compatible infrastructure
-        at any scale — driven by agents in natural language or HCL. It runs inside Claude Code,
-        Cursor, Codex or any MCP client, on the subscription you already have. Every change is
+      <p class="eyebrow"><span class="dot"></span> A new infrastructure-as-code engine · built on OpenTofu</p>
+      <h1>One tool, from metal to workload, at fleet scale.</h1>
+      <p class="lede">Turf™ is a new engine for infrastructure as code. Describe the whole stack in the
+        Terraform® language — hosts, clusters, charts, playbooks, the workload — and plan every
+        operation the same way: resources and actions, converged in rounds, in one run. Agents oversee
+        it from Claude Code, Cursor, Codex or any MCP client. Every change is
         <strong>planned, visible, and approved</strong> before it happens.
         <strong>Nothing runs off-plan.</strong></p>
       <div class="cta-row">
         <a class="btn primary" href="/get-started/">Try Turf free</a>
-        <a class="btn ghost" href="/demo/">Watch the demo</a>
+        <a class="btn ghost" href="/use-cases/">Use cases</a>
         <a class="btn ghost" href="/licensing/#pilot">Pilot program</a>
       </div>
       <div class="install"><span class="ps1">$</span> brew install restatedev/tap/restate-server turfbuild/tap/turf</div>
@@ -28,145 +30,8 @@
       </div>
     </div>
     <div>
-      <div class="planpanel" aria-label="Animated example: a Turf plan converging across three rounds">
-        <div class="pp-head">
-          <span class="pp-dots"><i></i><i></i><i></i></span>
-          <span class="pp-title" id="pp-title">plan — 1 change · 3 deferred</span>
-          <span class="pp-phase" id="pp-phase">round 1</span>
-        </div>
-        <div class="pp-body">
-          <div class="pp-row" id="row0">
-            <span class="pp-ico">○</span><span class="pp-verb">+</span>
-            <span class="pp-addr">kind_cluster.demo</span>
-            <span class="pp-status">planned</span>
-          </div>
-          <div class="pp-row deferred" id="row1">
-            <span class="pp-ico">◌</span><span class="pp-verb">+</span>
-            <span class="pp-addr">helm_release.cert_manager</span>
-            <span class="pp-status">deferred · cluster not yet known</span>
-          </div>
-          <div class="pp-row deferred" id="row2">
-            <span class="pp-ico">◌</span><span class="pp-verb">+</span>
-            <span class="pp-addr">helm_release.external_dns</span>
-            <span class="pp-status">deferred · cluster not yet known</span>
-          </div>
-          <div class="pp-row deferred" id="row3">
-            <span class="pp-ico">◌</span><span class="pp-verb">+</span>
-            <span class="pp-addr">kubernetes_manifest.issuer</span>
-            <span class="pp-status">deferred · CRD not yet known</span>
-          </div>
-        </div>
-        <div class="pp-gate" id="pp-gate"><span id="pp-gate-text">⏸ awaiting your approval</span></div>
-        <div class="pp-banner" id="pp-banner">✓ converged — 4 applied · 3 rounds · 0 drift</div>
-      </div>
-      <p class="pp-caption">the Terraform plan becomes the agent’s TODO list — approved round by round</p>
+      <StackBuild />
+      <p class="pp-caption">the whole stack in one configuration — planned, approved and applied round by round</p>
     </div>
   </div>
 </header>
-
-<script>
-  (function () {
-    const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const rows = [0, 1, 2, 3].map((i) => document.getElementById('row' + i));
-    const gate = document.getElementById('pp-gate');
-    const gateText = document.getElementById('pp-gate-text');
-    const phase = document.getElementById('pp-phase');
-    const banner = document.getElementById('pp-banner');
-    const title = document.getElementById('pp-title');
-    if (!gate || !gateText || !phase || !banner || !title) return;
-
-    function setRow(i: number, cls: string, ico: string, status: string) {
-      const r = rows[i];
-      if (!r) return;
-      r.className = 'pp-row' + (cls ? ' ' + cls : '');
-      const ie = r.querySelector('.pp-ico');
-      if (ie) ie.textContent = ico;
-      const se = r.querySelector('.pp-status');
-      if (se) se.textContent = status;
-    }
-    function setGate(approved: boolean, text: string) {
-      gate!.className = 'pp-gate' + (approved ? ' approved' : '');
-      gateText!.textContent = text;
-    }
-    function setPhase(text: string, busy: boolean) {
-      phase!.textContent = text;
-      phase!.className = 'pp-phase' + (busy ? ' busy' : '');
-    }
-    function setTitle(text: string) { title!.textContent = text; }
-
-    function initial() {
-      setTitle('plan — 1 change · 3 deferred');
-      setRow(0, '', '○', 'planned');
-      setRow(1, 'deferred', '◌', 'deferred · cluster not yet known');
-      setRow(2, 'deferred', '◌', 'deferred · cluster not yet known');
-      setRow(3, 'deferred', '◌', 'deferred · CRD not yet known');
-      setGate(false, '⏸ awaiting your approval');
-      setPhase('round 1', false);
-      banner!.className = 'pp-banner';
-    }
-    function finalState() {
-      setTitle('plan — converged');
-      setRow(0, 'applied', '✓', 'applied · 32s');
-      setRow(1, 'applied', '✓', 'applied · 41s');
-      setRow(2, 'applied', '✓', 'applied · 12s');
-      setRow(3, 'applied', '✓', 'applied · 2s');
-      setGate(true, '✓ approved by you — round 3');
-      setPhase('converged', false);
-      banner!.className = 'pp-banner show';
-    }
-
-    if (reduced) { finalState(); return; }
-
-    const timeline: [number, (() => void) | null][] = [
-      [0,     initial],
-      [1600,  function () { setGate(true, '✓ approved by you — round 1'); }],
-      [2400,  function () { setPhase('applying', true); setRow(0, 'applying', '▶', 'applying…'); }],
-      [4000,  function () { setRow(0, 'applied', '✓', 'applied · 32s'); }],
-      [4900,  function () { setPhase('replanning', true); setGate(false, '↻ replanning — cluster known, 2 changes now plannable'); }],
-      [6400,  function () { setPhase('round 2', false); setTitle('plan — 2 changes · 1 deferred'); setRow(1, '', '○', 'planned'); setRow(2, '', '○', 'planned'); setGate(false, '⏸ awaiting your approval'); }],
-      [7900,  function () { setGate(true, '✓ approved by you — round 2'); }],
-      [8700,  function () { setPhase('applying', true); setRow(1, 'applying', '▶', 'applying…'); }],
-      [10200, function () { setRow(1, 'applied', '✓', 'applied · 41s'); setRow(2, 'applying', '▶', 'applying…'); }],
-      [11500, function () { setRow(2, 'applied', '✓', 'applied · 12s'); }],
-      [12400, function () { setPhase('replanning', true); setGate(false, '↻ replanning — CRD known, 1 change now plannable'); }],
-      [13900, function () { setPhase('round 3', false); setTitle('plan — 1 change'); setRow(3, '', '○', 'planned'); setGate(false, '⏸ awaiting your approval'); }],
-      [15400, function () { setGate(true, '✓ approved by you — round 3'); }],
-      [16200, function () { setPhase('applying', true); setRow(3, 'applying', '▶', 'applying…'); }],
-      [17500, function () { setRow(3, 'applied', '✓', 'applied · 2s'); setPhase('converged', false); setTitle('plan — converged'); banner!.className = 'pp-banner show'; }],
-      [23000, null]  // loop
-    ];
-
-    function run() {
-      timeline.forEach(function (step) {
-        if (step[1]) setTimeout(step[1], step[0]);
-      });
-      setTimeout(run, timeline[timeline.length - 1][0]);
-    }
-    run();
-  })();
-
-  // Rotating headline: the four positioning pillars cycle through the
-  // highlighted phrase. Static "AI agents" under prefers-reduced-motion
-  // (and with JS disabled — the markup renders it).
-  (function () {
-    const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const rotor = document.getElementById('hero-rotor');
-    if (reduced || !rotor) return;
-    const phrases = ['AI agents', '10x scale', 'AI buildout'];
-    let i = 0;
-    setInterval(function () {
-      rotor.classList.add('fade');
-      setTimeout(function () {
-        i = (i + 1) % phrases.length;
-        rotor.textContent = phrases[i];
-        rotor.classList.remove('fade');
-      }, 350);
-    }, 3200);
-  })();
-</script>
-
-<style>
-  /* Cross-fade for the rotating headline phrase. */
-  .rotor { transition: opacity 0.35s ease; }
-  .rotor.fade { opacity: 0; }
-</style>

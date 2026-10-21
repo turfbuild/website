@@ -1,0 +1,79 @@
+---
+// Provider calls that scale out. The Turf engine's nodes fan create, read, update and delete out
+// per resource toward two regional provider endpoints (two provider configurations), each with
+// its own flow control. What 1.0 ships: one engine, unbounded fan-out, one provider instance per
+// region, account or alias (turf-engine engine/provider.go). What is marked COMING SOON in the
+// figure and in the caption beside it: the nodes beyond the first and per-provider flow control.
+// No numbers: the claim is the shape, not a benchmark. Fills and strokes are tokens.
+const nodes = [
+  { y: 30, soon: false },
+  { y: 118, soon: true },
+  { y: 206, soon: true },
+];
+const lanes = [[0, 26, 30, 22, 60, 40], [0, 22, 26, 20, 50, 36], [0, 30, 34, 18, 56, 44]];
+const valves = [
+  { y: 72, region: 'us-east-1', alias: 'east', ey: 52 },
+  { y: 196, region: 'eu-west-1', alias: 'west', ey: 176 },
+];
+---
+
+<svg class="fig" viewBox="0 0 720 300" role="img" aria-label="The Turf engine, drawn as three nodes, the second and third marked coming soon, each holding resource lanes that read, plan and apply side by side. Arrows from every node fan out to two flow-control valves, one per provider, both marked coming soon, and from each valve to a regional AWS API endpoint: one provider instance per region, account or alias. Every call fans out; each provider keeps its own pace.">
+  <!-- the engine: nodes -->
+  <rect x="0.5" y="0.5" width="250" height="299" rx="12" class="f-ground s-hair"/>
+  <text x="14" y="18" class="t-cap">THE TURF ENGINE</text>
+  {nodes.map((n, i) => (
+    <g>
+      <rect x="12.5" y={n.y + 0.5} width="226" height="78" rx="9" class="f-panel s-hair" stroke-dasharray={n.soon ? '4 3' : undefined}/>
+      <text x="22" y={n.y + 18} class="t-name">{`node ${i + 1}`}</text>
+      <text x="22" y={n.y + 30} class="t-m8 f-muted">refresh · plan · apply, per resource</text>
+      {n.soon && (
+        <g>
+          <rect x="160" y={n.y + 8} width="70" height="14" rx="7" class="f-partbg"/>
+          <text x="195" y={n.y + 18} text-anchor="middle" class="t-m7 f-part">COMING SOON</text>
+        </g>
+      )}
+      {lanes.map(([a, aw, b, bw, c, cw], k) => (
+        <g>
+          <text x="22" y={n.y + 46 + k * 11} class="t-m7 f-faint">{`resource ${k + 1}`}</text>
+          <rect x={78 + a} y={n.y + 39 + k * 11} width={aw} height="7" rx="1.5" class="f-cluster"/>
+          <rect x={78 + b} y={n.y + 39 + k * 11} width={bw} height="7" rx="1.5" class="f-okbg s-ok" stroke-width=".8"/>
+          <rect x={78 + c} y={n.y + 39 + k * 11} width={cw} height="7" rx="1.5" class="f-ok"/>
+        </g>
+      ))}
+    </g>
+  ))}
+  <g class="t-m7 f-faint">
+    <rect x="14" y="286" width="10" height="7" rx="1.5" class="f-cluster"/><text x="28" y="292">read</text>
+    <rect x="54" y="286" width="10" height="7" rx="1.5" class="f-okbg s-ok" stroke-width=".8"/><text x="68" y="292">plan</text>
+    <rect x="94" y="286" width="10" height="7" rx="1.5" class="f-ok"/><text x="108" y="292">create · update · delete</text>
+  </g>
+
+  <!-- fan-out: every node to every valve -->
+  <g class="f-none s-stroke" stroke-width="1.1">
+    {nodes.map((n) => valves.map((v) => (
+      <line x1="240" y1={n.y + 39} x2="326" y2={v.y + 18} stroke-dasharray={n.soon ? '3 3' : undefined} marker-end="url(#a-ink)"/>
+    )))}
+  </g>
+
+  <!-- flow control, per provider -->
+  {valves.map((v) => (
+    <g>
+      <rect x="330.5" y={v.y + 0.5} width="80" height="36" rx="8" class="f-partbg s-part"/>
+      <polygon points={`356,${v.y + 9} 384,${v.y + 27} 384,${v.y + 9} 356,${v.y + 27}`} class="f-part"/>
+      <text x="330" y={v.y + 50} class="t-cap f-part">FLOW CONTROL</text>
+      <text x="330" y={v.y + 60} class="t-m7 f-part">per provider · its own quota</text>
+      <rect x="330" y={v.y - 18} width="70" height="14" rx="7" class="f-partbg"/>
+      <text x="365" y={v.y - 8} text-anchor="middle" class="t-m7 f-part">COMING SOON</text>
+      <line x1="412" y1={v.y + 18} x2="470" y2={v.y + 18} class="s-ok" stroke-width="1.6" marker-end="url(#a-ok)"/>
+
+      <rect x="474.5" y={v.ey + 0.5} width="197" height="72" rx="9" class="f-panel s-hair"/>
+      <text x="486" y={v.ey + 16} class="t-cap">{`AWS API · ${v.region.toUpperCase()}`}</text>
+      <text x="486" y={v.ey + 34} class="t-name">The region's API</text>
+      <text x="486" y={v.ey + 48} class="t-mono">{`provider "aws" { alias = "${v.alias}" }`}</text>
+      <text x="486" y={v.ey + 62} class="t-mono f-ok">one instance · its own pace</text>
+    </g>
+  ))}
+
+  <text x="270" y="268" class="t-cap">ONE PROVIDER INSTANCE PER REGION, ACCOUNT OR ALIAS</text>
+  <text x="270" y="288" class="t-bold f-okdeep">Every call fans out. Each provider keeps its own pace.</text>
+</svg>

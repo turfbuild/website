@@ -1,0 +1,81 @@
+---
+// Your ops environment, Turf's engine: the engine in the middle, and around it the things a
+// platform team already runs, each on its own lane: git repos (HCL in by pull request), registries
+// (modules and providers), a secrets store (ephemeral, never in state), policy (checks every plan),
+// state (in your backend), and agents and the control plane over MCP.
+---
+
+<svg class="fig" viewBox="0 0 672 300" role="img" aria-label="The Turf engine in the middle. Around it, on their own lanes: git repos feeding HCL in by pull request; registries supplying modules and providers; a secrets store read as ephemeral values that never reach state; policy checking every plan; state in your backend, in object storage, a Kubernetes secret or a platform's remote backend; and agents and the control plane calling the engine over MCP.">
+  <!-- the engine -->
+  <rect x="256" y="96" width="160" height="108" rx="11" class="f-ok"/>
+  <rect x="270" y="110" width="20" height="20" rx="5" class="f-panel"/>
+  <text x="280" y="124.5" text-anchor="middle" class="t-plus f-ok" style="font-size:13px">+</text>
+  <text x="296" y="126" class="t-wm f-panel" style="font-size:17px">turf</text>
+  <text x="340" y="126" class="t-m8 f-okbg">engine</text>
+  <g class="t-m9 f-okbg">
+    <text x="270" y="152">plan</text>
+    <text x="270" y="168">approve</text>
+    <text x="270" y="184">apply</text>
+    <text x="270" y="200">log</text>
+  </g>
+  <g class="s-termok" stroke-width="1.2" stroke-opacity=".35"><line x1="270" y1="157" x2="400" y2="157"/><line x1="270" y1="173" x2="400" y2="173"/><line x1="270" y1="189" x2="400" y2="189"/></g>
+  <text x="340" y="152" class="t-m8 f-okbg">laptop</text>
+  <text x="340" y="168" class="t-m8 f-okbg">or Kubernetes</text>
+
+  <!-- git repos (top left) -->
+  <rect x="0.5" y="0.5" width="196" height="70" rx="9" class="f-panel s-hair"/>
+  <text x="12" y="16" class="t-cap">GIT REPOS</text>
+  <text x="12" y="34" class="t-name">The configuration</text>
+  <text x="12" y="47" class="t-mono">GitHub · GitLab · any remote</text>
+  <text x="12" y="61" class="t-mono f-ok">pull request → review → merge</text>
+  <path d="M198,36 H228 V100 H252" class="f-none s-stroke" stroke-width="1.3" marker-end="url(#a-ink)"/>
+  <text x="232" y="92" class="t-mono">HCL</text>
+
+  <!-- registries (top right) -->
+  <rect x="475.5" y="0.5" width="196" height="70" rx="9" class="f-panel s-hair"/>
+  <text x="487" y="16" class="t-cap">REGISTRIES</text>
+  <text x="487" y="34" class="t-name">Modules and providers</text>
+  <text x="487" y="47" class="t-mono">Artifactory · the public registries</text>
+  <text x="487" y="61" class="t-mono f-ok">installed by init, locked</text>
+  <path d="M474,36 H444 V100 H420" class="f-none s-stroke" stroke-width="1.3" marker-end="url(#a-ink)"/>
+
+  <!-- secrets (left) -->
+  <rect x="0.5" y="112" width="196" height="70" rx="9" class="f-panel s-hair"/>
+  <text x="12" y="128" class="t-cap">SECRETS</text>
+  <text x="12" y="146" class="t-name">The central store</text>
+  <text x="12" y="159" class="t-mono">a vault · a cloud secrets manager</text>
+  <text x="12" y="173" class="t-mono f-part">ephemeral · write-only · never in state</text>
+  <line x1="198" y1="150" x2="252" y2="150" class="s-part" stroke-width="1.3" marker-end="url(#a-part)"/>
+
+  <!-- policy (right) -->
+  <rect x="475.5" y="112" width="196" height="70" rx="9" class="f-panel s-hair"/>
+  <text x="487" y="128" class="t-cap">POLICY</text>
+  <text x="487" y="146" class="t-name">Checks every plan</text>
+  <text x="487" y="159" class="t-mono">OPA · conftest · your policy repo</text>
+  <text x="487" y="173" class="t-mono f-inh">or your platform's policy groups</text>
+  <line x1="474" y1="150" x2="420" y2="150" class="s-inh" stroke-width="1.3" marker-start="url(#a-inh)" marker-end="url(#a-inh)"/>
+  <text x="447" y="144" text-anchor="middle" class="t-mono f-inh">plan</text>
+
+  <!-- state (bottom left) -->
+  <rect x="0.5" y="224" width="196" height="75" rx="9" class="f-panel s-hair"/>
+  <text x="12" y="240" class="t-cap">STATE</text>
+  <text x="12" y="258" class="t-name">Your backend</text>
+  <text x="12" y="271" class="t-mono">S3 · GCS · Azure Blob · in the cluster</text>
+  <text x="12" y="285" class="t-mono">or a remote backend · encrypted</text>
+  <path d="M198,262 H228 V200 H252" class="f-none s-stroke" stroke-width="1.3" marker-start="url(#a-ink)" marker-end="url(#a-ink)"/>
+
+  <!-- agents and the control plane (bottom right) -->
+  <rect x="475.5" y="224" width="196" height="75" rx="9" class="f-inhbg s-inh" stroke-width="1.2"/>
+  <text x="487" y="240" class="t-cap">AGENTS · THE CONTROL PLANE</text>
+  <text x="487" y="258" class="t-title">Over MCP</text>
+  <text x="487" y="271" class="t-mono f-inh">Claude Code · Cursor · your portal</text>
+  <text x="487" y="285" class="t-mono f-inh">open · up · apply · output</text>
+  <path d="M474,262 H444 V200 H420" class="f-none s-inh" stroke-width="1.4" marker-start="url(#a-inh)" marker-end="url(#a-inh)"/>
+  <text x="447" y="222" text-anchor="middle" class="t-mono f-inh">MCP</text>
+
+  <!-- the platform's control plane, dashed -->
+  <rect x="256.5" y="246.5" width="159" height="38" rx="9" class="f-panel s-hair" stroke-dasharray="4 3"/>
+  <text x="268" y="262" class="t-cap">YOUR PLATFORM</text>
+  <text x="268" y="276" class="t-mono">Scalr · Spacelift · over MCP</text>
+  <line x1="336" y1="244" x2="336" y2="208" class="s-inh" stroke-width="1.3" stroke-dasharray="3 3" marker-end="url(#a-inh)"/>
+</svg>

@@ -1,11 +1,15 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import FigureDefs from '../components/FigureDefs.astro';
 import Hero from '../components/Hero.astro';
-import UseCases from '../components/UseCases.astro';
-import FearStrip from '../components/FearStrip.astro';
+import WhyEngine from '../components/WhyEngine.astro';
 import HowItWorks from '../components/HowItWorks.astro';
+import ActionsInPlan from '../components/ActionsInPlan.astro';
+import AgentInLoop from '../components/AgentInLoop.astro';
 import CompatibilityTeaser from '../components/CompatibilityTeaser.astro';
-import Pillars from '../components/Pillars.astro';
+import OpsEnvironment from '../components/OpsEnvironment.astro';
+import Engine from '../components/Engine.astro';
+import UseCasesTeaser from '../components/UseCasesTeaser.astro';
 import Flexibility from '../components/Flexibility.astro';
 import Partner from '../components/Partner.astro';
 import Announcement from '../components/Announcement.astro';
@@ -28,7 +32,7 @@ const jsonLd = [
     url: `${site}/`,
     logo: `${site}/logo.png`,
     description:
-      'Turf builds the infrastructure engine for AI agents — Terraform-compatible infrastructure as code, exposed to agents as an MCP server and built on OpenTofu providers.',
+      'Turf builds a new engine for infrastructure as code: Terraform-compatible, built on OpenTofu, driven by AI agents over MCP, planning the whole stack in one run.',
     sameAs: [
       'https://github.com/turfbuild',
       'https://www.linkedin.com/company/turfbuild/',
@@ -58,14 +62,16 @@ const jsonLd = [
     softwareVersion: '1.0.0',
     releaseNotes: `${site}/engine/`,
     description:
-      'Turf is a Terraform-compatible infrastructure engine exposed to AI agents as an MCP server. It plans, applies, and converges infrastructure from HCL or natural language, and every change is planned, visible, and approved before it happens.',
+      'Turf is a new engine for infrastructure as code, built on OpenTofu and exposed to AI agents as an MCP server. It plans the whole stack as standard Terraform, resources and actions in one plan, and converges it in rounds; every change is a Terraform plan, approved before it runs.',
     featureList: [
-      'Terraform HCL and module-registry support',
+      'Every change is a Terraform plan, approved before it runs',
+      'Multi-round convergence of layered stacks in one run',
+      'Terraform actions with lifecycle triggers and overlays',
+      'Turf actions: checks, questions and notifications as steps of the apply',
+      'Durable runs on Restate; provider calls that scale out',
+      'State encryption at rest; OpenTelemetry built in',
       'MCP server for Claude, Codex, Gemini, and any MCP client',
-      'Plan-gated apply — nothing runs off-plan',
-      'Deferred changes that converge across rounds',
-      'Terraform actions and provider-hosted operations',
-      'Built on OpenTofu providers',
+      'Standard Terraform: HCL, registry modules and OpenTofu providers',
     ],
     publisher: { '@id': `${site}/#organization` },
   },
@@ -74,12 +80,16 @@ const jsonLd = [
 
 <Layout jsonLd={jsonLd}>
   <Announcement slot="banner" />
+  <FigureDefs />
   <Hero />
-  <UseCases />
-  <FearStrip />
+  <WhyEngine />
   <HowItWorks />
+  <ActionsInPlan />
+  <AgentInLoop />
   <CompatibilityTeaser />
-  <Pillars />
+  <OpsEnvironment />
+  <Engine />
+  <UseCasesTeaser />
   <Flexibility />
   <Partner />
 </Layout>

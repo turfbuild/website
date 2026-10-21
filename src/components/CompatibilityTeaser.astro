@@ -1,55 +1,115 @@
+---
+// Three ecosystems, standard Terraform: a card per ecosystem (well-known providers, collections
+// and charts, named nominatively under the home marks note; no competitor), one HCL example each
+// (ref-arch chapters 2–4, illustrative), how Turf runs it, then the compatibility ticklist with
+// the honesty box. Keeps the `#compatibility` anchor. The reader is as likely to come from a
+// console or a GitOps controller as from Terraform (2026-10-21): no migration framing.
+const eco = [
+  {
+    name: 'Terraform', what: 'providers and modules',
+    chips: ['AWS', 'Google Cloud', 'Azure', 'Kubernetes', 'Helm', 'Cloudflare', 'GitHub', 'Vault', 'Datadog', 'vSphere', 'Proxmox', 'MAAS', 'Redfish', 'terraform-aws-modules', 'Ansible provider'],
+    more: 'the whole registry',
+    foot: 'as resources and modules, unchanged',
+  },
+  {
+    name: 'Ansible', what: 'playbooks and collections',
+    chips: ['ansible.builtin', 'community.general', 'kubernetes.core', 'amazon.aws', 'google.cloud', 'azure.azcollection', 'ansible.posix', 'community.docker', 'dellemc.openmanage', 'Kubespray', 'k3s-ansible'],
+    more: 'your playbooks',
+    foot: 'as a Terraform action: ansible-playbook, run from the plan',
+  },
+  {
+    name: 'Helm', what: 'charts',
+    chips: ['cert-manager', 'ingress-nginx', 'kube-prometheus-stack', 'Grafana', 'Cilium', 'external-dns', 'Istio', 'Vault', 'GPU Operator', 'Network Operator', 'NIM Operator', 'KubeRay', 'Kubeflow', 'kagent'],
+    more: 'any chart',
+    foot: 'as a Terraform resource: synced as a true Helm release, hooks included',
+  },
+];
+---
+
 <section class="band alt" id="compatibility">
-  <div class="wrap dropin">
-    <div>
-      <div class="band-head tight">
-        <h2>Turf loves HCL.</h2>
-        <p>Your configs, your modules, your providers, your mental model — Turf runs them
-        unchanged. With agentic superpowers on top.</p>
-        <p class="provenance">Turf is an independent product built on the OpenTofu framework — not
-        affiliated with or endorsed by HashiCorp.</p>
-      </div>
-      <ul class="ticklist">
-        <li><span class="g">✓</span><div><b>Full Terraform HCL</b> <span>— the entire expression language and
-          function library, on the OpenTofu framework.</span></div></li>
-        <li><span class="g">✓</span><div><b>Module registry</b> <span>— build on battle-tested community modules,
-          from AVM on down.</span></div></li>
-        <li><span class="g">✓</span><div><b>OpenTofu providers</b> <span>— the whole provider ecosystem, unmodified.</span></div></li>
-        <li><span class="g">✓</span><div><b>Brownfield adoption</b> <span>— an <code>import</code> block brings existing
-          infrastructure under management, reviewed as a real diff before anything changes.</span></div></li>
-        <li><span class="g">✓</span><div><b>Terraform Actions</b> <span>— the 1.16 action model, plus overlays that
-          add a trigger without touching the module.</span><span class="pill ok">ahead of OpenTofu</span></div></li>
-        <li><span class="g">✓</span><div><b>Multi-round convergence</b> <span>— plans what it can, defers the rest,
-          plans again; no experimental flags.</span><span class="pill ok">ahead of OpenTofu</span></div></li>
-        <li><span class="g">✓</span><div><b>Durable, encrypted, observable</b> <span>— runs survive restarts, state is
-          encrypted at rest, OpenTelemetry is built in.</span><span class="pill ok">ahead of OpenTofu</span></div></li>
-        <li><span class="g">✓</span><div><b>Multi-environment deploys</b> <span>— one configuration, a workspace per
-          environment, promoted with overlays.</span></div></li>
-      </ul>
-      <div class="honesty">
-        <b>Radically honest compatibility.</b> Where a construct isn’t supported yet, Turf refuses
-        loudly — it never silently mis-plans. Every gap is published and labeled <em>coming&nbsp;soon</em> on the matrix.
-        <div style="margin-top:10px;"><a href="/compatibility/">See the full compatibility matrix →</a></div>
-      </div>
+  <div class="wrap">
+    <div class="band-head">
+      <h2>Three ecosystems. Standard Terraform.</h2>
+      <p>Nothing in a stack is written from nothing. Terraform providers and modules, Ansible®
+        playbooks and Helm® charts already cover it, from the hardware to the workload, and Turf runs
+        each as it is.</p>
     </div>
-    <div>
-      <div class="term" role="img" aria-label="Example turf up session converging a Kubernetes stack across three rounds">
-        <div class="term-head"><span>turf up · kind-helm example</span></div>
-        <div class="term-body">
-<div class="t"><span class="p">$</span> <span class="b">turf up</span></div>
-<div class="t"><span class="dim">plan · round 1 —</span> <span class="ok">1 to add</span><span class="dim">,</span> <span class="amber">3 deferred</span></div>
-<div class="t"><span class="dim">approve?</span> <span class="b">yes</span> <span class="dim">(policy checks passed)</span></div>
-<div class="t"><span class="ok">✓</span> kind_cluster.demo <span class="dim">              32s</span></div>
-<div class="t"><span class="dim">plan · round 2 —</span> <span class="ok">2 to add</span><span class="dim">,</span> <span class="amber">1 deferred</span></div>
-<div class="t"><span class="dim">approve?</span> <span class="b">yes</span></div>
-<div class="t"><span class="ok">✓</span> helm_release.cert_manager <span class="dim">      41s</span></div>
-<div class="t"><span class="ok">✓</span> helm_release.external_dns <span class="dim">      12s</span></div>
-<div class="t"><span class="dim">plan · round 3 —</span> <span class="ok">1 to add</span></div>
-<div class="t"><span class="dim">approve?</span> <span class="b">yes</span></div>
-<div class="t"><span class="ok">✓</span> kubernetes_manifest.issuer <span class="dim">      2s</span></div>
-<div class="t"><span class="ok">converged</span> <span class="dim">— 4 applied across 3 rounds · 0 drift</span></div>
+
+    <div class="eco3">
+      {eco.map((e, i) => (
+        <div class="eco-card">
+          <div class="eco-head"><b>{e.name}</b><span>{e.what}</span></div>
+          <div class="eco-chips">
+            {e.chips.map((c) => <span class="eco-chip">{c}</span>)}
+            <span class="eco-chip more">… {e.more}</span>
+          </div>
+          {i === 0 && (
+            <div class="codeblock">
+              <div class="cb-head"><span>a module</span></div>
+<pre><span class="kw">module</span> <span class="str">"eks"</span> &#123;
+  source  = <span class="str">"terraform-aws-modules/eks/aws"</span>
+  version = <span class="str">"~&gt; 21.0"</span>
+  name    = <span class="str">"gpu-west-1"</span>
+&#125;</pre>
+            </div>
+          )}
+          {i === 1 && (
+            <div class="codeblock">
+              <div class="cb-head"><span>a playbook, as an action</span></div>
+<pre><span class="kw">action</span> <span class="str">"ansible_playbook_run"</span> <span class="str">"gpu_node"</span> &#123;
+  <span class="kw">config</span> &#123;
+    playbooks   = [<span class="str">"gpu-node.yml"</span>]
+    inventories = [data.ansible_inventory.gpu.json]
+  &#125;
+&#125;</pre>
+            </div>
+          )}
+          {i === 2 && (
+            <div class="codeblock">
+              <div class="cb-head"><span>a chart, as a resource</span></div>
+<pre><span class="kw">resource</span> <span class="str">"helm_release"</span> <span class="str">"gpu_operator"</span> &#123;
+  repository = <span class="str">"https://helm.ngc.nvidia.com/nvidia"</span>
+  chart      = <span class="str">"gpu-operator"</span>
+  version    = <span class="str">"v26.7.1"</span>
+&#125;</pre>
+            </div>
+          )}
+          <div class="eco-foot"><b>In Turf</b> · {e.foot}</div>
+        </div>
+      ))}
+    </div>
+
+    <div class="feature">
+      <div>
+        <h3>Start anywhere. It’s all standard Terraform.</h3>
+        <p>Clicked it together in a console? Syncing charts with a GitOps controller today? Turf runs the
+          Terraform language on the OpenTofu framework: the whole expression language, the function
+          library, registry modules and the provider ecosystem, as they are. Turf is an independent
+          product built on the OpenTofu framework, not affiliated with or endorsed by HashiCorp.</p>
+        <div class="honesty">
+          <b>Radically honest compatibility.</b> Where a construct isn’t supported yet, Turf refuses
+          loudly — it never silently mis-plans. Every gap is published and labeled <em>coming&nbsp;soon</em> on the matrix.
+          <div style="margin-top:10px;"><a href="/compatibility/">See the full compatibility matrix →</a></div>
         </div>
       </div>
-      <p class="pp-caption left">cluster → operators → CRDs → workloads. no <span class="mono">-target</span> hacks, no two-stage applies.</p>
+      <div>
+        <ul class="ticklist">
+          <li><span class="g">✓</span><div><b>Full Terraform HCL</b> <span>— every expression and function, no allow
+            list.</span></div></li>
+          <li><span class="g">✓</span><div><b>Module registry</b> <span>— public, private or git, installed and locked
+            by <code>init</code>.</span></div></li>
+          <li><span class="g">✓</span><div><b>OpenTofu providers</b> <span>— the whole provider ecosystem,
+            unmodified.</span></div></li>
+          <li><span class="g">✓</span><div><b>Charts, synced</b> <span>— every <code>helm_release</code> is a true Helm
+            release: installed and upgraded through Helm, hooks included, visible to <code>helm list</code>.</span></div></li>
+          <li><span class="g">✓</span><div><b>From the console to configuration</b> <span>— the agent writes the HCL;
+            an <code>import</code> block brings what exists under management, reviewed as a real diff.</span></div></li>
+          <li><span class="g">✓</span><div><b>Terraform actions, with overlays</b> <span>— the 1.16 action model, plus
+            triggers added per environment.</span><span class="pill ok">ahead of OpenTofu</span></div></li>
+          <li><span class="g">✓</span><div><b>Multi-environment deploys</b> <span>— one configuration, a workspace per
+            environment, promoted with overlays.</span></div></li>
+        </ul>
+      </div>
     </div>
   </div>
 </section>

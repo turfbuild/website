@@ -1,0 +1,96 @@
+---
+// The agent is in the loop, not in charge: a turf action pauses the apply with a step for the
+// agent to carry out. Here a backup before the database changes and a word to the team after.
+// Illustrative, in the shape of the turf actions in turf-examples (installer.turf.hcl,
+// maintenance.turf.hcl); `caller` is the planned instance on a before-event, the applied one after.
+---
+
+<section class="band">
+  <div class="wrap">
+    <div class="band-head">
+      <h2>The agent is in the loop, not in charge.</h2>
+      <p>A turf action is a step the configuration asks the agent to carry out during the apply: a
+        backup, a check, a deployment step, a question, a notification. The apply stops for it, the
+        agent does the step with its own tools and reports back, and the configuration says what a
+        failure means.</p>
+    </div>
+
+    <div class="feature flip">
+      <div>
+        <div class="codeblock">
+          <div class="cb-head"><span>database.turf.hcl · an overlay</span><span class="cb-legend">a backup before, a word after</span></div>
+<pre><span class="kw">action</span> <span class="str">"turf_action"</span> <span class="str">"backup"</span> &#123;
+  <span class="kw">config</span> &#123;
+    prompt = &lt;&lt;-EOT
+      Snapshot $&#123;caller.identifier&#125; with the AWS CLI or the
+      AWS MCP tools, wait until it is available, and report
+      its identifier in progress. If it does not complete,
+      fail: the database stays as it is.
+    EOT
+    inputs = &#123; db = caller.identifier, region = var.region &#125;
+  &#125;
+&#125;
+
+<span class="kw">action_trigger</span> <span class="str">"backup"</span> &#123;
+  target     = aws_db_instance.primary
+  events     = [<span class="ev">before_update</span>, <span class="ev">before_destroy</span>]
+  actions    = [action.turf_action.backup]
+  on_failure = <span class="ev">halt</span>
+&#125;
+
+<span class="kw">action</span> <span class="str">"turf_action"</span> <span class="str">"notify"</span> &#123;
+  <span class="kw">config</span> &#123;
+    prompt = &lt;&lt;-EOT
+      Tell the ops channel that $&#123;caller.identifier&#125; is now on
+      $&#123;caller.engine&#125; $&#123;caller.engine_version&#125;, with your
+      messaging tool; without one, fail and say so.
+    EOT
+  &#125;
+&#125;
+
+<span class="kw">action_trigger</span> <span class="str">"notify"</span> &#123;
+  target     = aws_db_instance.primary
+  events     = [<span class="ev">after_update</span>]
+  actions    = [action.turf_action.notify]
+  on_failure = <span class="ev">continue</span>
+&#125;</pre>
+          <div class="cb-note">illustrative · the shape of turf-examples' installer.turf.hcl and maintenance.turf.hcl · caller is the instance that fired the trigger</div>
+        </div>
+        <ul class="ticklist">
+          <li><span class="g">✓</span><div><b>An approval point on every round</b> <span>— the plan is approved by you
+            or by policy; <code>apply</code> with its digest is the approval, of that plan and no other.</span></div></li>
+          <li><span class="g">✓</span><div><b>Backups, checks, questions and notifications as actions</b> <span>— each
+            a step of the apply, done by the agent with its own tools and recorded with the run.</span></div></li>
+        </ul>
+      </div>
+
+      <div class="agentloop" role="img" aria-label="A tool result shows the apply paused at a turf action before the database changes; the agent takes a snapshot with its own tools and reports it; the apply resumes; after the update the agent tells the team.">
+<pre class="report"><span class="lab">TOOL RESULT · TURF MCP</span><b>apply</b> → <i>awaiting_actions</i>
+<span class="k">action_requests</span> = [&#123;
+  address = <i>"action.turf_action.backup"</i>
+  event   = <i>"before_update"</i>
+  caller  = <i>"aws_db_instance.primary"</i>
+  inputs  = &#123; db = <i>"orders-prod"</i>, region = <i>"us-east-1"</i> &#125;
+&#125;]
+<span class="d">paused · the database untouched</span></pre>
+        <div class="chat">
+          <div class="who"><span class="av">✦</span><span>Your agent</span><span class="tag">in Claude Code</span></div>
+          <div class="msg">
+            <p><strong>Before orders-prod moves to PostgreSQL 17.6:</strong> a snapshot first.</p>
+            <ul class="ck">
+              <li><code>aws rds create-db-snapshot</code> <span>orders-prod-before-17-6</span></li>
+              <li><code>aws rds wait db-snapshot-available</code> <span>available</span></li>
+            </ul>
+            <p>Snapshot reported in progress. The apply continues.</p>
+          </div>
+          <p class="note">→ apply(action_results): succeeded · the update runs · after_update: awaiting_actions</p>
+          <div class="msg">
+            <p><strong>Told the team in #ops:</strong> orders-prod is on PostgreSQL 17.6. Snapshot
+              orders-prod-before-17-6 is kept.</p>
+          </div>
+          <p class="note">→ apply(action_results): succeeded · converged</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

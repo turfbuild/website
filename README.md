@@ -25,8 +25,10 @@ public/           CNAME, favicon.svg, og.png, robots.txt, fonts/*.woff2
 src/
   styles/global.css     the whole design system (:root tokens, components) — imported once
   layouts/Layout.astro  <head>, Turf-leading <title>, footer disclaimer on every page
-  components/*.astro     Hero (+ animation), FearStrip, HowItWorks, Compatibility, Solutions,
-                         Pillars, Flexibility, Partner, TopNav, Footer
+  components/*.astro     Hero (+ StackBuild), WhyEngine, HowItWorks, ActionsInPlan, AgentInLoop,
+                         CompatibilityTeaser, OpsEnvironment, Engine, UseCasesTeaser, Flexibility,
+                         Partner, Still,
+                         TopNav, Footer; figures/ holds the inline SVG figures
   pages/*.astro          index, engine, compatibility, get-started, pricing, licensing,
                          reference-architectures, contact, docs, 404
 scripts/og.svg           source for public/og.png (see "Regenerate the OG image")

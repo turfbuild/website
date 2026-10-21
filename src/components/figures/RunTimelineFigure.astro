@@ -1,0 +1,65 @@
+---
+// One `turf up` as a timeline, in the console's grammar: round 1 plans, approves and applies the
+// cluster and defers everything above it; round 2 configures the Helm provider from the cluster's
+// endpoint and finishes the chart and the manifest, pausing once for the agent at a turf action.
+// Lanes are ordered by when they start, so the run reads like a Gantt chart. Tokens only.
+const lanes = ['kind_cluster.demo', 'provider.helm', 'helm · cert-manager', 'manifest · app', 'action · certify'];
+const laneY = (i: number) => 78 + i * 30;
+const r1 = { planned: 200, approved: 290, applied: 410 };
+const r2 = { planned: 440, approved: 530, end: 656 };
+---
+
+<svg class="fig" viewBox="0 0 672 250" role="img" aria-label="One run as a timeline, in two rounds. Round 1: the cluster is planned, approved and applied, while the Helm provider, the cert-manager chart, the manifest and the certify action are deferred. Round 2: the Helm provider is configured from the cluster's endpoint, the chart and the manifest are planned, approved and applied, and the certify action pauses for the agent before the run converges.">
+  <rect x="0.5" y="0.5" width="671" height="249" rx="12" class="f-term"/>
+  <g class="t-cap f-termmuted">
+    <text x={r1.planned} y="22">ROUND 1</text>
+    <text x={r2.planned} y="22">ROUND 2</text>
+    <text x={r2.end} y="22" text-anchor="end" class="f-termok">CONVERGED</text>
+  </g>
+  <line x1={r1.planned} y1="34" x2={r2.end} y2="34" class="s-termok" stroke-width="1.4"/>
+  <g class="f-termok">
+    {[r1.planned, r1.approved, r1.applied, r2.planned, r2.approved].map((x) => (
+      <polygon points={`${x},29 ${x + 5},34 ${x},39 ${x - 5},34`}/>
+    ))}
+    <polygon points={`${r2.end},28 ${r2.end + 6},34 ${r2.end},40 ${r2.end - 6},34`}/>
+  </g>
+  <g class="t-m7 f-termmuted" text-anchor="middle">
+    <text x={r1.planned} y="50">planned</text>
+    <text x={r1.approved} y="50">approved</text>
+    <text x={r1.applied} y="50">applied</text>
+    <text x={r2.approved} y="50">approved</text>
+  </g>
+
+  {lanes.map((name, i) => (
+    <g>
+      <line x1="16" y1={laneY(i) + 12} x2="656" y2={laneY(i) + 12} class="s-termmuted" stroke-width=".5" stroke-opacity=".5"/>
+      <text x="16" y={laneY(i) + 3} class="t-m8 f-termink">{name}</text>
+    </g>
+  ))}
+  <!-- round 1: the cluster; everything above it deferred -->
+  <rect x={r1.planned} y={laneY(0) - 2} width={r1.approved - r1.planned} height="5" rx="1.5" class="f-termmuted"/>
+  <rect x={r1.approved} y={laneY(0) - 4} width={r1.applied - r1.approved} height="9" rx="2" class="f-termok"/>
+  <g class="f-none s-termmuted" stroke-width="1" stroke-dasharray="2 2">
+    {[1, 2, 3, 4].map((i) => <rect x={r1.planned} y={laneY(i) - 4} width={r1.applied - r1.planned} height="9" rx="2"/>)}
+  </g>
+  <text x={(r1.planned + r1.applied) / 2} y={laneY(2) + 3} text-anchor="middle" class="t-m7 f-termmuted">deferred</text>
+  <!-- round 2: the provider configures, the chart and the manifest apply, the action pauses -->
+  <g class="f-termmuted">
+    {[1, 2, 3, 4].map((i) => <rect x={r2.planned} y={laneY(i) - 2} width={r2.approved - r2.planned} height="5" rx="1.5"/>)}
+  </g>
+  <rect x={r2.approved} y={laneY(1) - 4} width="14" height="9" rx="2" class="f-termok"/>
+  <rect x={r2.approved + 18} y={laneY(2) - 4} width="62" height="9" rx="2" class="f-termok"/>
+  <rect x={r2.approved + 82} y={laneY(3) - 4} width="44" height="9" rx="2" class="f-termok"/>
+  <polygon points={`620,${laneY(4) - 6} 626,${laneY(4)} 620,${laneY(4) + 6} 614,${laneY(4)}`} class="f-partbg s-part" stroke-width="1.2"/>
+  <rect x="632" y={laneY(4) - 4} width="24" height="9" rx="2" class="f-termok"/>
+  <text x="608" y={laneY(4) - 9} text-anchor="end" class="t-m7 f-part">paused for the agent</text>
+
+  <!-- legend -->
+  <g class="t-m7 f-termmuted">
+    <rect x="16" y="225" width="14" height="5" rx="1.5" class="f-termmuted"/><text x="34" y="230">plan</text>
+    <rect x="62" y="223" width="14" height="9" rx="2" class="f-termok"/><text x="80" y="230">apply</text>
+    <rect x="112" y="223" width="14" height="9" rx="2" class="f-none s-termmuted" stroke-width="1" stroke-dasharray="2 2"/><text x="130" y="230">deferred</text>
+    <polygon points="178,223 183,227.5 178,232 173,227.5" class="f-termok"/><text x="188" y="230">approval point</text>
+    <polygon points="258,223 263,227.5 258,232 253,227.5" class="f-partbg s-part" stroke-width="1"/><text x="268" y="230">turf action</text>
+  </g>
+</svg>

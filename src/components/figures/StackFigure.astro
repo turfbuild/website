@@ -1,0 +1,128 @@
+---
+// Figure 1 of Metal to Tokens, ported: the stack from hardware to the AI workload as code, run by
+// Turf, between the provider's own hardware and control plane, with the decision layer approving
+// change plans and driving remediation. Geometry is the paper's; every fill and stroke is a token
+// class (global.css, "figures"). Markers come from components/FigureDefs.astro, once per page.
+---
+
+<svg class="fig" viewBox="0 0 672 452" role="img" aria-label="The stack from hardware to the AI workload as code, run by Turf, between the provider's own hardware and control plane, with the decision layer approving change plans and driving remediation.">
+  <path d="M612,146 V30 Q612,18 600,18 H72 Q60,18 60,30 V142" class="f-none s-inh" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#a-inh)"/>
+  <rect x="281" y="8" width="110" height="20" rx="10" class="f-panel s-inh"/>
+  <text x="336" y="21.5" text-anchor="middle" class="t-mono f-inh">remediation</text>
+
+  <text x="336" y="47" text-anchor="middle" class="t-cap">TOKENS</text>
+  <text x="336" y="403" text-anchor="middle" class="t-cap">METAL</text>
+
+  <g>
+    <rect x="172" y="56"  width="328" height="40" rx="7" class="f-panel s-hair" stroke-dasharray="4 3"/>
+    <rect x="172" y="104" width="328" height="40" rx="7" class="f-workload s-hair"/>
+    <rect x="172" y="152" width="328" height="40" rx="7" class="f-cert s-hair"/>
+    <rect x="172" y="200" width="328" height="40" rx="7" class="f-runtime s-hair"/>
+    <rect x="172" y="248" width="328" height="40" rx="7" class="f-cluster s-hair"/>
+    <rect x="172" y="296" width="328" height="40" rx="7" class="f-host s-hair"/>
+    <rect x="172" y="344" width="328" height="40" rx="7" class="f-panel s-hair" stroke-dasharray="4 3"/>
+
+    <text x="186" y="73"  class="t-name">The provider's control plane</text>
+    <text x="186" y="87"  class="t-mono">portal · tenant API · billing · regions</text>
+    <text x="186" y="121" class="t-name f-on-workload">AI workload</text>
+    <text x="186" y="135" class="t-mono f-on-workload">training · inference · agents</text>
+    <text x="186" y="169" class="t-name f-on-cert">Certification and handover</text>
+    <text x="186" y="183" class="t-mono f-on-cert">NVCRE · acceptance checks · smoke test</text>
+    <text x="186" y="217" class="t-name f-on-runtime">AI runtime</text>
+    <text x="186" y="231" class="t-mono f-on-runtime">NVIDIA AICR · GPU Operator · NVSentinel · KAI</text>
+    <text x="186" y="265" class="t-name f-on-cluster">Cluster</text>
+    <text x="186" y="279" class="t-mono f-on-cluster">EKS · GKE · AKS · k3s · RKE2 · Slurm (Slinky)</text>
+    <text x="186" y="313" class="t-name f-on-host">Host</text>
+    <text x="186" y="327" class="t-mono f-on-host">OS · drivers · NCCL · firmware · Ansible</text>
+    <text x="186" y="361" class="t-name">Hardware</text>
+    <text x="186" y="375" class="t-mono">pools of inventory · bare metal · cloud · static</text>
+
+    <g class="t-mono" text-anchor="end">
+      <text x="488" y="128" class="f-on-workload">6</text>
+      <text x="488" y="176" class="f-on-cert">5</text>
+      <text x="488" y="224" class="f-on-runtime">4</text>
+      <text x="488" y="272" class="f-on-cluster">3</text>
+      <text x="488" y="320" class="f-on-host">2</text>
+      <text x="488" y="368">1</text>
+    </g>
+  </g>
+
+  <!-- Turf -->
+  <rect x="0" y="146" width="120" height="150" rx="11" class="f-ok"/>
+  <rect x="14" y="160" width="21" height="21" rx="5.5" class="f-panel"/>
+  <text x="24.5" y="175.5" text-anchor="middle" class="t-plus f-ok">+</text>
+  <text x="42" y="177" class="t-wm f-panel">turf</text>
+  <g class="t-m9 f-okbg">
+    <text x="16" y="208">plan</text>
+    <text x="16" y="226">approve</text>
+    <text x="16" y="244">apply</text>
+    <text x="16" y="262">log</text>
+  </g>
+  <g class="s-termok" stroke-width="1.2" stroke-opacity=".35"><line x1="16" y1="213" x2="104" y2="213"/><line x1="16" y1="231" x2="104" y2="231"/><line x1="16" y1="249" x2="104" y2="249"/></g>
+  <text x="60" y="314" text-anchor="middle" class="t-mono">on a laptop</text>
+  <text x="60" y="326" text-anchor="middle" class="t-mono">or in Kubernetes</text>
+
+  <!-- the provider's control plane asks Turf -->
+  <path d="M172,76 H96 Q84,76 84,88 V142" class="f-none s-stroke" stroke-width="1.3" marker-end="url(#a-ink)"/>
+  <text x="128" y="70" text-anchor="middle" class="t-mono">asks</text>
+
+  <!-- apply bus -->
+  <g class="s-ok f-none" stroke-width="1.6">
+    <line x1="120" y1="221" x2="146" y2="221"/>
+    <line x1="146" y1="124" x2="146" y2="316"/>
+    <line x1="146" y1="124" x2="168" y2="124" marker-end="url(#a-ok)"/>
+    <line x1="146" y1="172" x2="168" y2="172" marker-end="url(#a-ok)"/>
+    <line x1="146" y1="220" x2="168" y2="220" marker-end="url(#a-ok)"/>
+    <line x1="146" y1="268" x2="168" y2="268" marker-end="url(#a-ok)"/>
+    <line x1="146" y1="316" x2="168" y2="316" marker-end="url(#a-ok)"/>
+  </g>
+  <text x="146" y="112" text-anchor="middle" class="t-mono f-ok">apply</text>
+
+  <!-- observe bus -->
+  <g class="s-inh f-none" stroke-width="1.4" stroke-dasharray="3 3">
+    <line x1="502" y1="124" x2="526" y2="124"/>
+    <line x1="502" y1="172" x2="526" y2="172"/>
+    <line x1="502" y1="220" x2="526" y2="220"/>
+    <line x1="502" y1="268" x2="526" y2="268"/>
+    <line x1="502" y1="316" x2="526" y2="316"/>
+    <line x1="502" y1="364" x2="526" y2="364"/>
+    <line x1="526" y1="124" x2="526" y2="364"/>
+  </g>
+  <line x1="526" y1="221" x2="549" y2="221" class="s-inh" stroke-width="1.6" marker-end="url(#a-inh)"/>
+  <text x="526" y="112" text-anchor="middle" class="t-mono f-inh">observe</text>
+
+  <!-- decision layer -->
+  <rect x="552" y="146" width="120" height="150" rx="11" class="f-inhbg s-inh" stroke-width="1.2"/>
+  <text x="566" y="170" class="t-title">Decision</text>
+  <text x="566" y="185" class="t-title">layer</text>
+  <g class="t-m9 f-inh">
+    <text x="566" y="210">agent</text>
+    <text x="566" y="228">runbook</text>
+    <text x="566" y="246">policy</text>
+    <text x="566" y="264">people</text>
+  </g>
+
+  <!-- every change, at every layer -->
+  <text x="0" y="414" class="t-cap">EVERY CHANGE, AT EVERY LAYER</text>
+  <g class="t-m9" text-anchor="middle">
+    <rect x="0"     y="422" width="94" height="26" rx="13" class="f-panel s-hair"/>
+    <rect x="115.6" y="422" width="94" height="26" rx="13" class="f-panel s-hair"/>
+    <rect x="231.2" y="422" width="94" height="26" rx="13" class="f-ok"/>
+    <rect x="346.8" y="422" width="94" height="26" rx="13" class="f-okbg s-ok"/>
+    <rect x="462.4" y="422" width="94" height="26" rx="13" class="f-panel s-hair"/>
+    <rect x="578"   y="422" width="94" height="26" rx="13" class="f-inhbg s-inh"/>
+    <text x="47"    y="438.5" class="f-ink">code</text>
+    <text x="162.6" y="438.5" class="f-ink">plan</text>
+    <text x="278.2" y="438.5" class="f-panel">approve</text>
+    <text x="393.8" y="438.5" class="f-okdeep">apply</text>
+    <text x="509.4" y="438.5" class="f-ink">log</text>
+    <text x="625"   y="438.5" class="f-inh">observe</text>
+  </g>
+  <g class="s-stroke" stroke-width="1.2">
+    <line x1="97" y1="435" x2="111" y2="435" marker-end="url(#a-ink)"/>
+    <line x1="212.6" y1="435" x2="226.6" y2="435" marker-end="url(#a-ink)"/>
+    <line x1="328.2" y1="435" x2="342.2" y2="435" marker-end="url(#a-ink)"/>
+    <line x1="443.8" y1="435" x2="457.8" y2="435" marker-end="url(#a-ink)"/>
+    <line x1="559.4" y1="435" x2="573.4" y2="435" marker-end="url(#a-ink)"/>
+  </g>
+</svg>

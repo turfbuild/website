@@ -1,0 +1,23 @@
+---
+// The hero's visual: the six layers of a stack assemble bottom-to-top as code, one HCL line per
+// layer, and the run converges. CSS keyframes only (global.css, `.stackbuild`): the markup is the
+// finished state, so it reads assembled with CSS off and under prefers-reduced-motion. It is the
+// storyboard for the kinetic-typography video, which takes this exact box later:
+// <video class="stackbuild" autoplay muted loop playsinline>.
+---
+
+<div class="stackbuild" role="img" aria-label="Six layers assemble as code, from the hardware pool to the AI workload: a host playbook, a cluster, the AI runtime, certification and the model, planned in two rounds and converged.">
+  <div class="sb-rail">
+    <svg class="sb-file" viewBox="0 0 18 22" aria-hidden="true"><path d="M3 1h8l4 4v16H3z"/><path d="M11 1v4h4"/><text x="9" y="17.5" text-anchor="middle">tf</text></svg>
+    <span>as code</span>
+  </div>
+  <ol class="sb-layers">
+    <li class="sb-layer hw"><b>Hardware pool</b><code>pools of inventory · the provider's</code></li>
+    <li class="sb-layer host"><b>Host</b><code>action "ansible_playbook_run" "gpu_node"</code></li>
+    <li class="sb-layer cluster"><b>Cluster</b><code>module "eks"</code></li>
+    <li class="sb-layer runtime"><b>AI runtime</b><code>module "runtime"</code></li>
+    <li class="sb-layer cert"><b>Certification</b><code>resource "kubernetes_manifest" "certification"</code></li>
+    <li class="sb-layer workload"><b>AI workload</b><code>resource "kubernetes_manifest" "model"</code></li>
+  </ol>
+  <p class="sb-foot"><span class="g">✓</span> plan · 2 rounds → converged</p>
+</div>

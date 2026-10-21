@@ -1,0 +1,81 @@
+---
+// Your ops environment, Turf's engine: the engine plugs into what a platform team already runs (git
+// repos, registries, secrets, policy, state) and takes a platform such as Scalr or Spacelift over MCP.
+// Moved here from /use-cases/ (its §04) on 2026-10-21: a property of the engine, not a job. The
+// figure is figures/OpsEnvFigure; the HCL is illustrative, since backends, registries and ephemeral
+// values are standard Terraform. No "Kubernetes" in this band: its ® is first used in Engine, below.
+import OpsEnvFigure from './figures/OpsEnvFigure.astro';
+const examples = 'https://github.com/turfbuild/turf-examples/tree/main';
+---
+
+<section class="band" id="ops-environment">
+  <div class="wrap">
+    <div class="band-head">
+      <h2>Your ops environment, Turf’s engine.</h2>
+      <p>Plug the engine into what your platform team already runs: configuration from your git repos,
+        modules and providers from your registries, secrets from your central store, policy from
+        wherever you keep it, state in your object storage or remote backend.</p>
+    </div>
+    <div class="figwide">
+      <OpsEnvFigure />
+      <p class="figcap"><b>The engine in the middle.</b> Git repos, registries, secrets, policy and state
+        on their own lanes; agents and your platform over MCP.</p>
+    </div>
+    <div class="feature center">
+      <div class="codeblock">
+        <div class="cb-head"><span>versions.tf · db.tf</span><span class="cb-legend">your backend, your registry, your secrets store</span></div>
+<pre><span class="kw">terraform</span> &#123;
+  <span class="cm"># or "remote" for a platform, "kubernetes" in the cluster</span>
+  <span class="kw">backend</span> <span class="str">"s3"</span> &#123;
+    bucket = <span class="str">"platform-state"</span>
+    key    = <span class="str">"payments/network.tfstate"</span>
+  &#125;
+&#125;
+
+<span class="kw">module</span> <span class="str">"network"</span> &#123;
+  <span class="cm"># a private registry: Artifactory, or your own</span>
+  source  = <span class="str">"registry.example.com/platform/network/aws"</span>
+  version = <span class="str">"~&gt; 3.0"</span>
+&#125;
+
+<span class="kw">ephemeral</span> <span class="str">"vault_kv_secret_v2"</span> <span class="str">"db"</span> &#123;
+  mount = <span class="str">"kv"</span>
+  name  = <span class="str">"payments/db"</span>
+&#125;
+
+<span class="kw">resource</span> <span class="str">"aws_db_instance"</span> <span class="str">"payments"</span> &#123;
+  <span class="cm"># write-only: the secret never reaches state</span>
+  password_wo = ephemeral.vault_kv_secret_v2.db.data.password
+&#125;</pre>
+        <div class="cb-note">illustrative · backends, registries and ephemeral values are standard Terraform; Turf runs them as written</div>
+      </div>
+      <div>
+        <h3>Standard Terraform, all the way down.</h3>
+        <p>A <code>backend</code> block says where state lives: object storage, a secret in the cluster,
+          or a platform’s remote backend, and an <code>encryption</code> block keeps it encrypted at
+          rest. A <code>module</code> comes from any registry, locked by <code>init</code>. An
+          <code>ephemeral</code> value reaches a resource only through a write-only argument, so the
+          secret is never in the plan, the state or the directory. Nothing here is Turf-specific; the
+          engine underneath is what is new.</p>
+        <ul class="ticklist">
+          <li><span class="g">✓</span><div><b>Policy on every plan</b> <span>— the plan exports as the
+            document OPA or conftest reads, or goes to your platform’s policy groups, Scalr or Spacelift,
+            through its own MCP server.</span></div></li>
+          <li><span class="g">✓</span><div><b>Secrets never in state</b> <span>— an ephemeral value feeds a
+            write-only argument; never in the plan, the state or the directory.</span></div></li>
+          <li><span class="g">✓</span><div><b>State where you keep it</b> <span>— S3, GCS, Azure Blob, a
+            secret in the cluster, or a platform’s remote backend; encrypted at rest.</span></div></li>
+          <li><span class="g">✓</span><div><b>Modules from your registries</b> <span>— Artifactory or the
+            public registries, installed and locked by <code>init</code>.</span></div></li>
+        </ul>
+      </div>
+    </div>
+    <div class="proof">
+      <span class="lab">Proof</span>
+      <a href={`${examples}/terraform/language/environments`}>environments, promoted with an overlay →</a>
+      <a href={`${examples}/integrations/scalr`}>a platform’s state, variables and policy →</a>
+      <a href={`${examples}/integrations/kubernetes-backend`}>state in the cluster →</a>
+      <a href="/compatibility/">the compatibility matrix →</a>
+    </div>
+  </div>
+</section>

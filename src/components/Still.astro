@@ -1,0 +1,20 @@
+---
+// A console still that enlarges on click: the HTML popover API, no script. The button opens a
+// top-layer popover holding the full image; Esc, the close button or a click outside dismisses it
+// (light dismiss). Browsers without popover (pre-2024) get an inert button and the inline image.
+// Styles: global.css, "stills: click to enlarge". One `id` per still on a page.
+interface Props { id: string; src: string; alt: string; caption: string; soon?: boolean }
+const { id, src, alt, caption, soon = false } = Astro.props;
+const lb = `lb-${id}`;
+---
+
+<button type="button" class="still-btn" popovertarget={lb} aria-label={`Enlarge: ${alt}`}>
+  <img class="still" src={src} width="1600" height="1000" loading="lazy" decoding="async" alt={alt} />
+  <span class="still-zoom" aria-hidden="true">⤢</span>
+</button>
+<p class="stillcap">{soon && <span class="pill soon">coming soon</span>} {caption}</p>
+<div id={lb} popover="auto" class="lightbox">
+  <button type="button" class="lb-close" popovertarget={lb} popovertargetaction="hide" aria-label="Close">×</button>
+  <img src={src} width="1600" height="1000" loading="lazy" decoding="async" alt={alt} />
+  <p class="lb-cap">{caption}</p>
+</div>

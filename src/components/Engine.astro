@@ -1,0 +1,86 @@
+---
+// The engine: provider calls that scale out (the fan-out figure), the rest of the engine with
+// Restate named in Restate's own words (D18, revised 2026-10-18), the console as a preview, and
+// state encryption as HCL. Sources: /compatibility/'s strengths table, /engine/'s engine list, the
+// encrypted fixture in doof's v1 test suite.
+import FanOutFigure from './figures/FanOutFigure.astro';
+import Still from './Still.astro';
+---
+
+<section class="band alt">
+  <div class="wrap">
+    <div class="band-head">
+      <h2>Built to run the whole stack.</h2>
+      <p>One engine for every stack on this page, on a laptop or as a service in the cluster.</p>
+    </div>
+
+    <div class="feature center fig-lg">
+      <div>
+        <FanOutFigure />
+        <p class="figcap"><b>Shipped:</b> every refresh, plan and apply call fans out from one engine, with a
+          provider instance per region, account or alias. <span class="pill soon">coming soon</span> more
+          engine nodes and per-provider flow control, to reach each API’s quota without tripping it.</p>
+      </div>
+      <div>
+        <h3>Every provider call scales out. The cloud API is the ceiling.</h3>
+        <p>Refresh reads every managed resource on every plan, and in one process it is the classic
+          ceiling on a large stack.</p>
+        <p>Turf fans refresh, plan and apply out per resource across the engine, with durable
+          per-resource state instead of one statefile under one lock. <b>Thousands of resources per
+          stack</b>; the cloud API, not the tool, sets the pace. Per-provider flow control
+          <span class="pill soon">coming soon</span> paces each provider to its own quota.</p>
+      </div>
+    </div>
+
+    <div class="feature flip">
+      <div>
+        <h3>Durable, observable, yours to run.</h3>
+        <ul class="engine-list one">
+          <li><b>Durable runs.</b> Every step is recorded as it happens; an interrupted run picks up where
+            it stopped, a plan waiting for approval holds no process, and a rollout outlives the
+            conversation that started it.</li>
+          <li><b>Laptop or Kubernetes®.</b> Runs on a workstation, or as a service in the cluster.</li>
+          <li><b>OpenTelemetry built in.</b> Every run traced as it happens, exported over OTLP; metrics
+            in Prometheus format.</li>
+          <li><b>Encrypted at rest.</b> State encryption with a passphrase or a key.</li>
+          <li><b>Operator console.</b> Every stack, run and approval in one place.
+            <span class="pill soon">coming soon</span></li>
+        </ul>
+        <p>The engine runs on <a href="https://restate.dev">Restate</a>, in Restate’s words “a lightweight
+          runtime to turn AI agents, workflows, and backend services into durable processes.”
+          <a href="/engine/#engine">How the engine is built →</a></p>
+      </div>
+      <div>
+        <Still id="console" src="/console/aicr-converged.png" soon
+          alt="A preview of the Turf console: a deployment run in two rounds, converged, with a lane for every resource of the stack."
+          caption="A preview of the Turf console: every stack, run and approval in one place. Click to enlarge." />
+      </div>
+    </div>
+
+    <div class="feature center">
+      <div class="codeblock">
+        <div class="cb-head"><span>versions.tf</span><span class="cb-legend">state encrypted at rest</span></div>
+<pre><span class="kw">terraform</span> &#123;
+  <span class="kw">encryption</span> &#123;
+    <span class="kw">key_provider</span> <span class="str">"pbkdf2"</span> <span class="str">"k"</span> &#123;
+      passphrase = var.passphrase
+    &#125;
+    <span class="kw">method</span> <span class="str">"aes_gcm"</span> <span class="str">"m"</span> &#123;
+      keys = key_provider.pbkdf2.k
+    &#125;
+    <span class="kw">state</span> &#123;
+      method   = method.aes_gcm.m
+      enforced = true
+    &#125;
+  &#125;
+&#125;</pre>
+      </div>
+      <div>
+        <h3>Encrypted at rest, enforced.</h3>
+        <p>An <code>encryption</code> block protects the statefile with a passphrase or a key provider;
+          migrating an existing state is a no-op run, and <code>enforced</code> refuses plaintext. A
+          secret a resource needs goes through a write-only argument and never reaches state at all.</p>
+      </div>
+    </div>
+  </div>
+</section>

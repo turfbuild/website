@@ -16,8 +16,8 @@ interface Props {
 }
 
 const {
-  title = 'Turf — The infrastructure engine built for AI agents',
-  description = 'Turf is the AI-native infrastructure engine: Terraform-compatible infrastructure as code, driven by AI agents over MCP. Every change is planned and approved.',
+  title = 'Turf — One tool, from metal to workload, at fleet scale',
+  description = 'Turf is a new engine for infrastructure as code: the whole stack in standard Terraform, resources and actions in one plan, converged in rounds, agent-overseen.',
   noindex = false,
   jsonLd,
 } = Astro.props;
@@ -25,7 +25,7 @@ const {
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 const ogImage = new URL('/og.png', Astro.site).href;
 const ogImageAlt =
-  'Turf — the Terraform-compatible infrastructure engine for AI agents, governed by the plan.';
+  'Turf — one plan, from metal to workload, at fleet scale: a new infrastructure-as-code engine, built on OpenTofu.';
 const schemas = jsonLd === undefined ? [] : Array.isArray(jsonLd) ? jsonLd : [jsonLd];
 ---
 

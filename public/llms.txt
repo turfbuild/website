@@ -1,12 +1,17 @@
 # Turf
 
-> The infrastructure engine built for AI agents. Turf™ plans, applies, and converges
-> Terraform-compatible infrastructure at any scale — driven by agents in natural language
-> or HCL. Every change is planned, visible, and approved before it happens.
+> One tool, from metal to workload, at fleet scale. Turf™ is a new engine for infrastructure
+> as code: the whole stack in the Terraform language — hosts, clusters, charts, playbooks, the
+> workload — planned as one, resources and actions, converged in rounds, with an agent
+> overseeing. Every change is planned, visible, and approved before it happens.
 
-Turf is Terraform-compatible infrastructure as code exposed to AI agents as an MCP server,
-built on OpenTofu providers. It runs your existing configurations — HCL, modules, providers —
-unchanged. The engine and its MCP server (`turf-mcp-server`) are the product. Connect it to your
+Turf is a new infrastructure-as-code engine, built on OpenTofu and exposed to AI agents as an MCP
+server. It speaks standard Terraform — HCL, registry modules, the provider ecosystem — runs Helm charts as
+true Helm releases and Ansible playbooks as Terraform actions, and under them puts an engine
+Terraform and OpenTofu don't have: multi-round convergence of layered stacks, Terraform
+actions with overlays, turf actions (a check, a question or a notification as a step of the apply),
+durable runs on Restate, provider calls that scale out until the cloud API is the ceiling, state
+encrypted at rest, OpenTelemetry built in. The engine and its MCP server (`turf-mcp-server`) are the product. Connect it to your
 agent in one command (`npx add-mcp@2 "$(command -v turf-mcp-server)" --name turf -g`), or run
 the standalone CLI agent (`turf`) with your own model key. Install with
 `brew install restatedev/tap/restate-server turfbuild/tap/turf`, then `brew services start turf`.
@@ -19,22 +24,24 @@ on the site.
 
 ## Start here
 
+- [Use cases](https://turf.build/use-cases/): five things people build with Turf, each with its day 1 and day 2: GPU clouds from metal to tokens, managed services on Kubernetes fleets, products that install themselves, your ops environment with Turf's engine, and the ultimate infrastructure agent.
 - [Turf 1.0](https://turf.build/engine/): the announcement. A self-hosted, autonomous infrastructure-as-code tool built on OpenTofu: the operating model (every change a Terraform plan, reviewed and approved), the engine, built on Restate for durable execution, the three ecosystems it runs as they are, what is in 1.0, and what comes next.
 - [Get started](https://turf.build/get-started/): install, connect Turf to Claude Code, Cursor, Codex, Gemini CLI, VS Code or any MCP client, and deploy from your agent; or run the standalone CLI.
 - [Metal to Tokens](https://turf.build/reference-architectures/): a reference architecture for managed GPU cloud infrastructure, as code — a neocloud from pools of inventory to a cluster that has passed NVCRE certification, with day 2 on the provider's runbook. The PDF: https://get.turf.build/papers/turf-neocloud-reference-architecture.pdf
 - [Compatibility](https://turf.build/compatibility/): where Turf 1.0 is ahead of Terraform 1.16 and OpenTofu 1.13 — durable runs on Restate, encryption at rest, OpenTelemetry, provider calls that scale out, Terraform actions with overlays, turf actions, multi-round convergence — and an honest three-way matrix of every construct, with what is refused and what is coming soon.
-- [Kubernetes stack demo](https://turf.build/demo/): a kind cluster, a CRD, and a custom resource converged in one governed run, then torn down.
-- [Scalr integration demo](https://turf.build/demo/scalr/): folding an existing Terraform automation platform's state backend, variables, and OPA policy checks into the plan.
+
+## Your ops environment
+
+[Your ops environment, Turf's engine](https://turf.build/#ops-environment), on the home page: the engine plugs into what a platform team already runs — configuration from your git repos, modules and providers from your registries, secrets from your central store, policy from wherever you keep it (the planfile for OPA or conftest, or a platform's policy groups such as Scalr or Spacelift over MCP), state in your object storage, in the cluster or in a remote backend, encrypted at rest.
 
 ## Use cases
 
-The five positioning pillars, all covered at [turf.build/#use-cases](https://turf.build/#use-cases):
+Four things people build with Turf, at [turf.build/use-cases/](https://turf.build/use-cases/):
 
-- **Terraform at 10x scale** — thousands of resources per stack; a durable, scale-out engine parallelizes provider operations until the cloud API, not the tool, is the ceiling. Run a Kubernetes cluster as a control plane for infrastructure ops, or run it all on a laptop.
-- **Datacenter automation** — orchestrate the build-out of servers, networks, Kubernetes, and workloads. Terraform, Ansible, and Helm converge in one governed run via Terraform actions. Day-2 operations are plannable too.
-- **Autonomous products** — Turf as a smart installation tool for an AI-native application or data product: it automates the infrastructure layer, in your cloud or a customer's account, from any mix of HCL and natural language, and auto-detects and heals drift.
-- **Governed AI operations** — every change planned, visible, and approved, with a gate between every round.
-- **Agentic infrastructure as code** — an MCP server at its core, driven from any MCP client to plan and carry out any sort of infrastructure change.
+- [GPU clouds, from metal to tokens](https://turf.build/use-cases/#gpu-clouds) — for neocloud providers: pools of inventory to a cluster that has passed NVCRE certification and a served model, in one run; day 2 on the provider's runbook.
+- [Managed services on Kubernetes fleets](https://turf.build/use-cases/#kubernetes-fleets) — for SaaS and platform providers: a control plane, a golden recipe, a tenant cluster as one module call, Turf in the cluster, upgrades fleet-wide under approval.
+- [Products that install themselves](https://turf.build/use-cases/#installers) — for ISVs and AI-native products: the reference architecture as Terraform modules, planned in the customer's account before anything exists, the installer's own steps as turf actions.
+- [The ultimate infrastructure agent](https://turf.build/use-cases/#agents) — for teams adopting agents: built-in skills for authoring and deployment, approval points and turf actions, state tools, import, provider schemas, the planfile for policy; designed for efficient reasoning models.
 
 ## Source and examples
 

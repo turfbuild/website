@@ -1,0 +1,104 @@
+---
+// Figure 9 of Metal to Tokens, ported: a tenant order in the data center. The control plane
+// writes a tenant's cluster as HCL, which goes through pull request, review and merge into a data
+// center where Turf runs beside six racks of tenant clusters; the control plane also calls Turf's
+// MCP server and reads the outputs back. The paper fills the racks with a script at load; here
+// the same generator runs in the frontmatter, so the page ships no JS.
+type Unit = { x: number; y: number; w: number; h: number; cls: string };
+const ramp = ['f-hair', 'f-faint', 'f-cluster'];
+const racks = [[5, 4, 4, 4], [3, 6, 4, 4], [6, 5, 6], [4, 4, 5, 4], [5, 3, 5, 4], [6, 6, 5]];
+const live = new Set(['0-1', '2-2', '3-0', '5-1']);
+const x0 = 342, w = 44, step = 54, top = 64, h = 190, uh = 6.4, ug = 2.2, gap = 4.5;
+const frames: { x: number; cx: number; label: string }[] = [];
+const units: Unit[] = [];
+racks.forEach((groups, r) => {
+  const x = x0 + r * step;
+  let y = top + 5;
+  frames.push({ x, cx: x + w / 2, label: `RACK ${r + 1}` });
+  const unit = (cls: string) => {
+    units.push({ x: x + 5, y: Number(y.toFixed(1)), w: w - 10, h: uh, cls });
+    y += uh + ug;
+  };
+  unit('f-ink');
+  groups.forEach((n, k) => {
+    y += gap;
+    for (let b = 0; b < n; b++) unit(live.has(`${r}-${k}`) ? 'f-ok' : ramp[(r + k) % ramp.length]);
+  });
+});
+---
+
+<svg class="fig" viewBox="0 0 672 280" role="img" aria-label="The provider's control plane writes a tenant's cluster as HCL, which goes through pull request, review and merge into a data center where Turf runs beside six racks of tenant clusters. The control plane also calls Turf's MCP server and reads the outputs back.">
+  <!-- the provider's control plane, outside the data center -->
+  <rect x="0.5" y="0.5" width="148" height="46" rx="9" class="f-panel s-hair" stroke-dasharray="4 3"/>
+  <text x="12" y="14" class="t-cap">THE PROVIDER'S</text>
+  <text x="12" y="28" class="t-name">Control plane</text>
+  <text x="12" y="40" class="t-mono">portal · API · billing</text>
+
+  <!-- the HCL lane: GitOps -->
+  <text x="82" y="57" class="t-mono">writes HCL</text>
+  <rect x="0.5" y="62" width="148" height="34" rx="9" class="f-panel s-hair"/>
+  <text x="12" y="76.5" class="t-name">Tenant cluster</text>
+  <text x="12" y="89" class="t-mono">a module call</text>
+  <text x="74.5" y="105.5" text-anchor="middle" class="t-mono f-ink">+</text>
+  <rect x="0.5" y="108" width="148" height="34" rx="9" class="f-panel s-hair"/>
+  <text x="12" y="122.5" class="t-name">Golden recipe</text>
+  <text x="12" y="135" class="t-mono">registry module</text>
+  <g class="t-m9" text-anchor="middle">
+    <rect x="0.5" y="158" width="148" height="24" rx="12" class="f-ground s-hair"/><text x="74.5" y="173.5" class="f-ink">pull request</text>
+    <rect x="0.5" y="198" width="148" height="24" rx="12" class="f-ground s-hair"/><text x="74.5" y="213.5" class="f-ink">review</text>
+    <rect x="0.5" y="238" width="148" height="24" rx="12" class="f-ok"/><text x="74.5" y="253.5" class="f-panel">merge</text>
+  </g>
+  <g class="s-stroke" stroke-width="1.3">
+    <line x1="74.5" y1="47" x2="74.5" y2="58" marker-end="url(#a-ink)"/>
+    <line x1="74.5" y1="143" x2="74.5" y2="154" marker-end="url(#a-ink)"/>
+    <line x1="74.5" y1="183" x2="74.5" y2="194" marker-end="url(#a-ink)"/>
+    <line x1="74.5" y1="223" x2="74.5" y2="234" marker-end="url(#a-ink)"/>
+  </g>
+
+  <!-- the data center: Turf beside the racks it runs -->
+  <rect x="188.5" y="0.5" width="483" height="279" rx="12" class="f-panel2 s-hair"/>
+  <text x="204" y="20" class="t-cap">DATA CENTER</text>
+  <rect x="206" y="32" width="116" height="234" rx="11" class="f-ok"/>
+  <rect x="220" y="46" width="20" height="20" rx="5" class="f-panel"/>
+  <text x="230" y="60.5" text-anchor="middle" class="t-plus f-ok" style="font-size:13px">+</text>
+  <text x="246" y="62" class="t-wm f-panel" style="font-size:17px">turf</text>
+  <text x="220" y="84" class="t-m8 f-termok">in Kubernetes</text>
+  <g class="t-m7 f-okbg">
+    <text x="220" y="128">open</text>
+    <text x="220" y="138.5">up</text>
+    <text x="220" y="149">apply</text>
+    <text x="220" y="159.5">output</text>
+  </g>
+  <g class="t-m9 f-okbg">
+    <text x="220" y="185">plan</text>
+    <text x="220" y="202">approve</text>
+    <text x="220" y="219">apply</text>
+    <text x="220" y="236">log</text>
+  </g>
+  <g class="s-termok" stroke-width="1.2" stroke-opacity=".35"><line x1="220" y1="190" x2="308" y2="190"/><line x1="220" y1="207" x2="308" y2="207"/><line x1="220" y1="224" x2="308" y2="224"/></g>
+  <text x="220" y="256" class="t-m8 f-okbg">operator console</text>
+  <!-- apply bus across the rack tops -->
+  <g class="s-ok f-none" stroke-width="1.6">
+    <line x1="322" y1="50" x2="634" y2="50"/>
+    {frames.map((f) => <line x1={f.cx} y1="50" x2={f.cx} y2={top - 3} marker-end="url(#a-ok)"/>)}
+  </g>
+  <text x="330" y="44" class="t-mono f-ok">apply</text>
+  <g>
+    {frames.map((f) => (
+      <>
+        <rect x={f.x} y={top} width={w} height={h} rx="4" class="f-panel s-hair"/>
+        <text x={f.cx} y={top + h + 14} text-anchor="middle" class="t-cap">{f.label}</text>
+      </>
+    ))}
+    {units.map((u) => <rect x={u.x} y={u.y} width={u.w} height={u.h} rx="1.2" class={u.cls}/>)}
+  </g>
+
+  <!-- the merged HCL crosses into the data center -->
+  <line x1="150" y1="250" x2="202" y2="250" class="s-stroke" stroke-width="1.3" marker-end="url(#a-ink)"/>
+  <text x="169" y="244" text-anchor="middle" class="t-mono">HCL</text>
+  <!-- the MCP lane: the control plane calls Turf and reads the outputs back -->
+  <path d="M153,23 H170 V104.5 H193" class="f-none s-inh" stroke-width="1.4" marker-start="url(#a-inh)" marker-end="url(#a-inh)"/>
+  <text x="166" y="57" text-anchor="end" class="t-mono f-inh">MCP</text>
+  <rect x="198" y="96" width="80" height="17" rx="8.5" class="f-panel s-inh"/>
+  <text x="238" y="107.7" text-anchor="middle" class="t-m8 f-inh">MCP server</text>
+</svg>

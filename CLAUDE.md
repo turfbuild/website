@@ -4,8 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-The product marketing site for **Turf** (turf.build) — the infrastructure engine built for AI
-agents: Terraform-compatible, MCP-native, governed by the plan. Astro static site, deployed to
+The product marketing site for **Turf** (turf.build) — a new engine for infrastructure as code:
+Terraform-compatible, built on OpenTofu, driven by AI agents over MCP, governed by the plan. Astro
+static site, deployed to
 GitHub Pages at the apex domain via `.github/workflows/deploy.yml` on every push to `main`. There
 is no CMS, no backend, no test suite.
 
@@ -24,18 +25,24 @@ frontmatter or inline `<script>`, since those are typechecked under `astro/tscon
 
 ## Architecture
 
-**One global stylesheet, not scoped styles.** `src/styles/global.css` (~530 lines) *is* the design
+**One global stylesheet, not scoped styles.** `src/styles/global.css` (~730 lines) *is* the design
 system: `:root` custom-property tokens plus every component class (`.band`, `.beat`, `.step`,
-`.pillar`, `.tier`, `.matrix`, `.codeblock`, `.term`, …). It is imported exactly once, by
-`src/layouts/Layout.astro`. New UI should reuse existing classes and tokens rather than introduce
-ad-hoc CSS. Astro `<style>` blocks are the exception, used only for genuinely page-local visuals
-(`pages/demo.astro`, `pages/contact.astro`, `components/Solutions.astro`) — and note a scoped rule
-may need extra specificity to beat a global one (see `.demo-config .ph pre`).
+`.feature`, `.codeblock.rounds`, `.stackbuild`, `.agentloop`, `.eco-grid`, `.fig` and the `.f-*`/`.s-*`
+figure utilities, `.toolgrid`, `.tier`, `.matrix`, `.codeblock`, `.term`, …). It is imported exactly
+once, by `src/layouts/Layout.astro`. New UI should reuse existing classes and tokens rather than
+introduce ad-hoc CSS. Astro `<style>` blocks are the exception, used only for genuinely page-local
+visuals (`pages/demo.astro`'s video figure, `pages/contact.astro`, `pages/engine.astro`'s two-layer
+frame) — and note a scoped rule may need extra specificity to beat a global one (the global
+`.codeblock.rounds .round pre` outranks `.codeblock pre` the same way). Grid children that hold a
+`<pre>` need `min-width: 0` (the new grids set it) or the column grows to the longest line.
 
 **Theming is three-way.** Every color token is declared in `:root` (light), in
 `@media (prefers-color-scheme: dark)`, *and* in `:root[data-theme="light"]` / `:root[data-theme="dark"]`.
 Any new token must be added to all of those blocks, or it will break in one mode. Never hardcode a
-hex value in markup — use `var(--ink)`, `var(--ok)`, `var(--muted)`, etc.
+hex value in markup — use `var(--ink)`, `var(--ok)`, `var(--muted)`, etc. The six stack-layer
+tokens (`--stack-host` … `--stack-workload`, each with an `-ink` partner for text on it) and
+`--fig-stroke` were added 2026-10-20 for the hero's stack and the ported figures; their light values
+are the paper's, the dark ones keep the ramp legible.
 
 **Layout owns all `<head>` concerns.** `Layout.astro` derives the canonical URL and OG image from
 `Astro.site`, renders OG/Twitter meta (including the image's declared type/dimensions/alt, so
@@ -64,22 +71,63 @@ Pages pass four props, all optional: `title`, `description`, `noindex`, `jsonLd`
   — no backticks or markdown; they render literally in a result snippet.
 
 **Pages compose components; the home page composes them all.** `pages/index.astro` is nothing but an
-ordered list of section components — Hero, UseCases, FearStrip, HowItWorks, CompatibilityTeaser,
-Pillars, Flexibility, Partner. Those components carry the home-page anchor ids (`#use-cases` on
-UseCases, `#product` on HowItWorks, `#compatibility` on CompatibilityTeaser, `#get-started` on
-Footer); cross-page links use a leading slash (`/#product`) so they work from subpages. UseCases
-also carries an empty legacy anchor span `#solutions` (it replaced the Solutions section) so
-pre-2026-08 inbound links still land — don't remove it. A standalone `/how-it-works` page was
-tried and dropped (too thin); the loop lives on home. The home band striping alternates
-`band`/`band alt` in the order above — inserting or removing a section means re-checking the
-alternation. Subpages follow a fixed shape: `.subhero` → alternating `.section` / `.section alt`
-→ `.prose` or a grid.
+ordered list of section components (redesigned 2026-10-20, revised 10-21): FigureDefs, Hero (with
+StackBuild), WhyEngine (two figures: the engine map and a run timeline), HowItWorks, ActionsInPlan,
+AgentInLoop, CompatibilityTeaser (three ecosystem cards), OpsEnvironment (the ops-environment band,
+moved from `/use-cases/` on 2026-10-21: the lane figure, the backend/registry/ephemeral HCL, a
+ticklist, proof links), Engine, UseCasesTeaser, Flexibility, Partner. Those components carry the
+home-page anchor ids (`#product` on HowItWorks, `#compatibility` on CompatibilityTeaser,
+`#ops-environment` on OpsEnvironment, `#use-cases` on UseCasesTeaser, `#get-started` on Footer);
+cross-page links use a leading slash (`/#product`) so they work from subpages. UseCasesTeaser also
+carries an empty legacy anchor span `#solutions` (the 2026-08 UseCases section replaced Solutions,
+then SolutionsTeaser replaced UseCases, then the name went back to use cases on 2026-10-21) so old
+inbound links still land — don't remove it. A
+standalone `/how-it-works` page was tried and dropped (too thin); the loop lives on home. The home
+band striping alternates `band`/`band alt` in the order above (WhyEngine is the first `alt`) —
+inserting or removing a section means re-checking the alternation. Subpages follow a fixed shape:
+`.subhero` → alternating `.section` / `.section alt` → `.prose` or a grid. `pages/use-cases.astro`
+is the four-use-case page (one section per job, each: who it's for, a figure, HCL, Day 1 / Day 2
+beats, proof links, a CTA; ids `gpu-clouds`, `kubernetes-fleets`, `installers`, `agents`); the home
+teaser cards (`.solutions.four`, a 2×2 grid) link `/use-cases/#<id>`. "Your ops environment" was its
+§04 until 2026-10-21, when it moved to the home band (a property of the engine, not a job). Since 2026-10-21 `installers` carries no HCL
+block: its figure is the convergence loop between the product (north, an internal web app) and the
+customer's cloud account (south), and the installer's steps live in the linked example. In `agents`,
+tool and skill names carry no underscores ("skill: authoring HCL", "provider search · describe",
+"awaiting approval"); HCL resource types keep theirs. It was `/solutions/` for one unpublished
+day (2026-10-20); nothing ever linked it. Every section's HCL is
+quoted from `turfbuild/turf-examples` where a file exists, and captioned "after …" or "illustrative"
+where it is adapted; keep that honesty when editing. Neither page links the pre-1.0 demo recordings
+(`/demo/`, `/demo/scalr/`): a 1.0 recording is coming, and the nav's "Demo" item is the only route
+to them until then. The Turf console is not in 1.0, so its stills (`public/console/`) carry a
+`coming soon` pill wherever they appear; they render through `components/Still.astro`, which
+enlarges the still on click with the HTML popover API (top layer, light dismiss, no script;
+pre-2024 browsers get an inert button). Figures that show an unshipped capability (the engine
+nodes and per-provider flow control in FanOutFigure) tag it `COMING SOON` inside the SVG and say
+what is shipped and what is coming in the `.figcap` beside it.
 
-**Client JS is deliberately near-zero.** The only script is the hero's plan-convergence animation in
-`components/Hero.astro` — an inline timeline of `setTimeout` steps that mutate classes/text, with a
-`prefers-reduced-motion` branch that jumps straight to `finalState()`. The panel's markup renders the
-converged-from state statically so it reads correctly with JS disabled. Keep new interactivity in
-this style rather than adding a framework integration.
+**Client JS is deliberately near-zero.** The only script is the cookie consent. The hero's stack
+build-out (`components/StackBuild.astro`) is CSS keyframes in global.css: one 12 s clock, every
+element on its own keyframes over the same period (per-element `animation-delay` with `infinite`
+never resets together), and each layer carries the *whole* `animation` shorthand — a nameless
+`animation: 12s …` base rule is minified to `animation: none`. The HCL line inside a layer is not
+animated on its own: a compositor-animated opacity on text inside an animated layer rasterizes blank
+in Chrome, so it appears with its layer. The markup is the assembled state, so
+it reads correctly with CSS off and under `prefers-reduced-motion` (which sets `animation: none`).
+The box is a 16:10 slot a `<video class="stackbuild">` will take when the kinetic-typography video
+exists. Keep new interactivity in this style rather than adding a framework integration.
+
+**Figures are inline SVG ported from the reference architecture.** `components/figures/*.astro`
+carry Figure 1 (StackFigure), Figure 8 (ShellVsTurfFigure) and Figure 9 (FleetFigure) of
+`headquarters/marketing/launch/refarch-neocloud.html`, plus five drawn in the same grammar
+(FanOutFigure, InstallerFigure, OpsEnvFigure, and WhyEngine's EngineMapFigure and
+RunTimelineFigure, whose lanes follow the console's grammar). Geometry is the paper's; every `fill`/`stroke` is a
+class from the `.f-*`/`.s-*` utilities and every text a `.t-*` class, so the figures re-theme (never
+`fill="#…"` or `fill="var(--…)"` attributes). Marker defs live in `components/FigureDefs.astro`,
+rendered once per page at the top of the layout slot (`position:absolute`, not `display:none`:
+Safari drops markers from a hidden tree); ids are page-global, so never render a figure twice on a
+page. Figure 9's racks, a load-time script in the paper, are generated in the component's
+frontmatter. Console stills come from `headquarters/marketing/launch/assets/console/` resized with
+`sips -Z 1600 <src> --out public/console/<name>.png` (1600×1000 PNG; JPEG smears UI text).
 
 ## Copy and voice rules
 
@@ -138,9 +186,24 @@ while the neocloud PDF was marked — source of truth: the Marks section of
   retired 2026-10-04: the agent writes ordinary `.tf` files. `turf_confirm` is gone: a question for
   the user is a `turf_action` whose prompt says to ask.
 - **"Drop-in replacement" never leads** (de-emphasized 2026-08-25; greenfield-first). Compatibility
-  is a supporting message: say "Terraform-compatible" or "runs your existing configurations — HCL,
-  modules, providers — unchanged". The provenance line ("independent product built on the OpenTofu
-  framework") stays.
+  is a supporting message: say "Terraform-compatible" or "standard Terraform". The provenance line
+  ("independent product built on the OpenTofu framework") stays. **Never imply a migration from
+  Terraform** (Eron, 2026-10-21): the reader is more likely coming from a console or a GitOps
+  controller, so no "keep what you run", "your existing configurations", "estate" or "brownfield";
+  say "start anywhere", "from the console to configuration" (the agent writes the HCL, `import`
+  brings what exists under management). **"Sync" is the word for Helm**: every `helm_release` is a
+  true Helm release, installed and upgraded through Helm itself, Helm hooks included, visible to
+  `helm list`; a GitOps controller is never named.
+- **"Approval point", never "gate"**, on home and `/use-cases/` since 2026-10-20 (the launch plan's
+  rule; the older demo pages still say "gate"). **"Hook" is allowed again since 2026-10-21** (Eron
+  retired the no-hook rule: "Resource lifecycle hooks." heads the actions band; Helm hooks are Helm's
+  term). **"TACO" appears nowhere new**: the platform story is "your ops environment" — git repos,
+  registries, centralized secrets, centralized policy, state in your backend — with Scalr, Spacelift,
+  Artifactory, GitHub and GitLab named nominatively as options, under the marks note at the foot of
+  `/use-cases/`. **Scale-out copy carries no benchmark, multiple or wall-clock figure**: say refresh,
+  plan and apply fan out per resource and the cloud API, not the tool, is the ceiling; more engine
+  nodes and per-provider flow control are `coming soon` (not in 1.0: the engine is one process with
+  unbounded fan-out and one provider instance per region, account or alias).
 
 **Tone.** No lean-startup vocabulary in public copy — in particular avoid "pain" / "pain point". Do not
 imply existing customers, pilots, partners, or a team the company doesn't have: seeking pilot users
@@ -149,13 +212,25 @@ is fine, naming one is not. Since 2026-10-14 the launch is Turf 1.0, "available 
 terms are those of `headquarters/marketing/licensing.md` (launch plan §4). Page `<title>`s are
 Turf-leading (`Turf — …`).
 
-**Locked messaging.** The hero headline is "**The infrastructure engine built for AI agents.**"
-(adopted 2026-08-25, superseding "Control your infrastructure AI with Terraform plans."). The site
-carries **five positioning pillars** — Terraform at 10x scale · datacenter automation · autonomous
-products · governed AI operations · agentic IaC/MCP-native — rendered as the home UseCases section.
-The internal source of truth for all of this (messages, audiences, proof points, approved phrases,
-what not to say) is the touchstone doc at `headquarters/marketing/use-cases.md` — start there for
-any copy round. Treat the headline as fixed unless the user reopens it.
+**Locked messaging.** The hero headline is "**One tool, from metal to workload, at fleet scale.**"
+(Eron's line, adopted 2026-10-20 with the home redesign as "One plan, …" and changed to "One tool" on
+2026-10-21: a convergence is a series of plans from one configuration, so "one plan" misled; it superseded "The infrastructure engine
+built for AI agents." of 2026-08-25, which the org profile and the paper's back page still carry
+until they are re-done, and before that "Control your infrastructure AI with Terraform plans."). The
+eyebrow is "A new infrastructure-as-code engine · built on OpenTofu" and the lede opens "Turf™ is a
+new engine for infrastructure as code". The rotating headline phrase is retired. Home draws the line
+the redesign exists for — not an automation platform over Terraform, not an agent wrapper, a new
+engine under both, headed "Not a layer over Terraform. A new engine, with superpowers." (Eron,
+2026-10-21; `components/WhyEngine.astro`: most platforms and agent tools shell out to
+terraform or tofu, Turf replaces that tool with a durable, scale-out, interactive engine; the engine
+map and run timeline figures) — without
+naming a competitor. The five home cards
+are the five **use cases**, factored by the job (GPU clouds · managed services on Kubernetes fleets ·
+products that install themselves · your ops environment, Turf's engine · the ultimate infrastructure
+agent), each with a Day 1 and a Day 2 on `/use-cases/`; the **five positioning pillars** of
+`headquarters/marketing/use-cases.md` remain the message set behind them, and that touchstone doc
+(messages, audiences, proof points, approved phrases, what not to say) is where any copy round
+starts. Treat the headline as fixed unless the user reopens it.
 
 ## Constraints that are easy to violate
 
@@ -173,7 +248,7 @@ any copy round. Treat the headline as fixed unless the user reopens it.
   deploy workflow pins `fetch-depth: 0`. Under the default shallow checkout `git log` returns nothing
   for most paths and every lastmod silently disappears in CI while still working locally.
 - `public/llms.txt` is public marketing copy under all the voice rules below — update it when routes,
-  pillars, or the headline change. `public/logo.png` exists only as `Organization.logo` for JSON-LD;
+  use cases, or the headline change. `public/logo.png` exists only as `Organization.logo` for JSON-LD;
   no page loads it.
 - `public/CNAME` carries the custom domain into every build. Deleting it breaks the apex domain.
 - There is no `base` in the Astro config, so assets are root-absolute (`/_astro/`, `/fonts/`). The
@@ -200,7 +275,8 @@ any copy round. Treat the headline as fixed unless the user reopens it.
   (`qlmanage -t -s 1600` on the PDF, `sips -Z 960`, then JPEG at quality 82); re-render it when the
   cover changes.
 - There is no mobile hamburger menu — below 860px `.nav-links a:not(.btn)` is hidden and only the CTA
-  shows. Adding a nav link means it's desktop-only unless you also add it to the footer sitemap.
+  shows. Adding a nav link means it's desktop-only unless you also add it to the footer sitemap
+  (Use cases is in the nav, the footer's Product column and the hero's CTA row).
 
 ## Content provenance
 
