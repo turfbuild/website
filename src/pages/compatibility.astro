@@ -2,18 +2,19 @@
 import Layout from '../layouts/Layout.astro';
 // The strengths table first (Eron, 2026-10-18: the chart emphasizes Turf's strengths), then the
 // honest three-way matrix. Sources, in order: turf-engine's refusal list (engine/tier2.go,
-// refusedConstructs), the deployment and authoring skills' references as the 1.0 server ships
+// refusedConstructs), the deployment and authoring skills' references as the 1.1 server ships
 // them (divergences, deferrals, imports, workspaces, lifecycle, actions, variables, providers,
-// data sources), doof's language-feature-conformance.md (the 2026-10-08 "v1" entry), the rc.1
-// acceptance pass, and Restate's own docs for the engine rows. Baselines re-grounded 2026-10-18:
-// Terraform 1.16.x and OpenTofu 1.13.x. See "Content provenance" in CLAUDE.md.
+// data sources), doof's language-feature-conformance.md (the 2026-10-08 "v1" entry and the
+// 2026-10-24 prevent_destroy entry), the rc.1 acceptance pass, and Restate's own docs for the
+// engine rows. Baselines re-grounded 2026-10-18: Terraform 1.16.x and OpenTofu 1.13.x. Turf column
+// moved to 1.1 on 2026-10-26. See "Content provenance" in CLAUDE.md.
 const title = 'Turf — Terraform and OpenTofu compatibility, and beyond';
 const description =
-  'Turf 1.0 against Terraform 1.16 and OpenTofu 1.13: durable runs, encryption at rest, OpenTelemetry, actions, multi-round convergence, and an honest matrix.';
+  'Turf 1.1 against Terraform 1.16 and OpenTofu 1.13: durable runs, encryption at rest, OpenTelemetry, actions, multi-round convergence, and an honest matrix.';
 ---
 <Layout title={title} description={description}>
   <section class="subhero"><div class="wrap">
-    <p class="eyebrow"><span class="dot"></span> Compatibility · Terraform 1.16 · OpenTofu 1.13 · Turf 1.0</p>
+    <p class="eyebrow"><span class="dot"></span> Compatibility · Terraform 1.16 · OpenTofu 1.13 · Turf 1.1</p>
     <h1>Terraform-compatible. And ahead of it.</h1>
     <p class="lede">Turf™ runs the Terraform® language on the OpenTofu™ framework — the whole expression
     language, the function library, registry modules and the provider ecosystem, unchanged. Under it is
@@ -28,7 +29,7 @@ const description =
 
     <div class="matrix-wrap"><table class="matrix">
       <caption>Beyond Terraform and OpenTofu</caption>
-      <thead><tr><th>Capability</th><th class="c">Terraform 1.16</th><th class="c">OpenTofu 1.13</th><th class="c">Turf 1.0</th><th>Notes</th></tr></thead>
+      <thead><tr><th>Capability</th><th class="c">Terraform 1.16</th><th class="c">OpenTofu 1.13</th><th class="c">Turf 1.1</th><th>Notes</th></tr></thead>
       <tbody>
         <tr><th>Durable runs</th><td class="c s-no">➖</td><td class="c s-no">➖</td><td class="c s-yes">✅</td><td class="note-cell">A convergence lives in the engine, on <a href="https://restate.dev">Restate</a>: every step is journaled as it happens, an interrupted run resumes where it stopped, a plan waiting for approval holds no process, and a rollout outlives the conversation that started it, the server and a dropped client. <a href="/engine/#engine">The engine →</a> <span class="pill ok">ahead</span></td></tr>
         <tr><th>Encryption at rest</th><td class="c s-no">➖</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">OpenTofu state encryption, with a passphrase or a key provider; migrating an existing state is a no-op run, and <code>enforced</code> refuses plaintext. It protects the statefile the backend writes; the engine’s own store sits under the disk encryption it runs on. Terraform has no state encryption.</td></tr>
@@ -62,11 +63,11 @@ const description =
     <!-- 2.1 Top-level blocks -->
     <div class="matrix-wrap"><table class="matrix">
       <caption>Top-level blocks</caption>
-      <thead><tr><th>Construct</th><th class="c">Terraform 1.16</th><th class="c">OpenTofu 1.13</th><th class="c">Turf 1.0</th><th>Notes</th></tr></thead>
+      <thead><tr><th>Construct</th><th class="c">Terraform 1.16</th><th class="c">OpenTofu 1.13</th><th class="c">Turf 1.1</th><th>Notes</th></tr></thead>
       <tbody>
         <tr><th><code>resource</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Managed resources at every module depth, with <code>count</code> and <code>for_each</code>.</td></tr>
         <tr><th><code>data</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Read once per plan, in dependency order. A read whose query is unknown, or whose <code>depends_on</code> target has a pending change, moves to the apply, as in Terraform. The value the plan read is the value the apply commits, so what you approved is what is stored.</td></tr>
-        <tr><th><code>module</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Registry, git and local sources, installed by <code>init</code> and locked. A call is held to the child’s declarations before the walk: a missing required input and an undeclared argument are refused together, so a typo appears beside the input it failed to set. A local source must sit inside the configuration directory.</td></tr>
+        <tr><th><code>module</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Registry, git and local sources, installed by <code>init</code> and locked. A call is held to the child’s declarations before the walk: a missing required input and an undeclared argument are refused together, so a typo appears beside the input it failed to set. A local source may sit outside the configuration directory, so sibling roots can share their modules: every relative path resolves from the configuration directory, as after <code>tofu -chdir</code>.</td></tr>
         <tr><th><code>variable</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">The full ladder: declaration defaults, then <code>TF_VAR_</code>, then <code>terraform.tfvars</code> and <code>*.auto.tfvars(.json)</code>, then <code>var_file</code> in the order listed, then <code>var</code>. Types convert, <code>nullable</code> applies, and <code>validation</code> blocks run at plan; a rule decidable only after an apply is decided then. Values ride the convergence and are never stored.</td></tr>
         <tr><th><code>output</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-part">◑</td><td class="note-cell">Outputs at every depth; a sensitive value must be declared <code>sensitive</code>. Refused: ephemeral outputs, <code>depends_on</code> on an output, and an output <code>precondition</code>.</td></tr>
         <tr><th><code>locals</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Fully honored.</td></tr>
@@ -93,14 +94,14 @@ const description =
     <!-- 2.2 Meta-arguments -->
     <div class="matrix-wrap"><table class="matrix">
       <caption>Meta-arguments</caption>
-      <thead><tr><th>Meta-argument</th><th class="c">Terraform 1.16</th><th class="c">OpenTofu 1.13</th><th class="c">Turf 1.0</th><th>Notes</th></tr></thead>
+      <thead><tr><th>Meta-argument</th><th class="c">Terraform 1.16</th><th class="c">OpenTofu 1.13</th><th class="c">Turf 1.1</th><th>Notes</th></tr></thead>
       <tbody>
         <tr><th><code>count</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Resources, data sources and module calls. An unknown count defers the instances to a later round instead of failing, and adding or removing <code>count</code> on an existing object relocates it without a <code>moved</code> block.</td></tr>
         <tr><th><code>for_each</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Same as <code>count</code>. Cardinality is OpenTofu’s own evaluation: <code>toset([])</code> is zero instances, a map with unknown values still enumerates, and a set with an unknown element defers.</td></tr>
         <tr><th><code>enabled</code></th><td class="c s-no">➖</td><td class="c s-yes">✅</td><td class="c s-no">⛔</td><td class="note-cell">Refused by name on module calls, resources and data sources. Coming soon; meanwhile <code>count = var.enabled ? 1 : 0</code>. (OpenTofu 1.11; absent from Terraform.)</td></tr>
         <tr><th><code>depends_on</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Modules, resources and data sources; a data source whose target has a pending change reads at apply, Terraform’s rule. Refused on outputs.</td></tr>
         <tr><th><code>lifecycle.create_before_destroy</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Dependents see the new object as soon as its create applies; the old one is deposed and deleted after.</td></tr>
-        <tr><th><code>lifecycle.prevent_destroy</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-no">⛔</td><td class="note-cell">Refused by name. The approval is the guard: a plan that deletes the object is the user’s call. For a step inside the apply, a <code>before_destroy</code> turf action that asks.</td></tr>
+        <tr><th><code>lifecycle.prevent_destroy</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Honored as OpenTofu 1.12 honors it: a plan that would delete or replace the object fails naming it, in <code>up</code> and in a destroy, and nothing is applied. An expression is accepted, as in OpenTofu (Terraform takes only a literal), so <code>prevent_destroy = var.protect</code> guards while true. <code>destroy = false</code> overrides it.</td></tr>
         <tr><th><code>lifecycle.ignore_changes</code> (incl. <code>["all"]</code>)</th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Honored in full, at plan and at apply.</td></tr>
         <tr><th><code>lifecycle.replace_triggered_by</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">A whole-resource reference fires on anything that leaves a different object behind, an attribute reference on a value that moves. It is also how a replaced host takes its contents with it: the contents’ delete runs this round through the old host, and their create defers to the next round against the new one.</td></tr>
         <tr><th><code>lifecycle.precondition</code> / <code>postcondition</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">On resources and data sources. Refused on ephemeral resources and on outputs.</td></tr>
@@ -113,11 +114,11 @@ const description =
     <!-- 2.3 Expressions & functions -->
     <div class="matrix-wrap"><table class="matrix">
       <caption>Expressions &amp; functions</caption>
-      <thead><tr><th>Feature</th><th class="c">Terraform 1.16</th><th class="c">OpenTofu 1.13</th><th class="c">Turf 1.0</th><th>Notes</th></tr></thead>
+      <thead><tr><th>Feature</th><th class="c">Terraform 1.16</th><th class="c">OpenTofu 1.13</th><th class="c">Turf 1.1</th><th>Notes</th></tr></thead>
       <tbody>
         <tr><th>for-expressions, conditionals, splat, <code>dynamic</code> blocks, string templates, full builtin function library</th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">The whole expression language and builtin function library, inherited from the OpenTofu framework — no function allow or deny list.</td></tr>
         <tr><th>provider-defined functions (<code>provider::…</code>)</th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-no">⛔</td><td class="note-cell">Refused: not wired yet. Coming soon.</td></tr>
-        <tr><th><code>path.module</code> / <code>path.root</code> / <code>path.cwd</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell"><code>path.cwd</code> is the configuration directory, the <code>-chdir</code> model: an MCP client’s own directory is not something the protocol tells a server.</td></tr>
+        <tr><th><code>path.module</code> / <code>path.root</code> / <code>path.cwd</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell"><code>path.module</code> and <code>path.root</code> are spelled as OpenTofu spells them, relative to the root module. <code>path.cwd</code> is the configuration directory, the <code>-chdir</code> model: an MCP client’s own directory is not something the protocol tells a server.</td></tr>
         <tr><th><code>terraform.workspace</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">The workspace the plan runs against, carried into every child module.</td></tr>
         <tr><th><code>caller</code> (in action configs)</th><td class="c s-yes">✅</td><td class="c s-no">➖</td><td class="c s-yes">✅</td><td class="note-cell">The triggering resource: its planned value before a create or update, its applied value after, its prior value on destroy events, where the whole config freezes at plan. <span class="pill ok">ahead of OpenTofu</span></td></tr>
       </tbody>
@@ -126,7 +127,7 @@ const description =
     <!-- 2.4 Plan / apply options & workflow -->
     <div class="matrix-wrap"><table class="matrix">
       <caption>Plan / apply options &amp; workflow</caption>
-      <thead><tr><th>Feature</th><th class="c">Terraform 1.16</th><th class="c">OpenTofu 1.13</th><th class="c">Turf 1.0</th><th>Notes</th></tr></thead>
+      <thead><tr><th>Feature</th><th class="c">Terraform 1.16</th><th class="c">OpenTofu 1.13</th><th class="c">Turf 1.1</th><th>Notes</th></tr></thead>
       <tbody>
         <tr><th><code>-target</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-no">⛔</td><td class="note-cell">Not offered: every plan is the whole configuration, so no partial apply hides a dependency. To leave something out of a run, the configuration stops declaring it.</td></tr>
         <tr><th><code>-exclude</code></th><td class="c s-no">➖</td><td class="c s-yes">✅</td><td class="c s-no">⛔</td><td class="note-cell">Same as <code>-target</code>. (An OpenTofu-only flag; Terraform has no <code>-exclude</code>.)</td></tr>
@@ -136,7 +137,7 @@ const description =
         <tr><th><code>-var</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">The top of the ladder (see <code>variable</code>). <code>var</code> always wins over <code>var_file</code>: no interleaving.</td></tr>
         <tr><th><code>-replace</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell"><code>replace</code> on the plan command, or <code>taint</code>.</td></tr>
         <tr><th><code>-auto-approve</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell"><code>auto_approve</code> runs every round without pausing; turf actions still stop it.</td></tr>
-        <tr><th>destroy</th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Plans everything in state, dependents first, and leaves the files untouched. A <code>before_destroy</code> action only warns here, so the approval is the guard.</td></tr>
+        <tr><th>destroy</th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Plans everything in state, dependents first, and leaves the files untouched. A <code>before_destroy</code> action only warns here, so the approval is the guard; <code>prevent_destroy</code> refuses the plan.</td></tr>
         <tr><th><code>import</code> (command)</th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">An import-only round: reads the targets and nothing else, stops at its approval point, and the next <code>up</code> shows the diff.</td></tr>
         <tr><th><code>-invoke</code></th><td class="c s-yes">✅</td><td class="c s-no">➖</td><td class="c s-yes">✅</td><td class="note-cell"><code>invoke</code> runs one action now: one the configuration declares, or an ad-hoc action laid over it in memory. <span class="pill ok">ahead of OpenTofu</span></td></tr>
         <tr><th><code>taint</code> / <code>untaint</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Immediate state edits; the next <code>up</code> replaces the instance.</td></tr>
@@ -152,7 +153,7 @@ const description =
     <!-- 2.5 HCL Stacks -->
     <div class="matrix-wrap"><table class="matrix">
       <caption>HCL Stacks (components &amp; deployments)</caption>
-      <thead><tr><th>Construct / capability</th><th class="c">Terraform 1.16</th><th class="c">OpenTofu 1.13</th><th class="c">Turf 1.0</th><th>Notes</th></tr></thead>
+      <thead><tr><th>Construct / capability</th><th class="c">Terraform 1.16</th><th class="c">OpenTofu 1.13</th><th class="c">Turf 1.1</th><th>Notes</th></tr></thead>
       <tbody>
         <tr><th>Component config — <code>.tfcomponent.hcl</code>: <code>component</code> (wraps a module) plus stack-level <code>variable</code> / <code>output</code> / <code>provider</code> / <code>removed</code></th><td class="c s-yes">✅</td><td class="c s-no">➖</td><td class="c s-no">➖</td><td class="note-cell">Not parsed — Turf has no <code>component</code> block. Stacks is Terraform-only; OpenTofu has none of it. Turf’s multi-environment story is below.</td></tr>
         <tr><th>Deployment config — <code>.tfdeploy.hcl</code>: <code>deployment</code>, <code>orchestrate</code>, <code>identity_token</code>, <code>publish_output</code> / <code>upstream_input</code>, <code>store</code></th><td class="c s-yes">✅</td><td class="c s-no">➖</td><td class="c s-no">➖</td><td class="note-cell">Not parsed — no <code>deployment</code> / <code>orchestrate</code> blocks. Terraform-only.</td></tr>

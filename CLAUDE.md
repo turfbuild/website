@@ -297,6 +297,11 @@ encryption row carries the honest clause that state encryption protects the back
 the engine's store. When syncing from the report: strip `FU-####` ids, `internal/…​.go:NNN` code
 anchors, and design-doc paths; the "Known divergences" section was removed on purpose (inaccurate
 and off-message) — don't reinstate it.
+On 2026-10-26 the Turf column moved to 1.1 against the 1.1 server's skills and the conformance
+report's 2026-10-24 entry: `lifecycle.prevent_destroy` honored, a local module source outside the
+configuration admitted, `path.module`/`path.root` spelled relative to the root. The baselines stayed
+at Terraform 1.16 and OpenTofu 1.13 that day; Terraform 1.17.0 (2026-10-21: variables and locals in
+`required_providers`, `-minimal-refresh`, Terraform Policy GA) is the next re-ground.
 
 `pages/telemetry.astro` mirrors turf's public `docs/telemetry.md`
 (`github.com/turfbuild/turf`) field for field: every field, value, switch and precedence rule is
