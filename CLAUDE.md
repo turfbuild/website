@@ -303,6 +303,12 @@ configuration admitted, `path.module`/`path.root` spelled relative to the root. 
 at Terraform 1.16 and OpenTofu 1.13 that day; Terraform 1.17.0 (2026-10-21: variables and locals in
 `required_providers`, `-minimal-refresh`, Terraform Policy GA) is the next re-ground.
 
+For 1.2 (prepared 2026-10-27, to publish with the release) the Turf column moves to 1.2 against the
+conformance report's 2026-10-27 entry: a child module's output may be declared `ephemeral` (engine
+D86; a root output may not, upstream's own rule), and the `output` row goes to ✅ with its one
+residual, an output `precondition`, named in the note. The same change drops "`depends_on` on an
+output" from the refusals, stale since 1.0.1 (engine D78).
+
 `pages/telemetry.astro` mirrors turf's public `docs/telemetry.md`
 (`github.com/turfbuild/turf`) field for field: every field, value, switch and precedence rule is
 copied exactly, and only the layout is the site's. When the engine's telemetry schema changes, the
