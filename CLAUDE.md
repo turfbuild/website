@@ -307,7 +307,10 @@ For 1.2 (prepared 2026-10-27, to publish with the release) the Turf column moves
 conformance report's 2026-10-27 entry: a child module's output may be declared `ephemeral` (engine
 D86; a root output may not, upstream's own rule), and the `output` row goes to ✅ with its one
 residual, an output `precondition`, named in the note. The same change drops "`depends_on` on an
-output" from the refusals, stale since 1.0.1 (engine D78).
+output" from the refusals, stale since 1.0.1 (engine D78). 1.2 also lets the engine run as more
+than one replica behind one restate deployment (engine D85, turf-engine#174; the kagent example's
+`replicas: 2` is turf-examples#40): the strengths table's "Provider calls that scale out" row says
+so, with the one caveat an operator acts on, pinned module sources.
 
 `pages/telemetry.astro` mirrors turf's public `docs/telemetry.md`
 (`github.com/turfbuild/turf`) field for field: every field, value, switch and precedence rule is
