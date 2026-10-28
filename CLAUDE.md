@@ -201,9 +201,10 @@ while the neocloud PDF was marked — source of truth: the Marks section of
   registries, centralized secrets, centralized policy, state in your backend — with Scalr, Spacelift,
   Artifactory, GitHub and GitLab named nominatively as options, under the marks note at the foot of
   `/use-cases/`. **Scale-out copy carries no benchmark, multiple or wall-clock figure**: say refresh,
-  plan and apply fan out per resource and the cloud API, not the tool, is the ceiling; more engine
-  nodes and per-provider flow control are `coming soon` (not in 1.0: the engine is one process with
-  unbounded fan-out and one provider instance per region, account or alias).
+  plan and apply fan out per resource and the cloud API, not the tool, is the ceiling. More than one
+  engine replica is shipped in 1.2 (turf-engine D85: a placement fact, any step lands on any replica;
+  no throughput figure was measured, so still no multiple); per-provider flow control stays `coming
+  soon` (one provider instance per region, account or alias, per replica).
 
 **Tone.** No lean-startup vocabulary in public copy — in particular avoid "pain" / "pain point". Do not
 imply existing customers, pilots, partners, or a team the company doesn't have: seeking pilot users
@@ -309,8 +310,18 @@ D86; a root output may not, upstream's own rule), and the `output` row goes to �
 residual, an output `precondition`, named in the note. The same change drops "`depends_on` on an
 output" from the refusals, stale since 1.0.1 (engine D78). 1.2 also lets the engine run as more
 than one replica behind one restate deployment (engine D85, turf-engine#174; the kagent example's
-`replicas: 2` is turf-examples#40): the strengths table's "Provider calls that scale out" row says
-so, with the one caveat an operator acts on, pinned module sources.
+`replicas: 2` is turf-examples#40). The strengths table was re-cut for it: it leads with
+"Resumable plan and apply" (was "Durable runs") and "Provider calls that scale out", which now
+names replicas; the home-page fan-out figure's nodes 2 and 3 are shipped, the valves still `coming
+soon`. The one replica limitation the page carries is a fact in the matrix's `module` row (an
+unpinned source that changes upstream mid-run fails the run by name); the operator caveats (same
+`--data-dir`, replicas roll together, finish in-flight rounds before a minor) are the kagent
+README's, not the page's. Same pass: "Turf actions" became "Agent hooks" (a generic heading;
+`turf_action` stays in the note), and the convergence row credits HCP Terraform Stacks'
+convergence checks (developer.hashicorp.com/terraform/cloud-docs/stacks/deploy/runs: a replan after
+every applied step until the plan is empty; Stacks only) and corrects OpenTofu's mark to ➖:
+OpenTofu removed `DeferralAllowed` in 1.11 and has no deferral, so "provider-driven" was never
+true of it.
 
 `pages/telemetry.astro` mirrors turf's public `docs/telemetry.md`
 (`github.com/turfbuild/turf`) field for field: every field, value, switch and precedence rule is
