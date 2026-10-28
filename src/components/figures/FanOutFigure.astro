@@ -1,5 +1,5 @@
 ---
-// Provider calls that scale out. The Turf engine's nodes fan create, read, update and delete out
+// Provider calls that scale out. The Turf engine's replicas fan create, read, update and delete out
 // per resource toward two regional provider endpoints (two provider configurations), each with
 // its own flow control. What 1.2 ships: one engine or several replicas of it (turf-engine D85),
 // unbounded fan-out, one provider instance per region, account or alias per replica (turf-engine
@@ -18,7 +18,7 @@ const valves = [
 ];
 ---
 
-<svg class="fig" viewBox="0 0 720 300" role="img" aria-label="The Turf engine, drawn as three replicas, each holding resource lanes that read, plan and apply side by side. Arrows from every node fan out to two flow-control valves, one per provider, both marked coming soon, and from each valve to a regional AWS API endpoint: one provider instance per region, account or alias. Every call fans out; each provider keeps its own pace.">
+<svg class="fig" viewBox="0 0 720 300" role="img" aria-label="The Turf engine, drawn as three replicas, each holding resource lanes that read, plan and apply side by side. Arrows from every replica fan out to two flow-control valves, one per provider, both marked coming soon, and from each valve to a regional AWS API endpoint: one provider instance per region, account or alias. Every call fans out; each provider keeps its own pace.">
   <!-- the engine: nodes -->
   <rect x="0.5" y="0.5" width="250" height="299" rx="12" class="f-ground s-hair"/>
   <text x="14" y="18" class="t-cap">THE TURF ENGINE</text>

@@ -101,9 +101,9 @@ where it is adapted; keep that honesty when editing. Neither page links the pre-
 to them until then. The Turf console is not in 1.0, so its stills (`public/console/`) carry a
 `coming soon` pill wherever they appear; they render through `components/Still.astro`, which
 enlarges the still on click with the HTML popover API (top layer, light dismiss, no script;
-pre-2024 browsers get an inert button). Figures that show an unshipped capability (the engine
-nodes and per-provider flow control in FanOutFigure) tag it `COMING SOON` inside the SVG and say
-what is shipped and what is coming in the `.figcap` beside it.
+pre-2024 browsers get an inert button). Figures that show an unshipped capability (per-provider
+flow control, the valves in FanOutFigure; its three engine replicas shipped in 1.2) tag it
+`COMING SOON` inside the SVG and say what is shipped and what is coming in the `.figcap` beside it.
 
 **Client JS is deliberately near-zero.** The only script is the cookie consent. The hero's stack
 build-out (`components/StackBuild.astro`) is CSS keyframes in global.css: one 12 s clock, every
@@ -313,15 +313,19 @@ than one replica behind one restate deployment (engine D85, turf-engine#174; the
 `replicas: 2` is turf-examples#40). The strengths table was re-cut for it: it leads with
 "Resumable plan and apply" (was "Durable runs") and "Provider calls that scale out", which now
 names replicas; the home-page fan-out figure's nodes 2 and 3 are shipped, the valves still `coming
-soon`. The one replica limitation the page carries is a fact in the matrix's `module` row (an
-unpinned source that changes upstream mid-run fails the run by name); the operator caveats (same
+soon`. The one replica limitation the page carries is a fact in the matrix's `module` row (a source not
+pinned to one revision that two replicas fetch differently fails the round and names the module,
+until it is pinned: the check is at fetch time against the plan's digest, so a replica whose
+cache predates the plan's fetch mismatches too); the operator caveats (same
 `--data-dir`, replicas roll together, finish in-flight rounds before a minor) are the kagent
 README's, not the page's. Same pass: "Turf actions" became "Agent hooks" (a generic heading;
-`turf_action` stays in the note), and the convergence row credits HCP Terraform Stacks'
-convergence checks (developer.hashicorp.com/terraform/cloud-docs/stacks/deploy/runs: a replan after
-every applied step until the plan is empty; Stacks only) and corrects OpenTofu's mark to ➖:
-OpenTofu removed `DeferralAllowed` in 1.11 and has no deferral, so "provider-driven" was never
-true of it.
+`turf_action` stays in the note), and the convergence row credits Terraform Stacks' convergence
+checks (developer.hashicorp.com/terraform/cloud-docs/stacks/deploy/runs: a replan after every
+applied step until the plan is empty; hosted Stacks only — the page says "HashiCorp's hosted
+platform", since "HCP" is on the stay-out list above), says Terraform's own deferral is an
+experiment in alpha builds only (the 1.16 and 1.17 changelogs' EXPERIMENTS block: `-allow-deferral`
+is not in a stable release), and corrects OpenTofu's mark to ➖: OpenTofu stopped sending
+`DeferralAllowed` in 1.11.4 and has no deferral, so "provider-driven" was never true of it.
 
 `pages/telemetry.astro` mirrors turf's public `docs/telemetry.md`
 (`github.com/turfbuild/turf`) field for field: every field, value, switch and precedence rule is
