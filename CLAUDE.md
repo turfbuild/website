@@ -327,6 +327,15 @@ experiment in alpha builds only (the 1.16 and 1.17 changelogs' EXPERIMENTS block
 is not in a stable release), and corrects OpenTofu's mark to ➖: OpenTofu stopped sending
 `DeferralAllowed` in 1.11.4 and has no deferral, so "provider-driven" was never true of it.
 
+For 1.3 (prepared 2026-10-30, to publish with the release) the Turf column moves to 1.3 against the
+conformance report's 2026-10-28 entry: provider-defined functions go to ✅ (engine D88,
+turf-engine#176, turf-mcp-server#204). The note names what is called (a provider's own functions and
+the built-in `terraform` provider's three), that a module calls only what its own
+`required_providers` declares, that the apply calls the version the plan resolved, and the one
+divergence a user can meet: each call goes to the provider unconfigured, Terraform's rule, where
+OpenTofu calls the configured one, so a function a provider registers only once configured is not
+found. The baselines stayed at Terraform 1.16 and OpenTofu 1.13.
+
 `pages/telemetry.astro` mirrors turf's public `docs/telemetry.md`
 (`github.com/turfbuild/turf`) field for field: every field, value, switch and precedence rule is
 copied exactly, and only the layout is the site's. When the engine's telemetry schema changes, the
