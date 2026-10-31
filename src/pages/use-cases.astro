@@ -5,16 +5,20 @@ import StackFigure from '../components/figures/StackFigure.astro';
 import FleetFigure from '../components/figures/FleetFigure.astro';
 import InstallerFigure from '../components/figures/InstallerFigure.astro';
 import ShellVsTurfFigure from '../components/figures/ShellVsTurfFigure.astro';
+import PipelineFigure from '../components/figures/PipelineFigure.astro';
 import Partner from '../components/Partner.astro';
 import Still from '../components/Still.astro';
-// Four things people build with Turf, factored by the job (decided 2026-10-20; "use cases", not
+// Five things people build with Turf, factored by the job (decided 2026-10-20; "use cases", not
 // "solutions", since 2026-10-21): each section is
 // who it is for, the stack, the HCL (none in 03 since 2026-10-21), day 1 and day 2, the proof, a CTA. Figures are ported from
 // Metal to Tokens (components/figures); HCL is quoted from turf-examples where a file exists and
 // marked "after …" or "illustrative" where it is adapted. No link to the pre-1.0 demo recordings.
-const title = 'Turf — Use cases: GPU clouds, fleets, installers, agents';
+// 05 (2026-10-31) is Terraform delivery in CI/CD on GitHub Agentic Workflows: its figure is Figure 1 of
+// Pull Request to Production, its rule is quoted from turf-agentic-workflows, and its panel is the
+// agent's real review on PR #5.
+const title = 'Turf — Use cases: GPU clouds, fleets, installers, agents, CI/CD';
 const description =
-  'What people build with Turf: GPU clouds from metal to tokens, Kubernetes fleets, self-installing products and the agent toolkit, day 1 and day 2 for each.';
+  'What people build with Turf: GPU clouds from metal to tokens, Kubernetes fleets, self-installing products, the agent toolkit and Terraform CI/CD with an agent in it.';
 
 const site = 'https://turf.build';
 const examples = 'https://github.com/turfbuild/turf-examples/tree/main';
@@ -36,13 +40,14 @@ const jsonLd = {
       <p class="eyebrow"><span class="dot"></span> Use cases</p>
       <h1>What people build with Turf.</h1>
       <p class="lede">Turf™ is one engine for the whole stack: hosts, clusters, charts, playbooks and the
-        workload in the Terraform® language, planned as one and converged in rounds. Four ways teams put
+        workload in the Terraform® language, planned as one and converged in rounds. Five ways teams put
         it to work, each with its day 1 and its day 2.</p>
       <div class="jumplist">
         <a href="#gpu-clouds"><span class="n">01</span> GPU clouds</a>
         <a href="#kubernetes-fleets"><span class="n">02</span> Kubernetes fleets</a>
         <a href="#installers"><span class="n">03</span> Self-installing products</a>
         <a href="#agents"><span class="n">04</span> The infrastructure agent</a>
+        <a href="#ci-cd"><span class="n">05</span> Pull request to production</a>
       </div>
     </div>
   </section>
@@ -352,12 +357,127 @@ const jsonLd = {
         <a class="btn primary" href="/get-started/#connect">Connect your agent</a>
         <a class="btn ghost" href="/get-started/">Get started</a>
       </div>
+    </div>
+  </section>
+
+
+  <!-- 05 · Pull request to production -->
+  <section class="section" id="ci-cd">
+    <div class="wrap">
+      <div class="band-head">
+        <p class="eyebrow"><span class="dot"></span> 05 · Platform engineers</p>
+        <h2>Pull request to production, with the plan reviewed every time.</h2>
+        <p>The pipeline you have plans at <code>pull_request</code>, applies at <code>push</code>, and
+          applies with <code>-auto-approve</code>: the plan the reviewer saw is not the plan that runs,
+          and nobody reads the one that does. Put an agent in the pipeline, with Turf on the runner as
+          its engine. It reads the plan, judges it by your rules in plain language, checks the providers
+          against GitHub’s Advisory Database, applies the reviewed plan by its digest, verifies from
+          inside the apply, and promotes by GitHub Environment.</p>
+      </div>
+      <div class="figwide">
+        <PipelineFigure />
+        <p class="figcap"><b>Every stop attended.</b> GitHub Agentic Workflows run the agent as an
+          Actions job; Turf’s server and engine run on the same runner, with the cloud credentials in
+          their process and never in the agent’s. The Environment supplies the variables, the role and
+          the rule.</p>
+      </div>
+      <div class="feature">
+        <div>
+          <div class="codeblock">
+            <div class="cb-head"><span>policy/approval.md</span><span class="cb-legend">one paragraph per Environment</span></div>
+<pre><span class="kw">## staging</span>
+
+Approve any plan, including replacements and deletes,
+<b>except</b> one that would:
+
+- destroy the shared execution role
+  (aws_iam_role.lambda_exec), or
+- delete every function in the fleet.
+
+<span class="kw">## production</span>
+
+Approve only a plan made of <b>creates and in-place
+updates</b>: no replacement, no delete of any kind,
+including a shrink of the fleet.
+
+Any other plan is <b>refused</b>: report it with the rule
+that refused it, say that a person has to run the
+apply for this environment by hand, cancel the
+convergence, and apply nothing.</pre>
+            <div class="cb-note">from turf-agentic-workflows/policy/approval.md, lightly trimmed · the GitHub Environment names which paragraph the run obeys</div>
+          </div>
+          <ul class="ticklist">
+            <li><span class="g">✓</span><div><b>The reviewed plan is the applied plan</b> <span>— the apply
+              run compares its plan with the one on the pull request and approves it by digest, of that
+              plan and no other.</span></div></li>
+            <li><span class="g">✓</span><div><b>The providers checked before anything opens</b> <span>— source,
+              pin and advisories, from GitHub’s Advisory Database through the GitHub MCP Server.</span></div></li>
+          </ul>
+        </div>
+        <div class="agentloop" role="img" aria-label="The plan comment on pull request 5 shows the shared role replaced; the agent's review requests changes under the staging rule.">
+<pre class="report"><span class="lab">TURF PLAN · PULL REQUEST #5 · THE DIFF BLOCK</span><b>Plan:</b> 2 to add, 2 to change, 2 to destroy (2 replaced)
+<i>∓</i> aws_iam_role.lambda_exec (replaced: name)
+    name: …-staging-exec → …-staging-lambda-exec
+<i>∓</i> aws_iam_role_policy_attachment.lambda_policy (replaced: role)
+<i>~</i> aws_lambda_function.hello[0]
+    role: …/turf-hello-staging-exec → (known after apply)
+<i>~</i> aws_lambda_function.hello[1]
+    role: …/turf-hello-staging-exec → (known after apply)
+<span class="d">Verdict: refuse · the convergence cancelled, the lock released</span></pre>
+          <div class="chat">
+            <div class="who"><span class="av">✦</span><span>Turf plan</span><span class="tag">in GitHub Actions</span></div>
+            <div class="msg">
+              <p>Refused under the staging approval rule (<code>policy/approval.md</code>): the plan would
+                destroy the shared execution role <code>aws_iam_role.lambda_exec</code>. Its name changes
+                from <code>turf-hello-staging-exec</code> to <code>turf-hello-staging-lambda-exec</code>,
+                which forces a replacement. The policy attachment is replaced and both functions are
+                updated to the new role. The plan is 2 to add, 2 to change, 2 to destroy. The providers
+                rule passed (no advisories). A person needs to review and apply this change by hand, or
+                keep the existing role name.</p>
+              <p><span class="note">REQUEST_CHANGES · from run 41238948486, 2026-10-31</span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="beats two">
+        <div class="beat">
+          <span class="k">Day 1 · the pull request</span>
+          <h3>A plan, scanned and judged, on every pull request</h3>
+          <p>The plan workflow runs on every pull request that touches the configuration. The agent
+            checks the providers, reads the plan Turf made, judges it by the staging rule, and posts one
+            comment: the providers table, the plan as a diff, the verdict with the rule that decided,
+            and the plan as data at the foot. Its review is a <code>COMMENT</code> when the plan is
+            ready, <code>REQUEST_CHANGES</code> when a rule refused. <b>Then it cancels the
+            convergence</b>: a plan run holds nothing.</p>
+        </div>
+        <div class="beat">
+          <span class="k">Day 2 · the merge</span>
+          <h3>Applied under the rule, verified from inside the apply, promoted by Environment</h3>
+          <p>The merge starts the staging apply. It plans again, compares with the reviewed plan, and
+            approves by digest. The apply pauses at the <code>verify</code> turf action; the agent
+            fetches every function URL with curl and reports back, and the engine converges. A label on
+            the pull request lets production start: <b>the same configuration</b>, the production
+            Environment’s role, state key and fleet, and a stricter rule.</p>
+        </div>
+      </div>
+      <div class="proof">
+        <span class="lab">Proof</span>
+        <a href="https://github.com/turfbuild/turf-agentic-workflows">the repo: three workflows, two rules →</a>
+        <a href="https://github.com/turfbuild/turf-agentic-workflows/pull/7">PR #7: planned, applied, verified, promoted →</a>
+        <a href="https://github.com/turfbuild/turf-agentic-workflows/pull/5">PR #5: refused, the shared role →</a>
+        <a href="https://github.com/turfbuild/turf-agentic-workflows/pull/6">PR #6: refused, a provider advisory →</a>
+        <a href="/reference-architectures/pull-request-to-production/">the paper →</a>
+      </div>
+      <div class="cta-row" style="margin-top:18px">
+        <a class="btn primary" href="/reference-architectures/pull-request-to-production/">Read Pull Request to Production</a>
+        <a class="btn ghost" href="https://github.com/turfbuild/turf-agentic-workflows">The repo on GitHub</a>
+      </div>
       <p class="legal-note">NVIDIA, AI Cluster Runtime, NVCRE, NVSentinel and KAI Scheduler are trademarks or product
         names of NVIDIA Corporation, referred to here only to describe interoperability. Amazon EKS, Amazon S3,
         Google Kubernetes Engine, Google Cloud Storage, Azure Kubernetes Service and Azure Blob Storage are
         trademarks of their respective owners. GitHub, GitLab, JFrog Artifactory, HashiCorp Vault, Scalr and
         Spacelift are trademarks of their respective owners, named here only to describe interoperability.
-        Claude is a trademark of Anthropic, PBC. Turf is not affiliated with, endorsed by, or sponsored by
+        GitHub Actions and GitHub Agentic Workflows are trademarks of GitHub, Inc. AWS and AWS Lambda are trademarks of Amazon.com, Inc. or its affiliates. Claude is a trademark of Anthropic, PBC. Turf is not affiliated with, endorsed by, or sponsored by
         any of them. All other marks belong to their owners.</p>
     </div>
   </section>

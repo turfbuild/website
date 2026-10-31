@@ -1,0 +1,255 @@
+---
+import Layout from '../../layouts/Layout.astro';
+// The page for *Pull Request to Production*. Its abstract, the three at-a-glance ideas, the
+// chapter list and the marks note are the paper's own words, from
+// headquarters/marketing/launch/refarch-cicd.md (v1.0): the intro, "At a glance", the chapter
+// titles and the Marks section. A new version of the paper means re-checking this page against
+// it. See "Papers" in CLAUDE.md.
+const title = 'Turf — Pull Request to Production: Terraform CI/CD with an agent';
+const description =
+  'Pull Request to Production, a Turf reference architecture for Terraform delivery on GitHub Agentic Workflows: the plan reviewed by rule on every pull request, applied by digest, verified from inside the apply.';
+
+const site = 'https://turf.build';
+// Shared through Scarf, which counts the click and redirects to the turf.build copy; the tag
+// tells this page's clicks apart from the paper's other links (CLAUDE.md, "Papers").
+const pdfShared = 'https://get.turf.build/papers/turf-pull-request-to-production.pdf?src=refarch-cicd-page';
+const pdfHosted = `${site}/papers/turf-pull-request-to-production.pdf`;
+const cover = `${site}/papers/turf-pull-request-to-production-cover.jpg`;
+const repoUrl = 'https://github.com/turfbuild/turf-agentic-workflows';
+
+// See demo.astro: inlined, not an `@id` reference to the home page's node.
+const publisher = { '@type': 'Organization', '@id': `${site}/#organization`, name: 'Turf' };
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'TechArticle',
+    '@id': `${site}/reference-architectures/pull-request-to-production/#paper`,
+    name: 'Pull Request to Production',
+    headline: 'Pull Request to Production',
+    alternativeHeadline:
+      'A reference architecture for Terraform delivery on GitHub Agentic Workflows, with an agent in the pipeline',
+    description,
+    url: `${site}/reference-architectures/pull-request-to-production/`,
+    datePublished: '2026-10-31',
+    version: '1.0',
+    inLanguage: 'en-US',
+    isAccessibleForFree: true,
+    author: publisher,
+    publisher: publisher,
+    image: cover,
+    associatedMedia: {
+      '@type': 'MediaObject',
+      name: 'Pull Request to Production (PDF)',
+      contentUrl: pdfHosted,
+      encodingFormat: 'application/pdf',
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Turf', item: `${site}/` },
+      { '@type': 'ListItem', position: 2, name: 'Reference architectures', item: `${site}/reference-architectures/` },
+      { '@type': 'ListItem', position: 3, name: 'Pull Request to Production' },
+    ],
+  },
+];
+
+const parts = [
+  {
+    k: 'Part I · The host',
+    chapters: [
+      [1, 'GitHub Agentic Workflows'],
+      [2, 'Turf on the runner'],
+    ],
+  },
+  {
+    k: 'Part II · The loop',
+    chapters: [
+      [3, 'Plan, scan, verdict'],
+      [4, 'Rules in plain language'],
+      [5, 'The apply under the rule'],
+      [6, 'The agent inside the apply'],
+      [7, 'Promotion by Environment'],
+      [8, 'Refused'],
+    ],
+  },
+  {
+    k: 'Part III · The guarantees',
+    chapters: [
+      [9, 'Whole convergence, in one run'],
+      [10, 'Safety, in layers'],
+    ],
+  },
+];
+---
+
+<Layout title={title} description={description} jsonLd={jsonLd}>
+  <section class="subhero">
+    <div class="wrap">
+      <p class="eyebrow"><span class="dot"></span> Reference architecture · v1.0 · October 2026</p>
+      <h1>Pull Request to Production.</h1>
+      <p class="lede">A reference architecture for Terraform® delivery on GitHub® Agentic Workflows,
+        with an agent in the pipeline. <strong>Turf™ is a self-hosted, autonomous
+        infrastructure-as-code tool, built on OpenTofu™.</strong></p>
+      <div class="cta-row">
+        <a class="btn primary" href={pdfShared}>Read the PDF</a>
+        <a class="btn ghost" href={repoUrl}>The repo on GitHub</a>
+      </div>
+      <p class="meta">14 pages · PDF · for platform engineers who run Terraform through CI/CD</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="paper">
+        <figure class="cover">
+          <a href={pdfShared}>
+            <img
+              src="/papers/turf-pull-request-to-production-cover.jpg"
+              alt="The cover of Pull Request to Production: the title over a commit graph, with the pipeline's stops, open, plan, comment, review, merge, apply, verify, promote, drawn along a branch merging into main."
+              width="741"
+              height="960"
+              loading="lazy"
+            />
+          </a>
+        </figure>
+        <div class="prose">
+          <p class="eyebrow"><span class="dot"></span> The pipeline</p>
+          <h2>The pipeline you already have.</h2>
+          <p>Terraform delivery through GitHub Actions has a shape every platform team knows, and
+            HashiCorp’s own tutorial lays it out: a plan phase on every pull request, an apply phase on
+            every push to <code>main</code>. Two things go wrong with it.</p>
+          <p><strong>The reviewed plan is not the applied plan.</strong> A reviewer reads a speculative
+            plan on the pull request and approves the merge. The apply workflow then uploads the
+            configuration again and plans again, minutes or days later, against whatever the account and
+            <code>main</code> hold by then. Nothing in the pipeline ties the two plans together.</p>
+          <p><strong>The apply is unattended.</strong> With a merge as its trigger, the apply phase runs
+            with <code>-auto-approve</code>. Nobody reads the plan that actually runs. The providers it
+            loads, plugins that hold the cloud credentials, are never checked. An unexpected replacement
+            leads to an outage, and the first anyone hears of it is the alert.</p>
+          <p>This paper puts an agent in the pipeline, with Turf as its engine. GitHub Agentic Workflows
+            run the agent as a GitHub Actions job. Turf runs on the same runner and gives the agent a
+            plan to read, an approval to give by digest, and a verify step to carry out from inside the
+            apply. The reviewed plan is the plan that applies. The rules are paragraphs in the
+            repository. And the apply is attended, by the agent, every time.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section alt">
+    <div class="wrap">
+      <div class="band-head">
+        <h2>At a glance.</h2>
+        <p>An agent in the pipeline, three ways.</p>
+      </div>
+      <div class="beats">
+        <div class="beat">
+          <span class="k">01 · The reviewed plan is the applied plan</span>
+          <h3>Approved by digest</h3>
+          <p>The plan run posts its plan on the pull request, with the plan as data at its foot. The
+            apply run plans again, compares, and approves by the new plan’s digest only when it matches
+            what was reviewed. A plan that differs is refused, and the report says what changed.
+            → Chapters 3 and 5.</p>
+        </div>
+        <div class="beat">
+          <span class="k">02 · Rules in plain language</span>
+          <h3>A paragraph per Environment</h3>
+          <p>The approval rule is a paragraph, one per GitHub Environment; the providers rule is another
+            file. The agent reads the rule the Environment names and writes its verdict with the rule
+            that decided, so the record reads the same to a person and to the next run.
+            → Chapters 4 and 8.</p>
+        </div>
+        <div class="beat">
+          <span class="k">03 · The agent inside the apply</span>
+          <h3>A turf action, answered with curl</h3>
+          <p>A turf action is a step the configuration asks of the agent. Here the apply pauses after the
+            release and asks the agent to fetch every function URL and check the answer. The agent does
+            it with curl and reports back; the engine carries on, or halts. → Chapter 6.</p>
+        </div>
+      </div>
+      <p class="walk">The loop in one line: a pull request → plan, scan, verdict → merge → staging:
+        approve by the rule, apply, verify, report → production: the same, under a stricter rule.
+        Part I is the host. Part II walks the loop, one stop at a time. Part III is what it guarantees.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="band-head">
+        <h2>What’s inside.</h2>
+        <p>Ten chapters in three parts, every transcript from a real run, and the repository to fork.</p>
+      </div>
+      <div class="toc">
+        {parts.map((part) => (
+          <div class="part">
+            <span class="k">{part.k}</span>
+            <ol>
+              {part.chapters.map(([n, name]) => (
+                <li><span class="n">{n}</span><span>{name}</span></li>
+              ))}
+            </ol>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section alt">
+    <div class="wrap prose">
+      <h2>Run it.</h2>
+      <p>The pipeline in the paper is public, at
+        <a href={repoUrl}>github.com/turfbuild/turf-agentic-workflows</a>: three workflows, two rules,
+        and a <code>setup/</code> directory that builds the demonstration environment as Terraform. Turf
+        is available now, as a download. No form, no login. Free for noncommercial use; commercial use,
+        including a company’s internal use, requires a license, and companies evaluate Turf under a free
+        pilot.</p>
+      <p class="ctas">
+        <a class="btn primary" href={pdfShared}>Read the PDF</a>
+        <a class="btn ghost" href="/get-started/">Get started</a>
+        <a class="btn ghost" href="/licensing/">Licensing</a>
+      </p>
+      <p class="also">Also from Turf: <a href="/reference-architectures/">Metal to Tokens</a>, a reference
+        architecture for managed GPU cloud infrastructure, for neocloud providers.</p>
+
+      <p class="legal-note">GitHub, GitHub Actions, GitHub Copilot and GitHub Agentic Workflows are
+        trademarks of GitHub, Inc. AWS and AWS Lambda are trademarks of Amazon.com, Inc. or its
+        affiliates. Claude is a trademark of Anthropic, PBC. HashiCorp Vault is a trademark of
+        HashiCorp, Inc. Each is named here only to describe interoperability; quotations from
+        HashiCorp’s tutorial, OpenTofu’s documentation and GitHub’s documentation are attributed in the
+        paper. Turf is not affiliated with, endorsed by, or sponsored by any of them. All other marks
+        belong to their owners.</p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .meta { font-family: var(--mono); font-size: 12.5px; color: var(--faint); margin: 0; }
+  /* The cover beside the abstract; the cover stacks above it on a phone. */
+  .paper { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: clamp(24px, 4vw, 52px); align-items: start; }
+  .paper .prose > h2 { margin-top: 8px; }
+  .cover { margin: 0; max-width: 280px; }
+  .cover img {
+    display: block; width: 100%; height: auto; border-radius: 12px;
+    box-shadow: var(--shadow); border: 1px solid var(--hair-strong); background: var(--term-bg);
+  }
+  @media (max-width: 760px) { .paper { grid-template-columns: 1fr; } }
+  .walk { color: var(--muted); max-width: 68ch; margin: clamp(20px, 3vw, 28px) 0 0; }
+  /* The chapter list: one card per part, framed like the use-case cards. */
+  .toc { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 860px) { .toc { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 520px) { .toc { grid-template-columns: 1fr; } }
+  .part { border: 1px solid var(--hair); border-radius: 13px; background: var(--panel); padding: 18px 20px; }
+  .part .k { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ok); display: block; margin-bottom: 10px; }
+  .part ol { list-style: none; margin: 0; padding: 0; }
+  .part li { display: flex; gap: 10px; font-size: 14px; color: var(--muted); margin: 6px 0; }
+  .part li .n { font-family: var(--mono); font-size: 12px; color: var(--faint); flex: none; width: 1.6em; }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
+  .also { color: var(--muted); font-size: 14px; margin-top: 22px; }
+  /* Nominative-use note for the marks the footer fineprint doesn't cover; matches demo/scalr. */
+  .legal-note {
+    margin-top: clamp(28px, 4vw, 44px); padding-top: 18px; border-top: 1px solid var(--hair);
+    max-width: 92ch; color: var(--faint); font-size: 12.5px; line-height: 1.6;
+  }
+</style>
