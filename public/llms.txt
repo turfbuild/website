@@ -24,10 +24,11 @@ on the site.
 
 ## Start here
 
-- [Use cases](https://turf.build/use-cases/): five things people build with Turf, each with its day 1 and day 2: GPU clouds from metal to tokens, managed services on Kubernetes fleets, products that install themselves, your ops environment with Turf's engine, and the ultimate infrastructure agent.
+- [Use cases](https://turf.build/use-cases/): five things people build with Turf, each with its day 1 and day 2: GPU clouds from metal to tokens, managed services on Kubernetes fleets, products that install themselves, the ultimate infrastructure agent, and pull request to production, Terraform CI/CD with an agent in the pipeline.
 - [Turf 1.0](https://turf.build/engine/): the announcement. A self-hosted, autonomous infrastructure-as-code tool built on OpenTofu: the operating model (every change a Terraform plan, reviewed and approved), the engine, built on Restate for durable execution, the three ecosystems it runs as they are, what is in 1.0, and what comes next.
 - [Get started](https://turf.build/get-started/): install, connect Turf to Claude Code, Cursor, Codex, Gemini CLI, VS Code or any MCP client, and deploy from your agent; or run the standalone CLI.
 - [Metal to Tokens](https://turf.build/reference-architectures/): a reference architecture for managed GPU cloud infrastructure, as code — a neocloud from pools of inventory to a cluster that has passed NVCRE certification, with day 2 on the provider's runbook. The PDF: https://get.turf.build/papers/turf-neocloud-reference-architecture.pdf
+- [Pull Request to Production](https://turf.build/reference-architectures/pull-request-to-production/): a reference architecture for Terraform delivery on GitHub Agentic Workflows, with an agent in the pipeline — the plan judged by a policy in plain language on every pull request, approved as that exact plan, verified from inside the apply through a turf action, promoted by GitHub Environment; the pipeline is public at https://github.com/turfbuild/turf-agentic-workflows. The PDF: https://get.turf.build/papers/turf-pull-request-to-production.pdf
 - [Compatibility](https://turf.build/compatibility/): where Turf 1.0 is ahead of Terraform 1.16 and OpenTofu 1.13 — durable runs on Restate, encryption at rest, OpenTelemetry, provider calls that scale out, Terraform actions with overlays, turf actions, multi-round convergence — and an honest three-way matrix of every construct, with what is refused and what is coming soon.
 
 ## Your ops environment
@@ -36,12 +37,13 @@ on the site.
 
 ## Use cases
 
-Four things people build with Turf, at [turf.build/use-cases/](https://turf.build/use-cases/):
+Five things people build with Turf, at [turf.build/use-cases/](https://turf.build/use-cases/):
 
 - [GPU clouds, from metal to tokens](https://turf.build/use-cases/#gpu-clouds) — for neocloud providers: pools of inventory to a cluster that has passed NVCRE certification and a served model, in one run; day 2 on the provider's runbook.
 - [Managed services on Kubernetes fleets](https://turf.build/use-cases/#kubernetes-fleets) — for SaaS and platform providers: a control plane, a golden recipe, a tenant cluster as one module call, Turf in the cluster, upgrades fleet-wide under approval.
 - [Products that install themselves](https://turf.build/use-cases/#installers) — for ISVs and AI-native products: the reference architecture as Terraform modules, planned in the customer's account before anything exists, the installer's own steps as turf actions.
 - [The ultimate infrastructure agent](https://turf.build/use-cases/#agents) — for teams adopting agents: built-in skills for authoring and deployment, approval points and turf actions, state tools, import, provider schemas, the planfile for policy; designed for efficient reasoning models.
+- [Pull request to production](https://turf.build/use-cases/#ci-cd) — for platform engineers: Terraform delivery on GitHub Agentic Workflows with an agent in the pipeline; the plan judged by a policy in plain language on every pull request, the providers checked against GitHub's Advisory Database, the reviewed plan approved as that exact plan, verified from inside the apply, promoted by GitHub Environment.
 
 ## Source and examples
 
