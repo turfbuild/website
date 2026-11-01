@@ -1,27 +1,34 @@
 ---
-// One `turf up` as a timeline, in the console's grammar: round 1 plans, approves and applies the
-// cluster and defers everything above it; round 2 configures the Helm provider from the cluster's
-// endpoint and finishes the chart and the manifest, pausing once for the agent at a turf action.
-// Lanes are ordered by when they start, so the run reads like a Gantt chart. Tokens only.
+// One `turf up` as a timeline, in the console's grammar: each round opens at its plan gate (the
+// hollow diamond, where the run waits for `plan`); round 1 plans, approves and applies the cluster
+// and defers everything above it; round 2 configures the Helm provider from the cluster's endpoint
+// and finishes the chart and the manifest, pausing once for the agent at a turf action. Lanes are
+// ordered by when they start, so the run reads like a Gantt chart. Tokens only.
 const lanes = ['kind_cluster.demo', 'provider.helm', 'helm · cert-manager', 'manifest · app', 'action · certify'];
 const laneY = (i: number) => 78 + i * 30;
-const r1 = { planned: 200, approved: 290, applied: 410 };
-const r2 = { planned: 440, approved: 530, end: 656 };
+const r1 = { gate: 184, planned: 200, approved: 290, applied: 410 };
+const r2 = { gate: 424, planned: 440, approved: 530, end: 656 };
 ---
 
-<svg class="fig" viewBox="0 0 672 250" role="img" aria-label="One run as a timeline, in two rounds. Round 1: the cluster is planned, approved and applied, while the Helm provider, the cert-manager chart, the manifest and the certify action are deferred. Round 2: the Helm provider is configured from the cluster's endpoint, the chart and the manifest are planned, approved and applied, and the certify action pauses for the agent before the run converges.">
+<svg class="fig" viewBox="0 0 672 250" role="img" aria-label="One run as a timeline, in two rounds, each opening at its plan gate. Round 1: the cluster is planned, approved and applied, while the Helm provider, the cert-manager chart, the manifest and the certify action are deferred. Round 2: the Helm provider is configured from the cluster's endpoint, the chart and the manifest are planned, approved and applied, and the certify action pauses for the agent before the run converges.">
   <rect x="0.5" y="0.5" width="671" height="249" rx="12" class="f-term"/>
   <g class="t-cap f-termmuted">
-    <text x={r1.planned} y="22">ROUND 1</text>
-    <text x={r2.planned} y="22">ROUND 2</text>
+    <text x={r1.gate} y="22">ROUND 1</text>
+    <text x={r2.gate} y="22">ROUND 2</text>
     <text x={r2.end} y="22" text-anchor="end" class="f-termok">CONVERGED</text>
   </g>
-  <line x1={r1.planned} y1="34" x2={r2.end} y2="34" class="s-termok" stroke-width="1.4"/>
+  <line x1={r1.gate} y1="34" x2={r2.end} y2="34" class="s-termok" stroke-width="1.4"/>
   <g class="f-termok">
     {[r1.planned, r1.approved, r1.applied, r2.planned, r2.approved].map((x) => (
       <polygon points={`${x},29 ${x + 5},34 ${x},39 ${x - 5},34`}/>
     ))}
     <polygon points={`${r2.end},28 ${r2.end + 6},34 ${r2.end},40 ${r2.end - 6},34`}/>
+  </g>
+  <!-- each round's plan gate: the run waits for plan before the round plans -->
+  <g class="f-term s-termok" stroke-width="1.2">
+    {[r1.gate, r2.gate].map((x) => (
+      <polygon points={`${x},29 ${x + 5},34 ${x},39 ${x - 5},34`}/>
+    ))}
   </g>
   <g class="t-m7 f-termmuted" text-anchor="middle">
     <text x={r1.planned} y="50">planned</text>
@@ -59,7 +66,8 @@ const r2 = { planned: 440, approved: 530, end: 656 };
     <rect x="16" y="225" width="14" height="5" rx="1.5" class="f-termmuted"/><text x="34" y="230">plan</text>
     <rect x="62" y="223" width="14" height="9" rx="2" class="f-termok"/><text x="80" y="230">apply</text>
     <rect x="112" y="223" width="14" height="9" rx="2" class="f-none s-termmuted" stroke-width="1" stroke-dasharray="2 2"/><text x="130" y="230">deferred</text>
-    <polygon points="178,223 183,227.5 178,232 173,227.5" class="f-termok"/><text x="188" y="230">approval point</text>
-    <polygon points="258,223 263,227.5 258,232 253,227.5" class="f-partbg s-part" stroke-width="1"/><text x="268" y="230">turf action</text>
+    <polygon points="178,223 183,227.5 178,232 173,227.5" class="f-term s-termok" stroke-width="1"/><text x="188" y="230">plan gate</text>
+    <polygon points="238,223 243,227.5 238,232 233,227.5" class="f-termok"/><text x="248" y="230">approval point</text>
+    <polygon points="318,223 323,227.5 318,232 313,227.5" class="f-partbg s-part" stroke-width="1"/><text x="328" y="230">turf action</text>
   </g>
 </svg>

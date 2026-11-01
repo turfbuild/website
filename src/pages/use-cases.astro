@@ -178,7 +178,7 @@ const jsonLd = {
           <span class="k">Day 1 · a tenant order</span>
           <h3>A module call becomes a cluster</h3>
           <p>The control plane writes the tenant’s cluster as HCL and opens a pull request, or calls Turf’s
-            MCP server directly: <code>open</code>, <code>up</code>, <code>apply</code>, <code>output</code>.
+            MCP server directly: <code>open</code>, <code>up</code>, <code>plan</code>, <code>apply</code>, <code>output</code>.
             Either way the change is a plan, approved before it runs, and the outputs come back to the
             control plane when the run converges. <b>Turf runs in Kubernetes</b>, deployed as an agent,
             with its state in the cluster.</p>
@@ -283,7 +283,8 @@ const jsonLd = {
 <div class="t"><span class="dim">(the authoring skill writes versions.tf, lake.tf)</span></div>
 <div class="t"><span class="dim">init</span>              ./lake         <span class="dim">→</span> providers locked</div>
 <div class="t"><span class="dim">open</span>              workspace acme</div>
-<div class="t"><span class="dim">up</span>                               <span class="dim">→</span> <span class="amber">approval point</span> · 7 to add</div>
+<div class="t"><span class="dim">up</span>                               <span class="dim">→</span> <span class="amber">plan gate</span></div>
+<div class="t"><span class="dim">plan</span>                             <span class="dim">→</span> <span class="amber">approval point</span> · 7 to add</div>
 <div class="t"><span class="dim">show</span>              → input.tfplan <span class="dim">→</span> policy: no denials</div>
 <div class="t"><span class="dim">apply</span>             by its digest  <span class="dim">→</span> <span class="ok">converged</span> · outputs</div>
             </div>
@@ -302,20 +303,22 @@ const jsonLd = {
         </div>
       </div>
       <div class="toolgrid">
-        <div class="tool"><b>plan: up · destroy · import · refresh</b>Every change is a plan: converge the
-          directory, tear it down, adopt what exists by id or identity, or read the world back into state.
-          Each stops at its approval point with the plan's summary.</div>
+        <div class="tool"><b>plan: up · destroy · import · refresh, then plan</b>Every change is a plan:
+          converge the directory, tear it down, adopt what exists by id or identity, or read the world back
+          into state. Each round waits at its plan gate; <code>plan</code> plans it, refresh and replace
+          chosen there, and stops at its approval point with the plan's summary.</div>
         <div class="tool"><b>approve: apply, by digest</b><code>apply</code> with the plan's digest is the
-          approval, of that plan and no other. Not calling it declines; <code>cancel</code> ends the run.
-          Auto-approval only where you said so.</div>
+          approval, of that plan and no other; <code>apply</code> with <code>decline</code> turns it down,
+          and <code>cancel</code> ends the run. Nothing is approved in advance.</div>
         <div class="tool"><b>the planfile, for integration</b><code>show</code> returns the plan as
           OpenTofu's own document: <code>input.tfplan</code> for OPA, conftest or Checkov, or your
-          platform's policy groups, before a non-trivial plan is approved.</div>
+          platform's policy groups, before a non-trivial plan is approved. A plan-only run keeps its plan
+          as a planfile, for another server, with its own credentials, to apply.</div>
         <div class="tool"><b>apply, with interaction points</b>The engine carries the plan out and stops at
           every turf action it meets: a backup, a check, a question, a notification, answered by the agent
           and recorded with the run.</div>
         <div class="tool"><b>invoke: action-only plans, for day 2</b>One declared action, or an ad-hoc one
-          for this run alone, planned by itself under its own approval point: reboot, backup, cordon,
+          for this run alone, planned by itself with its own plan gate and approval point: reboot, backup, cordon,
           re-certify.</div>
         <div class="tool"><b>state: list · show · output · taint</b>State, outputs and plans as OpenTofu's
           own documents, sensitive values redacted unless asked; <code>taint</code> marks a replacement for
@@ -331,8 +334,9 @@ const jsonLd = {
           <span class="k">Day 1 · from a sentence</span>
           <h3>To a running stack, in your directory</h3>
           <p>The agent finds the provider, reads the schema it will write against, and writes ordinary
-            Terraform files you can read, commit and run anywhere. <code>up</code> plans the whole
-            directory and stops at the approval point with the plan’s summary; <b>you approve from Claude
+            Terraform files you can read, commit and run anywhere. <code>up</code> starts the run,
+            <code>plan</code> plans the whole directory and stops at the approval point with the plan’s
+            summary; <b>you approve from Claude
             Code, Cursor, Codex or any MCP client</b>, on the subscription you already have, and the
             engine carries it out.</p>
         </div>
