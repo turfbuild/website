@@ -359,8 +359,9 @@ found. The baselines stayed at Terraform 1.16 and OpenTofu 1.13.
 The plan tool (1.3, engine D89 and D90, turf-engine#177 and #178, turf-mcp-server#205–#209) moves
 four rows of "Plan / apply options & workflow". `-refresh=false` and `-replace` are `plan`'s
 arguments, chosen round by round at the plan gate, no longer the start verb's. `-auto-approve` goes
-to ⛔ (the server refuses `auto_approve` by name): every round is approved by `apply` with its plan's digest, and the
-CLI's `--yes` answers only the agent's own confirmations. The saved-planfile round-trip goes to ✅:
+to ⛔ (the server refuses `auto_approve` by name): a round with changes is approved by `apply` with
+its plan's digest (a round with nothing to apply needs none), and the CLI's `--yes` answers the
+agent's confirmations for the user as each plan comes, a destroy's included, never in advance. The saved-planfile round-trip goes to ✅:
 a start verb with `plan_only` ends `planned` and the engine keeps the round's plan as a planfile
 for 24 hours, which `apply({ workspace_alias, planfile, plan_digest })` applies, possibly from
 another server with its own credentials (`--tier`), after checking the state, the configuration

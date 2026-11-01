@@ -310,7 +310,7 @@ const jsonLd = {
         <div class="tool"><b>approve: apply, by digest</b><code>apply</code> with the plan's digest is the
           approval, of that plan and no other; <code>apply</code> with <code>decline</code> turns it down,
           and <code>cancel</code> ends the run. Nothing is approved in advance.</div>
-        <div class="tool"><b>the planfile, for integration</b><code>show</code> returns the plan as
+        <div class="tool"><b>the plan, for integration</b><code>show</code> returns the plan as
           OpenTofu's own document: <code>input.tfplan</code> for OPA, conftest or Checkov, or your
           platform's policy groups, before a non-trivial plan is approved. A plan-only run keeps its plan
           as a planfile, for another server, with its own credentials, to apply.</div>
@@ -345,8 +345,8 @@ const jsonLd = {
           <h3>Import, refresh, invoke, answer, check</h3>
           <p>What was clicked together comes in through <code>import</code>. Drift shows on every plan. A declared action
             runs on demand with its own approval point. The guardrails example scans every provider
-            before it runs, pins the workload to a commit and checks every plan against policy from the
-            planfile. Local models and private GPU clouds: <b>intent never has to leave your network</b>.</p>
+            before it runs, pins the workload to a commit and checks every plan against policy before it is
+            approved. Local models and private GPU clouds: <b>intent never has to leave your network</b>.</p>
         </div>
       </div>
       <div class="proof">
