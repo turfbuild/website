@@ -370,9 +370,10 @@ const jsonLd = {
         <p>The pipeline you have plans at <code>pull_request</code>, applies at <code>push</code>, and
           applies with <code>-auto-approve</code>: the plan the reviewer saw is not the plan that runs,
           and nobody reads the one that does. Put an agent in the pipeline, with Turf on the runner as
-          its engine. It reads the plan, judges it by your rules in plain language, checks the providers
-          against GitHub’s Advisory Database, applies the reviewed plan by its digest, verifies from
-          inside the apply, and promotes by GitHub Environment.</p>
+          its engine. It reads the plan, judges it by your policy in plain language, checks the providers
+          against GitHub’s Advisory Database, applies the reviewed plan and no other, verifies from
+          inside the apply, and promotes by GitHub Environment. <strong>Turf™ is an autonomous
+          infrastructure-as-code tool for agentic workflows, built on OpenTofu™.</strong></p>
       </div>
       <div class="figwide">
         <PipelineFigure />
@@ -408,8 +409,8 @@ convergence, and apply nothing.</pre>
           </div>
           <ul class="ticklist">
             <li><span class="g">✓</span><div><b>The reviewed plan is the applied plan</b> <span>— the apply
-              run compares its plan with the one on the pull request and approves it by digest, of that
-              plan and no other.</span></div></li>
+              run compares its plan with the one on the pull request and approves that exact plan, and no
+              other.</span></div></li>
             <li><span class="g">✓</span><div><b>The providers checked before anything opens</b> <span>— source,
               pin and advisories, from GitHub’s Advisory Database through the GitHub MCP Server.</span></div></li>
           </ul>
@@ -444,7 +445,7 @@ convergence, and apply nothing.</pre>
           <span class="k">Day 1 · the pull request</span>
           <h3>A plan, scanned and judged, on every pull request</h3>
           <p>The plan workflow runs on every pull request that touches the configuration. The agent
-            checks the providers, reads the plan Turf made, judges it by the staging rule, and posts one
+            checks the providers, reads the plan Turf made, judges it by the staging policy, and posts one
             comment: the providers table, the plan as a diff, the verdict with the rule that decided,
             and the plan as data at the foot. Its review is a <code>COMMENT</code> when the plan is
             ready, <code>REQUEST_CHANGES</code> when a rule refused. <b>Then it cancels the
@@ -454,10 +455,10 @@ convergence, and apply nothing.</pre>
           <span class="k">Day 2 · the merge</span>
           <h3>Applied under the rule, verified from inside the apply, promoted by Environment</h3>
           <p>The merge starts the staging apply. It plans again, compares with the reviewed plan, and
-            approves by digest. The apply pauses at the <code>verify</code> turf action; the agent
+            approves that exact plan. The apply pauses at the <code>verify</code> turf action; the agent
             fetches every function URL with curl and reports back, and the engine converges. A label on
             the pull request lets production start: <b>the same configuration</b>, the production
-            Environment’s role, state key and fleet, and a stricter rule.</p>
+            Environment’s role, state key and fleet, and a stricter policy.</p>
         </div>
       </div>
       <div class="proof">

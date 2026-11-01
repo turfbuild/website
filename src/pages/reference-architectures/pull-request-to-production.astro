@@ -2,12 +2,12 @@
 import Layout from '../../layouts/Layout.astro';
 // The page for *Pull Request to Production*. Its abstract, the three at-a-glance ideas, the
 // chapter list and the marks note are the paper's own words, from
-// headquarters/marketing/launch/refarch-cicd.md (v0.1): the intro, "At a glance", the chapter
+// headquarters/marketing/launch/refarch-cicd.md (v0.2): the intro, "At a glance", the chapter
 // titles and the Marks section. A new version of the paper means re-checking this page against
 // it. See "Papers" in CLAUDE.md.
 const title = 'Turf — Pull Request to Production: Terraform CI/CD with an agent';
 const description =
-  'Pull Request to Production, a Turf reference architecture for Terraform delivery on GitHub Agentic Workflows: the plan reviewed by rule on every pull request, applied by digest, verified from inside the apply.';
+  'Pull Request to Production, a Turf reference architecture for Terraform delivery on GitHub Agentic Workflows: the plan reviewed under your policy on every pull request, and the apply attended by the agent.';
 
 const site = 'https://turf.build';
 // Shared through Scarf, which counts the click and redirects to the turf.build copy; the tag
@@ -30,8 +30,8 @@ const jsonLd = [
       'A reference architecture for Terraform delivery on GitHub Agentic Workflows, with an agent in the pipeline',
     description,
     url: `${site}/reference-architectures/pull-request-to-production/`,
-    datePublished: '2026-10-31',
-    version: '0.1',
+    datePublished: '2026-11-01',
+    version: '0.2',
     inLanguage: 'en-US',
     isAccessibleForFree: true,
     author: publisher,
@@ -66,9 +66,9 @@ const parts = [
   {
     k: 'Part II · The loop',
     chapters: [
-      [3, 'Plan, scan, verdict'],
-      [4, 'Rules in plain language'],
-      [5, 'The apply under the rule'],
+      [3, 'A review on every pull request'],
+      [4, 'Policy in plain language'],
+      [5, 'A well-governed apply'],
       [6, 'The agent inside the apply'],
       [7, 'Promotion by Environment'],
       [8, 'Refused'],
@@ -87,11 +87,11 @@ const parts = [
 <Layout title={title} description={description} jsonLd={jsonLd}>
   <section class="subhero">
     <div class="wrap">
-      <p class="eyebrow"><span class="dot"></span> Reference architecture · v0.1 · October 2026</p>
+      <p class="eyebrow"><span class="dot"></span> Reference architecture · v0.2 · November 2026</p>
       <h1>Pull Request to Production.</h1>
       <p class="lede">A reference architecture for Terraform® delivery on GitHub® Agentic Workflows,
-        with an agent in the pipeline. <strong>Turf™ is a self-hosted, autonomous
-        infrastructure-as-code tool, built on OpenTofu™.</strong></p>
+        with an agent in the pipeline. <strong>Turf™ is an autonomous infrastructure-as-code tool for
+        agentic workflows, built on OpenTofu™.</strong></p>
       <div class="cta-row">
         <a class="btn primary" href={pdfShared}>Read the PDF</a>
         <a class="btn ghost" href={repoUrl}>The repo on GitHub</a>
@@ -116,23 +116,19 @@ const parts = [
         </figure>
         <div class="prose">
           <p class="eyebrow"><span class="dot"></span> The pipeline</p>
-          <h2>The pipeline you already have.</h2>
-          <p>Terraform delivery through GitHub Actions has a shape every platform team knows, and
-            HashiCorp’s own tutorial lays it out: a plan phase on every pull request, an apply phase on
-            every push to <code>main</code>. Two things go wrong with it.</p>
-          <p><strong>The reviewed plan is not the applied plan.</strong> A reviewer reads a speculative
-            plan on the pull request and approves the merge. The apply workflow then uploads the
-            configuration again and plans again, minutes or days later, against whatever the account and
-            <code>main</code> hold by then. Nothing in the pipeline ties the two plans together.</p>
-          <p><strong>The apply is unattended.</strong> With a merge as its trigger, the apply phase runs
-            with <code>-auto-approve</code>. Nobody reads the plan that actually runs. The providers it
-            loads, plugins that hold the cloud credentials, are never checked. An unexpected replacement
-            leads to an outage, and the first anyone hears of it is the alert.</p>
-          <p>This paper puts an agent in the pipeline, with Turf as its engine. GitHub Agentic Workflows
-            run the agent as a GitHub Actions job. Turf runs on the same runner and gives the agent a
-            plan to read, an approval to give by digest, and a verify step to carry out from inside the
-            apply. The reviewed plan is the plan that applies. The rules are paragraphs in the
-            repository. And the apply is attended, by the agent, every time.</p>
+          <h2>Terraform in your CI/CD pipeline today.</h2>
+          <p>HashiCorp’s tutorial draws the pipeline most teams run: Terraform plans on every pull
+            request and applies on every merge, through GitHub Actions. Two things go wrong with it.</p>
+          <p><strong>The plan you review is not the plan that applies.</strong> The pull request’s plan
+            is “speculative so it cannot modify infrastructure”. At merge, the apply workflow “uploads
+            the Terraform configuration” again and plans again, against whatever changed in between.</p>
+          <p><strong>Nobody attends the apply.</strong> It is confirmed on its own, with no one reading
+            the plan that runs and nothing checking the providers it loads. An unexpected replacement
+            leads to an outage, and the alert is how you hear of it.</p>
+          <p>Here Turf runs beside the agent in a GitHub Agentic Workflow. The agent reviews every pull
+            request. After the merge it compares the new plan with the one you reviewed, approves that
+            exact plan under your policy, and stays through every round. <strong>The apply is attended
+            by the agent.</strong></p>
         </div>
       </div>
     </div>
@@ -141,37 +137,43 @@ const parts = [
   <section class="section alt">
     <div class="wrap">
       <div class="band-head">
-        <h2>At a glance.</h2>
-        <p>An agent in the pipeline, three ways.</p>
+        <h2>What you stop worrying about.</h2>
+        <p>Four things a platform engineer no longer checks by hand. Each line is the agent’s own, from a
+          run on 2026-10-31.</p>
       </div>
-      <div class="beats">
+      <div class="beats two">
         <div class="beat">
-          <span class="k">01 · The reviewed plan is the applied plan</span>
-          <h3>Approved by digest</h3>
-          <p>The plan run posts its plan on the pull request, with the plan as data at its foot. The
-            apply run plans again, compares, and approves by the new plan’s digest only when it matches
-            what was reviewed. A plan that differs is refused, and the report says what changed.
-            → Chapters 3 and 5.</p>
+          <span class="k">01 · Approved as that exact plan</span>
+          <h3>The plan you reviewed is the plan that runs.</h3>
+          <p>At merge the agent plans again, compares with the plan on the pull request, and approves
+            that exact plan or refuses with the difference. Production’s plan is judged on its own,
+            under the stricter policy. <code>Matches the reviewed plan: the changes and updates are the
+            same as in the earlier plan comment.</code></p>
         </div>
         <div class="beat">
-          <span class="k">02 · Rules in plain language</span>
-          <h3>A paragraph per Environment</h3>
-          <p>The approval rule is a paragraph, one per GitHub Environment; the providers rule is another
-            file. The agent reads the rule the Environment names and writes its verdict with the rule
-            that decided, so the record reads the same to a person and to the next run.
-            → Chapters 4 and 8.</p>
+          <span class="k">02 · A turf action, answered with curl</span>
+          <h3>The apply is attended by the agent.</h3>
+          <p>The configuration asks the agent to verify the rollout from inside the apply. It fetches
+            every function, checks the answer, and the engine goes on, or halts and says why.
+            <code>GET …533apcrq… → 200, message "Hello from staging!", environment "staging"</code></p>
         </div>
         <div class="beat">
-          <span class="k">03 · The agent inside the apply</span>
-          <h3>A turf action, answered with curl</h3>
-          <p>A turf action is a step the configuration asks of the agent. Here the apply pauses after the
-            release and asks the agent to fetch every function URL and check the answer. The agent does
-            it with curl and reports back; the engine carries on, or halts. → Chapter 6.</p>
+          <span class="k">03 · One paragraph per Environment</span>
+          <h3>Your policy is a paragraph, and every verdict quotes it.</h3>
+          <p>In the repository, read by the agent on every run; changing the policy is a pull request.
+            <code>Refused under the staging approval rule (policy/approval.md): the plan would destroy
+            the shared execution role aws_iam_role.lambda_exec.</code></p>
+        </div>
+        <div class="beat">
+          <span class="k">04 · Checked before anything opens</span>
+          <h3>A vulnerable provider never gets as far as a plan.</h3>
+          <p>Every provider is checked against GitHub’s Advisory Database, through the GitHub MCP
+            Server, at the version the lock file pins. <code>hashicorp/vault 5.4.0 has a high-severity
+            advisory (GHSA-gmm6-j2g5-r52m / CVE-2025-13357) … Nothing was opened or planned.</code></p>
         </div>
       </div>
-      <p class="walk">The loop in one line: a pull request → plan, scan, verdict → merge → staging:
-        approve by the rule, apply, verify, report → production: the same, under a stricter rule.
-        Part I is the host. Part II walks the loop, one stop at a time. Part III is what it guarantees.</p>
+      <p class="walk">Part I is the host: GitHub Agentic Workflows, and Turf on the runner. Part II walks
+        the pipeline, one stop at a time. Part III is what it guarantees.</p>
     </div>
   </section>
 
