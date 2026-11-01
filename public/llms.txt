@@ -55,7 +55,8 @@ Five things people build with Turf, at [turf.build/use-cases/](https://turf.buil
 
 - [Pricing](https://turf.build/pricing/): one binary, three ways to run it: free for noncommercial use, a free 60-day pilot for companies, and an annual subscription for production. No license key.
 - [Licensing](https://turf.build/licensing/): the PolyForm Noncommercial License 1.0.0, the Common Paper Pilot Agreement and Software License Agreement, the telemetry disclosure, and licensing@turf.build.
-- [Contact](https://turf.build/contact/): the pilot program, production licensing, and `security@turf.build` for private security reports.
+- [Community](https://turf.build/community/): Discord for questions and ideas (https://turf.build/discord/), GitHub Issues for bugs and feature requests (https://github.com/turfbuild/turf/issues), and the newsletter for release notes (https://turf.build/newsletter/).
+- [Contact](https://turf.build/contact/): the pilot program, production licensing, the newsletter, and `security@turf.build` for private security reports.
 - [Privacy](https://turf.build/privacy/)
 - [Telemetry](https://turf.build/telemetry/): every field the Turf engine sends as anonymous usage telemetry, what it never sends, where the events go, and how to turn it off.
 

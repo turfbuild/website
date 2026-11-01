@@ -248,6 +248,13 @@ starts. Treat the headline as fixed unless the user reopens it.
   301s anything else — a slashless link costs a redirect on every click and every crawl.
   `trailingSlash: 'always'` makes the dev server fail on it rather than let it through. Asset paths
   (`/fonts/…`, `/demos/….mp4`) and anchors (`/#product`) must *not* get one.
+- **Stable off-site URLs are Astro `redirects`** in `astro.config.mjs`: `/discord/` and `/feedback/`
+  go to the Discord invite (`DISCORD_INVITE`, the only place it lives: rotate it there, never in a
+  page), `/newsletter/` to `buttondown.com/turf`. The static build emits a meta-refresh page per
+  route and the sitemap `filter` keeps them out. READMEs, the papers and the turf CLI print the
+  `turf.build/...` form, never the invite. `pages/community.astro` is the channel map (Discord for
+  questions and ideas, GitHub Issues for bugs and feature requests, the newsletter, email); its copy
+  of record is `headquarters/marketing/contact-us.md`. GitHub Discussions are not a channel.
 - The sitemap's per-page `lastmod` comes from `git log` inside `astro.config.mjs`, which is why the
   deploy workflow pins `fetch-depth: 0`. Under the default shallow checkout `git log` returns nothing
   for most paths and every lastmod silently disappears in CI while still working locally.
