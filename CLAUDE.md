@@ -86,9 +86,12 @@ standalone `/how-it-works` page was tried and dropped (too thin); the loop lives
 band striping alternates `band`/`band alt` in the order above (WhyEngine is the first `alt`) —
 inserting or removing a section means re-checking the alternation. Subpages follow a fixed shape:
 `.subhero` → alternating `.section` / `.section alt` → `.prose` or a grid. `pages/use-cases.astro`
-is the four-use-case page (one section per job, each: who it's for, a figure, HCL, Day 1 / Day 2
-beats, proof links, a CTA; ids `gpu-clouds`, `kubernetes-fleets`, `installers`, `agents`); the home
-teaser cards (`.solutions.four`, a 2×2 grid) link `/use-cases/#<id>`. "Your ops environment" was its
+is the five-use-case page (one section per job, each: who it's for, a figure, HCL, Day 1 / Day 2
+beats, proof links, a CTA; ids `gpu-clouds`, `kubernetes-fleets`, `installers`, `agents`, `ci-cd`); the home
+teaser cards (`.solutions`, three columns, 3 + 2) link `/use-cases/#<id>`. `ci-cd` (2026-10-31) is
+Terraform delivery on GitHub Agentic Workflows with an agent in the pipeline; its figure is Figure 1 of
+*Pull Request to Production* and its panel is the agent's real review on PR #5 of
+`turfbuild/turf-agentic-workflows`. "Your ops environment" was its
 §04 until 2026-10-21, when it moved to the home band (a property of the engine, not a job). Since 2026-10-21 `installers` carries no HCL
 block: its figure is the convergence loop between the product (north, an internal web app) and the
 customer's cloud account (south), and the installer's steps live in the linked example. In `agents`,
@@ -245,6 +248,13 @@ starts. Treat the headline as fixed unless the user reopens it.
   301s anything else — a slashless link costs a redirect on every click and every crawl.
   `trailingSlash: 'always'` makes the dev server fail on it rather than let it through. Asset paths
   (`/fonts/…`, `/demos/….mp4`) and anchors (`/#product`) must *not* get one.
+- **Stable off-site URLs are Astro `redirects`** in `astro.config.mjs`: `/discord/` and `/feedback/`
+  go to the Discord invite (`DISCORD_INVITE`, the only place it lives: rotate it there, never in a
+  page), `/newsletter/` to `buttondown.com/turf`. The static build emits a meta-refresh page per
+  route and the sitemap `filter` keeps them out. READMEs, the papers and the turf CLI print the
+  `turf.build/...` form, never the invite. `pages/community.astro` is the channel map (Discord for
+  questions and ideas, GitHub Issues for bugs and feature requests, the newsletter, email); its copy
+  of record is `headquarters/marketing/contact-us.md`. GitHub Discussions are not a channel.
 - The sitemap's per-page `lastmod` comes from `git log` inside `astro.config.mjs`, which is why the
   deploy workflow pins `fetch-depth: 0`. Under the default shallow checkout `git log` returns nothing
   for most paths and every lastmod silently disappears in CI while still working locally.
@@ -275,6 +285,11 @@ starts. Treat the headline as fixed unless the user reopens it.
   `public/papers/turf-neocloud-reference-architecture-cover.jpg` is page 1 of the PDF
   (`qlmanage -t -s 1600` on the PDF, `sips -Z 960`, then JPEG at quality 82); re-render it when the
   cover changes.
+  The second paper, *Pull Request to Production* (2026-10-31), follows the same rules at
+  `pages/reference-architectures/pull-request-to-production.astro`, `public/papers/turf-pull-request-to-production.pdf`
+  and `-cover.jpg`, text of record `headquarters/marketing/launch/refarch-cicd.md`, download tag
+  `?src=refarch-cicd-page`; the two paper pages cross-link in an "Also" line. `/reference-architectures/`
+  stays the neocloud paper's URL (no index page until there is a third paper).
 - There is no mobile hamburger menu — below 860px `.nav-links a:not(.btn)` is hidden and only the CTA
   shows. Adding a nav link means it's desktop-only unless you also add it to the footer sitemap
   (Use cases is in the nav, the footer's Product column and the hero's CTA row).

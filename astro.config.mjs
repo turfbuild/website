@@ -47,11 +47,26 @@ const WEIGHTS = {
   '/pricing/': { priority: 0.6, changefreq: MONTHLY },
   '/licensing/': { priority: 0.7, changefreq: MONTHLY },
   '/reference-architectures/': { priority: 0.8, changefreq: MONTHLY },
+  '/reference-architectures/pull-request-to-production/': { priority: 0.8, changefreq: MONTHLY },
   '/engine/': { priority: 0.9, changefreq: MONTHLY },
   '/contact/': { priority: 0.5, changefreq: YEARLY },
+  '/community/': { priority: 0.6, changefreq: MONTHLY },
   '/privacy/': { priority: 0.3, changefreq: YEARLY },
   '/telemetry/': { priority: 0.3, changefreq: MONTHLY },
 };
+
+// Stable off-site URLs. READMEs, the papers and the turf CLI print these, so a target can
+// change without touching any of them. The Discord invite lives ONLY here: rotate it here.
+// The static build emits a meta-refresh page per route (dist/discord/index.html); the
+// sitemap filter below keeps those pages out of the index.
+const DISCORD_INVITE = 'https://discord.gg/U7CmJ2YV2y';
+const REDIRECTS = {
+  '/discord': DISCORD_INVITE,
+  '/feedback': DISCORD_INVITE, // the turf CLI's Ctrl+K "Give Feedback" opens this
+  '/newsletter': 'https://buttondown.com/turf',
+};
+const isRedirect = (/** @type {string} */ page) =>
+  Object.keys(REDIRECTS).some((route) => new URL(page).pathname === `${route}/`);
 
 // https://astro.build/config
 export default defineConfig({
@@ -65,8 +80,10 @@ export default defineConfig({
   // together when the source wraps a <strong>/<a>/<code> onto its own line (e.g. "is<strong>planned").
   // Disable it so the browser's normal whitespace collapsing keeps a single space at those seams.
   compressHTML: false,
+  redirects: REDIRECTS,
   integrations: [
     sitemap({
+      filter: (page) => !isRedirect(page),
       serialize(item) {
         const { pathname } = new URL(item.url);
         const source = sourceFor(pathname);

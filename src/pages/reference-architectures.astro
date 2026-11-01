@@ -2,7 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 // The page for *Metal to Tokens*. Its abstract, the three at-a-glance ideas, the chapter list and
 // the marks note are the paper's own words, from headquarters/marketing/launch/refarch-neocloud.md
-// (v1.0): the intro, "At a glance", the chapter titles and the Marks section. A new version of
+// (v1.1): the intro, "At a glance", the chapter titles and the Marks section. A new version of
 // the paper means re-checking this page against it. See "Papers" in CLAUDE.md.
 const title = 'Turf — Metal to Tokens: a GPU cloud reference architecture';
 const description =
@@ -86,7 +86,7 @@ const parts = [
 <Layout title={title} description={description} jsonLd={jsonLd}>
   <section class="subhero">
     <div class="wrap">
-      <p class="eyebrow"><span class="dot"></span> Reference architecture · v1.0 · October 2026</p>
+      <p class="eyebrow"><span class="dot"></span> Reference architecture · v1.1 · October 2026</p>
       <h1>Metal to Tokens.</h1>
       <p class="lede">A reference architecture for managed GPU cloud infrastructure, as code.
         <strong>Turf™ is cluster orchestration software for neocloud providers, built on
@@ -204,6 +204,10 @@ const parts = [
         <a class="btn ghost" href={pdfShared}>Read the PDF</a>
       </p>
 
+      <p class="also">Also from Turf: <a href="/reference-architectures/pull-request-to-production/">Pull Request to
+        Production</a>, a reference architecture for Terraform delivery on GitHub Agentic Workflows, for
+        platform engineers who run Terraform through CI/CD.</p>
+
       <p class="legal-note">NVIDIA and NVCRE are trademarks or product names of NVIDIA Corporation,
         referred to here only to describe interoperability. Turf is not affiliated with, endorsed
         by, or sponsored by NVIDIA. ClusterMAX is SemiAnalysis’s rating of GPU clouds. Quotations are
@@ -235,6 +239,7 @@ const parts = [
   .part li { display: flex; gap: 10px; font-size: 14px; color: var(--muted); margin: 6px 0; }
   .part li .n { font-family: var(--mono); font-size: 12px; color: var(--faint); flex: none; width: 1.6em; }
   .ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
+  .also { color: var(--muted); font-size: 14px; margin-top: 22px; }
   /* Nominative-use note for the marks the footer fineprint doesn't cover; matches demo/scalr. */
   .legal-note {
     margin-top: clamp(28px, 4vw, 44px); padding-top: 18px; border-top: 1px solid var(--hair);

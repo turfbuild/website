@@ -30,7 +30,7 @@ src/
                          Partner, Still,
                          TopNav, Footer; figures/ holds the inline SVG figures
   pages/*.astro          index, engine, compatibility, get-started, pricing, licensing,
-                         reference-architectures, contact, docs, 404
+                         reference-architectures, community, contact, docs, 404
 scripts/og.svg           source for public/og.png (see "Regenerate the OG image")
 ```
 
@@ -66,9 +66,17 @@ curl -sI https://www.turf.build     # expect 301 → https://turf.build
 
 ## Newsletter
 
-The footer form posts to Buttondown. Before launch, create the newsletter handle **`turf`** at
-buttondown.com (the form action is `https://buttondown.email/api/emails/embed-subscribe/turf`).
-Until then the "or email contact@turf.build" fallback works.
+The footer form posts to Buttondown, newsletter handle **`turf`** (the form action is
+`https://buttondown.com/api/emails/embed-subscribe/turf`; the archive is `https://buttondown.com/turf`,
+which `/newsletter/` redirects to). The "or email contact@turf.build" line is the fallback.
+
+## Redirects
+
+`astro.config.mjs` carries the stable off-site URLs as Astro `redirects`: `/discord/` and
+`/feedback/` go to the Discord invite (`DISCORD_INVITE`, the only place the invite lives; rotate it
+there), `/newsletter/` to the Buttondown archive. READMEs, the papers and the turf CLI print the
+`turf.build/...` form, so changing a target is a one-line edit here. The static build emits a
+meta-refresh page per route; the sitemap filter keeps them out of the index.
 
 ## Regenerate the OG image
 
