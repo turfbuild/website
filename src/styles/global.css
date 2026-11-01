@@ -722,8 +722,8 @@ table.matrix td.c { text-align: center; white-space: nowrap; font-family: var(--
 .engine-list.one { columns: 1; }
 @media (max-width: 760px) { .engine-list { columns: 1; } }
 .solutions.four { grid-template-columns: repeat(2, 1fr); }
-.solutions.four .sol { display: flex; flex-direction: column; }
-.solutions.four .sol .runit { margin-top: auto; padding-top: 12px; }
+.solutions .sol { display: flex; flex-direction: column; }
+.solutions .sol .runit { margin-top: auto; padding-top: 12px; }
 @media (max-width: 860px) { .solutions.four { grid-template-columns: 1fr; } }
 /* Nominative-use note for marks the footer fineprint doesn't cover. */
 .legal-note { margin-top: clamp(28px, 4vw, 44px); padding-top: 18px; border-top: 1px solid var(--hair); max-width: 92ch; color: var(--faint); font-size: 12.5px; line-height: 1.6; }
