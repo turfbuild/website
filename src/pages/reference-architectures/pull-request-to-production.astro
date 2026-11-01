@@ -69,16 +69,15 @@ const parts = [
       [3, 'A review on every pull request'],
       [4, 'Policy in plain language'],
       [5, 'A well-governed apply'],
-      [6, 'The agent inside the apply'],
-      [7, 'Promotion by Environment'],
-      [8, 'Refused'],
+      [6, 'Agentic actions during the apply'],
+      [7, 'Policy enforcement'],
     ],
   },
   {
     k: 'Part III · The guarantees',
     chapters: [
-      [9, 'Whole convergence, in one run'],
-      [10, 'Safety, in layers'],
+      [8, 'Safety, in layers'],
+      ['', 'The Turf engine'],
     ],
   },
 ];
@@ -96,7 +95,7 @@ const parts = [
         <a class="btn primary" href={pdfShared}>Read the PDF</a>
         <a class="btn ghost" href={repoUrl}>The repo on GitHub</a>
       </div>
-      <p class="meta">14 pages · PDF · for platform engineers who run Terraform through CI/CD</p>
+      <p class="meta">13 pages · PDF · for platform engineers who run Terraform through CI/CD</p>
     </div>
   </section>
 
@@ -122,7 +121,7 @@ const parts = [
           <p><strong>The plan you review is not the plan that applies.</strong> The pull request’s plan
             is “speculative so it cannot modify infrastructure”. At merge, the apply workflow “uploads
             the Terraform configuration” again and plans again, against whatever changed in between.</p>
-          <p><strong>Nobody attends the apply.</strong> It is confirmed on its own, with no one reading
+          <p><strong>The apply is unattended, too.</strong> It is confirmed on its own, with no one reading
             the plan that runs and nothing checking the providers it loads. An unexpected replacement
             leads to an outage, and the alert is how you hear of it.</p>
           <p>Here Turf runs beside the agent in a GitHub Agentic Workflow. The agent reviews every pull
@@ -153,7 +152,7 @@ const parts = [
         <div class="beat">
           <span class="k">02 · A turf action, answered with curl</span>
           <h3>The apply is attended by the agent.</h3>
-          <p>The configuration asks the agent to verify the rollout from inside the apply. It fetches
+          <p>The Terraform configuration asks the agent to verify the rollout from inside the apply. It fetches
             every function, checks the answer, and the engine goes on, or halts and says why.
             <code>GET …533apcrq… → 200, message "Hello from staging!", environment "staging"</code></p>
         </div>
@@ -181,7 +180,7 @@ const parts = [
     <div class="wrap">
       <div class="band-head">
         <h2>What’s inside.</h2>
-        <p>Ten chapters in three parts, every transcript from a real run, and the repository to fork.</p>
+        <p>Eight chapters in three parts, a page on the Turf engine, every transcript from a real run, and the repository to fork.</p>
       </div>
       <div class="toc">
         {parts.map((part) => (
