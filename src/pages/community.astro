@@ -1,0 +1,61 @@
+---
+import Layout from '../layouts/Layout.astro';
+const title = 'Turf — Community: Discord, GitHub Issues, newsletter';
+const description = 'Where to find Turf: Discord for questions and ideas, GitHub Issues for bugs and feature requests, a newsletter for release notes, and email for the rest.';
+---
+
+<Layout title={title} description={description}>
+  <section class="subhero">
+    <div class="wrap">
+      <p class="eyebrow"><span class="dot"></span> Community</p>
+      <h1>Where to find us.</h1>
+      <p class="lede">Turf™ is built by a small team that reads every message. Pick the channel
+        that fits.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap prose">
+      <h2>Questions, ideas, show and tell</h2>
+      <p>Join the <a href="/discord/">Turf Discord</a>. Ask in <code>#help</code>, propose in
+        <code>#ideas</code>, show what you built in <code>#show-and-tell</code>, and watch
+        <code>#announcements</code> for releases.</p>
+
+      <h2>Bugs and feature requests</h2>
+      <p>Open an issue on <a href="https://github.com/turfbuild/turf/issues">turfbuild/turf</a>.
+        Include the Turf version and what you expected to happen.</p>
+
+      <h2>Release notes by email</h2>
+      <p><a href="/newsletter/">Subscribe to the newsletter</a>: release notes and new capabilities,
+        nothing else.</p>
+
+      <h2>Follow</h2>
+      <p><a href="https://www.linkedin.com/company/turfbuild/">Turf on LinkedIn</a> and
+        <a href="https://x.com/turfbuild">@turfbuild on X</a>.</p>
+
+      <h2>Anything else</h2>
+      <p>Write to <a href="mailto:contact@turf.build">contact@turf.build</a>.</p>
+
+      <h2>Evaluating Turf at a company?</h2>
+      <p>The <a href="/licensing/#pilot">pilot program</a> comes with a direct support channel for
+        the length of the pilot.</p>
+
+      <h2>Security</h2>
+      <p>Report a vulnerability privately to
+        <a href="mailto:security@turf.build">security@turf.build</a>, never in a public channel.</p>
+    </div>
+  </section>
+
+  <section class="section alt">
+    <div class="wrap prose">
+      <h2>House rules</h2>
+      <ul>
+        <li>Be kind. Everyone here is learning something.</li>
+        <li>No secrets in pastes: strip credentials, tokens and state before you share a log or a plan.</li>
+        <li>Security reports go to <a href="mailto:security@turf.build">security@turf.build</a>, privately.</li>
+        <li>The <a href="https://github.com/turfbuild/.github/blob/main/CODE_OF_CONDUCT.md">Code of Conduct</a>
+          applies in every channel.</li>
+      </ul>
+    </div>
+  </section>
+</Layout>
