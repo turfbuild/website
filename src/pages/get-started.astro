@@ -85,7 +85,9 @@ const description = 'Install Turf with Homebrew or one script, connect it to Cla
 &#125;</pre>
       </div>
       <p>The server speaks MCP over stdio by default, or over HTTP with
-        <code>turf-mcp-server --transport http</code> (binds loopback).</p>
+        <code>turf-mcp-server --transport http</code> (binds loopback). To require a token, set
+        <code>TURF_MCP_AUTH_TOKEN</code> in the server's environment; clients then send
+        <code>Authorization: Bearer &lt;token&gt;</code>.</p>
 
       <h2>3 · Deploy from your agent</h2>
       <p>Turf's prompts are slash commands in Claude Code. Start with the walkthrough: it runs a real
