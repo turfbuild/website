@@ -458,7 +458,10 @@ convergence, and apply nothing.</pre>
             approves that exact plan. The apply pauses at the <code>verify</code> turf action; the agent
             fetches every function URL with curl and reports back, and the engine converges. A label on
             the pull request lets production start: <b>the same configuration</b>, the production
-            Environment’s role, state key and fleet, and a stricter policy.</p>
+            Environment’s role, state key and fleet, and a stricter policy. A failed verify halts the
+            apply, withholds the label, and the agent opens the fix: a limited rollback as a pull
+            request, never a wholesale revert, since a <code>moved</code> block or an upgrade has
+            already happened.</p>
         </div>
       </div>
       <div class="proof">
@@ -466,6 +469,8 @@ convergence, and apply nothing.</pre>
         <a href="https://github.com/turfbuild/turf-agentic-workflows">the repo: three workflows, two policies →</a>
         <a href="https://github.com/turfbuild/turf-agentic-workflows/pull/7">PR #7: planned, applied, verified, promoted →</a>
         <a href="https://github.com/turfbuild/turf-agentic-workflows/pull/5">PR #5: refused, the shared role →</a>
+        <a href="https://github.com/turfbuild/turf-agentic-workflows/pull/28">PR #28: halted in staging, the agent opened the fix →</a>
+        <a href="https://github.com/turfbuild/turf-agentic-workflows/pull/29">PR #29: the agent’s limited rollback →</a>
         <a href="https://github.com/turfbuild/turf-agentic-workflows/pull/6">PR #6: refused, a provider advisory →</a>
         <a href="/reference-architectures/pull-request-to-production/">the paper →</a>
       </div>
