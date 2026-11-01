@@ -14,7 +14,7 @@ import Still from '../components/Still.astro';
 // Metal to Tokens (components/figures); HCL is quoted from turf-examples where a file exists and
 // marked "after …" or "illustrative" where it is adapted. No link to the pre-1.0 demo recordings.
 // 05 (2026-10-31) is Terraform delivery in CI/CD on GitHub Agentic Workflows: its figure is Figure 1 of
-// Pull Request to Production, its rule is quoted from turf-agentic-workflows, and its panel is the
+// Pull Request to Production, its policy is quoted from turf-agentic-workflows, and its panel is the
 // agent's real review on PR #5.
 const title = 'Turf — Use cases: GPU clouds, fleets, installers, agents, CI/CD';
 const description =
@@ -380,7 +380,7 @@ const jsonLd = {
         <p class="figcap"><b>Every stop attended.</b> GitHub Agentic Workflows run the agent as an
           Actions job; Turf’s server and engine run on the same runner, with the cloud credentials in
           their process and never in the agent’s. The Environment supplies the variables, the role and
-          the rule.</p>
+          the policy.</p>
       </div>
       <div class="feature">
         <div>
@@ -415,7 +415,7 @@ convergence, and apply nothing.</pre>
               pin and advisories, from GitHub’s Advisory Database through the GitHub MCP Server.</span></div></li>
           </ul>
         </div>
-        <div class="agentloop" role="img" aria-label="The plan comment on pull request 5 shows the shared role replaced; the agent's review requests changes under the staging rule.">
+        <div class="agentloop" role="img" aria-label="The plan comment on pull request 5 shows the shared role replaced; the agent's review requests changes under the staging policy.">
 <pre class="report"><span class="lab">TURF PLAN · PULL REQUEST #5 · THE DIFF BLOCK</span><b>Plan:</b> 2 to add, 2 to change, 2 to destroy (2 replaced)
 <i>∓</i> aws_iam_role.lambda_exec (replaced: name)
     name: …-staging-exec → …-staging-lambda-exec
@@ -442,18 +442,18 @@ convergence, and apply nothing.</pre>
       </div>
       <div class="beats two">
         <div class="beat">
-          <span class="k">Day 1 · the pull request</span>
+          <span class="k">Plan phase · the pull request</span>
           <h3>A plan, scanned and judged, on every pull request</h3>
           <p>The plan workflow runs on every pull request that touches the configuration. The agent
             checks the providers, reads the plan Turf made, judges it by the staging policy, and posts one
-            comment: the providers table, the plan as a diff, the verdict with the rule that decided,
+            comment: the providers table, the plan as a diff, the verdict with the policy that decided,
             and the plan as data at the foot. Its review is a <code>COMMENT</code> when the plan is
-            ready, <code>REQUEST_CHANGES</code> when a rule refused. <b>Then it cancels the
+            ready, <code>REQUEST_CHANGES</code> when the policy refused. <b>Then it cancels the
             convergence</b>: a plan run holds nothing.</p>
         </div>
         <div class="beat">
-          <span class="k">Day 2 · the merge</span>
-          <h3>Applied under the rule, verified from inside the apply, promoted by Environment</h3>
+          <span class="k">Apply phase · the merge</span>
+          <h3>Applied under the policy, verified from inside the apply, promoted by Environment</h3>
           <p>The merge starts the staging apply. It plans again, compares with the reviewed plan, and
             approves that exact plan. The apply pauses at the <code>verify</code> turf action; the agent
             fetches every function URL with curl and reports back, and the engine converges. A label on
@@ -463,7 +463,7 @@ convergence, and apply nothing.</pre>
       </div>
       <div class="proof">
         <span class="lab">Proof</span>
-        <a href="https://github.com/turfbuild/turf-agentic-workflows">the repo: three workflows, two rules →</a>
+        <a href="https://github.com/turfbuild/turf-agentic-workflows">the repo: three workflows, two policies →</a>
         <a href="https://github.com/turfbuild/turf-agentic-workflows/pull/7">PR #7: planned, applied, verified, promoted →</a>
         <a href="https://github.com/turfbuild/turf-agentic-workflows/pull/5">PR #5: refused, the shared role →</a>
         <a href="https://github.com/turfbuild/turf-agentic-workflows/pull/6">PR #6: refused, a provider advisory →</a>
