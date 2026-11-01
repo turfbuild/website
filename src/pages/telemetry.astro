@@ -33,8 +33,8 @@ const description =
             before you start it, or <code>TURF_TELEMETRY=off</code> or <code>DO_NOT_TRACK=1</code> in
             that terminal.</td></tr>
           <tr><th>A container or CI</th><td class="note-cell"><code>TURF_TELEMETRY=off</code> or
-            <code>DO_NOT_TRACK=1</code> in the engine's environment, or
-            <code>turf-engine --telemetry=off</code>.</td></tr>
+            <code>DO_NOT_TRACK=1</code> in the environment of <code>turf-engine</code> or
+            <code>turf-mcp-server engine run</code>, or <code>turf-engine --telemetry=off</code>.</td></tr>
         </tbody>
       </table></div>
       <div class="prose">
@@ -56,6 +56,13 @@ const description =
           service, whose environment is <code>turf.env</code>. That file is
           <code>$XDG_CONFIG_HOME/homebrew/services/turf.env</code> if you set
           <code>XDG_CONFIG_HOME</code>, and Homebrew skips it if it is group- or world-writable.</p>
+        <p>Under CI (<code>CI</code>, or the variable GitHub Actions, GitLab CI, Buildkite, CircleCI,
+          Jenkins, Azure Pipelines or TeamCity sets), <code>turf-mcp-server engine run</code> writes no
+          setting and sends no installation id, so a job on a fresh runner does not count as a new
+          installation. To count your organization's pipelines as one installation, set
+          <code>TURF_INSTALLATION_ID</code> to a UUID (<code>uuidgen</code>) kept in a repository or
+          organization variable; on GitHub Actions,
+          <code>{'TURF_INSTALLATION_ID: ${{ vars.TURF_INSTALLATION_ID }}'}</code>.</p>
         <p><code>turf telemetry status</code> shows the setting and your installation id.
           <code>turf-mcp-server engine status</code> shows whether the running engine sends.
           <code>TURF_TELEMETRY_DEBUG=1</code> in the engine's environment writes each event to the
@@ -86,8 +93,9 @@ const description =
           <tr><th><code>event</code></th><td class="note-cell"><code>engine.start</code>, <code>engine.daily</code> or <code>convergence</code></td></tr>
           <tr><th><code>installation_id</code></th><td class="note-cell">A random UUID generated for your
             installation, stored in <code>telemetry.json</code>. It identifies an installation, not a
-            person. An engine with no setting, such as one in a container or CI, sends none unless
-            <code>TURF_INSTALLATION_ID</code> gives it one.</td></tr>
+            person. <code>TURF_INSTALLATION_ID</code>, when it is a UUID, is sent in its place; any
+            other value is dropped and no id is sent. An engine with no setting, such as one in a
+            container or CI, sends none unless <code>TURF_INSTALLATION_ID</code> gives it one.</td></tr>
           <tr><th><code>version</code></th><td class="note-cell">Turf's version</td></tr>
           <tr><th><code>platform</code>, <code>arch</code></th><td class="note-cell">The operating system
             and CPU architecture, such as <code>darwin</code> and <code>arm64</code></td></tr>
