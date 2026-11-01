@@ -59,7 +59,7 @@ const WEIGHTS = {
 // change without touching any of them. The Discord invite lives ONLY here: rotate it here.
 // The static build emits a meta-refresh page per route (dist/discord/index.html); the
 // sitemap filter below keeps those pages out of the index.
-const DISCORD_INVITE = 'https://discord.gg/REPLACE-ME';
+const DISCORD_INVITE = 'https://discord.gg/U7CmJ2YV2y';
 const REDIRECTS = {
   '/discord': DISCORD_INVITE,
   '/feedback': DISCORD_INVITE, // the turf CLI's Ctrl+K "Give Feedback" opens this
