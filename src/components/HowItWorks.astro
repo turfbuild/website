@@ -11,7 +11,8 @@
     <div class="band-head">
       <h2>Layered stacks converge in rounds.</h2>
       <p>A cluster, then the chart that runs on it. One configuration, one <code>turf up</code>: Turf
-        plans what it can know, applies it, and plans again, with an approval point at every round.</p>
+        plans what it can know, applies it, and plans again, with a plan gate and an approval point
+        every round.</p>
     </div>
 
     <div class="feature">
@@ -94,16 +95,18 @@
         configuration directory.</p>
       </div>
       <div class="step">
-        <span class="n">step 2</span>
+        <span class="n">step 2 · the plan gate</span>
         <h3>Plan</h3>
-        <p>Turf produces a standard Terraform plan of the whole directory: resources, actions, and what
-        this round defers.</p>
+        <p>Each round waits at its plan gate until <code>plan</code> is called, with this round’s
+        refresh and replace choices. Turf produces a standard Terraform plan of the whole directory:
+        resources, actions, and what this round defers.</p>
       </div>
       <div class="step approve">
         <span class="n">step 3 · the approval point</span>
         <h3>You approve</h3>
-        <p>People and policy checks sign off on the plan. Nothing is applied until this plan, and no
-        other, is approved.</p>
+        <p>People and policy checks sign off on the plan: <code>apply</code> with its digest approves
+        it, <code>apply</code> with <code>decline</code> turns it down. Nothing is applied until this
+        plan, and no other, is approved.</p>
       </div>
       <div class="step">
         <span class="n">step 4</span>
@@ -114,10 +117,10 @@
       <div class="step">
         <span class="n">step 5</span>
         <h3>Replan &amp; converge</h3>
-        <p>Deferred work — the provider that couldn’t be configured yet — loops back through a fresh plan
-        until the graph settles.</p>
+        <p>Deferred work — the provider that couldn’t be configured yet — loops back to the next round’s
+        plan gate until the graph settles.</p>
       </div>
     </div>
-    <p class="loopnote"><span class="arr">↻</span> step 5 feeds back into step 2 — every round crosses the approval point again</p>
+    <p class="loopnote"><span class="arr">↻</span> step 5 feeds back into step 2 — every round stops at its plan gate and its approval point again</p>
   </div>
 </section>

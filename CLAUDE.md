@@ -96,7 +96,7 @@ Terraform delivery on GitHub Agentic Workflows with an agent in the pipeline; it
 block: its figure is the convergence loop between the product (north, an internal web app) and the
 customer's cloud account (south), and the installer's steps live in the linked example. In `agents`,
 tool and skill names carry no underscores ("skill: authoring HCL", "provider search · describe",
-"awaiting approval"); HCL resource types keep theirs. It was `/solutions/` for one unpublished
+"awaiting plan", "awaiting approval"); HCL resource types keep theirs. It was `/solutions/` for one unpublished
 day (2026-10-20); nothing ever linked it. Every section's HCL is
 quoted from `turfbuild/turf-examples` where a file exists, and captioned "after …" or "illustrative"
 where it is adapted; keep that honesty when editing. Neither page links the pre-1.0 demo recordings
@@ -182,9 +182,13 @@ while the neocloud PDF was marked — source of truth: the Marks section of
   runs") and link `/engine/`. Internal names (RocksDB, HCP, virtual objects, partition processors)
   stay out; "journal" only as Restate itself describes durable execution. Nominative use only: no
   Restate logo, no implied endorsement.
-- **Rounds, approval points and turf actions are the 1.0 vocabulary.** Say "round", never
-  "phase"; the engine applies the approved plan, and the agent (and the user) intervene at approval
-  points and at turf actions. Never "effect", "one effect at a time", `apply_all` or `effect_apply`:
+- **Rounds, approval points and turf actions are the 1.0 vocabulary; 1.3 adds the plan gate.**
+  Say "round", never "phase"; the engine applies the approved plan, and the agent (and the user)
+  intervene at approval points and at turf actions. Since 1.3 every round has two stops: the
+  **plan gate** (`awaiting_plan`), where a start verb (`up`, `destroy`, `refresh`, `import`,
+  `invoke`) or the last apply leaves the round and `plan` plans it (choosing `refresh` and
+  `replace` for that round), and the **approval point** (`awaiting_approval`), where `apply` with
+  the plan's digest approves it, or `apply` with `decline` declines it. There is no auto-approve. Never "effect", "one effect at a time", `apply_all` or `effect_apply`:
   those described the pre-1.0 engine. Plots (`.tfplot.hcl`, `declare_*`, `config_promote`) were
   retired 2026-10-04: the agent writes ordinary `.tf` files. `turf_confirm` is gone: a question for
   the user is a `turf_action` whose prompt says to ask.
@@ -197,8 +201,9 @@ while the neocloud PDF was marked — source of truth: the Marks section of
   brings what exists under management). **"Sync" is the word for Helm**: every `helm_release` is a
   true Helm release, installed and upgraded through Helm itself, Helm hooks included, visible to
   `helm list`; a GitOps controller is never named.
-- **"Approval point", never "gate"**, on home and `/use-cases/` since 2026-10-20 (the launch plan's
-  rule; the older demo pages still say "gate"). **"Hook" is allowed again since 2026-10-21** (Eron
+- **"Approval point", never "approval gate"**, on home and `/use-cases/` since 2026-10-20 (the launch
+  plan's rule; the older demo pages still say "gate"). "Plan gate" (1.3) names the stop before a
+  round's plan and nothing else; never use "gate" for the approval point. **"Hook" is allowed again since 2026-10-21** (Eron
   retired the no-hook rule: "Resource lifecycle hooks." heads the actions band; Helm hooks are Helm's
   term). **"TACO" appears nowhere new**: the platform story is "your ops environment" — git repos,
   registries, centralized secrets, centralized policy, state in your backend — with Scalr, Spacelift,
@@ -341,6 +346,26 @@ platform", since "HCP" is on the stay-out list above), says Terraform's own defe
 experiment in alpha builds only (the 1.16 and 1.17 changelogs' EXPERIMENTS block: `-allow-deferral`
 is not in a stable release), and corrects OpenTofu's mark to ➖: OpenTofu stopped sending
 `DeferralAllowed` in 1.11.4 and has no deferral, so "provider-driven" was never true of it.
+
+For 1.3 (prepared 2026-10-30, to publish with the release) the Turf column moves to 1.3 against the
+conformance report's 2026-10-28 entry: provider-defined functions go to ✅ (engine D88,
+turf-engine#176, turf-mcp-server#204). The note names what is called (a provider's own functions and
+the built-in `terraform` provider's three), that a module calls only what its own
+`required_providers` declares, that the apply calls the version the plan resolved, and the one
+divergence a user can meet: each call goes to the provider unconfigured, Terraform's rule, where
+OpenTofu calls the configured one, so a function a provider registers only once configured is not
+found. The baselines stayed at Terraform 1.16 and OpenTofu 1.13.
+
+The plan tool (1.3, engine D89 and D90, turf-engine#177 and #178, turf-mcp-server#205–#209) moves
+four rows of "Plan / apply options & workflow". `-refresh=false` and `-replace` are `plan`'s
+arguments, chosen round by round at the plan gate, no longer the start verb's. `-auto-approve` goes
+to ⛔ (the server refuses `auto_approve` by name): a round with changes is approved by `apply` with
+its plan's digest (a round with nothing to apply needs none), and the CLI's `--yes` answers the
+agent's confirmations for the user as each plan comes, a destroy's included, never in advance. The saved-planfile round-trip goes to ✅:
+a start verb with `plan_only` ends `planned` and the engine keeps the round's plan as a planfile
+for 24 hours, which `apply({ workspace_alias, planfile, plan_digest })` applies, possibly from
+another server with its own credentials (`--tier`), after checking the state, the configuration
+and the digest have not moved. It is engine-held, not a `.tfplan` file on disk, and the note says so.
 
 `pages/telemetry.astro` mirrors turf's public `docs/telemetry.md`
 (`github.com/turfbuild/turf`) field for field: every field, value, switch and precedence rule is

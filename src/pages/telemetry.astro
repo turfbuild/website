@@ -127,7 +127,7 @@ const description =
           <tr><th><code>mode</code></th><td class="note-cell"><code>up</code>, <code>destroy</code>,
             <code>refresh</code>, <code>import</code>, <code>invoke</code>, or <code>other</code></td></tr>
           <tr><th><code>outcome</code></th><td class="note-cell"><code>converged</code>,
-            <code>stalled</code>, <code>exhausted</code>, <code>failed</code>, <code>declined</code>,
+            <code>planned</code> (a plan-only run, its plan kept as a planfile), <code>stalled</code>, <code>exhausted</code>, <code>failed</code>, <code>declined</code>,
             <code>stale</code>, <code>cancelled</code>, <code>error</code>, or <code>other</code></td></tr>
           <tr><th><code>failure</code></th><td class="note-cell">For a failed run: <code>plan</code>,
             <code>apply</code>, <code>checks</code>, <code>refused</code> or <code>engine</code>; else
@@ -137,7 +137,9 @@ const description =
             Always one of a fixed list, never your configuration's text.</td></tr>
           <tr><th><code>rounds</code>, <code>deferred</code></th><td class="note-cell">How many
             plan-and-apply rounds the run took, and the changes it deferred between them</td></tr>
-          <tr><th><code>auto_approve</code>, <code>approvals_asked</code>, <code>approvals_auto</code>, <code>declined</code></th><td class="note-cell">How plans were approved</td></tr>
+          <tr><th><code>auto_approve</code>, <code>approvals_asked</code>, <code>approvals_auto</code>, <code>declined</code></th><td class="note-cell">How plans were approved.
+            <code>auto_approve</code> is false for every run turf starts: nothing is approved up front,
+            each round's plan is approved by its digest.</td></tr>
           <tr><th><code>creates</code>, <code>updates</code>, <code>replaces</code>, <code>deletes</code>,
             <code>reads</code>, <code>noops</code>, <code>taints</code>, <code>forgets</code>,
             <code>imports</code>, <code>moves</code>, <code>drifted</code></th><td class="note-cell">How
@@ -154,7 +156,8 @@ const description =
             <code>local</code> or <code>s3</code>, one of the backends built into OpenTofu™; any other is
             <code>other</code></td></tr>
           <tr><th><code>duration_s</code>, <code>plan_s</code>, <code>apply_s</code>, <code>wait_s</code></th><td class="note-cell">Seconds
-            the run took, spent planning, applying, and waiting for approval</td></tr>
+            the run took, spent planning (a round's wait at its plan gate included), applying, and waiting
+            for approval</td></tr>
           <tr><th><code>changes_bucket</code>, <code>managed_bucket</code>, <code>duration_bucket</code></th><td class="note-cell">The
             same numbers in ranges, such as <code>6-25</code> or <code>1-5m</code>;
             <code>duration_bucket</code> is <code>unknown</code> for a run that failed before its plan

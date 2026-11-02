@@ -88,11 +88,15 @@ const description = 'Install Turf with Homebrew or one script, connect it to Cla
         <code>turf-mcp-server --transport http</code> (binds loopback). To require a token, set
         <code>TURF_MCP_AUTH_TOKEN</code> in the server's environment; clients then send
         <code>Authorization: Bearer &lt;token&gt;</code>.</p>
+      <p>A server can be given less than every tool: <code>--tier read</code>, <code>plan</code>,
+        <code>apply</code> or <code>full</code> (the default; or <code>TURF_TIER</code>). A plan-tier
+        server plans and keeps each plan as a planfile; an apply-tier server, with its own credentials,
+        applies one.</p>
 
       <h2>3 · Deploy from your agent</h2>
       <p>Turf's prompts are slash commands in Claude Code. Start with the walkthrough: it runs a real
         example from <a href="https://github.com/turfbuild/turf-examples">turf-examples</a> and shows
-        the approval gate on the way.</p>
+        the plan gate and the approval point on the way.</p>
       <div class="codeblock">
         <div class="cb-head"><span>In Claude Code</span></div>
 <pre><span class="cm"># first-run walkthrough</span>
@@ -104,8 +108,8 @@ const description = 'Install Turf with Homebrew or one script, connect it to Cla
       </div>
       <p>In any other client, ask in words: “deploy the configuration in ./infra with Turf”.
         Slash-command arguments are one word each, so the path has no spaces. Every change is planned,
-        shown to you, and applied as approved, round by round — with an approval gate in between. Nothing runs
-        off-plan.</p>
+        shown to you, and applied as approved, round by round — a plan gate and an approval point every
+        round. Nothing runs off-plan.</p>
     </div>
   </section>
 
