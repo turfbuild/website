@@ -85,7 +85,9 @@ const description = 'Install Turf with Homebrew or one script, connect it to Cla
 &#125;</pre>
       </div>
       <p>The server speaks MCP over stdio by default, or over HTTP with
-        <code>turf-mcp-server --transport http</code> (binds loopback).</p>
+        <code>turf-mcp-server --transport http</code> (binds loopback). To require a token, set
+        <code>TURF_MCP_AUTH_TOKEN</code> in the server's environment; clients then send
+        <code>Authorization: Bearer &lt;token&gt;</code>.</p>
       <p>A server can be given less than every tool: <code>--tier read</code>, <code>plan</code>,
         <code>apply</code> or <code>full</code> (the default; or <code>TURF_TIER</code>). A plan-tier
         server plans and keeps each plan as a planfile; an apply-tier server, with its own credentials,
