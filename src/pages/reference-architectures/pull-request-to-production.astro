@@ -2,7 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 // The page for *Pull Request to Production*. Its abstract, the three at-a-glance ideas, the
 // chapter list and the marks note are the paper's own words, from
-// headquarters/marketing/launch/refarch-cicd.md (v0.3): the intro, "At a glance", the chapter
+// headquarters/marketing/launch/refarch-cicd.md (v0.4): the intro, "At a glance", the chapter
 // titles and the Marks section. A new version of the paper means re-checking this page against
 // it. See "Papers" in CLAUDE.md.
 const title = 'Turf — Pull Request to Production: Terraform CI/CD with an agent';
@@ -31,7 +31,7 @@ const jsonLd = [
     description,
     url: `${site}/reference-architectures/pull-request-to-production/`,
     datePublished: '2026-11-01',
-    version: '0.3',
+    version: '0.4',
     inLanguage: 'en-US',
     isAccessibleForFree: true,
     author: publisher,
@@ -86,7 +86,7 @@ const parts = [
 <Layout title={title} description={description} jsonLd={jsonLd}>
   <section class="subhero">
     <div class="wrap">
-      <p class="eyebrow"><span class="dot"></span> Reference architecture · v0.3 · November 2026</p>
+      <p class="eyebrow"><span class="dot"></span> Reference architecture · v0.4 · November 2026</p>
       <h1>Pull Request to Production.</h1>
       <p class="lede">A reference architecture for Terraform® delivery on GitHub® Agentic Workflows,
         with an agent in the pipeline. <strong>Turf™ is an autonomous infrastructure-as-code tool for
