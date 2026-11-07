@@ -143,8 +143,8 @@ planned yet. `plan` plans the round and stops at its approval point (`awaiting_a
 approval, of that plan and no other. It applies the round and stops at the next round's plan gate, or
 ends the run. A round with nothing to apply needs no approval: `plan` runs it straight through.
 
-A value known only after an apply, such as a cluster's endpoint, defers what needs it to the next round.
-kind-crd takes three rounds: the cluster, then the CRD, then the custom resource. Every round is its own
+Something that can only be planned once an earlier change exists, such as a resource inside a cluster
+the run is creating, is planned in a further round after that change applies. Every round is its own
 decision, and the agent applies the low-risk test afresh each time.
 
 **Every result says what comes next.** It carries `outcome` (where the run stands), `ended` (whether

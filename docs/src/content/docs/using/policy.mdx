@@ -25,7 +25,8 @@ be scanned the same way.
 <Agent calls={['init', 'open', 'up → awaiting_plan', 'plan → awaiting_approval', 'show']}>
 
 Before opening the workspace I scanned the three providers `init` installed (kind, helm, random) by
-package directory: nothing blocking. Round 1 plans the cluster and the pet; podinfo waits for round 2.
+package directory: nothing blocking. The plan creates the cluster and the pet; podinfo follows once the
+cluster is up.
 
 I evaluated `policies/readable_pet_names.rego` against the plan document. One denial:
 

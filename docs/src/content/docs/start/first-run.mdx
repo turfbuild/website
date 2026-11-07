@@ -1,6 +1,6 @@
 ---
 title: Your first run
-description: Deploy a kind cluster, a CRD and a custom resource from your agent in three rounds, approve each plan, open the run in the console, then tear it down with destroy.
+description: Deploy a kind cluster, a CRD and a custom resource from your agent in one run, approve the plans, open the run in the console, then tear it down with destroy.
 sidebar:
   order: 4
 ---
@@ -14,8 +14,8 @@ import ToolResult from '../../../components/ToolResult.astro';
 
 The first run needs no cloud account. The kind-crd example in turf-examples builds a local Kubernetes®
 cluster with kind, registers a CustomResourceDefinition on it, and creates one custom resource of that
-kind. Three things, each depending on the one before, in one configuration: Turf™ converges them in
-three rounds, and you approve each one.
+kind. With plain Terraform this takes targeted applies, because the provider cannot connect until the
+cluster exists. Turf™ deploys it in one run, and asks you before each apply.
 
 You need Docker running and `kind` on your PATH, and the example checked out:
 
@@ -26,8 +26,7 @@ cd turf-examples/terraform/kubernetes/kind-crd
 
 ## What it deploys
 
-Three resources and a provider that depends on the first of them. The cluster must exist before the
-kubernetes provider can connect, and the CRD must exist before the custom resource's kind does:
+Three resources, and a provider configured from the first of them:
 
 ```hcl title="main.tf and providers.tf (trimmed)"
 resource "kind_cluster" "demo" {
@@ -89,20 +88,18 @@ the session:
 <Conversation>
   <User>/turf:up terraform/kubernetes/kind-crd</User>
   <Agent calls={['init → ok', 'open → default', 'up → awaiting_plan', 'plan → awaiting_approval']}>
-    **Plan: 1 to add, 2 deferred to a later round.**
+    **Plan: 1 to add now, 2 to follow.**
 
     ```text
     + kind_cluster.demo
         name: turf-crd-demo-1
     ```
 
-    The kubernetes provider reads the cluster's endpoint, which does not exist yet, so the CRD and the
-    custom resource plan in round 2. Ready to apply these changes?
+    The CRD and the custom resource are planned once the cluster is up. Ready to apply these changes?
   </Agent>
   <User>Yes.</User>
   <Agent calls={['apply → awaiting_plan', 'plan → awaiting_approval']}>
-    Round 1: applied 1, deferred 2. The cluster is up. Round 2 plans the CRD; the custom resource is
-    still deferred, because the API server does not know its kind until the CRD is applied.
+    The cluster is up. Next, the CRD:
 
     ```text
     + kubernetes_manifest.crd      turfs.demo.local
@@ -112,8 +109,8 @@ the session:
   </Agent>
   <User>Yes.</User>
   <Agent calls={['apply → awaiting_plan', 'plan → awaiting_approval', 'apply → converged', 'output']}>
-    Round 2: applied 1, deferred 1. Round 3 planned the custom resource, a create and nothing else, so
-    I approved it. **Apply complete: 3 added, 0 changed, 0 destroyed.**
+    The CRD is in. The last plan was the custom resource, a single create, so I approved it.
+    **Apply complete: 3 added, 0 changed, 0 destroyed.**
 
     Outputs: `cluster_name = turf-crd-demo-1`, `cr_name = example-turf`, `cr_message = Hello from Turf`.
 
@@ -121,10 +118,9 @@ the session:
   </Agent>
 </Conversation>
 
-Notice what the agent did and did not do. Turf made each plan; the agent read it and explained what was
-deferred and why. It asked before applying rounds 1 and 2. Round 3 was a single create with nothing
-risky in it, so the agent approved it itself, as its rules allow, and told you. Every result the agent
-saw carried a link to the console, the page for that round.
+Notice what the agent did and did not do. Turf made each plan; the agent read it, explained it and
+asked. The last plan was a single create with nothing risky in it, so the agent approved it itself, as
+its rules allow, and told you. Every result the agent saw carried a link to the console.
 
 <ToolResult tool="plan" outcome="awaiting_approval">
 ```text
@@ -134,7 +130,6 @@ plan:
   uri:     turf://workspaces/default/convergences/cv_8f3a…/rounds/1/plan
   digest:  sha256:4c1e…
   add: 1   deferred: 2
-rounds: [ { round: 1, planned: 3, deferred: 2 } ]
 next: apply with convergence_id and plan_digest to approve, or decline
 console_url: http://127.0.0.1:8873/w/…?round=…
 ```
@@ -208,4 +203,4 @@ your agent to run `up` with that variable and read the plan: it reports the repl
 
 - [Deploy or update with up](/docs/using/up/): the task page, with every argument.
 - [Approval](/docs/concepts/approval/): what the agent may approve itself and what it brings to you.
-- [Rounds and deferrals](/docs/concepts/rounds/): why this run took three.
+- [Rounds and deferrals](/docs/concepts/rounds/): how one run covers a cluster and what lives on it.

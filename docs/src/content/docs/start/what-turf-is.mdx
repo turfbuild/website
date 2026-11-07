@@ -1,6 +1,6 @@
 ---
 title: What Turf is
-description: Turf is an MCP server and a durable engine for infrastructure as code. Your agent plans in rounds, you approve each plan, and the engine applies it with real OpenTofu providers.
+description: Turf is an MCP server and a durable engine for infrastructure as code. Your agent plans, you approve each plan, and the engine applies it with real OpenTofu providers.
 sidebar:
   order: 1
 ---
@@ -17,14 +17,14 @@ have seen the plan and said yes.
   <User>Deploy the configuration in ./infra.</User>
   <Agent calls={['init → ok', 'open → default', 'up → awaiting_plan', 'plan → awaiting_approval']}>
     **Plan: 3 to add, 0 to change, 0 to destroy.** A kind cluster, a CustomResourceDefinition and
-    one custom resource; the last two wait for the cluster, so they plan in a later round.
+    one custom resource of that kind.
 
     Ready to apply these changes?
   </Agent>
   <User>Yes.</User>
   <Agent calls={['apply → awaiting_plan', 'plan → awaiting_approval', 'apply → converged']}>
-    Round 1 created the cluster. Round 2 planned the CRD and the resource against it; you approved
-    that plan too, and it applied. **Apply complete: 3 added.** The run is in the console:
+    The cluster came up first, then the CRD and the custom resource on it. **Apply complete: 3
+    added.** The run is in the console:
     `http://127.0.0.1:8873/w/default/runs/…`
   </Agent>
 </Conversation>
@@ -52,17 +52,18 @@ you ─▶ your agent ──(MCP)──▶ turf-mcp-server ──▶ Turf engine
 
 ## The loop
 
-A run of `up` is a **convergence**: rounds of plan, approve, apply, until nothing is left to do.
+A run of `up` is a **convergence**: plan, approve, apply, until the configuration is fully applied.
 
-1. The agent calls `up`. The run stops at round 1's **plan gate** with nothing planned yet.
-2. The agent calls `plan`. The round's plan is made and the run stops at its **approval point**,
-   with the plan and a digest of it.
+1. The agent calls `up`. The run stops at its **plan gate** with nothing planned yet.
+2. The agent calls `plan`. The plan is made and the run stops at its **approval point**, with the plan
+   and a digest of it.
 3. Someone approves: `apply` with that digest is the approval, of that plan and no other. A low-risk
    plan (creates and in-place updates) the agent may approve itself; anything else, and always a
    destroy, it brings to you.
-4. The engine applies the round. If a value only became known in this apply (a cluster's endpoint, a
-   minted ID), what depends on it is **deferred** to the next round, and the loop goes back to step 2.
-5. When nothing is deferred, the run ends `converged`.
+4. The engine applies the plan. Anything that could only be planned once an earlier change existed
+   (a resource inside a cluster the plan just created) is planned next, and the loop goes back to
+   step 2. Each pass is a **round**; most runs take one.
+5. When nothing is left, the run ends `converged`.
 
 During an apply the configuration can ask the agent to do a step itself: a backup, a check, a question
 for you, a message to the team. That is a **turf action**. The apply pauses for it and continues when
@@ -91,4 +92,4 @@ the matrix at [turf.build/compatibility](https://turf.build/compatibility/).
 
 - [Install locally](/docs/start/install/): Homebrew or one script.
 - [Connect your agent](/docs/start/connect/): one command.
-- [Your first run](/docs/start/first-run/): a kind cluster in three rounds.
+- [Your first run](/docs/start/first-run/): a kind cluster, a CRD and a custom resource in one run.

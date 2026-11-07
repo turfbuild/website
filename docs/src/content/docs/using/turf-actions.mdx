@@ -48,7 +48,7 @@ next: { tool: "apply", args: { convergence_id: "…" } }
 <Agent calls={['apply (action_results) → awaiting_actions', 'apply (action_results) → awaiting_plan']}>
 
 Then `check`: I ran `opa eval` with policies/ on the round's plan document. No denials, so it succeeded
-too. Round 1 applied the cluster and the pet; podinfo plans in round 2, now that the cluster exists.
+too. The cluster and the pet are applied; podinfo is planned next, now that the cluster exists.
 
 </Agent>
 </Conversation>

@@ -22,9 +22,9 @@ against the current state, and never replays the failed plan.
 <User>Deploy kind-crd.</User>
 <Agent calls={['init', 'open', 'up → awaiting_plan', 'plan → awaiting_approval', 'apply → failed']}>
 
-Round 1 planned the cluster, a single create, so I approved it. It failed: `kind_cluster.demo` could
-not be created, and the provider says it cannot reach Docker. Nothing else ran, since both manifests
-were deferred behind the cluster. Start Docker, and I'll run `up` again.
+The first plan was the cluster, a single create, so I approved it. It failed: `kind_cluster.demo` could
+not be created, and the provider says it cannot reach Docker. Nothing else ran, since the CRD and the
+custom resource wait for the cluster. Start Docker, and I'll run `up` again.
 
 </Agent>
 <ToolResult tool="apply" outcome="failed">
