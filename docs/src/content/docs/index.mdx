@@ -1,0 +1,43 @@
+---
+title: Turf docs
+description: Install Turf, connect it to your agent, deploy and tear down with up and destroy, set up the provider environment, run Turf in a cluster, and look up every MCP tool.
+template: splash
+hero:
+  title: Infrastructure as code, run by your agent, approved by you.
+  tagline: Turf™ is an MCP server and a durable engine over the OpenTofu™ framework. Your agent plans in rounds and asks before it applies; these pages show how.
+  actions:
+    - text: Install locally
+      link: /docs/start/install/
+      icon: right-arrow
+    - text: Your first run
+      link: /docs/start/first-run/
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+<CardGrid stagger>
+  <Card title="Start here" icon="rocket">
+    What Turf is, the install, connecting your agent, and a first run that plans, pauses for your
+    yes and applies. [Begin](/docs/start/what-turf-is/)
+  </Card>
+  <Card title="Using Turf" icon="list-format">
+    One page per task: up, destroy, plan and apply by hand, import, workspaces, variables, planfiles,
+    turf actions, what to do when something goes wrong. [Tasks](/docs/using/up/)
+  </Card>
+  <Card title="Provider environment" icon="setting">
+    Where credentials are read, the engine's environment, a per-configuration environment with mise,
+    and workload identity. [Environment](/docs/environment/where-credentials-are-read/)
+  </Card>
+  <Card title="MCP reference" icon="open-book">
+    Every tool, prompt and resource the server exposes, the result shape, the skills and the
+    instructions it hands your agent. [Reference](/docs/reference/server/)
+  </Card>
+</CardGrid>
+
+<CardGrid>
+  <LinkCard title="Running Turf in a cluster" description="The server, engine and console as workloads; any MCP client over HTTP; kagent as a worked example." href="/docs/cluster/topology/" />
+  <LinkCard title="The Turf CLI" description="chat, up, destroy and exec; models, turf.yaml, skills and theming." href="/docs/cli/overview/" />
+  <LinkCard title="Authoring configurations" description="Writing .tf files with an agent, providers, variables, actions and overlays, differences from Terraform." href="/docs/authoring/writing-with-an-agent/" />
+  <LinkCard title="Release notes" description="What each release carries, 1.0 to 1.4." href="/docs/releases/1-4/" />
+</CardGrid>

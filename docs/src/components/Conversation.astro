@@ -1,0 +1,14 @@
+---
+// An illustrative conversation: the user's ask, the agent's turns with the Turf tool calls it made,
+// and the result. Written to show the shape of a task, not recorded. Children are <User>, <Agent>
+// and <ToolResult>. Same vocabulary as the marketing site's `.agentloop .chat` block, so a
+// conversation reads the same on turf.build, in a paper and here. Styles: docs.css, "conversation".
+interface Props { client?: string; label?: string }
+const { client = 'in Claude Code', label } = Astro.props;
+---
+
+<div class="convo" role="group" aria-label={label ?? 'An illustrative conversation with your agent'}>
+  <div class="convo-head"><span class="av">✦</span><span>Your agent</span><span class="tag">{client}</span></div>
+  <slot />
+  <p class="convo-note">illustrative · the shape of a session, not a transcript</p>
+</div>

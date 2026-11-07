@@ -1,0 +1,20 @@
+---
+// Starlight's footer (pagination, edit link) followed by the marks fineprint every turf.build page
+// carries. The sentence is the one in the marketing site's Footer.astro and public/llms.txt: edit all
+// three together.
+import Default from '@astrojs/starlight/components/Footer.astro';
+const year = 2026;
+---
+
+<Default><slot /></Default>
+<div class="turf-fineprint">
+  <p>Turf™ is a trademark of Turf LLC. Terraform® is a registered trademark of HashiCorp, Inc. Ansible®
+    is a registered trademark of Red Hat, Inc. in the United States and other countries. Helm® and
+    Kubernetes® are registered trademarks, and OpenTofu™ is a trademark, of the Linux Foundation. Turf
+    is not affiliated with, endorsed by, or sponsored by HashiCorp, IBM, Red Hat, the Linux Foundation
+    or the OpenTofu project.</p>
+  <p>© {year} Turf LLC. Free for noncommercial use under the PolyForm Noncommercial License 1.0.0;
+    commercial use requires a <a href="https://turf.build/licensing/">license</a>.
+    <a href="https://turf.build/">turf.build</a> · <a href="https://turf.build/discord/">Discord</a> ·
+    <a href="https://github.com/turfbuild/turf">GitHub</a></p>
+</div>

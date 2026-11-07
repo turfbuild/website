@@ -29,3 +29,4 @@ User-agent: Applebot-Extended
 Allow: /
 
 Sitemap: https://turf.build/sitemap-index.xml
+Sitemap: https://turf.build/docs/sitemap-index.xml

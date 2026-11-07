@@ -1,0 +1,7 @@
+---
+// "Since 1.x": the docs describe one current version; a feature that arrived after 1.0 carries this
+// badge at its first mention. `soon` marks a capability not yet shipped.
+interface Props { v?: string; soon?: boolean }
+const { v, soon = false } = Astro.props;
+---
+{soon ? <span class="pill soon">coming soon</span> : <span class="pill since">Since {v}</span>}

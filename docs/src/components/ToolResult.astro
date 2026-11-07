@@ -1,0 +1,11 @@
+---
+// A tool result shown inside a <Conversation>: the terminal-dark block the marketing site's
+// `.agentloop .report` uses. `tool` names the call, `outcome` its outcome; the slot is the body,
+// written as preformatted text (keep it short; a result page is for the reference).
+interface Props { tool: string; outcome?: string; open?: boolean }
+const { tool, outcome, open = false } = Astro.props;
+---
+<details class="result" open={open}>
+  <summary><span class="lab">TOOL RESULT</span><b>{tool}</b>{outcome && <><span class="arrow">→</span><i>{outcome}</i></>}</summary>
+  <pre class="report"><slot /></pre>
+</details>
