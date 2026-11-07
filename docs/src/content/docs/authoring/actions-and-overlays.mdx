@@ -5,10 +5,11 @@ sidebar:
   order: 6
 ---
 
-An action is an operation that writes no resource state: power-cycle a host, empty a bucket, take a
-backup, ask a question. A **turf action** is one your agent carries out itself during the apply. Bind
-an action to a resource's lifecycle in the resource, in Terraform®'s own syntax, or in an **overlay**:
-a `*.turf.hcl` file that adds the step without touching your Terraform.
+Some steps of a rollout change no resource: a backup before the database moves, a check after the
+container starts, a question for you. In Terraform® these are actions, bound to a resource's lifecycle.
+A **turf action** is an action your agent carries out itself during the apply. An **overlay** is a
+`*.turf.hcl` file beside the configuration that binds actions to resources without editing the `.tf`
+files.
 
 ```hcl title="database.turf.hcl"
 # A backup before the database changes, a word to the team after.

@@ -6,9 +6,8 @@ sidebar:
 ---
 
 A data source is a read-only query a provider answers: an AMI ID, the availability zones, the
-current account. There is one way in, a `data` block in the configuration. That makes
-`data.<type>.<name>.<attr>` resolvable, and every plan reads it. No Turf™ tool reads a data source on
-its own.
+current account. It is declared as a `data` block in the configuration, and every plan reads it. No
+Turf™ tool reads a data source on its own.
 
 ```hcl title="main.tf"
 data "aws_ami" "latest" {

@@ -177,3 +177,12 @@ h1, .hero h1, .hero .tagline, .site-title, .turf-sitetitle {
 /* landing */
 .hero .tagline { color: var(--muted); }
 .card .title { font-family: var(--display); }
+
+/* asides and badges on the brand tokens (Starlight's defaults are saturated blues and oranges) */
+:root {
+  --sl-color-blue-low: var(--inh-bg); --sl-color-blue: var(--inh); --sl-color-blue-high: color-mix(in srgb, var(--inh) 70%, var(--ink));
+  --sl-color-green-low: var(--ok-bg); --sl-color-green: var(--ok); --sl-color-green-high: var(--ok-deep);
+  --sl-color-orange-low: var(--part-bg); --sl-color-orange: var(--part); --sl-color-orange-high: color-mix(in srgb, var(--part) 70%, var(--ink));
+  --sl-color-purple-low: var(--inh-bg); --sl-color-purple: var(--inh); --sl-color-purple-high: color-mix(in srgb, var(--inh) 70%, var(--ink));
+}
+.starlight-aside { border-radius: 10px; }

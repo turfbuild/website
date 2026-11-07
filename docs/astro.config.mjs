@@ -12,7 +12,8 @@ export default defineConfig({
   trailingSlash: 'always',
   integrations: [
     starlight({
-      title: 'Turf docs',
+      title: 'Turf',
+      titleDelimiter: '—',
       description:
         'Turf documentation: install the MCP server and engine, connect your agent, deploy and tear down with up and destroy, the provider environment, running Turf in a cluster, and the MCP reference.',
       favicon: '/favicon.svg',
