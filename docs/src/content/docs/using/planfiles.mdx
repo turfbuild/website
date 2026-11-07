@@ -7,6 +7,7 @@ sidebar:
 
 import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 import Conversation from '../../../components/Conversation.astro';
+import Example from '../../../components/Example.astro';
 import User from '../../../components/User.astro';
 import Agent from '../../../components/Agent.astro';
 import ToolResult from '../../../components/ToolResult.astro';
@@ -15,6 +16,8 @@ A planfile is a plan the engine keeps after the run that made it has ended, so i
 place and applied in another: a second session, a second server, a second set of credentials. Add
 `plan_only: true` to a start verb to make one. Apply it with its ref and its digest. Turf™ applies it
 exactly as it was made, or not at all.
+
+<Example path="terraform/kubernetes/kind-crd" />
 
 <Conversation>
 <User>Plan kind-crd with cr_message "Hello from review" for the change review. Don't apply anything.</User>

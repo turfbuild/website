@@ -6,7 +6,6 @@ sidebar:
 ---
 
 import { Aside } from '@astrojs/starlight/components';
-import Since from '../../../components/Since.astro';
 
 Any client that speaks MCP over HTTP can drive Turf™ in a cluster. It connects to the server's `/mcp`
 endpoint and sends one header with every request:
@@ -16,7 +15,7 @@ Authorization: Bearer <token>
 ```
 
 The token is the one in the `turf-mcp-auth` Secret, which the server reads as `TURF_MCP_AUTH_TOKEN`
-<Since v="1.3" />. A request without it gets `401`. An agent in the cluster connects to the Service,
+. A request without it gets `401`. An agent in the cluster connects to the Service,
 Claude Code on your laptop through a port-forward, a CI job like any other client.
 
 ## Check the endpoint
@@ -67,11 +66,11 @@ kagent](/docs/cluster/example-kagent/).
 A CI job is one more client: the same endpoint and the same header, with the token from the CI
 system's secrets. Two server flags shape what such a client gets:
 
-- **`--tier`** <Since v="1.3" /> (`read`, `plan`, `apply` or `full`) decides which tools a server lists
+- **`--tier`** (`read`, `plan`, `apply` or `full`) decides which tools a server lists
   and what their arguments may do. A credential handed to a server buys its tier's calls and no other.
   At `plan`, every run is `plan_only` and ends `planned`, with a planfile for an applier. To give one
   client less than another, run a server per tier, each with its own token.
-- **`--deadline`** <Since v="1.3" /> is how long a convergence call may run before it returns the stage
+- **`--deadline`** is how long a convergence call may run before it returns the stage
   the convergence has reached, with `ended: false` and `next` naming the call that follows, while the
   convergence goes on in the engine. The default, 55 seconds, sits under the MCP TypeScript SDK's
   60-second request timeout. A client with a shorter call timeout needs a shorter deadline: kagent

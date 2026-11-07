@@ -37,8 +37,7 @@ Every round is its own decision. Approving round 1 says nothing about round 2.
 ## What the approval records
 
 `rounds[].approval` in every result says how each round's plan was applied: `asked` (someone approved
-it), `unneeded` (nothing to consent to) or `planfile` (applied from a sealed plan). Since 1.4 the
-console keeps each round's approver and the plan's digest with the round history, so you can see who
+it), `unneeded` (nothing to consent to) or `planfile` (applied from a sealed plan). The console keeps each round's approver and the plan's digest with the round history, so you can see who
 approved what after the run's own record has expired. The approval is of a digest, so a plan that
 changed cannot be applied with an old yes: if the configuration changes between `plan` and `apply`,
 the run ends `stale` and nothing is applied.
@@ -52,7 +51,7 @@ turf-examples runs an OPA policy group this way. [Policy checks on a plan](/docs
 
 **A check on the providers before the first plan.** `init` reports every provider the lock file
 records, with its version, its hash and its package directory. A vulnerability scanner or a policy tool
-checks those against a CVE database before anything runs; the guardrails example in turf-examples does
+checks those against a CVE database before anything runs; the [guardrails example](https://github.com/turfbuild/turf-examples/blob/130fcb754897c36de2fd25062495ee47011c9ab0/use-cases/guardrails) in turf-examples does
 exactly that. The agent's skill tells it to scan `providers[]` if it has a scanner. An unwanted provider
 version is caught before the first `up`, not after.
 

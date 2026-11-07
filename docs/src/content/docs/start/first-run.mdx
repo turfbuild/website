@@ -7,10 +7,10 @@ sidebar:
 
 import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 import Conversation from '../../../components/Conversation.astro';
+import Example from '../../../components/Example.astro';
 import User from '../../../components/User.astro';
 import Agent from '../../../components/Agent.astro';
 import ToolResult from '../../../components/ToolResult.astro';
-import Since from '../../../components/Since.astro';
 
 The first run needs no cloud account. The kind-crd example in turf-examples builds a local Kubernetes®
 cluster with kind, registers a CustomResourceDefinition on it, and creates one custom resource of that
@@ -23,6 +23,47 @@ You need Docker running and `kind` on your PATH, and the example checked out:
 git clone https://github.com/turfbuild/turf-examples
 cd turf-examples/terraform/kubernetes/kind-crd
 ```
+
+## What it deploys
+
+Three resources and a provider that depends on the first of them. The cluster must exist before the
+kubernetes provider can connect, and the CRD must exist before the custom resource's kind does:
+
+```hcl title="main.tf and providers.tf (trimmed)"
+resource "kind_cluster" "demo" {
+  name           = "${var.cluster_name}-${var.generation}"
+  node_image     = var.node_image
+  wait_for_ready = true
+}
+
+provider "kubernetes" {
+  host                   = kind_cluster.demo.endpoint
+  client_certificate     = kind_cluster.demo.client_certificate
+  client_key             = kind_cluster.demo.client_key
+  cluster_ca_certificate = kind_cluster.demo.cluster_ca_certificate
+}
+
+resource "kubernetes_manifest" "crd" {
+  manifest = { # a CustomResourceDefinition: demo.local/v1, kind Turf
+    apiVersion = "apiextensions.k8s.io/v1"
+    kind       = "CustomResourceDefinition"
+    metadata   = { name = "turfs.demo.local" }
+    # …
+  }
+}
+
+resource "kubernetes_manifest" "instance" {
+  depends_on = [kubernetes_manifest.crd]
+  manifest = {
+    apiVersion = "demo.local/v1"
+    kind       = "Turf"
+    metadata   = { name = "example-turf", namespace = var.namespace }
+    spec       = { message = var.cr_message }
+  }
+}
+```
+
+<Example path="terraform/kubernetes/kind-crd" />
 
 ## 1. Ask for the walkthrough
 
@@ -76,14 +117,14 @@ the session:
 
     Outputs: `cluster_name = turf-crd-demo-1`, `cr_name = example-turf`, `cr_message = Hello from Turf`.
 
-    The run is in the console: http://127.0.0.1:8873/… <Since v="1.4" />
+    The run is in the console: `http://127.0.0.1:8873/…`
   </Agent>
 </Conversation>
 
 Notice what the agent did and did not do. Turf made each plan; the agent read it and explained what was
 deferred and why. It asked before applying rounds 1 and 2. Round 3 was a single create with nothing
 risky in it, so the agent approved it itself, as its rules allow, and told you. Every result the agent
-saw carried a link to the console, the page for that round. <Since v="1.4" />
+saw carried a link to the console, the page for that round.
 
 <ToolResult tool="plan" outcome="awaiting_approval">
 ```text
@@ -99,7 +140,7 @@ console_url: http://127.0.0.1:8873/w/…?round=…
 ```
 </ToolResult>
 
-## 3. Look at the run <Since v="1.4" />
+## 3. Look at the run
 
 Open the console link. The first time, run `turf console` in a terminal to sign your browser in; after
 that every link opens directly. The round's page tells its story: the plan gate, the plan with its counts,

@@ -1,0 +1,11 @@
+---
+// A link to the turf-examples configuration a page's conversation is shaped on, pinned to a commit so
+// the link keeps pointing at the files the page describes. Bump SHA when the examples move on and the
+// pages are re-read against them.
+interface Props { path: string; file?: string }
+const SHA = '130fcb754897c36de2fd25062495ee47011c9ab0';
+const { path, file } = Astro.props;
+const rel = file ? `${path}/${file}` : path;
+const url = `https://github.com/turfbuild/turf-examples/blob/${SHA}/${rel}`;
+---
+<p class="example-link">Example configuration: <a href={url}><code>turf-examples/{rel}</code></a></p>

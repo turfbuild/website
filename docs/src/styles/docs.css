@@ -186,3 +186,5 @@ h1, .hero h1, .hero .tagline, .site-title, .turf-sitetitle {
   --sl-color-purple-low: var(--inh-bg); --sl-color-purple: var(--inh); --sl-color-purple-high: color-mix(in srgb, var(--inh) 70%, var(--ink));
 }
 .starlight-aside { border-radius: 10px; }
+.example-link { font-size: 13.5px; color: var(--muted); margin: 0 0 .75rem; }
+.example-link code { font-size: 12.5px; }

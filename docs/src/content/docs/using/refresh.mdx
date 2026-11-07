@@ -7,12 +7,15 @@ sidebar:
 
 import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 import Conversation from '../../../components/Conversation.astro';
+import Example from '../../../components/Example.astro';
 import User from '../../../components/User.astro';
 import Agent from '../../../components/Agent.astro';
 
 `refresh` reads every object the workspace manages and writes what it found into state. It changes
 nothing in the world. Like every Turf™ run, it plans first and stops at an approval point, so you see
 what state will record before it does.
+
+<Example path="terraform/kubernetes/kind-crd" />
 
 <Conversation>
 <User>Someone edited the kind-crd custom resource by hand. Bring the state up to date, and don't change anything in the cluster.</User>

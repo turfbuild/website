@@ -7,7 +7,6 @@ sidebar:
 ---
 
 import { Steps } from '@astrojs/starlight/components';
-import Since from '../../../components/Since.astro';
 
 kagent is one way to put an agent beside Turf™: the agent lives in the cluster it manages and reaches
 Turf's MCP server over HTTP, like any other client. The
@@ -130,7 +129,7 @@ The four that change infrastructure or state are bound with `requireApproval: tr
 Each one pauses the agent until a person approves it in the kagent UI. `apply` carries the digest of
 the plan it applies, so the approval covers exactly that plan and nothing else. The card shows the
 call's arguments, the convergence and the digest. The plan itself is in the agent's message above the
-card, read with `show`, and that message links to the round in the console <Since v="1.4" />, at its
+card, read with `show`, and that message links to the round in the console, at its
 approval point. Reject the card and nothing is applied: the agent cancels the convergence and asks what
 you want instead. A turf action that asks the user something reaches you through kagent's `ask_user`.
 The other two bindings are the read-only Kubernetes tools and the OpenTofu™ Registry's documentation
@@ -144,7 +143,7 @@ In one terminal, watch the engine. It sits at zero:
 kubectl get pods -n turf -l app=turf-engine -w
 ```
 
-In another, open the kagent UI at http://localhost:8082 and pick the agent `turf`:
+In another, open the kagent UI at `http://localhost:8082` and pick the agent `turf`:
 
 ```sh
 kubectl port-forward -n kagent svc/kagent-ui 8082:8080

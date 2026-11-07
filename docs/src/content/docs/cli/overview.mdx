@@ -6,7 +6,6 @@ sidebar:
 ---
 
 import { Aside } from '@astrojs/starlight/components';
-import Since from '../../../components/Since.astro';
 
 The Turf™ CLI, `turf`, is an agent of its own: it drives the same MCP server and engine your agent
 uses, with a model you bring. It is a convenience, not a requirement. The MCP server is the product,
@@ -87,7 +86,7 @@ never imports the server's code: the only contract is the MCP protocol, spoken o
 | `turf destroy [instructions]` | Destroy everything the configuration manages |
 | `turf exec [message]` | Run one request without the TUI ([Scripting with exec](/docs/cli/exec/)) |
 | `turf login <host>`, `turf logout <host>` | Save or remove an API token for a registry or a TFE-compatible backend ([Log in to a host](/docs/cli/login/)) |
-| `turf console [link]` | Sign this browser in to the local console, once <Since v="1.4" /> ([The console](/docs/cli/console/)) |
+| `turf console [link]` | Sign this browser in to the local console, once ([The console](/docs/cli/console/)) |
 | `turf telemetry [status\|on\|off]` | Show or change whether the engine sends anonymous usage telemetry ([details](https://turf.build/telemetry/)) |
 | `turf license` | Print the license and the third-party notices |
 | `turf version` | Print the version, the license in one line and the telemetry setting (as `turf --version` does) |
@@ -102,7 +101,7 @@ Every command takes the global flags: [Flags and environment](/docs/cli/flags-an
   terminal, `--yes`.
 - [Scripting with exec](/docs/cli/exec/): one request, headless; `--json` events; exit status.
 - [Log in to a host](/docs/cli/login/): `turf login`, `turf logout`, `TF_TOKEN_<host>`.
-- [The console](/docs/cli/console/): `turf console` signs your browser in once. <Since v="1.4" />
+- [The console](/docs/cli/console/): `turf console` signs your browser in once.
 - [Flags and environment](/docs/cli/flags-and-environment/): every flag, variable and file.
 - [Model providers](/docs/cli/models/): hosted keys, models on your own machine, OpenAI-compatible endpoints,
   `turf.yaml`.

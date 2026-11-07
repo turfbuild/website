@@ -5,7 +5,6 @@ sidebar:
   order: 7
 ---
 
-import Since from '../../../components/Since.astro';
 
 A Turf™ release is one image, so an upgrade moves the server, the engine and the console to the same
 new tag together. The rules:
@@ -72,7 +71,7 @@ after it restarts, `open` each workspace again with the same values.
 
 ## Upgrading to 1.4
 
-1.4 adds the console <Since v="1.4" />. Besides the new tag:
+1.4 adds the console. Besides the new tag:
 
 - add the console's Deployment and its token Secret ([Minimal manifests](/docs/cluster/manifests/#the-console));
 - admit the console's pods to restate-server's ingress;
@@ -81,4 +80,4 @@ after it restarts, `open` each workspace again with the same values.
 ## Upgrading to 1.3
 
 If your MCP client has a call timeout under a minute, set the server's `--deadline`
-<Since v="1.3" /> below it. The kagent example runs `--deadline=25s`, under kagent's 30-second timeout.
+ below it. The kagent example runs `--deadline=25s`, under kagent's 30-second timeout.

@@ -5,7 +5,6 @@ sidebar:
   order: 5
 ---
 
-import Since from '../../../components/Since.astro';
 
 How an object is replaced, kept, renamed or let go is written in the files: the `lifecycle` options,
 host replacement, and the `moved` and `removed` blocks. Every plan reads them. Ask your agent for the
@@ -33,7 +32,7 @@ offers a backup, or the `removed` block.
   every argument.
 - **`replace_triggered_by`.** Replace this object whenever a referenced resource or attribute is
   replaced or changes.
-- **`prevent_destroy`** <Since v="1.1" />. A plan that would destroy the object fails, naming it, and
+- **`prevent_destroy`**. A plan that would destroy the object fails, naming it, and
   nothing is applied: a delete, a replace, a `destroy`. An expression is accepted, as in OpenTofu™
   (Terraform® takes only a literal), so `prevent_destroy = var.protect` guards while true. It must be
   known at plan and not null. `destroy = false` on the same block overrides it. Your agent never

@@ -5,7 +5,6 @@ sidebar:
   order: 5
 ---
 
-import Since from '../../../components/Since.astro';
 
 The state backend is the MCP server's business, so its credentials go in the server's environment.
 Registry tokens and provider mirrors are read by both processes: the server for `init`, the engine
@@ -58,7 +57,7 @@ revoke it on the host.
 Two limits beside `tofu login`: a `credentials` block hand-written in `.tofurc` or `.terraformrc`
 silently keeps winning over the file `turf login` writes, and credentials helpers are not supported.
 
-## Provider mirrors <Since v="1.2" />
+## Provider mirrors
 
 A provider mirror, or an air-gapped network, is a `provider_installation` block in the OpenTofu™ CLI
 configuration, exactly as `tofu` reads it: `~/.tofurc` with `~/.terraform.d/*.tfrc`, or the one file

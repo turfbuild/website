@@ -5,7 +5,6 @@ sidebar:
   order: 7
 ---
 
-import Since from '../../../components/Since.astro';
 
 Every Turf™ CLI command takes the global flags below; most have an environment variable that sets the
 default. A flag given on the command line wins over its variable.
@@ -48,7 +47,7 @@ directories as `PATH` does.
 | `exec` | `--json` | Print each runtime event as one JSON object per line ([Scripting with exec](/docs/cli/exec/)) |
 | `exec` | `--hide-tool-calls` | Print only the agent's prose, without tool-call and tool-result lines |
 | `login` | `--token-stdin` | Read the token from stdin instead of prompting ([Log in to a host](/docs/cli/login/#in-ci)) |
-| `console` | `--print` | Print the sign-in link instead of opening it, for a console reached over `ssh -L` <Since v="1.4" /> |
+| `console` | `--print` | Print the sign-in link instead of opening it, for a console reached over `ssh -L` |
 
 ## Logging
 

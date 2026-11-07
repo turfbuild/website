@@ -7,6 +7,7 @@ sidebar:
 
 import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 import Conversation from '../../../components/Conversation.astro';
+import Example from '../../../components/Example.astro';
 import User from '../../../components/User.astro';
 import Agent from '../../../components/Agent.astro';
 import ToolResult from '../../../components/ToolResult.astro';
@@ -15,6 +16,9 @@ A plan waits at its approval point, and nothing applies until its digest is name
 read the exact plan that gets approved. Turf™ serves it as OpenTofu™'s JSON plan; OPA or conftest read it
 as `input.tfplan`. A deny means do not apply. Before the first plan, the providers `init` installed can
 be scanned the same way.
+
+<Example path="use-cases/guardrails" />
+<Example path="integrations/scalr" />
 
 <Conversation>
 <User>Deploy the guardrails example.</User>

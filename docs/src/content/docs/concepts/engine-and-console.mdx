@@ -6,12 +6,11 @@ sidebar:
 ---
 
 import Still from '../../../components/Still.astro';
-import Since from '../../../components/Since.astro';
 
 The agent talks to the MCP server. The server drives the **engine**, a separate process where plans are
 made and applied. The engine holds the state lock, runs the OpenTofu™ providers, and carries every
 convergence durably, so a rollout survives a server restart, a dropped client and the end of the
-conversation. The **console** is a window onto it. <Since v="1.4" />
+conversation. The **console** is a window onto it.
 
 ## The engine
 
@@ -40,10 +39,10 @@ providers read the engine's environment rather than your shell's:
 **Scale-out.** Refresh, plan and apply fan out per resource inside the engine, so the cloud API, not
 the tool, is the ceiling on a large configuration.
 
-## The console <Since v="1.4" />
+## The console
 
 The console is a read-only web view of every workspace's runs, rounds and approvals, running beside the
-engine at http://127.0.0.1:8873 on a laptop. Every result the server hands the agent carries a link
+engine at `http://127.0.0.1:8873` on a laptop. Every result the server hands the agent carries a link
 into it (`console_url`), the page for the round it is about, and the agent is asked to give you that
 link, above all at an approval point. When the agent says "the plan is ready", there is a page to look
 at.

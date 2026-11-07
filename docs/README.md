@@ -47,7 +47,6 @@ title: Deploy or update with up          # the sidebar label and the h1; Turf-le
 description: One plain sentence, 140–158 characters, no markdown; it is the search snippet.
 sidebar:
   order: 1                               # position within the group
-  badge: { text: 'Since 1.4', variant: 'note' }   # optional: a group-level "arrived after 1.0"
 ---
 ```
 
@@ -62,8 +61,8 @@ Pages are `.mdx` when they use a component, `.md` otherwise. Import components f
   A shell block shows commands without a prompt and comments with `#`.
 - **Inline `{` `}` and `<`** in MDX prose must be escaped or wrapped in backticks: ``{ var: { region } }``
   is fine inside code; bare braces in a sentence break the build.
-- **Badges.** `<Since v="1.4" />` at the first mention of a feature that arrived after 1.0;
-  `<Since soon />` for a capability not yet shipped. Starlight's own `Badge`, `Aside`, `Tabs`,
+- **No version badges.** The docs describe the current release; readers are new to Turf and a
+  "since 1.x" tells them nothing. `<Since />` renders a `coming soon` pill for a capability not yet shipped. Starlight's own `Badge`, `Aside`, `Tabs`,
   `TabItem`, `Steps`, `Card`, `LinkCard` come from `@astrojs/starlight/components`.
 - **Agent first, CLI second.** A task page shows the task in the user's agent (Claude Code is the worked
   example), then the `turf` CLI in a second tab: `<Tabs><TabItem label="In your agent">…</TabItem>
@@ -73,6 +72,10 @@ Pages are `.mdx` when they use a component, `.md` otherwise. Import components f
   fenced code block (bare braces in a slot are MDX expressions and break the build). Conversations are
   illustrative: written to show the shape of a task (the ask, the calls, the approval, the result), not
   transcripts, and they carry no provenance caption. Keep them short: three to five turns.
+- **Example links.** A page whose conversation is shaped on a turf-examples configuration says so with
+  `<Example path="terraform/kubernetes/kind-crd" />` just before the conversation; the component links a
+  commit-pinned permalink. Show a trimmed HCL excerpt where the shape of the configuration matters.
+- **Bare URLs.** `http://127.0.0.1:8873` in prose is auto-linked and clickable; write it in backticks.
 - **Stills.** `<Still id="runs" src="stills/console-runs.png" alt="…" caption="…" />`; one `id` per
   still on a page; PNG at 1600 wide in `public/stills/`.
 

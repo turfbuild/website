@@ -3,7 +3,6 @@ title: Result shape
 description: "Read a convergence result: outcome, ended and next, the plan and its digest, the planfile, turf action requests, each round's counts, and every outcome."
 ---
 
-import Since from '../../../components/Since.astro';
 
 Every call that starts or continues a convergence returns the same result: `up`, `destroy`, `refresh`,
 `import`, `invoke`, `plan`, `apply` and `cancel`. This page shows how to read one: where the convergence
@@ -152,7 +151,7 @@ Each entry counts what the round did:
 ## console_url
 
 `console_url` is the convergence's page in the Turf console: the round at the stop, or the one running.
-<Since v="1.4" /> Every `up`, `plan`, `apply`, `status` and `open` result carries it when the server
+ Every `up`, `plan`, `apply`, `status` and `open` result carries it when the server
 knows a console; `open` and `status` carry the workspace's page. The agent gives the link to the user
 verbatim, above all at an approval point, and never opens it itself. To set where the links point, see
 [The console](/docs/reference/server/#the-console).

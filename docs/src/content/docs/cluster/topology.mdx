@@ -5,7 +5,6 @@ sidebar:
   order: 1
 ---
 
-import Since from '../../../components/Since.astro';
 
 In a cluster, Turf™ runs as the same pieces it runs on a laptop, deployed as workloads: the MCP
 server, restate-server with the engine behind it, and the console. Any MCP client talks to the server
@@ -36,7 +35,7 @@ a workload you deploy.
 ## The MCP server
 
 `turf-mcp-server --transport http` serves MCP at `/mcp` on the address `--addr` names (`:3000` in
-the examples). It is the only piece a client talks to. Set `TURF_MCP_AUTH_TOKEN` <Since v="1.3" /> in
+the examples). It is the only piece a client talks to. Set `TURF_MCP_AUTH_TOKEN` in
 its environment, from a Secret: every request must then carry `Authorization: Bearer <token>`, and
 anything else gets `401`. The server reads the token only from its environment. The token is not sent
 over TLS, so keep the network path private, or serve the server over TLS or behind a mesh.
@@ -75,7 +74,7 @@ answers one path unsigned, `/health`. At start it checks restate-server's versio
 Two ways to run it:
 
 - **A plain Deployment.** The engine registers itself with restate-server at start, at the address
-  `--advertise` names: its Service. It runs as several replicas <Since v="1.2" />, and a round's steps
+  `--advertise` names: its Service. It runs as several replicas, and a round's steps
   land on any of them. Each replica installs the modules a round planned into its own `--data-dir`.
   Every replica runs with the same flags and the same mounts.
 - **Knative, through the Restate operator.** A `RestateDeployment` in Knative mode. The operator
@@ -87,7 +86,7 @@ Two ways to run it:
 
 [Minimal manifests](/docs/cluster/manifests/) has both.
 
-## The console <Since v="1.4" />
+## The console
 
 The console is `turf-ui`, from the same image: a read-only web view of every workspace's runs, rounds
 and approvals. It reads restate-server's ingress and nothing else. It runs no provider and holds no
@@ -114,7 +113,7 @@ A read-only configuration plans when:
 - the server's `TF_DATA_DIR` names a directory `init` can write, for the server's own module
   install. The engine installs modules under its own `--data-dir` and needs nothing set.
 
-**When the paths differ**, set the server's `--workdir` and `turf-engine --workdir` <Since v="1.1" />,
+**When the paths differ**, set the server's `--workdir` and `turf-engine --workdir`,
 both or neither, each to the directory that holds the same layout (`TURF_WORKDIR` and
 `TURF_ENGINE_WORKDIR` in the environment). The server names each configuration's path below its own
 `--workdir`, and the engine reads it below its own. Mount the configuration, and everything it reaches

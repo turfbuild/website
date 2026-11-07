@@ -3,12 +3,10 @@ title: The console in a cluster
 description: "Run the Turf console in a cluster: turf-ui from the server's image, behind its own token, reached by port-forward, and linked from every result."
 sidebar:
   order: 6
-  badge: { text: 'Since 1.4', variant: 'note' }
 ---
 
-import Since from '../../../components/Since.astro';
 
-The console <Since v="1.4" /> is a read-only web view of every workspace Turf™ runs: its convergences,
+The console is a read-only web view of every workspace Turf™ runs: its convergences,
 each round's plan, approval point and apply, who approved what, and every resource's lane as the apply
 ran. In a cluster it is one more Deployment, `turf-ui` from the same image as the server and the
 engine. It reads restate-server's ingress and nothing else, and it answers only those who show its

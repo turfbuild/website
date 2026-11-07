@@ -7,6 +7,7 @@ sidebar:
 
 import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 import Conversation from '../../../components/Conversation.astro';
+import Example from '../../../components/Example.astro';
 import User from '../../../components/User.astro';
 import Agent from '../../../components/Agent.astro';
 import ToolResult from '../../../components/ToolResult.astro';
@@ -14,6 +15,8 @@ import ToolResult from '../../../components/ToolResult.astro';
 Three tools read what a workspace holds and change nothing: `show`, `output` and `state_list`. None of
 them plans. Two tools edit state at once: `taint` marks an instance for replacement on the next `up`,
 and `untaint` clears the mark. Turf™ reads the state from the engine's records of the workspace.
+
+<Example path="terraform/kubernetes/kind-crd" />
 
 <Conversation>
 <User>What does kind-crd's state hold, and what's the kubectl context?</User>

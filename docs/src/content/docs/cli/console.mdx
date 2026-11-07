@@ -3,12 +3,10 @@ title: The console
 description: "turf console signs your browser in to the local Turf console at 127.0.0.1:8873 once, so every console link an agent hands you opens directly from then on."
 sidebar:
   order: 6
-  badge: { text: 'Since 1.4', variant: 'note' }
 ---
 
-import Since from '../../../components/Since.astro';
 
-`turf console` signs your browser in to the Turf™ console, once. <Since v="1.4" /> The console is a
+`turf console` signs your browser in to the Turf™ console, once. The console is a
 read-only web view of every workspace's runs, rounds, plans and approvals, and every result the MCP
 server hands your agent carries a link into it. Only you can open it, so the browser signs in first.
 
@@ -22,7 +20,7 @@ The browser keeps a cookie, so links open directly from then on.
 
 ## Where it runs
 
-The Homebrew service runs the console beside the engine, at http://127.0.0.1:8873, from the
+The Homebrew service runs the console beside the engine, at `http://127.0.0.1:8873`, from the
 `turf-ui` binary. After an upgrade to 1.4, `brew services restart turf` starts it.
 
 - `TURF_CONSOLE_ADDR=127.0.0.1:<port>` moves it to another port; `TURF_CONSOLE_ADDR=off` leaves it out.

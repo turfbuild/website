@@ -3,7 +3,6 @@ title: The server
 description: Run turf-mcp-server over stdio or HTTP, choose its permission tier, point it at an engine, and set its deadline, logging and console. Every flag is listed.
 ---
 
-import Since from '../../../components/Since.astro';
 
 `turf-mcp-server` is the Turf™ MCP server: the binary your agent starts. This page shows how to choose
 how it is reached, which tools it lists and which engine it drives. Every flag, with its environment
@@ -149,7 +148,7 @@ provider-plugin target. By default it is a new system temp directory, removed on
 ## The console
 
 The Turf console is a read-only web view of every workspace's runs, rounds and approvals.
-<Since v="1.4" /> Every `up`, `plan`, `apply`, `status` and `open` result carries a `console_url` link
+ Every `up`, `plan`, `apply`, `status` and `open` result carries a `console_url` link
 into it when the server knows a console. The server finds the local engine's console by itself.
 
 | Variable | Read by | Meaning |
@@ -173,7 +172,7 @@ See [The engine and the console](/docs/concepts/engine-and-console/).
 | `--scopes` | `TURF_ENGINE_SCOPES` | `on` | Flow-control scopes, `on` or `off`; must match the engine's. |
 | `--workdir` | `TURF_WORKDIR` | empty: no mapping | Maps this server's working directory to an engine's own `--workdir`. Needs `--restate-url`. |
 | `--deadline` | `TURF_DEADLINE` | `55s` | How long a convergence call runs before it returns the stage; `0` disables. |
-| `--console-url` | `TURF_CONSOLE_URL` | empty | Where a browser opens the console for an engine of your own. Since 1.4. |
+| `--console-url` | `TURF_CONSOLE_URL` | empty | Where a browser opens the console for an engine of your own. |
 | `--plugin-cache-dir` | `TF_PLUGIN_CACHE_DIR` | `<user cache>/turf/plugins` | Shared provider plugin cache; `off` disables. |
 | `--tmp-dir` | | a system temp directory | Per-process scratch directory, removed on exit when defaulted. |
 | `--log-file` | `TF_LOG_PATH` | stderr | Where logs go. |
@@ -187,5 +186,5 @@ See [The engine and the console](/docs/concepts/engine-and-console/).
 | `--trace` | | | Write an execution trace to this file, flushed on shutdown; read it with `go tool trace`. |
 | `--pprof-addr` | | empty: off | Serve Go's pprof endpoints on this address, such as `localhost:6060`. |
 | `--version` | | | Print the version and the license line, and exit. |
-| | `TURF_CONSOLE_ADDR` | `127.0.0.1:8873` | Where the local console listens, or `off`. Read by `engine run`. Since 1.4. |
-| | `TURF_CONSOLE_AUTH_TOKEN` | `console.token` | The console's token. Since 1.4. |
+| | `TURF_CONSOLE_ADDR` | `127.0.0.1:8873` | Where the local console listens, or `off`. Read by `engine run`. |
+| | `TURF_CONSOLE_AUTH_TOKEN` | `console.token` | The console's token. |

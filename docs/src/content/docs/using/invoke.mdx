@@ -7,6 +7,7 @@ sidebar:
 
 import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 import Conversation from '../../../components/Conversation.astro';
+import Example from '../../../components/Example.astro';
 import User from '../../../components/User.astro';
 import Agent from '../../../components/Agent.astro';
 import ToolResult from '../../../components/ToolResult.astro';
@@ -15,6 +16,8 @@ import ToolResult from '../../../components/ToolResult.astro';
 or an ad-hoc one laid over the configuration in memory for this run alone. Turf™ plans it in one round
 and stops at the approval point. What the action's configuration reads is refreshed; nothing else
 changes.
+
+<Example path="terraform/kubernetes/kind-crd" />
 
 <Conversation>
 <User>Run a one-off check on kind-crd: is the custom resource being served?</User>

@@ -7,14 +7,16 @@ sidebar:
 
 import { Tabs, TabItem, Aside, Steps } from '@astrojs/starlight/components';
 import Conversation from '../../../components/Conversation.astro';
+import Example from '../../../components/Example.astro';
 import User from '../../../components/User.astro';
 import Agent from '../../../components/Agent.astro';
 import ToolResult from '../../../components/ToolResult.astro';
-import Since from '../../../components/Since.astro';
 
 `up` deploys a configuration directory, or brings one you applied before back in line with its files.
 Turf™ plans one round at a time, stops at each round's approval point with the plan, and applies it
 only on a yes. The run ends `converged` when nothing is left deferred.
+
+<Example path="terraform/kubernetes/kind-crd" />
 
 <Conversation>
 <User>Set the custom resource's message in kind-crd to "Hello again" and deploy it. Show me the plan first.</User>
@@ -47,7 +49,7 @@ console_url: "http://127.0.0.1:8873/w/…?round=…"
 <Agent calls={['apply → converged', 'output']}>
 
 Apply complete! Resources: 0 added, 1 changed, 0 destroyed. The output `cr_message` now reads
-`Hello again`. The round is in the console at http://127.0.0.1:8873/w/…?round=… <Since v="1.4" />
+`Hello again`. The round is in the console at `http://127.0.0.1:8873/w/…?round=…`
 
 </Agent>
 </Conversation>
@@ -110,7 +112,7 @@ cd path/to/config && turf up
 
 The Turf CLI is Turf's own agent, driven by a model you bring. `turf up` sends it the same `/up`
 runbook and runs it in the terminal, where it asks its approval questions. The terminal shows the
-console link at each plan gate and approval point. <Since v="1.4" />
+console link at each plan gate and approval point.
 
 Words after `up` are instructions for the run:
 
@@ -147,7 +149,7 @@ decision, and the agent applies the low-risk test afresh each time.
 
 **Every result says what comes next.** It carries `outcome` (where the run stands), `ended` (whether
 it is over) and `next` (the call that continues it, with its arguments; an approval's digest is never
-filled in). `console_url` is the round's page in the Turf console <Since v="1.4" />: the agent gives
+filled in). `console_url` is the round's page in the Turf console: the agent gives
 you the link verbatim and never opens it itself.
 
 **Do not edit between plan and apply.** The engine re-reads the configuration before it applies. If a

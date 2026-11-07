@@ -5,7 +5,6 @@ sidebar:
   order: 2
 ---
 
-import Since from '../../../components/Since.astro';
 
 Your agent finds a provider with `provider_search`, reads the exact schema of what it will write with
 `provider_describe`, and pins the provider in `versions.tf`. `init` installs it and records the
@@ -25,7 +24,7 @@ time:
 - a `resource_type`, `datasource_type` or `action_type`: its attributes and their types, which are
   required, optional or computed, nested blocks, which attributes are `write_only`, and the
   `identity_schema` an import can use;
-- or one provider-defined `function` <Since v="1.3" />: its parameters, return type and
+- or one provider-defined `function`: its parameters, return type and
   description, called as `provider::<local name>::<function>(…)` from a module whose
   `required_providers` declares the provider.
 

@@ -5,7 +5,6 @@ sidebar:
   order: 3
 ---
 
-import Since from '../../../components/Since.astro';
 
 `turf up` deploys or updates the configuration in the current directory, and `turf destroy` tears it
 down. Each runs the Turf™ agent through the whole convergence, round by round, and stops to ask you
@@ -54,7 +53,7 @@ gate, where the agent plans it, and then at its approval point, with the plan. T
 low-risk plan itself: creates and in-place updates only. Anything else, such as a destroy, a replace,
 an import or an invoke, waits for your answer. A destroy always asks you to confirm.
 
-`turf up` shows the round's console link beside each plan gate and approval point <Since v="1.4" />,
+`turf up` shows the round's console link beside each plan gate and approval point,
 so you can read the plan in the browser before you answer. Sign the browser in once with
 [`turf console`](/docs/cli/console/).
 

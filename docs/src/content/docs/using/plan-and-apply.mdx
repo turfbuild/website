@@ -7,6 +7,7 @@ sidebar:
 
 import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 import Conversation from '../../../components/Conversation.astro';
+import Example from '../../../components/Example.astro';
 import User from '../../../components/User.astro';
 import Agent from '../../../components/Agent.astro';
 import ToolResult from '../../../components/ToolResult.astro';
@@ -14,6 +15,8 @@ import ToolResult from '../../../components/ToolResult.astro';
 Every Turf™ run is the same loop. A start verb stops at the round's plan gate; `plan` plans the round
 and stops at its approval point; `apply` with the plan's digest approves and applies that plan. At the
 approval point you can also decline the plan, and at any stage you can cancel the run.
+
+<Example path="terraform/kubernetes/kind-crd" />
 
 <Conversation>
 <User>Plan kind-crd, but don't apply anything yet.</User>

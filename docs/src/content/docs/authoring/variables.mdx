@@ -5,7 +5,6 @@ sidebar:
   order: 3
 ---
 
-import Since from '../../../components/Since.astro';
 
 Variable *declarations* live in the configuration, in `variable` blocks. Variable *values* come with
 `open` and each plan command, and Turf™ never writes them to disk. This page is about declaring
@@ -72,7 +71,7 @@ source attribute, a `count` or `for_each`, or a root output. Stored plan variabl
 only. A run holds the values its plan command was given for every round's plan and apply, which is
 how Turf meets Terraform's rule that ephemeral values are supplied again at apply.
 
-A child module's output may be `ephemeral = true` <Since v="1.2" />, so a module can hand its caller a
+A child module's output may be `ephemeral = true`, so a module can hand its caller a
 secret without the value reaching state or the saved plan. A root output may not.
 
 ### Write-only arguments

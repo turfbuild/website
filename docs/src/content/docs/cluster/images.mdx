@@ -5,7 +5,6 @@ sidebar:
   order: 2
 ---
 
-import Since from '../../../components/Since.astro';
 
 A cluster deployment of Turf™ pulls from three places:
 
@@ -27,7 +26,7 @@ non-root user, `turf`, whose home is `/home/turf`. Four binaries sit at its root
 | `/turf-mcp-server` | the MCP server, the image's default |
 | `/turf-engine` | the engine |
 | `/turf-builtin-provider` | the engine's built-in provider, beside the engine, where the engine looks for it |
-| `/turf-ui` | the console <Since v="1.4" /> |
+| `/turf-ui` | the console |
 
 The entrypoint, `/docker-entrypoint.sh`, picks one by its first argument: `turf-engine` runs the
 engine, `turf-ui` runs the console, and anything else runs the server with those arguments. Both

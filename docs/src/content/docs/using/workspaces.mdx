@@ -7,6 +7,7 @@ sidebar:
 
 import { Tabs, TabItem, Aside, Steps } from '@astrojs/starlight/components';
 import Conversation from '../../../components/Conversation.astro';
+import Example from '../../../components/Example.astro';
 import User from '../../../components/User.astro';
 import Agent from '../../../components/Agent.astro';
 import ToolResult from '../../../components/ToolResult.astro';
@@ -14,6 +15,8 @@ import ToolResult from '../../../components/ToolResult.astro';
 A workspace is a backend and a state slot, bound to a configuration by `open`. Most runs use one, the
 default. To work on staging and production side by side, open more, each under its own alias; Turf™
 then names each by that alias in every later call.
+
+<Example path="terraform/kubernetes/kind-crd" />
 
 <Conversation>
 <User>Open a staging workspace for kind-crd beside the default one, with cluster_name turf-crd-staging.</User>

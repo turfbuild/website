@@ -6,7 +6,6 @@ sidebar:
 ---
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
-import Since from '../../../components/Since.astro';
 
 This is the smallest set that runs Turf™ in a cluster, everything in one namespace, `turf`. It is
 written from two examples: turf-kagent's Kustomize manifests and the plain-kubectl manifests in
@@ -17,7 +16,7 @@ turf-examples' `integrations/kagent`. Six parts, applied in this order:
 3. restate-server and the engine, either as a StatefulSet and a Deployment or through the Restate
    operator and Knative;
 4. the MCP server;
-5. the console <Since v="1.4" />;
+5. the console;
 6. NetworkPolicy for each part.
 
 The configuration is the configuration image `ghcr.io/turfbuild/turf-examples/kubernetes-in-cluster`
