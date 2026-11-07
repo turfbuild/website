@@ -1,0 +1,79 @@
+---
+title: The engine and the console
+description: The Turf engine plans and applies durably, outliving the server and the conversation; the console is a read-only web view of every run, round and approval beside it.
+sidebar:
+  order: 5
+---
+
+import Still from '../../../components/Still.astro';
+import Since from '../../../components/Since.astro';
+
+The agent talks to the MCP server. The server drives the **engine**, a separate process where plans are
+made and applied. The engine holds the state lock, runs the OpenTofu™ providers, and carries every
+convergence durably, so a rollout survives a server restart, a dropped client and the end of the
+conversation. The **console** is a window onto it. <Since v="1.4" />
+
+## The engine
+
+**Durable runs.** A convergence lives in the engine, not in the server or the chat. If the conversation
+ends while a round waits for approval, the run waits; `open` or `status` on the workspace reports it,
+and `apply` picks it up where it stands. A pause lasts 24 hours at a plan gate, an approval point or a
+turf action; past that the server detaches and the run keeps waiting in the engine. The engine is built
+on Restate for this durability. Turf™ names it plainly: every step of a run is journaled, and a step
+that was in flight when something died is resumed, not repeated.
+
+**Where it runs.** On your machine, the engine is the `turf` Homebrew service (`brew services start
+turf`), or `turf-mcp-server engine run` in a terminal. The server connects to it and never starts it.
+`turf-mcp-server engine status` reports where it listens, its processes and versions, the console's
+address and its logs. It listens only where your account can reach it. `init`, the provider tools and
+the skills work without an engine; everything that plans needs one. In a cluster the engine is a
+Deployment with as many replicas as you like, and any step lands on any replica:
+[Running Turf in a cluster](/docs/cluster/topology/).
+
+**One line.** A server drives an engine of its own line (the same major and minor version) and refuses
+another, naming both. After a Homebrew upgrade, `brew services restart turf` brings the engine up to
+the new line; a run that was waiting on the old one ends `cancelled`, what was applied is kept, and
+`up` again plans over it. Running the engine beside the agent, rather than inside the CLI, is also why
+providers read the engine's environment rather than your shell's:
+[Where credentials are read](/docs/environment/where-credentials-are-read/).
+
+**Scale-out.** Refresh, plan and apply fan out per resource inside the engine, so the cloud API, not
+the tool, is the ceiling on a large configuration.
+
+## The console <Since v="1.4" />
+
+The console is a read-only web view of every workspace's runs, rounds and approvals, running beside the
+engine at http://127.0.0.1:8873 on a laptop. Every result the server hands the agent carries a link
+into it (`console_url`), the page for the round it is about, and the agent is asked to give you that
+link, above all at an approval point. When the agent says "the plan is ready", there is a page to look
+at.
+
+<Still id="round" src="stills/aicr-round2-certify-action.png" alt="A round's page in the Turf console: the plan, the approval point, and the apply paused at a turf action" caption="A round's page: the plan, who approved it, and the apply paused at a turf action." />
+
+**What it shows.** A workspace opens on its runs, newest first, each opened into its rounds: what each
+round is doing or how it ended, the plan's size, its approval point and who gave it, how long it took.
+A round's page tells its story from the engine's own stamps: the plan gate while it is open, the plan
+with its counts by action, the approval point with the approver and the plan's digest, the apply, any
+turf action the apply is asking, and how the round ended the run.
+
+| Tab | Shows |
+|---|---|
+| Runs | The workspace's convergences, newest first, each with its rounds. |
+| Timeline | Every resource's lane as the apply runs, live. |
+| State | What the workspace holds: its outputs and every address, each opening to its committed record. |
+| Round | One round's story: plan gate, plan, approval, apply, end. |
+| Plan | The round's plan, counted by action. |
+| Graph | The round's configuration graph. |
+
+**Read-only, and yours.** Approvals are given where they always were, by the agent or the CLI; the
+console changes nothing. Only you can open it: `turf console` signs your browser in once, and every
+link opens directly after that. `TURF_CONSOLE_ADDR` moves it to another loopback address or turns it
+off (`off`); the engine does not depend on it. In a cluster the console takes a token
+(`TURF_CONSOLE_AUTH_TOKEN`) and the server is told where it lives (`TURF_CONSOLE_URL`) so the links
+point there: [The console in a cluster](/docs/cluster/console/).
+
+## Related
+
+- [Install locally](/docs/start/install/): the service, `engine status`, upgrading.
+- [The engine's environment](/docs/environment/engine-environment/)
+- [When something goes wrong](/docs/using/troubleshooting/): picking up a run the engine is holding.

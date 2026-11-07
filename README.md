@@ -30,9 +30,15 @@ src/
                          Partner, Still,
                          TopNav, Footer; figures/ holds the inline SVG figures
   pages/*.astro          index, engine, compatibility, get-started, pricing, licensing,
-                         reference-architectures, community, contact, docs, 404
+                         reference-architectures, community, contact, 404
 scripts/og.svg           source for public/og.png (see "Regenerate the OG image")
+scripts/merge-docs.mjs   copies docs/dist into dist/docs after both builds
+docs/                    the documentation, a Starlight site served at /docs/ (its own package.json;
+                         see docs/README.md)
 ```
+
+`npm run build` builds the site, then the docs, and merges them: one `dist/`, one deploy.
+`npm run dev:docs` serves the docs alone at http://localhost:4321/docs/.
 
 The design system comes from the approved home mockup. The Compatibility page is adapted from the
 internal language-feature conformance report (FU-ids and code anchors stripped).

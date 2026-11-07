@@ -1,0 +1,170 @@
+---
+title: Your first run
+description: Deploy a kind cluster, a CRD and a custom resource from your agent in three rounds, approve each plan, open the run in the console, then tear it down with destroy.
+sidebar:
+  order: 4
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import Conversation from '../../../components/Conversation.astro';
+import User from '../../../components/User.astro';
+import Agent from '../../../components/Agent.astro';
+import ToolResult from '../../../components/ToolResult.astro';
+import Since from '../../../components/Since.astro';
+
+The first run needs no cloud account. The kind-crd example in turf-examples builds a local Kubernetes®
+cluster with kind, registers a CustomResourceDefinition on it, and creates one custom resource of that
+kind. Three things, each depending on the one before, in one configuration: Turf™ converges them in
+three rounds, and you approve each one.
+
+You need Docker running and `kind` on your PATH, and the example checked out:
+
+```sh
+git clone https://github.com/turfbuild/turf-examples
+cd turf-examples/terraform/kubernetes/kind-crd
+```
+
+## 1. Ask for the walkthrough
+
+In Claude Code, Turf's prompts are slash commands. Start with the guide:
+
+```text
+/turf:guide
+```
+
+The agent loads Turf's skills and offers a short tour. In another client, ask in words: "show me how
+Turf works".
+
+## 2. Deploy
+
+```text
+/turf:up terraform/kubernetes/kind-crd
+```
+
+Slash-command arguments are one word each, so the path has no spaces. In any client you can also say
+"deploy the configuration in terraform/kubernetes/kind-crd with Turf". What follows is the shape of
+the session:
+
+<Conversation>
+  <User>/turf:up terraform/kubernetes/kind-crd</User>
+  <Agent calls={['init → ok', 'open → default', 'up → awaiting_plan', 'plan → awaiting_approval']}>
+    **Plan: 1 to add, 2 deferred to a later round.**
+
+    ```text
+    + kind_cluster.demo
+        name: turf-crd-demo-1
+    ```
+
+    The kubernetes provider reads the cluster's endpoint, which does not exist yet, so the CRD and the
+    custom resource plan in round 2. Ready to apply these changes?
+  </Agent>
+  <User>Yes.</User>
+  <Agent calls={['apply → awaiting_plan', 'plan → awaiting_approval']}>
+    Round 1: applied 1, deferred 2. The cluster is up. Round 2 plans the CRD; the custom resource is
+    still deferred, because the API server does not know its kind until the CRD is applied.
+
+    ```text
+    + kubernetes_manifest.crd      turfs.demo.local
+    ```
+
+    Ready to apply these changes?
+  </Agent>
+  <User>Yes.</User>
+  <Agent calls={['apply → awaiting_plan', 'plan → awaiting_approval', 'apply → converged', 'output']}>
+    Round 2: applied 1, deferred 1. Round 3 planned the custom resource, a create and nothing else, so
+    I approved it. **Apply complete: 3 added, 0 changed, 0 destroyed.**
+
+    Outputs: `cluster_name = turf-crd-demo-1`, `cr_name = example-turf`, `cr_message = Hello from Turf`.
+
+    The run is in the console: http://127.0.0.1:8873/… <Since v="1.4" />
+  </Agent>
+</Conversation>
+
+Notice what the agent did and did not do. Turf made each plan; the agent read it and explained what was
+deferred and why. It asked before applying rounds 1 and 2. Round 3 was a single create with nothing
+risky in it, so the agent approved it itself, as its rules allow, and told you. Every result the agent
+saw carried a link to the console, the page for that round. <Since v="1.4" />
+
+<ToolResult tool="plan" outcome="awaiting_approval">
+```text
+convergence_id: cv_8f3a…
+round: 1
+plan:
+  uri:      turf://workspaces/default/convergences/cv_8f3a…/rounds/1/plan
+  digest:   sha256:4c1e…
+  add: 1  deferred: 2
+rounds: [ {round: 1, planned: 3, deferred: 2} ]
+next: apply({ convergence_id: "cv_8f3a…", plan_digest: "sha256:4c1e…" })
+console_url: http://127.0.0.1:8873/w/default/c/cv_8f3a…/r/1
+```
+</ToolResult>
+
+## 3. Look at the run <Since v="1.4" />
+
+Open the console link. The first time, run `turf console` in a terminal to sign your browser in; after
+that every link opens directly. The round's page tells its story: the plan gate, the plan with its counts,
+the approval point with who approved and the plan's digest, the apply, and how the round ended the run.
+The Timeline tab draws every resource's lane. The console is read-only: approvals are given by the agent
+or the CLI, as above.
+
+## 4. Check the cluster
+
+```sh
+kind get clusters
+kubectl get turfs.demo.local
+```
+
+## 5. Tear it down
+
+```text
+/turf:destroy terraform/kubernetes/kind-crd
+```
+
+<Conversation>
+  <User>/turf:destroy terraform/kubernetes/kind-crd</User>
+  <Agent calls={['init → ok', 'open → default', 'destroy → awaiting_plan', 'plan → awaiting_approval']}>
+    **Plan: 3 to destroy.**
+
+    ```text
+    - kubernetes_manifest.instance
+    - kubernetes_manifest.crd
+    - kind_cluster.demo
+    ```
+
+    Dependents go first, so the custom resource before the CRD that defines it, then the cluster.
+    Ready to destroy these resources? This cannot be undone.
+  </Agent>
+  <User>Yes, destroy them.</User>
+  <Agent calls={['apply → converged']}>
+    **Destroy complete: 3 destroyed.**
+  </Agent>
+</Conversation>
+
+A destroy plan is never approved by the agent. It presents the plan, asks in those words, and waits for
+your explicit yes.
+
+<Tabs>
+  <TabItem label="The same run from the Turf CLI">
+The Turf CLI is Turf's own agent; it needs a model key (or a local model). The run is the same loop,
+with the approval questions in the terminal.
+```sh
+export ANTHROPIC_API_KEY=sk-...
+cd terraform/kubernetes/kind-crd && turf up
+cd terraform/kubernetes/kind-crd && turf destroy
+```
+More in [The Turf CLI](/docs/cli/overview/).
+  </TabItem>
+</Tabs>
+
+<Aside type="tip" title="Replace the cluster with no gap">
+The example's README shows a second run with `generation = 2`: the new cluster comes up beside the
+old one, the CRD and custom resource are created on it, and only then are the old ones removed. Ask
+your agent to run `up` with that variable and read the plan: it reports the replacement as
+`replace_by_triggers`.
+</Aside>
+
+## Next
+
+- [Deploy or update with up](/docs/using/up/): the task page, with every argument.
+- [Approval](/docs/concepts/approval/): what the agent may approve itself and what it brings to you.
+- [Rounds and deferrals](/docs/concepts/rounds/): why this run took three.

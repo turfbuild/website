@@ -1,11 +1,19 @@
 ---
-// A tool result shown inside a <Conversation>: the terminal-dark block the marketing site's
-// `.agentloop .report` uses. `tool` names the call, `outcome` its outcome; the slot is the body,
-// written as preformatted text (keep it short; a result page is for the reference).
+// A tool result shown inside a <Conversation>: a collapsible block naming the call and its outcome,
+// with the result's body as the slot. Write the body as a ```text fenced code block inside the
+// component (MDX parses bare braces in prose as expressions, and a result is full of them):
+//
+//   <ToolResult tool="plan" outcome="awaiting_approval">
+//   ```text
+//   plan: { digest: "sha256:…", add: 1 }
+//   ```
+//   </ToolResult>
+//
+// Keep it short; the reference has the full shapes.
 interface Props { tool: string; outcome?: string; open?: boolean }
 const { tool, outcome, open = false } = Astro.props;
 ---
 <details class="result" open={open}>
   <summary><span class="lab">TOOL RESULT</span><b>{tool}</b>{outcome && <><span class="arrow">→</span><i>{outcome}</i></>}</summary>
-  <pre class="report"><slot /></pre>
+  <div class="report-body"><slot /></div>
 </details>

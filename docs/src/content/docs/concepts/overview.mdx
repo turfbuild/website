@@ -1,0 +1,83 @@
+---
+title: Overview
+description: "The words Turf uses, in one place: configuration, workspace, convergence, round, plan gate, approval point, turf action, planfile, overlay and backend, with a diagram of how they fit."
+sidebar:
+  order: 1
+---
+
+Turf™ has a small vocabulary, and every tool result uses it. This page is the map; the pages after it
+take one idea each.
+
+```text
+ configuration ──init──▶ registered     workspace ──open──▶ bound to the configuration
+ (a directory of .tf                    (a backend + a state slot)
+  files and *.turf.hcl overlays)                │
+                                                ▼
+            convergence: one run of up (or destroy, refresh, import, invoke)
+            ┌──────────────────────────────────────────────────────────────────┐
+            │ round 1          round 2          round 3 …   until nothing is  │
+            │ plan gate        plan gate        plan gate    deferred          │
+            │   │ plan           │ plan           │ plan                       │
+            │ approval point   approval point   approval point                 │
+            │   │ apply          │ apply          │ apply                      │
+            │ apply ──(turf action? pause, answer, continue)──▶ next round      │
+            └──────────────────────────────────────────────────────────────────┘
+```
+
+## The words
+
+**Configuration.** A directory of ordinary `.tf` files, plus any `*.turf.hcl` overlays. The desired
+state. `init` registers it, installs its modules and providers, and reports what it declares: backend,
+workspace, variables, outputs, providers. Every plan is a projection of this directory.
+
+**Workspace.** A backend and a state slot, bound to a configuration by `open`. The backend comes from
+the configuration's own block; `open` supplies only what the block leaves out. A workspace is named by
+an alias while it is open. Details: [Workspaces and backends](/docs/using/workspaces/).
+
+**Convergence.** One run of `up`, or of `destroy`, `refresh`, `import` or `invoke`: rounds of plan,
+approve, apply, until nothing is deferred. A convergence lives in the engine, not in the server or the
+conversation, so it outlives both. It holds the workspace's state lock while it runs.
+
+**Round.** One plan and its apply. A value known only after an apply (an ID the provider mints, a
+cluster's endpoint) defers what needs it to the next round. Why runs have rounds:
+[Rounds and deferrals](/docs/concepts/rounds/).
+
+**Plan gate.** Where a round waits for `plan`. The result says `awaiting_plan`; nothing is planned yet.
+`up` stops at round 1's plan gate, and `apply` stops at the next round's.
+
+**Approval point.** Where a round's plan waits for `apply`. The result says `awaiting_approval` and
+carries the plan (`plan.uri`, which `show` reads) and its digest. `apply` with that digest is the
+approval, of that plan and no other; `apply` with `decline` turns it down. Who approves what:
+[Approval](/docs/concepts/approval/).
+
+**Turf action.** A step the configuration asks the agent to carry out during an apply: a check, a
+backup, a notification, a question for you. The apply stops for it (`awaiting_actions`) and continues
+when the agent answers with `apply` and `action_results`. [Turf actions](/docs/concepts/turf-actions/).
+
+**Planfile.** A plan sealed for later. `plan_only: true` on a start verb ends the round `planned` with
+a planfile; `apply` with the planfile and its digest applies it, here or on another server with its own
+credentials. [Plan now, apply later](/docs/using/planfiles/).
+
+**Overlay.** A `*.turf.hcl` file beside the `.tf` files, holding Turf's interaction points: turf actions
+and their triggers, laid over the configuration without editing it.
+[Actions and overlays](/docs/authoring/actions-and-overlays/).
+
+**Backend.** Where the state lives: local, an object store, a Kubernetes Secret, a remote backend. The
+configuration's `backend` block names it; the server's environment holds its credentials.
+[Where credentials are read](/docs/environment/where-credentials-are-read/).
+
+## Outcomes
+
+Every result carries three fields: `outcome`, where the run stands; `ended`, whether it is over; and
+`next`, the call that continues it. The outcomes an agent sees most:
+
+| Outcome | Meaning |
+|---|---|
+| `awaiting_plan` | At a plan gate. Call `plan`. |
+| `awaiting_approval` | At an approval point. Review the plan; `apply` with its digest, or decline. |
+| `awaiting_actions` | The apply waits on turf actions. Do them; `apply` with the results. |
+| `converged` | Done: nothing left deferred. |
+| `failed`, `stalled`, `exhausted`, `stale`, `declined`, `cancelled` | The run ended without converging; each says why. |
+
+The full table is in [Result shape](/docs/reference/result-shape/), and what to do about each ending in
+[When something goes wrong](/docs/using/troubleshooting/).

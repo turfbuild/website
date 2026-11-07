@@ -1,0 +1,106 @@
+---
+title: Install locally
+description: Install Turf with Homebrew or one script. The tap installs the MCP server, the engine and its built-in provider, the console and the CLI; the engine runs as a service.
+sidebar:
+  order: 2
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import Since from '../../../components/Since.astro';
+
+One install puts Turf™ on your machine: the MCP server your agent talks to, the engine that plans and
+applies, and the CLI. The engine runs as a service, so a rollout keeps going after the conversation
+that started it ends.
+
+<Tabs>
+  <TabItem label="Homebrew (macOS and Linux)">
+```sh
+brew install restatedev/tap/restate-server turfbuild/tap/turf
+brew services start turf
+# the engine, now and at every login
+turf-mcp-server engine status
+```
+  </TabItem>
+  <TabItem label="One script">
+```sh
+curl -fsSL https://get.turf.build/install.sh | bash
+```
+With Homebrew on your PATH the script runs the same install and starts the service. Without it, the
+script unpacks the release into `~/.turf/bin`, with restate-server beside it, and you run the engine
+yourself:
+```sh
+turf-mcp-server engine run
+```
+Options: `--no-brew`, `--dir DIR`, `--no-start`, `--no-telemetry`.
+  </TabItem>
+</Tabs>
+
+## What was installed
+
+| Binary | Role |
+|---|---|
+| `turf-mcp-server` | The MCP server. Your agent runs it over stdio; in a cluster it serves HTTP. |
+| `turf-engine` | The engine: plans and applies durably, runs the providers. Started by the service. |
+| `turf-builtin-provider` | The engine's built-in provider, which carries turf actions. |
+| `turf-ui` | The console, a read-only web view of every run, at http://127.0.0.1:8873. <Since v="1.4" /> |
+| `turf` | The Turf CLI: Turf's own agent, `turf up`, `turf destroy`, `turf console`. |
+
+`restate-server` is the engine's dependency, from Restate's own tap. The engine is built on Restate
+for durable execution.
+
+## The engine service
+
+`brew services start turf` starts the engine now and at every login. It runs restate-server, turf-engine
+and the console under `~/.turf/engine`. `turf-mcp-server engine status` says where it listens, whether
+it answers, its version, the console's address and where its logs are.
+
+Providers run inside the engine, so they read the engine's environment, not your shell's. Cloud
+credentials for a service started by launchd go in `~/.homebrew/services/turf.env`; a configuration
+can also carry its own environment with mise. Both are in
+[The engine's environment](/docs/environment/engine-environment/).
+
+## The console <Since v="1.4" />
+
+The console is a read-only web view of every workspace's runs, rounds and approvals, beside the engine.
+Only you can open it: run `turf console` once to sign your browser in, and every link your agent
+gives you opens directly after that. `TURF_CONSOLE_ADDR=off` in `turf.env` turns it off; another
+loopback address moves it. More in [The engine and the console](/docs/concepts/engine-and-console/).
+
+## Upgrading
+
+```sh
+brew upgrade turfbuild/tap/turf
+brew services restart turf
+```
+
+Then restart your agent's MCP connection. The Turf CLI and `turf-mcp-server` must be the same release.
+A minor upgrade stops any rollout still running on the old engine: a run waiting for approval ends
+`cancelled` with the upgrade as the cause, and one in the middle of an apply finishes what is in flight
+and ends `partial`. Everything applied is kept; run `up` again and `plan` plans what remains.
+
+<Aside type="note" title="License and telemetry">
+Turf is free for noncommercial use under the PolyForm Noncommercial License 1.0.0. Commercial use,
+including a company's internal use, needs a license, and companies can evaluate Turf free for 60 days:
+[turf.build/licensing](https://turf.build/licensing/). The `turf` CLI is open source (MPL-2.0).
+
+Turf sends anonymous usage telemetry by default: the version, the platform, counts of resources,
+changes and runs, and an anonymous installation id. It never sends resource contents, credentials,
+state, variable values or names. `turf telemetry off && brew services restart turf` turns it off; so
+does `TURF_TELEMETRY=off` or `DO_NOT_TRACK=1` in the engine's environment (`turf.env`, not your shell).
+The field list is at [turf.build/telemetry](https://turf.build/telemetry/).
+</Aside>
+
+## Verify the binaries
+
+Every release artifact is signed and logged in the public Sigstore transparency log:
+
+```sh
+gh attestation verify "$(command -v turf)" --repo turfbuild/turf
+```
+
+The container image and its SBOM are verified with cosign; the commands are in
+[Images](/docs/cluster/images/).
+
+## Next
+
+[Connect your agent](/docs/start/connect/).

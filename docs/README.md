@@ -69,7 +69,8 @@ Pages are `.mdx` when they use a component, `.md` otherwise. Import components f
   example), then the `turf` CLI in a second tab: `<Tabs><TabItem label="In your agent">…</TabItem>
   <TabItem label="Turf CLI">…</TabItem></Tabs>`.
 - **A conversation opens a task page.** `<Conversation>` with `<User>`, `<Agent calls={['up → awaiting_plan']}>`
-  and optional `<ToolResult tool="plan" outcome="awaiting_approval">` children. Conversations are
+  and optional `<ToolResult tool="plan" outcome="awaiting_approval">` children whose body is a ```text
+  fenced code block (bare braces in a slot are MDX expressions and break the build). Conversations are
   illustrative: written to show the shape of a task (the ask, the calls, the approval, the result), not
   transcripts, and they carry no provenance caption. Keep them short: three to five turns.
 - **Stills.** `<Still id="runs" src="stills/console-runs.png" alt="…" caption="…" />`; one `id` per

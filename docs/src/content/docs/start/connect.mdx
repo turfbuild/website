@@ -1,0 +1,85 @@
+---
+title: Connect your agent
+description: Register the Turf MCP server with Claude Code, Claude Desktop, Cursor, Codex, Gemini CLI, VS Code or any MCP client in one command, then restart the client.
+sidebar:
+  order: 3
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+Your agent needs one line of configuration: the path to `turf-mcp-server`. One command writes it for
+every agent on this machine.
+
+```sh
+npx add-mcp@2 "$(command -v turf-mcp-server)" --name turf -g
+```
+
+It needs Node 18 or later and uses [add-mcp](https://github.com/neon-solutions/add-mcp), Neon's
+open-source installer. It finds the agents you have installed, lets you pick from the list, and writes
+each config with the server's absolute path, so an app launched from the Dock finds it too. Running it
+again replaces the entry. Restart Claude Desktop or Cursor after the config changes.
+
+In Claude Code and Claude Desktop, Turf™ runs on your Claude subscription. No model API key is needed.
+
+## Without Node: your client's own command
+
+<Tabs>
+  <TabItem label="Claude Code">
+```sh
+claude mcp add turf --scope user -- turf-mcp-server
+```
+  </TabItem>
+  <TabItem label="Codex CLI">
+```sh
+codex mcp add turf -- turf-mcp-server
+```
+  </TabItem>
+  <TabItem label="Gemini CLI">
+```sh
+gemini mcp add -s user turf turf-mcp-server
+```
+  </TabItem>
+  <TabItem label="VS Code">
+```sh
+code --add-mcp '{"name":"turf","command":"turf-mcp-server"}'
+```
+  </TabItem>
+  <TabItem label="Claude Desktop, Cursor">
+Both read the same block from their config file (`claude_desktop_config.json`, `~/.cursor/mcp.json`).
+Use the path `command -v turf-mcp-server` prints, then restart the app.
+```json
+{
+  "mcpServers": {
+    "turf": {
+      "command": "/path/to/turf-mcp-server"
+    }
+  }
+}
+```
+  </TabItem>
+</Tabs>
+
+## What the agent gets
+
+Once connected, the agent sees Turf's tools (`init`, `open`, `up`, `plan`, `apply`, …), three prompts
+and five resources. In Claude Code the prompts are slash commands: `/turf:guide`, `/turf:up <dir>`,
+`/turf:destroy <dir>`. In any other client you ask in words: "deploy the configuration in ./infra
+with Turf". The server also hands the agent a page of instructions and three skills at connection, so
+it knows the loop and the safety rules before its first call. The details are in the
+[MCP reference](/docs/reference/server/).
+
+<Aside type="tip" title="Check it works">
+Ask your agent "what Turf tools do you have?", or in Claude Code run `/mcp` and look for `turf`. Then
+run `/turf:guide` for a short walkthrough.
+</Aside>
+
+## HTTP instead of stdio
+
+The server speaks MCP over stdio by default. `turf-mcp-server --transport http` serves HTTP on
+loopback instead, for a client that connects over the network; off loopback it needs a bearer token,
+`TURF_MCP_AUTH_TOKEN`. That is how an agent in a cluster connects: see
+[Connecting clients](/docs/cluster/clients/).
+
+## Next
+
+[Your first run](/docs/start/first-run/).
