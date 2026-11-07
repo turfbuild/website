@@ -76,8 +76,9 @@ run `/turf:guide` for a short walkthrough.
 ## HTTP instead of stdio
 
 The server speaks MCP over stdio by default. `turf-mcp-server --transport http` serves HTTP on
-loopback instead, for a client that connects over the network; off loopback it needs a bearer token,
-`TURF_MCP_AUTH_TOKEN`. That is how an agent in a cluster connects: see
+loopback instead, for a client that connects over the network. Bound to any other address it is
+unauthenticated unless `TURF_MCP_AUTH_TOKEN` sets a bearer token, so set one. That is how an agent in
+a cluster connects: see
 [Connecting clients](/docs/cluster/clients/).
 
 ## Next

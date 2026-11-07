@@ -1,0 +1,802 @@
+---
+title: Minimal manifests
+description: "The smallest working set of Kubernetes manifests for Turf: Secrets, restate-server, the engine, the MCP server, the console and NetworkPolicy."
+sidebar:
+  order: 3
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import Since from '../../../components/Since.astro';
+
+This is the smallest set that runs Turf™ in a cluster, everything in one namespace, `turf`. It is
+written from two examples: turf-kagent's Kustomize manifests and the plain-kubectl manifests in
+turf-examples' `integrations/kagent`. Six parts, applied in this order:
+
+1. the namespace and three Secrets;
+2. the CLI configuration, one ConfigMap;
+3. restate-server and the engine, either as a StatefulSet and a Deployment or through the Restate
+   operator and Knative;
+4. the MCP server;
+5. the console <Since v="1.4" />;
+6. NetworkPolicy for each part.
+
+The configuration is the configuration image `ghcr.io/turfbuild/turf-examples/kubernetes-in-cluster`
+(a namespace and a ConfigMap), mounted read-only at `/turf/config` in the server's pod and every
+engine pod. Substitute your own. State goes in the Kubernetes® state backend, in `turf`.
+
+## The namespace and Secrets
+
+Three Secrets: the engine's identity key pair, the server's bearer token and the console's token. The
+engine makes its own key pair.
+
+```sh
+kubectl create namespace turf
+mkdir -p .secrets && chmod 700 .secrets
+
+# identity.pem: the private half, which restate-server signs every request to the engine with.
+# public-key: the public half, which the engine checks every request against.
+docker run --rm --user "$(id -u)" -v "$PWD/.secrets:/k" ghcr.io/turfbuild/turf-mcp-server:v1.4.0 \
+  turf-engine --identity-keygen /k/identity.pem > .secrets/public-key
+
+# No trailing newline: the server refuses a token with whitespace in it.
+(umask 077 && openssl rand -hex 32 | tr -d '\n' > .secrets/mcp-token)
+(umask 077 && openssl rand -hex 32 | tr -d '\n' > .secrets/console-token)
+
+kubectl -n turf create secret generic turf-engine-identity \
+  --from-file=identity.pem=.secrets/identity.pem --from-file=public-key=.secrets/public-key
+kubectl -n turf create secret generic turf-mcp-auth --from-file=token=.secrets/mcp-token
+kubectl -n turf create secret generic turf-console-auth --from-file=token=.secrets/console-token
+```
+
+Adapted from turf-kagent's `setup/secrets.sh`. Keep `.secrets/` out of version control.
+restate-server, the engine and the server read their Secrets only at start, so restart them after
+changing one.
+
+## The CLI configuration
+
+One OpenTofu™ CLI configuration for every Turf pod, mounted at `/turf/cli` and named by
+`TF_CLI_CONFIG_FILE`. Its `provider_installation` block says where provider plugins come from; the
+server and the engine must read the same block. As shipped it is the registry:
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: turf-cli-config
+  namespace: turf
+data:
+  turf.tfrc: |
+    provider_installation {
+      direct {}
+    }
+```
+
+The same in both examples (`cli-config.yaml`, `turf-cli-config.yaml`). Mirrors and registry tokens
+are in [Credentials in a cluster](/docs/cluster/credentials/#the-cli-configuration).
+
+## restate-server and the engine
+
+Pick one. A StatefulSet and a Deployment need no operator. The Restate operator and
+Knative scale the engine from zero and version it for you.
+
+<Tabs>
+<TabItem label="StatefulSet and Deployment">
+
+**restate-server**, one node, its data on a PersistentVolume:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: restate
+  namespace: turf
+spec:
+  selector:
+    app: restate
+  ports:
+    - name: ingress
+      port: 8080
+    - name: admin
+      port: 9070
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: restate
+  namespace: turf
+spec:
+  serviceName: restate
+  replicas: 1
+  selector:
+    matchLabels:
+      app: restate
+  template:
+    metadata:
+      labels:
+        app: restate
+    spec:
+      containers:
+        - name: restate
+          image: docker.io/restatedev/restate:1.8.1
+          env:
+            - name: RESTATE_BASE_DIR
+              value: /restate-data
+            # One-way: this node's data cannot go back to a release before 1.8.1.
+            - name: RESTATE_EXPERIMENTAL_ENABLE_PREFLIGHT_SIGNAL_RECORDING
+              value: "true"
+            # Fixed when the node first provisions.
+            - name: RESTATE_DEFAULT_NUM_PARTITIONS
+              value: "8"
+            - name: RESTATE_WORKER__INVOKER__REQUEST_IDENTITY_PRIVATE_KEY_PEM_FILE
+              value: /identity/identity.pem
+          ports:
+            - name: ingress
+              containerPort: 8080
+            - name: admin
+              containerPort: 9070
+          volumeMounts:
+            - name: restate-data
+              mountPath: /restate-data
+            - name: identity
+              mountPath: /identity
+              readOnly: true
+      volumes:
+        # The private key alone; the engine gets only the public half.
+        - name: identity
+          secret:
+            secretName: turf-engine-identity
+            defaultMode: 0400
+            items:
+              - key: identity.pem
+                path: identity.pem
+  volumeClaimTemplates:
+    - metadata:
+        name: restate-data
+      spec:
+        accessModes: [ReadWriteOnce]
+        resources:
+          requests:
+            storage: 10Gi
+```
+
+Adapted from turf-examples' `restate.yaml`, which also carries the three options only a 1.7 node
+needs.
+
+**The engine**, two replicas that register themselves with restate-server at start:
+
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: turf-engine
+  namespace: turf
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: turf-engine
+  namespace: turf
+spec:
+  selector:
+    app: turf-engine
+  ports:
+    - name: restate
+      port: 9080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: turf-engine
+  namespace: turf
+spec:
+  replicas: 2
+  # Roll together, so no two replicas serve different releases or configuration images.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: turf-engine
+  template:
+    metadata:
+      labels:
+        app: turf-engine
+    spec:
+      serviceAccountName: turf-engine
+      containers:
+        - name: turf-engine
+          # The same tag as the server and the console.
+          image: ghcr.io/turfbuild/turf-mcp-server:v1.4.0
+          command: ["/turf-engine"]
+          args:
+            - --addr=0.0.0.0:9080
+            - --advertise=http://turf-engine.turf.svc:9080
+            - --admin-addr=http://restate.turf.svc:9070
+            - --plugin-cache-dir=/turf/plugins
+            - --data-dir=/turf/data
+          env:
+            - name: TURF_ENGINE_IDENTITY_KEYS
+              valueFrom:
+                secretKeyRef:
+                  name: turf-engine-identity
+                  key: public-key
+            - name: TF_CLI_CONFIG_FILE
+              value: /turf/cli/turf.tfrc
+          # The providers' credentials (Credentials in a cluster).
+          envFrom:
+            - secretRef:
+                name: turf-provider-credentials
+                optional: true
+          ports:
+            - name: restate
+              containerPort: 9080
+          volumeMounts:
+            - name: configuration
+              mountPath: /turf/config
+              readOnly: true
+            - name: data
+              mountPath: /turf/data
+            - name: plugins
+              mountPath: /turf/plugins
+            - name: cli-config
+              mountPath: /turf/cli
+              readOnly: true
+      volumes:
+        - name: configuration
+          image:
+            reference: ghcr.io/turfbuild/turf-examples/kubernetes-in-cluster:1.0.0
+            pullPolicy: IfNotPresent
+        # Each replica's own caches. A restart empties them, and the replica installs
+        # modules and providers again the next time a round's step lands on it.
+        - name: data
+          emptyDir: {}
+        - name: plugins
+          emptyDir: {}
+        - name: cli-config
+          configMap:
+            name: turf-cli-config
+```
+
+Adapted from turf-examples' `turf-engine.yaml` (Turf 1.2.0 there; the provider Secret renamed).
+
+**NetworkPolicy** for the two. restate-server has no authentication of its own, so its policy decides
+who reaches it:
+
+```yaml
+# restate-server: the ingress for the MCP server and the console, the admin API for the
+# engine. It dials only the engine, and DNS.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: restate
+  namespace: turf
+spec:
+  podSelector:
+    matchLabels:
+      app: restate
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: turf-mcp-server
+        - podSelector:
+            matchLabels:
+              app: turf-console
+      ports:
+        - port: 8080
+    - from:
+        - podSelector:
+            matchLabels:
+              app: turf-engine
+      ports:
+        - port: 9070
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: turf-engine
+      ports:
+        - port: 9080
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+---
+# The engine: restate-server alone. Its egress stays open: provider plugins reach the
+# APIs and registries a configuration names.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: turf-engine
+  namespace: turf
+spec:
+  podSelector:
+    matchLabels:
+      app: turf-engine
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: restate
+      ports:
+        - port: 9080
+```
+
+Adapted from turf-examples' `networkpolicy.yaml`, with the console admitted to the ingress as
+turf-kagent admits it.
+
+</TabItem>
+<TabItem label="Restate operator and Knative">
+
+**Install first:** Knative Serving with Kourier (turf-kagent uses 1.24.0) and the Restate operator
+([Images](/docs/cluster/images/#restate-server-and-the-restate-operator)). Three Knative settings
+differ from a stock install:
+
+```sh
+# Kourier as the ingress class.
+kubectl patch configmap/config-network -n knative-serving --type merge \
+  -p '{"data":{"ingress-class":"kourier.ingress.networking.knative.dev"}}'
+# An engine request (one provider's apply) may run up to an hour.
+kubectl patch configmap/config-defaults -n knative-serving --type merge \
+  -p '{"data":{"max-revision-timeout-seconds":"3600"}}'
+# The engine's pods may mount the configuration image.
+kubectl patch configmap/config-features -n knative-serving --type merge \
+  -p '{"data":{"kubernetes.podspec-volumes-image":"enabled"}}'
+```
+
+From turf-kagent's `setup/knative.sh`.
+
+**restate-server**, a `RestateCluster`. The operator runs it as a StatefulSet in the namespace named
+after the cluster, and writes a default-deny NetworkPolicy around it from `security.networkPeers`:
+
+```yaml
+apiVersion: restate.dev/v1
+kind: RestateCluster
+metadata:
+  name: turf
+spec:
+  cluster:
+    autoProvision: true
+  compute:
+    image: docker.io/restatedev/restate:1.8.1
+    replicas: 1
+    env:
+      - name: RESTATE_EXPERIMENTAL_ENABLE_PREFLIGHT_SIGNAL_RECORDING
+        value: "true"
+  storage:
+    storageRequestBytes: 10737418240 # 10 GiB
+  config: |
+    # The operator provisions the cluster, so the node must not provision itself.
+    auto-provision = false
+    default-num-partitions = 8
+
+    # A provider's apply is one request to the engine. The default abort is 10 minutes.
+    [worker.invoker]
+    abort-timeout = "30m"
+  security:
+    # Every request to the engine is signed with this key.
+    requestSigningPrivateKey:
+      version: v1
+      secret:
+        secretName: turf-engine-identity
+        key: identity.pem
+    networkPeers:
+      ingress:
+        - podSelector:
+            matchLabels:
+              app: turf-mcp-server
+        - podSelector:
+            matchLabels:
+              app: turf-console
+      admin:
+        - podSelector:
+            matchLabels:
+              app: turf-engine
+    # restate-server reaches the engine through Kourier's internal gateway.
+    networkEgressRules:
+      - to:
+          - namespaceSelector:
+              matchLabels:
+                kubernetes.io/metadata.name: kourier-system
+            podSelector:
+              matchLabels:
+                app: 3scale-kourier-gateway
+```
+
+From turf-kagent's `restate-cluster.yaml`.
+
+**The engine**, a `RestateDeployment` in Knative mode. The operator creates a Knative Configuration
+and a cluster-local Route for the tag and registers the Route with restate-server:
+
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: turf-engine
+  namespace: turf
+---
+apiVersion: restate.dev/v1beta1
+kind: RestateDeployment
+metadata:
+  name: turf-engine
+  namespace: turf
+spec:
+  deploymentMode: knative
+  knative:
+    # One tag per Turf minor release: change it with the image.
+    tag: v1-4
+    minScale: 0
+    maxScale: 4
+    # Concurrent requests per pod before Knative adds one.
+    target: 8
+  restate:
+    register:
+      cluster: turf
+  template:
+    metadata:
+      labels:
+        app: turf-engine
+    spec:
+      serviceAccountName: turf-engine
+      # The outer bound on one request, above restate-server's abort-timeout.
+      timeoutSeconds: 3600
+      containers:
+        - name: turf-engine
+          image: ghcr.io/turfbuild/turf-mcp-server:v1.4.0
+          command: ["/turf-engine"]
+          args:
+            - --addr=0.0.0.0:9080
+            # The operator registers the Route; the engine only checks restate-server's version.
+            - --register=false
+            - --admin-addr=http://restate.turf.svc:9070
+            - --plugin-cache-dir=/turf/plugins
+            - --data-dir=/turf/data
+          env:
+            - name: TURF_ENGINE_IDENTITY_KEYS
+              valueFrom:
+                secretKeyRef:
+                  name: turf-engine-identity
+                  key: public-key
+            - name: TF_CLI_CONFIG_FILE
+              value: /turf/cli/turf.tfrc
+          # HTTP/2 without TLS, and nothing else: the port's name says so to Knative.
+          ports:
+            - name: h2c
+              containerPort: 9080
+          volumeMounts:
+            - name: configuration
+              mountPath: /turf/config
+              readOnly: true
+            - name: data
+              mountPath: /turf/data
+            - name: plugins
+              mountPath: /turf/plugins
+            - name: cli-config
+              mountPath: /turf/cli
+              readOnly: true
+      volumes:
+        - name: configuration
+          image:
+            reference: ghcr.io/turfbuild/turf-examples/kubernetes-in-cluster:1.0.0
+            pullPolicy: IfNotPresent
+        - name: data
+          emptyDir: {}
+        - name: plugins
+          emptyDir: {}
+        - name: cli-config
+          configMap:
+            name: turf-cli-config
+```
+
+From turf-kagent's `engine.yaml`.
+
+**NetworkPolicy** for the engine: Knative's data path alone. The operator's policy covers
+restate-server.
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: turf-engine
+  namespace: turf
+spec:
+  podSelector:
+    matchLabels:
+      app: turf-engine
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kourier-system
+          podSelector:
+            matchLabels:
+              app: 3scale-kourier-gateway
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: knative-serving
+          podSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values: [activator, autoscaler]
+```
+
+From turf-kagent's `network-policies.yaml`. Kourier's internal gateway serves every Knative service in
+the cluster, so any pod can reach the engine through its Route; there the engine's signature check is
+what refuses it.
+
+</TabItem>
+</Tabs>
+
+## The MCP server
+
+A Deployment and a Service on port 3000, its ServiceAccount allowed the Kubernetes state backend's
+two objects and nothing else:
+
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: turf-mcp-server
+  namespace: turf
+---
+# The kubernetes state backend's rights: Secrets and Leases in this namespace.
+# The server never runs a provider, so it needs nothing else.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: turf-state
+  namespace: turf
+rules:
+  - apiGroups: [""]
+    resources: [secrets]
+    verbs: [get, list, watch, create, update, patch, delete]
+  - apiGroups: [coordination.k8s.io]
+    resources: [leases]
+    verbs: [get, list, watch, create, update, patch, delete]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: turf-mcp-server-state
+  namespace: turf
+subjects:
+  - kind: ServiceAccount
+    name: turf-mcp-server
+    namespace: turf
+roleRef:
+  kind: Role
+  name: turf-state
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: turf-mcp-server
+  namespace: turf
+spec:
+  selector:
+    app: turf-mcp-server
+  ports:
+    - name: mcp
+      port: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: turf-mcp-server
+  namespace: turf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: turf-mcp-server
+  template:
+    metadata:
+      labels:
+        app: turf-mcp-server
+    spec:
+      serviceAccountName: turf-mcp-server
+      containers:
+        - name: turf-mcp-server
+          image: ghcr.io/turfbuild/turf-mcp-server:v1.4.0
+          args:
+            - --transport=http
+            - --addr=:3000
+            - --tmp-dir=/turf/tmp
+            - --plugin-cache-dir=/turf/plugins
+          env:
+            # Every request must carry "Authorization: Bearer <token>"; anything else gets 401.
+            - name: TURF_MCP_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: turf-mcp-auth
+                  key: token
+            # The engine: restate-server's ingress.
+            - name: TURF_RESTATE_URL
+              value: http://restate.turf.svc:8080
+            # Where a browser reaches the console: here, through a port-forward.
+            - name: TURF_CONSOLE_URL
+              value: http://localhost:8873
+            # Where init's module install goes: the configuration is read-only.
+            - name: TF_DATA_DIR
+              value: /turf/data
+            - name: TF_CLI_CONFIG_FILE
+              value: /turf/cli/turf.tfrc
+          ports:
+            - name: mcp
+              containerPort: 3000
+          readinessProbe:
+            tcpSocket:
+              port: mcp
+          volumeMounts:
+            # The same path as in the engine's pods, so no --workdir is needed.
+            - name: configuration
+              mountPath: /turf/config
+              readOnly: true
+            - name: data
+              mountPath: /turf/data
+            - name: plugins
+              mountPath: /turf/plugins
+            - name: tmp
+              mountPath: /turf/tmp
+            - name: cli-config
+              mountPath: /turf/cli
+              readOnly: true
+      volumes:
+        - name: configuration
+          image:
+            reference: ghcr.io/turfbuild/turf-examples/kubernetes-in-cluster:1.0.0
+            pullPolicy: IfNotPresent
+        - name: data
+          emptyDir: {}
+        - name: plugins
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        - name: cli-config
+          configMap:
+            name: turf-cli-config
+---
+# Your MCP clients, on 3000. Its egress stays open: it reaches the provider registry,
+# restate-server's ingress and the API server (the state backend).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: turf-mcp-server
+  namespace: turf
+spec:
+  podSelector:
+    matchLabels:
+      app: turf-mcp-server
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        # Replace with your clients' namespace and pod labels.
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: my-agents
+          podSelector:
+            matchLabels:
+              app: my-agent
+      ports:
+        - port: 3000
+```
+
+Adapted from turf-kagent's `mcp-server.yaml` and `network-policies.yaml`, where the peers are kagent's
+controller and its egress gateway. (turf-examples runs the server as a kagent `MCPServer` resource
+rather than a Deployment.) For a backend other than the Kubernetes one, leave out the Role and its
+binding and give the server that backend's credentials instead.
+
+## The console
+
+`turf-ui` from the same image, behind its token. No pod in the cluster may reach it: the way in is a
+port-forward.
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: turf-console
+  namespace: turf
+spec:
+  selector:
+    app: turf-console
+  ports:
+    - name: http
+      port: 8873
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: turf-console
+  namespace: turf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: turf-console
+  template:
+    metadata:
+      labels:
+        app: turf-console
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: turf-ui
+          image: ghcr.io/turfbuild/turf-mcp-server:v1.4.0
+          command: ["/turf-ui"]
+          args:
+            - --addr=0.0.0.0:8873
+            - --ingress-addr=http://restate.turf.svc:8080
+            # Must match the engine's (on, its default).
+            - --scopes=on
+          env:
+            - name: TURF_CONSOLE_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: turf-console-auth
+                  key: token
+          ports:
+            - name: http
+              containerPort: 8873
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+          securityContext:
+            readOnlyRootFilesystem: true
+---
+# Nothing in the cluster. A port-forward goes past the network plugin, so it is the one way in.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: turf-console
+  namespace: turf
+spec:
+  podSelector:
+    matchLabels:
+      app: turf-console
+  policyTypes: [Ingress]
+  ingress: []
+```
+
+From turf-kagent's `console.yaml` and `network-policies.yaml`. More in
+[The console in a cluster](/docs/cluster/console/).
+
+## Apply and check
+
+Apply restate-server first and wait for it: the engine checks its version at start, and the operator
+registers the engine with it. Then everything else.
+
+```sh
+# A StatefulSet:
+kubectl rollout status statefulset/restate -n turf --timeout=300s
+# A RestateCluster:
+kubectl wait --for=condition=Ready --timeout=300s restatecluster/turf
+kubectl rollout status statefulset/restate -n turf --timeout=300s
+```
+
+Then check that the server refuses a request without its token, through a port-forward:
+
+```sh
+kubectl port-forward -n turf svc/turf-mcp-server 3000
+curl -s -o /dev/null -w '%{http_code}\n' -X POST http://127.0.0.1:3000/mcp   # 401
+```
+
+NetworkPolicy is enforced by the cluster's network plugin, not by Kubernetes: on a CNI that ignores it,
+the policies are accepted and do nothing (kind's kindnet enforces them). They work at layers 3 and 4
+only, which is why the server still checks its token and the engine still checks that restate-server
+signed every request.
+
+The turf-kagent manifests also give every container resource requests and limits and a restricted
+`securityContext`: user 1000, non-root, no privilege escalation, every capability dropped, the
+runtime's default seccomp profile. Keep them.

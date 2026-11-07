@@ -1,0 +1,86 @@
+---
+title: Data sources
+description: Look something up with a data block. Every plan reads every data source; a read that cannot happen at plan moves to the apply, and its ordering is declared.
+sidebar:
+  order: 4
+---
+
+A data source is a read-only query a provider answers: an AMI ID, the availability zones, the
+current account. There is one way in, a `data` block in the configuration. That makes
+`data.<type>.<name>.<attr>` resolvable, and every plan reads it. No Turf™ tool reads a data source on
+its own.
+
+```hcl title="main.tf"
+data "aws_ami" "latest" {
+  most_recent = true
+  owners      = ["amazon"]
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+  }
+}
+
+resource "aws_instance" "web" {
+  ami           = data.aws_ami.latest.id
+  instance_type = "t3.micro"
+}
+```
+
+`count` and `for_each` expand a data source into keyed instances, with `count.index` or `each.key` in
+scope. Deleting the block un-declares it, and its stored value is pruned at the next apply.
+
+## See a value
+
+- **Read the plan.** A read made at plan is in the plan document's `prior_state`, which `show` reads.
+  Planning only to look commits nothing: cancel the run rather than apply it.
+- **Expose it as a root `output`.** After an apply, `output` returns it any time.
+
+## When it is read
+
+The plan is one dependency-ordered pass over the whole module tree. A data source is read after what
+it depends on and before what depends on it, across module boundaries.
+
+`refresh: false` on a plan skips refreshing *managed* objects only: data sources are read at every
+plan regardless. A read the provider rejects fails the plan with the provider's error.
+
+## Reads that move to the apply
+
+A read that cannot happen at plan moves to the apply, as in Terraform®:
+
+- **`read_because_config_unknown`**: the query holds a value nothing knows yet
+  (`values = [aws_vpc.main.id]` before the VPC exists). It is read during the apply, once the value
+  exists.
+- **`read_because_dependency_pending`**: a `depends_on` target still has a change pending. A query
+  can be entirely known and still name an object that does not exist yet.
+
+```hcl
+data "local_file" "rb" {
+  filename   = local_file.note.filename   # known at plan: a literal in local_file.note
+  depends_on = [local_file.note]          # without this, the read goes out now and fails
+}
+```
+
+**The ordering must be declared.** Turf does not infer it from the query, any more than Terraform
+does. A module call's `depends_on` is inherited by the data sources inside it. Either way, nothing in
+the file needs changing to resolve it: approve the round. What needs the value known at plan, such as
+a `count` or a provider block, defers to the next round, which `apply` plans by itself.
+
+## What is stored
+
+State's `data.*` entries are a cache of the last read, as in Terraform. A read is committed when its
+round applies: the value the plan read, so the apply issues no second read. A round that failed
+partway commits the reads it made. A plan that is cancelled or never approved commits nothing.
+
+A `destroy` with `refresh` re-reads only the data sources the teardown evaluates; with
+`refresh: false` it uses the committed reads. A completed destroy empties the data namespace with
+everything else.
+
+For a fresh value, such as the latest AMI, run `up` again: every plan re-reads.
+
+## How a read shows in the plan
+
+| In the plan | Meaning |
+|---|---|
+| `prior_state` | Read at plan: the value the plan was computed against |
+| `resource_changes[]` with `["read"]` | Moved to the apply; `action_reason` says why; counted in `plan.read` |
+| `deferred_changes[]` | The provider said "not yet"; a later round reads it |

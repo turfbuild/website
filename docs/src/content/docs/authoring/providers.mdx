@@ -1,0 +1,156 @@
+---
+title: Providers
+description: Find a provider with provider_search, read its exact schema with provider_describe, pin it in versions.tf, and let init install it and write the lock file.
+sidebar:
+  order: 2
+---
+
+import Since from '../../../components/Since.astro';
+
+Your agent finds a provider with `provider_search`, reads the exact schema of what it will write with
+`provider_describe`, and pins the provider in `versions.tf`. `init` installs it and records the
+selection in the lock file, which every plan honours. There is no configure step: the `provider`
+blocks are the provider configuration, evaluated at every plan.
+
+## Find a provider
+
+`provider_search` searches the OpenTofu™ provider registry for a query and returns names, latest
+versions and descriptions, most used first. It needs no workspace.
+
+## Read the schema
+
+`provider_describe` describes one type of a provider, as `tofu providers schema` does, one type at a
+time:
+
+- a `resource_type`, `datasource_type` or `action_type`: its attributes and their types, which are
+  required, optional or computed, nested blocks, which attributes are `write_only`, and the
+  `identity_schema` an import can use;
+- or one provider-defined `function` <Since v="1.3" />: its parameters, return type and
+  description, called as `provider::<local name>::<function>(…)` from a module whose
+  `required_providers` declares the provider.
+
+It takes the provider's source and, for a registry provider, its version. It needs no workspace: it
+installs the provider into the shared plugin cache, downloading it when the cache lacks it, and runs
+it. That is why it is not marked read-only, and your client may ask before calling it. Turf™'s own
+`turf_action` is described without a version.
+
+Provider schemas drift between versions, so the agent writes from the schema, not from memory. It
+pins the version in `versions.tf`, runs `init`, then describes the version `init` resolved.
+
+## Require and pin
+
+Declare each provider in `required_providers` and pin it (`~> MAJOR.MINOR`):
+
+```hcl title="versions.tf"
+terraform {
+  required_providers {
+    aws = { source = "hashicorp/aws", version = "~> 5.0" }
+  }
+}
+```
+
+| Source format | Registry | Example |
+|---|---|---|
+| `namespace/name` | the OpenTofu registry | `hashicorp/aws` |
+| `hostname/namespace/name` | a custom registry | `registry.acme.com/internal/mycloud` |
+
+A private registry authenticates with `turf login <host>` or `TF_TOKEN_<host>`, and a provider mirror
+is set in your CLI configuration, never in the `.tf` files: see
+[State backend, registries and mirrors](/docs/environment/registries-and-mirrors/).
+
+After adding a provider or changing a constraint, run `init` again, then `up`. The open workspace
+needs nothing: the engine reads the directory at every plan.
+
+## What `init` reports
+
+`init` reports every provider the root module and every child module require, in `providers[]`, as
+the lock file records it:
+
+```json
+{
+  "providers": [
+    {
+      "provider": "registry.opentofu.org/hashicorp/aws",
+      "version": "5.100.0",
+      "constraints": "~> 5.0",
+      "hashes": ["h1:…", "zh:…"],
+      "package_dir": "…"
+    }
+  ],
+  "lock_file": { "path": "…/.terraform.lock.hcl", "status": "created" }
+}
+```
+
+- **No `constraints`** means nothing pins the provider. Either it was never declared (its address is
+  the one OpenTofu implies for the name: `random` is `hashicorp/random`), or it was declared without
+  a `version`. Declare it with one.
+- **A provider that fails to install** is reported with its `error` rather than failing `init`.
+- **Built-in providers** ship with the engine and are never listed.
+
+Hand `providers[]` to a provider-scanning tool before the first `up` if you have one. `init` does not
+scan.
+
+## The lock file
+
+`init` records the selections in `.terraform.lock.hcl`, as `tofu init` does. `lock_file.status` is
+`created`, `updated`, `unchanged`, or `not_updated` when a provider failed to install. Every plan
+installs what the lock file selects, with checksums verified. Commit it with the configuration.
+
+A provider added since, or a constraint the locked version no longer meets, is refused as an
+"Inconsistent dependency lock file". Run `init` again, with `upgrade: true` to move a locked version.
+A change to the lock file makes a paused plan stale.
+
+## Provider blocks
+
+```hcl title="providers.tf"
+provider "azurerm" {
+  subscription_id = var.subscription_id
+  features {}
+}
+```
+
+- **No settings, no block.** A required provider without a block is configured empty, as in
+  Terraform®. Providers that read credentials from the environment work that way, and the
+  environment is the [engine's](/docs/environment/engine-environment/).
+- **Every aliased instance needs its own block.**
+- **A sensitive attribute arrives as an expression** (`var.token`), never a literal.
+- **Only the root module declares provider blocks.** A module that declares its own is refused. The
+  module declares `configuration_aliases` in its `required_providers`, and the caller passes
+  configurations in the call's `providers = { … }` map.
+
+### Aliases
+
+```hcl
+provider "azurerm" {
+  alias           = "west"
+  subscription_id = var.sub_west
+  features {}
+}
+
+resource "azurerm_resource_group" "west" {
+  provider = azurerm.west
+  name     = "west-rg"
+  location = "West US"
+}
+```
+
+Without `provider`, a resource uses the default instance of its type prefix: `aws_vpc` uses `aws`.
+
+### Expressions in provider blocks
+
+A provider block may reference resources, data sources and variables:
+
+- **An applied resource** gives its real value.
+- **A resource planned but not yet applied** is unknown. What that provider serves defers to the next
+  round (`provider_config_unknown`), and `apply` plans it there by itself. Leave the block as written.
+- **Something declared nowhere**, a typo, is a plan error naming the address.
+
+To put a literal `${` in a value, escape it as `$${`.
+
+### Deletes go through the provider that created them
+
+A delete runs through the configuration the object was created behind: the block evaluated against
+prior state, not the one the plan is moving toward. When a kubernetes provider reads a cluster the
+plan replaces, the engine evaluates the block a second time and routes each delete through the old
+cluster. Nothing needs declaring for that. Whether the contents *follow* a replaced host does: see
+[Host replacement](/docs/authoring/lifecycle/#host-replacement).

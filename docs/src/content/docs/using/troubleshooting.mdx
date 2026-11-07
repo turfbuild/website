@@ -1,0 +1,202 @@
+---
+title: When something goes wrong
+description: "Read a run's outcome and act on it: failed, stale, stalled, exhausted, a partial round, an upgrade that stops a rollout, picking up a run, a stuck lock."
+sidebar:
+  order: 12
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import Conversation from '../../../components/Conversation.astro';
+import User from '../../../components/User.astro';
+import Agent from '../../../components/Agent.astro';
+import ToolResult from '../../../components/ToolResult.astro';
+
+Every result says where a run stands: its `outcome`, whether it has `ended`, and the `next` call. When
+something fails, Turf™ retries nothing. Fix the cause and run `up` again: it plans over what was left,
+against the current state, and never replays the failed plan.
+
+<Conversation>
+<User>Deploy kind-crd.</User>
+<Agent calls={['init', 'open', 'up → awaiting_plan', 'plan → awaiting_approval', 'apply → failed']}>
+
+Round 1 planned the cluster, a single create, so I approved it. It failed: `kind_cluster.demo` could
+not be created, and the provider says it cannot reach Docker. Nothing else ran, since both manifests
+were deferred behind the cluster. Start Docker, and I'll run `up` again.
+
+</Agent>
+<ToolResult tool="apply" outcome="failed">
+
+```text
+outcome: failed   ended: true
+rounds: [ { round: 1, status: "failed", planned: 3, deferred: 2, applied: 0, failed: 1,
+            failures: [ { address: "kind_cluster.demo", error: "…" } ] } ]
+```
+
+</ToolResult>
+<User>Docker's running. Try again.</User>
+<Agent calls={['up → awaiting_plan', 'plan → awaiting_approval']}>
+
+`up` planned over what was left: the cluster again, a create. It was never made, so there is nothing
+to clean up first. Approving, and on to the CRD and the custom resource.
+
+</Agent>
+</Conversation>
+
+<Tabs syncKey="surface">
+<TabItem label="In your agent">
+
+The agent reports a failure in the provider's words, says what succeeded, and names the call that
+continues, if any. Ask it "what happened?" or "pick up the run on this workspace". It asks you before it
+cancels a run another client is following, starts the engine, or force-unlocks state.
+
+</TabItem>
+<TabItem label="Turf CLI">
+
+`turf exec` exits non-zero when the run fails, with the error on stderr, so it composes with `set -e`
+and CI steps. After fixing the cause, run the deploy again:
+
+```sh
+cd path/to/config && turf up
+```
+
+</TabItem>
+</Tabs>
+
+## A change failed
+
+A round's apply makes each change once. When one fails, the round finishes everything independent of
+it, and the run ends `failed`. `rounds[].failures` names each failed change in the provider's words, and
+`rounds[].actions` any action that failed or halted.
+
+- What did not depend on the failure was applied, and state records every change applied so far.
+- What depends on the failure was not started (`rounds[].skipped`).
+- A create that failed partway left an object standing. It is tainted, and the next `up` plans its
+  replacement.
+- A validation decided only at apply fails after the round applied: the round reads applied, and the
+  run ends `failed` naming the rule.
+
+Fix the cause (a provider-side error, a wrong value, a missing permission, a quota) and run `up` again.
+The workspace stays open throughout.
+
+**A create-before-destroy replace** creates the new object first. If the create fails and wrote
+nothing, the old object is put back as current in the same round. If it left a partial object, that
+object is current and tainted, and the next `up` plans destroying the old one and replacing the tainted
+one. If deleting the old object fails, it stays in state and the next `up` plans its destroy. Either way
+nothing is driven by hand: read the failures, fix the cause, `up`, and review the plan.
+
+## A plan could not be made
+
+The run ends `failed` (or `error`) before anything is applied. `rounds[].diagnostics` and
+`rounds[].error` say why, naming a file and line where there is one. Nothing from a plan that errored is
+applied. Fix the cause (the configuration, a missing `var`, a provider's credentials) and run `up`
+again. There is no `-target`: to go ahead while one resource stays broken, the configuration has to stop
+declaring it, and the agent asks before editing your files that way.
+
+## `stale`, `stalled` and `exhausted`
+
+- **`stale`**: the configuration changed, or no longer loads, between the plan and the apply. Nothing
+  was applied. `rounds[].stale_reason` says what moved. Run `up` again and review the new plan.
+- **`stalled`**: a round applied nothing and still defers, so another round would plan the same thing.
+  The value the deferral waits on will never become known from here: usually a reference to something
+  nothing creates, a provider that can never be configured (missing credentials), or a cycle through a
+  provider block. Read the last plan's `deferred_changes` and the round's diagnostics, change the
+  configuration or the values, and run `up` again.
+- **`exhausted`**: `max_rounds` (default 5) was reached with work still deferred. Run `up` again to go
+  on from what was applied, or pass a larger `max_rounds`.
+
+## A cancelled apply: `partial`
+
+A cancel lets what is in flight finish and starts nothing new. A round cancelled during its apply ends
+with `status: "partial"` in `rounds[]`: it reached a verdict with cancellations and no failures, its
+`cancelled` count saying how many changes were abandoned. The run's outcome is `cancelled`. Everything
+applied is kept: run `up` again, and `plan` plans what remains. A provider call that hangs cannot be
+interrupted: the cancel waits for it to return.
+
+## An upgrade stops a rollout
+
+A minor release restarts the engine, and the restart stops every run still on the old engine. One waiting
+at an approval point ends `cancelled`, with the upgrade as the cause; `apply` on it answers `cancelled`.
+One in the middle of an apply finishes what is in flight, and its round ends `partial`. Everything
+applied is kept: run `up` again, and `plan` plans what remains.
+
+After upgrading the binaries, two messages say what to restart:
+
+- *"a Turf engine X is running for this user, and this server is Y"* with an older engine: restart it,
+  `brew services restart turf`.
+- The same message with a newer engine: the MCP server is the old one. Start the client again; in Claude
+  Code, reconnect turf with `/mcp`.
+
+The Turf CLI and `turf-mcp-server` must be the same release.
+
+## Picking up a convergence
+
+A run lives in the engine, not in the server or the conversation. `open` and `status` report one holding
+the workspace (its `stage`, `round`, whether it is `followed`, and `next`), and `plan` or `apply` with
+its `convergence_id` takes it up: at `awaiting_plan`, `plan`; otherwise `apply`.
+
+- **A digest approves only the plan it names.** If the run now waits on another plan, nothing is
+  applied: the refusal names the plan, or the plan the engine holds comes back with a `note`. The agent
+  reads that plan and approves its digest only as the approval rules allow, and never resends the old
+  one.
+- **No digest, no decline, no results** answers nothing: the run waiting at a plan gate or an approval
+  point is handed back, and one planning or applying is followed. This is how to take up a run you hold
+  no plan for. Review that plan as new; a destroy always needs your yes.
+- **The same arguments again** re-follow a call that ended early (cancelled, or the client dropped).
+- A takeover from a server that went away may wait out its lease: up to a minute, refused past two.
+- **"… is being followed by another call"**: usually one of the agent's own calls still running, so it
+  waits. With none in flight, another client is following the run: the agent tells you, and asks before
+  it cancels.
+- `up` again supersedes a run waiting at its plan gate or approval point, and is refused while one is
+  planning or applying. `cancel` ends the workspace's run at any stage.
+
+## The engine
+
+*"the local Turf engine is not running"*: start it with `brew services start turf`, or
+`turf-mcp-server engine run` in a terminal. The agent asks before running either itself. Once it runs,
+call again: nothing needs reconnecting. `init`, the provider tools and the skills work without it.
+
+## Locks
+
+*"the state is already locked by another tofu client"*: first check for a run holding the workspace
+(`open` reports it), and pick it up or cancel it; never force-unlock it. Otherwise, the agent asks you
+before `force_unlock`. The full procedure is on [Workspaces and backends](/docs/using/workspaces/#the-state-lock).
+
+## Outcomes
+
+| Outcome | Meaning | Next |
+|---|---|---|
+| `awaiting_plan` | The round waits at its plan gate: nothing planned yet. | `plan` with `convergence_id`. |
+| `awaiting_approval` | Paused at an approval point. | Review the plan; `apply` with its digest, or decline; or edit and `up` again. |
+| `awaiting_actions` | The apply waits on turf actions (`action_requests`). | Perform them; `apply` with `action_results`. |
+| `planning`, `applying` | Returned at the server's deadline (`ended: false`); the run goes on in the engine. | `plan` or `apply` with `convergence_id`, as `next` says; `cancel` stops it. |
+| `converged` | Done: nothing left deferred. | `output`; report. |
+| `failed` | A change or an action failed, or the round ended before applying. | Read `rounds[].failures`, `.actions`, `.error`; fix the cause; `up` again. |
+| `stalled` | A round applied nothing and still defers. | Read the deferrals; change the configuration or the values; `up` again. |
+| `exhausted` | `max_rounds` reached with work still deferred. | `up` again, or a larger `max_rounds`. |
+| `stale` | The configuration changed, or no longer loads, after the plan: nothing applied. | `up` again; review the new plan. |
+| `declined` | The plan was declined: nothing applied. | `up` to plan again. |
+| `cancelled` | Ended by `cancel`, or superseded at a plan gate or approval point. What was in flight finished. | `up` to plan again. |
+| `planned` | A `plan_only` run kept its plan as a planfile; nothing applied. | `apply` with `planfile` and `plan_digest`. |
+| `detached` | The server stopped following it; it waits in the engine. | Pick it up, as above. |
+| `error` | The engine raised (`error`). | Read it, fix what it names, `up` again. |
+
+Each `rounds[]` entry counts `planned` (no-ops and deferrals included), `deferred`, `applied`, `drift`,
+`failed`, `skipped`, `cancelled` and `invoked`, and carries its `status`.
+
+## Common plan errors
+
+| Error | What to do |
+|---|---|
+| `Inconsistent dependency lock file` | A provider was added, or a constraint no longer admits the locked version: run `init`, with `upgrade: true` only to move a locked version. Never delete or hand-edit the lock file. If a package no longer matches the lock's checksums, stop and look: that can be a tampered package. |
+| `… this engine milestone does not walk …` | A construct Turf refuses. See [Differences from Terraform®](/docs/authoring/differences-from-terraform/). Don't strip it out without the owner's say-so. |
+| `Resource instance cannot be destroyed` | `prevent_destroy` doing its job: the plan wanted to destroy that instance. Never disable the flag or remove its block without the owner's say-so. |
+| `Unsupported attribute`, `… references …, which this configuration does not declare` | A typo, or a module output the module does not declare: read the module's `output` blocks. |
+| A required variable has no value | Pass it as `var`, or ask the user. |
+| `lineage … is bound to backend … and this open arrives from a different backend` | The backend moved: open again with `reconfigure`. See [Workspaces and backends](/docs/using/workspaces/). |
+
+## Related
+
+- [Plan and apply by hand](/docs/using/plan-and-apply/)
+- [Workspaces and backends](/docs/using/workspaces/): locks.
+- [Rounds and deferrals](/docs/concepts/rounds/): `stalled` and `exhausted`.
+- [Turf 1.4 release notes](/docs/releases/1-4/): upgrading.

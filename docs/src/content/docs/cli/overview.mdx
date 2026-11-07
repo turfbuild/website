@@ -1,0 +1,131 @@
+---
+title: Overview
+description: "The turf CLI is an agent of its own over the same MCP server and engine: chat in a terminal, up and destroy, scripted exec, registry login, console sign-in."
+sidebar:
+  order: 1
+---
+
+import { Aside } from '@astrojs/starlight/components';
+import Since from '../../../components/Since.astro';
+
+The Turf™ CLI, `turf`, is an agent of its own: it drives the same MCP server and engine your agent
+uses, with a model you bring. It is a convenience, not a requirement. The MCP server is the product,
+and the CLI is one way to use it.
+
+## When to use it
+
+Use your own agent when you have one. Claude Code, Claude Desktop, Cursor, Codex, Gemini CLI and
+VS Code connect to the server directly ([Connect your agent](/docs/start/connect/)), and in Claude Code
+and Claude Desktop Turf runs on your Claude subscription, with no model API key.
+
+Reach for the CLI when you want:
+
+- an agent in the terminal, with no other client: `turf chat`;
+- one command per rollout: `cd path/to/config && turf up`, or `turf destroy`;
+- Turf in a script, a CI job or another agent: `turf exec`, with `--json` and `--yes`;
+- your own look and voice on the agent you hand to your users, without a fork
+  ([Theming and co-branding](/docs/cli/theming/)).
+
+The CLI needs a model: a hosted provider's API key, or a local model with no key and no cost
+([Model providers](/docs/cli/models/)).
+
+## Install
+
+The Homebrew install puts `turf` beside the server and the engine: see
+[Install locally](/docs/start/install/).
+
+To build just the CLI from source (it is MPL-2.0):
+
+```sh
+go install github.com/turfbuild/turf@latest   # a turf binary
+# or, from a clone:
+make build                                     # bin/turf
+```
+
+The CLI launches `turf-mcp-server` as a subprocess and must find it, on `PATH` or where
+`TURF_MCP_SERVER` (or `--mcp-server`) points:
+
+```sh
+which turf-mcp-server                          # is the server reachable?
+export TURF_MCP_SERVER=/path/to/turf-mcp-server
+```
+
+<Aside title="The CLI and the server must be from the same release">
+`turf` starts the server with its own release's flags, such as `--deadline`, the five minutes it gives
+each convergence call. An older `turf-mcp-server` rejects them at startup. When that happens, `turf`
+names the binary it ran and says to point it at a matching one.
+</Aside>
+
+## How it fits
+
+```text
+turf (the CLI)                          your agent (Claude Code, Cursor, Codex, …)
+   │                                       │
+   │  agent runtime + a model              │  the agent's own model
+   │  (local via Docker Model Runner /     │
+   │   Ollama, or hosted: Anthropic /      │
+   │   OpenAI / Google / …)                │
+   ▼                                       ▼
+turf-mcp-server (a separate binary, on PATH; MCP over stdio)
+   │
+   ▼
+the Turf engine (turf-engine + restate-server; brew services start turf)
+   │
+   ▼
+OpenTofu providers (downloaded on demand)
+```
+
+The CLI runs its agent on Docker's [docker-agent](https://github.com/docker/docker-agent) runtime. It
+never imports the server's code: the only contract is the MCP protocol, spoken over stdio.
+
+## Commands
+
+| Command | What it does |
+|---|---|
+| `turf chat`, or `turf` alone | An interactive session in the terminal ([Chat](/docs/cli/chat/)) |
+| `turf up [instructions]` | Deploy or update the configuration in the current directory ([Up and destroy](/docs/cli/up-and-destroy/)) |
+| `turf destroy [instructions]` | Destroy everything the configuration manages |
+| `turf exec [message]` | Run one request without the TUI ([Scripting with exec](/docs/cli/exec/)) |
+| `turf login <host>`, `turf logout <host>` | Save or remove an API token for a registry or a TFE-compatible backend ([Log in to a host](/docs/cli/login/)) |
+| `turf console [link]` | Sign this browser in to the local console, once <Since v="1.4" /> ([The console](/docs/cli/console/)) |
+| `turf telemetry [status\|on\|off]` | Show or change whether the engine sends anonymous usage telemetry ([details](https://turf.build/telemetry/)) |
+| `turf license` | Print the license and the third-party notices |
+| `turf version` | Print the version, the license in one line and the telemetry setting (as `turf --version` does) |
+| `turf completion` | Generate the autocompletion script for your shell |
+
+Every command takes the global flags: [Flags and environment](/docs/cli/flags-and-environment/).
+
+## In this chapter
+
+- [Chat](/docs/cli/chat/): the TUI, the lean TUI, sessions, memory, `/guide`.
+- [Up and destroy](/docs/cli/up-and-destroy/): one command per rollout, what you answer in the
+  terminal, `--yes`.
+- [Scripting with exec](/docs/cli/exec/): one request, headless; `--json` events; exit status.
+- [Log in to a host](/docs/cli/login/): `turf login`, `turf logout`, `TF_TOKEN_<host>`.
+- [The console](/docs/cli/console/): `turf console` signs your browser in once. <Since v="1.4" />
+- [Flags and environment](/docs/cli/flags-and-environment/): every flag, variable and file.
+- [Model providers](/docs/cli/models/): hosted keys, models on your own machine, OpenAI-compatible endpoints,
+  `turf.yaml`.
+- [Skills](/docs/cli/skills/): your own procedures, in `.turf/skills`.
+- [Theming and co-branding](/docs/cli/theming/): terrain themes, custom themes, a distributor's
+  `branding:`.
+- [Troubleshooting](/docs/cli/troubleshooting/): when turf won't start, or a local model fails.
+
+## Examples
+
+Runnable examples live in [turfbuild/turf-examples](https://github.com/turfbuild/turf-examples):
+
+- **[Configuring the CLI](https://github.com/turfbuild/turf-examples/tree/main/integrations/turf-cli)**:
+  a per-project `.turf/turf.yaml` with credential-based `first_available` model fallback and named
+  models, plus a project skill in `.turf/skills/`. Copy it as a starting point for your own `.turf/`.
+- **Infrastructure configurations**: ordinary HCL you drive with `turf -C <dir>`. A local Kubernetes®
+  kind cluster (a CRD and a custom resource, or a Helm® release; credential-free, Docker only), Azure
+  and GCP modules, and tours of language features (Terraform® actions, turf actions).
+
+## License
+
+The CLI's source is licensed under the Mozilla Public License 2.0. Turf as a whole, the CLI with
+`turf-mcp-server`, `turf-engine` and `turf-builtin-provider` as every release ships them, is licensed
+under the PolyForm Noncommercial License 1.0.0: free for noncommercial use, and commercial use,
+including a company's internal use, needs a license ([licensing](https://turf.build/licensing/)).
+`turf license` prints the license and the third-party notices.

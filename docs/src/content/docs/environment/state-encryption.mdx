@@ -1,0 +1,93 @@
+---
+title: State encryption
+description: Turf honours OpenTofu's encryption block in the MCP server, where state is read and written. Give its passphrase to open once; TF_ENCRYPTION stays there.
+sidebar:
+  order: 6
+---
+
+Encrypt a workspace's state with the OpenTofu™ `encryption` block, as `tofu` does. Turf™ honours it
+where the statefile is read and written: the MCP server, never the engine. Give the passphrase to
+`open` once, and every tool on the workspace can read the state.
+
+## Declare it
+
+The block lives in the configuration: key providers, methods, and the `state` target with `enforced`
+and `fallback`. A passphrase arrives through a variable:
+
+```hcl title="encryption.tf"
+variable "state_passphrase" {
+  type      = string
+  sensitive = true
+}
+
+terraform {
+  encryption {
+    key_provider "pbkdf2" "main" {
+      passphrase = var.state_passphrase
+    }
+    method "aes_gcm" "main" {
+      keys = key_provider.pbkdf2.main
+    }
+    state {
+      method   = method.aes_gcm.main
+      enforced = true
+    }
+  }
+}
+```
+
+Declare the variable `sensitive = true`, or `ephemeral = true` to keep it out of the plan document as
+well. OpenTofu accepts either in a key provider, neither in a backend block.
+
+## Give the passphrase to `open`
+
+Pass it to **`open`** as `var`, or as `var_file` naming the file that holds it, once. The workspace
+keeps it, and every tool reads the state with it: `state_list`, `output`, `show`, `taint`, `cancel`,
+`apply` taking a run up again, and each plan command beneath its own `var`.
+
+```text
+open({ var_file: ["/Users/you/secrets/state.tfvars"] })
+```
+
+Given to a plan command alone, it serves that run only, and the read tools cannot decrypt. `open`
+warns when it cannot build the encryption, and a plan command given values on such a workspace says
+so. `delete` and `list` take their own `var`.
+
+A passphrase in `TF_VAR_` works too, but it then reaches every configuration this server plans.
+
+## `TF_ENCRYPTION` and key providers
+
+`TF_ENCRYPTION` in the server's environment merges over the block, setting by setting, as `tofu`
+merges it, and never leaves the server. It is the place for a key provider configured wholly outside
+the configuration. A key provider's own credentials (an `aws_kms` or `gcp_kms` key, an `openbao`
+token) come from the server's environment too, as a backend's do. mise never supplies either.
+
+## What it does not cover
+
+The block protects the backend's store. In the words of Turf's own reference:
+
+> The engine's own records and plan documents are plaintext in its store, as they are for any
+> configuration; what the block protects is the backend's store.
+
+## Encrypt an existing statefile
+
+1. Declare an `unencrypted` method in the `encryption` block, and a fallback to it under `state`:
+
+   ```hcl
+   # inside terraform { encryption { … } }
+   method "unencrypted" "plain" {}
+
+   state {
+     method = method.aes_gcm.main
+     fallback {
+       method = method.unencrypted.plain
+     }
+   }
+   ```
+
+2. Run `up` once. The file is rewritten encrypted when the run applies, as `tofu apply` writes it. A
+   declined plan writes nothing.
+3. Remove the fallback and add `enforced = true`.
+
+An encrypted statefile met by a configuration that no longer declares encryption, or by the wrong
+passphrase, is refused at `open` and `up` in OpenTofu's words, with the directory named.

@@ -1,0 +1,101 @@
+---
+title: Refresh state
+description: "Refresh reads every managed object and writes what it found into state, changing nothing in the world: one round, with the same approval point as up."
+sidebar:
+  order: 4
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import Conversation from '../../../components/Conversation.astro';
+import User from '../../../components/User.astro';
+import Agent from '../../../components/Agent.astro';
+
+`refresh` reads every object the workspace manages and writes what it found into state. It changes
+nothing in the world. Like every Turf™ run, it plans first and stops at an approval point, so you see
+what state will record before it does.
+
+<Conversation>
+<User>Someone edited the kind-crd custom resource by hand. Bring the state up to date, and don't change anything in the cluster.</User>
+<Agent calls={['refresh → awaiting_plan', 'plan → awaiting_approval']}>
+
+The refresh found one object that changed outside Turf:
+
+```text
+~ kubernetes_manifest.instance
+    manifest.spec.message: "Hello from Turf" → "edited by hand"
+```
+
+Applying this writes the new value into state. Nothing in the cluster changes. Ready to apply these
+changes?
+
+</Agent>
+<User>Yes.</User>
+<Agent calls={['apply → converged']}>
+
+State now records the message as it is in the cluster. Your files still say "Hello from Turf", so the
+next `up` will plan setting it back, unless you change the files to match.
+
+</Agent>
+</Conversation>
+
+<Tabs syncKey="surface">
+<TabItem label="In your agent">
+
+Ask in words: "refresh the state of kind-crd". The agent calls `refresh`, then `plan`, presents what
+the refresh found, and applies on your yes.
+
+To see drift without writing anything, ask for a plan instead: "plan kind-crd and tell me what drifted".
+A plan on an applied configuration reads every object first, so the plan is the drift report.
+
+</TabItem>
+<TabItem label="Turf CLI">
+
+The CLI has no `refresh` command. Ask its agent in the configuration directory:
+
+```sh
+cd path/to/config && turf chat
+```
+
+Then type "refresh the state". For a one-shot request, `turf exec "refresh the state"` runs it without
+the TUI; without `--yes` a plan that needs your yes is left waiting at its approval point.
+
+</TabItem>
+</Tabs>
+
+## How it works
+
+**What it runs.** `refresh` is `tofu apply -refresh-only`: one round, the same plan gate and approval
+point as `up`. `plan` reads every managed object and plans writing what it found into state; `apply`
+with the plan's digest writes it. There is no single-resource refresh: every object is read.
+
+**Where drift shows.** `plan.drift` counts the objects the refresh found changed outside Terraform®,
+and the plan document lists them under `resource_drift`. After the apply, `rounds[].drift` records how
+many the round wrote into state.
+
+**`refresh: false` is something else.** It is an option of a round's `plan`
+(`tofu plan -refresh=false`): plan against the state as recorded, without reading the objects. It
+holds for that round only.
+
+## What a plan on an applied configuration tells you
+
+With `refresh` on (the default), every `up` plan reads every object first. What the plan shows is the
+drift report:
+
+| Plan | Meaning | What the agent does |
+|---|---|---|
+| `converged` at once, nothing applied | State matches the files | Tells you "no drift". |
+| `update` or `replace` | Reality diverged from the files | Presents the diff and asks whether to bring reality back to the files (apply) or the files to reality (edit them, then `up`). |
+| orphan `delete` | In state, no longer in the files | Asks: restore the block, forget it with a `removed` block, or let the delete proceed. |
+| `create` | In the files, not in state | Deleted out of band, or never applied: the apply creates it again. |
+
+## Arguments
+
+`refresh` takes the arguments every start verb takes: `workspace_alias`, `var`, `var_file`,
+`overlays` and `plan_only` (see [Deploy or update with up](/docs/using/up/#arguments)). Its `plan`
+takes `refresh`; `replace` is refused.
+
+## Related
+
+- [Reading state and outputs](/docs/using/state/)
+- [Deploy or update with up](/docs/using/up/)
+- [Plan and apply by hand](/docs/using/plan-and-apply/)

@@ -88,14 +88,14 @@ saw carried a link to the console, the page for that round. <Since v="1.4" />
 <ToolResult tool="plan" outcome="awaiting_approval">
 ```text
 convergence_id: cv_8f3a…
-round: 1
+outcome: awaiting_approval   ended: false   round: 1
 plan:
-  uri:      turf://workspaces/default/convergences/cv_8f3a…/rounds/1/plan
-  digest:   sha256:4c1e…
-  add: 1  deferred: 2
-rounds: [ {round: 1, planned: 3, deferred: 2} ]
-next: apply({ convergence_id: "cv_8f3a…", plan_digest: "sha256:4c1e…" })
-console_url: http://127.0.0.1:8873/w/default/c/cv_8f3a…/r/1
+  uri:     turf://workspaces/default/convergences/cv_8f3a…/rounds/1/plan
+  digest:  sha256:4c1e…
+  add: 1   deferred: 2
+rounds: [ { round: 1, planned: 3, deferred: 2 } ]
+next: apply with convergence_id and plan_digest to approve, or decline
+console_url: http://127.0.0.1:8873/w/…?round=…
 ```
 </ToolResult>
 

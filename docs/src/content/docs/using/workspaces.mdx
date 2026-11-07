@@ -1,0 +1,198 @@
+---
+title: Workspaces and backends
+description: "Open, list, close and delete workspaces: a backend and state slot bound to a configuration, an alias for each, backend_config for credentials, the state lock."
+sidebar:
+  order: 7
+---
+
+import { Tabs, TabItem, Aside, Steps } from '@astrojs/starlight/components';
+import Conversation from '../../../components/Conversation.astro';
+import User from '../../../components/User.astro';
+import Agent from '../../../components/Agent.astro';
+import ToolResult from '../../../components/ToolResult.astro';
+
+A workspace is a backend and a state slot, bound to a configuration by `open`. Most runs use one, the
+default. To work on staging and production side by side, open more, each under its own alias; Turf™
+then names each by that alias in every later call.
+
+<Conversation>
+<User>Open a staging workspace for kind-crd beside the default one, with cluster_name turf-crd-staging.</User>
+<Agent calls={['list', 'open']}>
+
+The backend lists only `default`. I opened `staging` under the alias `staging`, keeping
+`cluster_name = "turf-crd-staging"` for it while it is open. It has no statefile yet: the first `up`
+writes one, at `terraform.tfstate.d/staging/terraform.tfstate`. Calls that name no alias still go to
+the default workspace.
+
+</Agent>
+<ToolResult tool="open">
+
+```text
+workspace_alias: "staging"   config_alias: "default"   workspace_name: "staging"
+backend_type: "local"
+state_path: "…/kind-crd/terraform.tfstate.d/staging/terraform.tfstate"
+resource_count: 0
+warnings: [ "…the declared path does not apply to this workspace…" ]
+```
+
+</ToolResult>
+<User>Deploy it there.</User>
+<Agent calls={['up → awaiting_plan', 'plan → awaiting_approval']}>
+
+On `staging`: **Plan: 1 to add, 2 deferred to a later round.**
+
+```text
++ kind_cluster.demo
+    name: turf-crd-staging-1
+```
+
+Ready to apply these changes?
+
+</Agent>
+</Conversation>
+
+<Tabs syncKey="surface">
+<TabItem label="In your agent">
+
+Ask in words:
+
+- "What workspaces does this configuration have?" (`list`)
+- "What's open?" (`status`)
+- "Open the staging workspace" (`open`, with an alias when another is already open)
+- "Close staging" (`close`)
+- "Delete the staging workspace" (`delete`, after `close`)
+
+The agent tells you when `open` reports a run already holding the workspace, and asks before it ends
+one or force-unlocks anything.
+
+</TabItem>
+<TabItem label="Turf CLI">
+
+The CLI has no workspace commands. Ask its agent, interactively or in one shot:
+
+```sh
+cd path/to/config && turf chat
+cd path/to/config && turf exec "what workspaces exist?"
+```
+
+</TabItem>
+</Tabs>
+
+## How it works
+
+**Alias and name.** The *workspace name* belongs to the backend: OpenTofu™'s workspace, a state slot,
+what `terraform.workspace` reads. The *alias* is the server's handle for an open workspace. Omit the
+alias (or use `"default"`) and every tool targets that workspace when a call passes no
+`workspace_alias`, however many others are open. Name one (`"staging"`, `"prod"`) to open several at
+once, and pass it to every later call. Opening a workspace already open under the same alias, the same
+way, returns it as it is.
+
+Two workspaces may share one configuration and differ in `var` values and `workspace_name`. Prefer
+`var` values as the difference: they reach the backend block, the provider blocks and the resources,
+while the workspace name reaches none of them. `workspace_name` addresses state that a
+`tofu workspace select` user created.
+
+**The backend comes from the configuration.** A workspace opens against a configuration (`config_alias`,
+omitted for the one `init` registered without an alias) and stays bound to it. The backend is the
+configuration's `backend` block. `backend_config` and `backend_config_files` supply only what the block
+leaves out, such as credentials and per-environment values, merged key by key as
+`tofu init -backend-config` does. A key the backend declares as a block is a nested object:
+
+```json
+{ "workspaces": { "name": "…" } }
+{ "assume_role": { "role_arn": "…" } }
+```
+
+The first is for `remote`, the second for `s3`. `backend_type` is only for a configuration that
+declares no backend; one that contradicts a declared backend is refused, so edit the block to move the
+store. The providers are what the configuration requires: `open` takes none.
+
+**Backend credentials** are read by the MCP server, from its own environment, not the engine's. See
+[Where credentials are read](/docs/environment/where-credentials-are-read/).
+
+**The `remote` backend** (the protocol of Terraform® Cloud and Enterprise, and of Scalr) is supported for state
+storage and locking only: point it at a workspace whose execution mode is `local`. Its token comes from
+`turf login <host>` or `TF_TOKEN_<host>`.
+
+**Moving a backend.** The engine records which backend each workspace's state lives in. An open that
+reaches the same state through a different backend is refused at the next plan ("lineage … is bound to
+backend … and this open arrives from a different backend"). When the move is deliberate, open again with
+`reconfigure: true`, as `tofu init -reconfigure`. A statefile copied to a second backend is refused
+regardless: it needs a new lineage.
+
+**Where a named workspace's state lands.** A backend's `path` addresses the default workspace only.
+Every other name is stored under the configuration directory, at
+`terraform.tfstate.d/<name>/terraform.tfstate`. `open` returns `state_path` already resolved, and warns
+when a declared `path` does not apply.
+
+**Open for this session.** Workspace bindings belong to the server's session; runs do not. A workspace
+stays open across turns until `close`, which ends the binding and changes nothing in the configuration
+or the state. When the session ends, open workspaces close, and a run the server was following is
+detached, never cancelled: it waits in the engine, and a later `open` reports it.
+
+## The state lock
+
+`open` reads the state without locking it. The engine takes the state lock while a run is going, and
+holds it through every pause, at an approval point and at turf actions, as `tofu apply` holds it at its
+prompt. A detached run gives it back.
+
+When a call fails with "the state is already locked by another tofu client":
+
+<Steps>
+
+1. **Check for a run first.** `open` and `status` report one holding the workspace, from this server
+   or an earlier one. Pick it up with `apply`, or end it with `cancel`. Never force-unlock it.
+2. **Otherwise ask the user.** The lock may belong to an active operation in another tool, terminal or
+   CI job, and force-unlocking an active lock can corrupt state.
+3. **Only on an explicit yes**, open with `force_unlock: true`.
+4. **Refused with "lock ID … does not match existing lock ID"?** The backend names the lock by something
+   else: pass the ID the error names as `lock_id`. The `remote` backend wants
+   `"<organization>/<workspace>"`. Some hosts (Scalr) do not implement force-unlock over the API: clear
+   the lock in the host's own interface.
+
+</Steps>
+
+## `status`, `list` and `delete`
+
+**`status`** lists what is open here: each workspace's alias, configuration, backend, lineage, and the
+run holding it (its `kind`, `stage`, `round`, open questions, and `next`). It also lists the planfiles
+a workspace holds.
+
+**`list`** lists the workspaces in the configuration's backend, as `tofu workspace list`: `"default"`
+first, the rest sorted. It is refused when the backend block reads `terraform.workspace`: each workspace
+then keeps its state in a store of its own, and a list of one store would pass for the whole set.
+
+**`delete`** removes a workspace's state from the backend, as `tofu workspace delete`. Close it first.
+It is refused for `default`, for a name `list` does not show, for an open workspace, and for one a run
+holds (`cancel` it first). A workspace whose state holds resources needs `force: true`, which removes
+the state, never the cloud resources: they stop being tracked. To delete the resources, `destroy` first.
+A `resource_count` of 0 where you expected resources means you addressed the wrong store.
+
+## Arguments
+
+`open`:
+
+| Argument | Meaning |
+|---|---|
+| `config_alias` | The configuration, as `init` registered it. Omit it for the one registered without an alias. |
+| `workspace_name` | The backend's workspace name. Defaults to `default`. |
+| `workspace_alias` | The alias every later call passes. Omit it for the default workspace. |
+| `backend_config` | Backend settings merged over the declared ones, key by key, these winning. |
+| `backend_config_files` | Backend settings files, in order, merged below `backend_config`. |
+| `backend_type` | For a configuration that declares no backend. Refused against a declared one. |
+| `var`, `var_file` | Variable values kept for the workspace while it is open. See [Variables and var files](/docs/using/variables/). |
+| `reconfigure` | Consent to re-binding the state to a different backend, taken at the next plan. |
+| `force_unlock` | Release a stale state lock now, as `tofu force-unlock`. Only on the user's explicit yes. |
+| `lock_id` | The lock to release, as the error names it; implies `force_unlock`. |
+
+`list` and `delete` take `config_alias` and the backend settings as `open` does, plus `var` and
+`var_file` for this call only (for a backend block or state encryption that reads a variable).
+`delete` also takes `workspace_name` (never `default`) and `force`. `close` takes `workspace_alias`;
+`status` takes nothing.
+
+## Related
+
+- [Variables and var files](/docs/using/variables/)
+- [Where credentials are read](/docs/environment/where-credentials-are-read/)
+- [When something goes wrong](/docs/using/troubleshooting/): picking up a run, locks.
+- [Tear down with destroy](/docs/using/destroy/)

@@ -46,10 +46,29 @@ export default defineConfig({
           items: [
             { slug: 'reference/server' },
             { slug: 'reference/result-shape' },
-            { label: 'Tools', collapsed: true, items: [{ autogenerate: { directory: 'reference/tools' } }] },
+            {
+              label: 'Tools',
+              collapsed: true,
+              items: [
+                { label: 'Configuration', items: ['reference/tools/init'] },
+                { label: 'Workspaces', items: ['reference/tools/open', 'reference/tools/close', 'reference/tools/status', 'reference/tools/list', 'reference/tools/delete'] },
+                { label: 'Convergence', items: ['reference/tools/up', 'reference/tools/destroy', 'reference/tools/refresh', 'reference/tools/import', 'reference/tools/invoke', 'reference/tools/plan', 'reference/tools/apply', 'reference/tools/cancel'] },
+                { label: 'State', items: ['reference/tools/show', 'reference/tools/output', 'reference/tools/state_list', 'reference/tools/taint', 'reference/tools/untaint'] },
+                { label: 'Providers', items: ['reference/tools/provider_search', 'reference/tools/provider_describe'] },
+                { label: 'Skills', items: ['reference/tools/skill_deployment', 'reference/tools/skill_authoring', 'reference/tools/skill_guide', 'reference/tools/read_skill_file'] },
+              ],
+            },
             { slug: 'reference/prompts' },
             { slug: 'reference/resources' },
-            { label: 'Skills', collapsed: true, items: [{ autogenerate: { directory: 'reference/skills' } }] },
+            {
+              label: 'Skills',
+              collapsed: true,
+              items: [
+                { label: 'Deployment', items: ['reference/skills/deployment', { label: 'References', items: [{ autogenerate: { directory: 'reference/skills/deployment' } }] }] },
+                { label: 'Authoring', items: ['reference/skills/authoring', { label: 'References', items: [{ autogenerate: { directory: 'reference/skills/authoring' } }] }] },
+                { label: 'Guide', items: ['reference/skills/guide', { label: 'References', items: [{ autogenerate: { directory: 'reference/skills/guide' } }] }] },
+              ],
+            },
             { slug: 'reference/instructions' },
             { slug: 'reference/slash-commands' },
           ],

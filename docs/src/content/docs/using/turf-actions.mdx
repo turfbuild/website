@@ -1,0 +1,160 @@
+---
+title: Answering a turf action
+description: "When an apply stops at awaiting_actions, the agent does each step the configuration asks for, puts any question to you, and answers with action_results."
+sidebar:
+  order: 10
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import Conversation from '../../../components/Conversation.astro';
+import User from '../../../components/User.astro';
+import Agent from '../../../components/Agent.astro';
+import ToolResult from '../../../components/ToolResult.astro';
+
+A turf action is a step the configuration asks your agent to carry out during an apply: a check, a
+notification, a question for you. Turf™ stops the apply at `awaiting_actions` with every open request.
+The agent does each step with its own tools and answers them all in one `apply` with `action_results`.
+
+<Conversation>
+<User>The policy check passed. Apply the guardrails plan.</User>
+<Agent calls={['apply → awaiting_actions']}>
+
+The apply stopped before creating `random_pet.name`, for `attest`, the first of two turf actions on it.
+I scanned kind, helm and random by package directory after `init`, and no verdict blocked one. I'll
+answer that it succeeded, with each provider and its verdict as a progress line.
+
+</Agent>
+<ToolResult tool="apply" outcome="awaiting_actions">
+
+```text
+round: 1
+action_requests: [ {
+  key:        "action/1/action.turf_action.attest@before_create@random_pet.name",
+  action:     "action.turf_action.attest",
+  caller:     "random_pet.name",
+  event:      "before_create",
+  on_failure: "halt",
+  if_failed:  "…",
+  prompt:     "Attest the provider scan. Confirm that every provider init installed …",
+  inputs:     {} } ]
+next: { tool: "apply", args: { convergence_id: "…" } }
+```
+
+</ToolResult>
+<User>Go on.</User>
+<Agent calls={['apply (action_results) → awaiting_actions', 'apply (action_results) → awaiting_plan']}>
+
+Then `check`: I ran `opa eval` with policies/ on the round's plan document. No denials, so it succeeded
+too. Round 1 applied the cluster and the pet; podinfo plans in round 2, now that the cluster exists.
+
+</Agent>
+</Conversation>
+
+<Tabs syncKey="surface">
+<TabItem label="In your agent">
+
+Nothing to say unless a step asks for your decision. The agent tells you what it did for each step and
+how it answered. When a prompt asks for a decision, the agent asks you, every such question at once,
+with what a "no" does, and quotes your words back in the result. A "no" is reported as a failure.
+
+The approval point lists every action the round will run (`plan.invocations`), so a turf action that
+will stop the apply is named before you approve.
+
+</TabItem>
+<TabItem label="Turf CLI">
+
+```sh
+cd path/to/config && turf up
+```
+
+The CLI's agent answers turf actions the same way, and asks you in the terminal when a step needs your
+decision. `--yes` skips the approval pause, not the actions: a turf action still stops the apply for the
+agent to carry out.
+
+</TabItem>
+</Tabs>
+
+## How it works
+
+**What it is.** A turf action is an apply-time step that may or may not succeed. It is not an approval:
+by the time it runs, the plan is approved. It reports as a provider action does: progress as it goes,
+then diagnostics, with an error among them when it failed. On a failure, the trigger's `on_failure`
+decides what happens to the change it is bound to, and each request says so in words (`if_failed`).
+
+**The request.** `prompt` says what to do and what counts as failure; `inputs` are the values to work
+with. `caller` is the resource the action is bound to, and `event` the lifecycle edge: a `before_*`
+step comes before the change, an `after_*` step follows it.
+
+**What comes back together.** Every request open at that moment. One that opens later, behind work still
+running, makes another pause. Several turf actions on one caller come one pause each, in order: in the
+guardrails example, `attest` and then `check`. `apply` with only the `convergence_id` lists what is
+waiting again.
+
+**The answer.** One `apply` answers every open request, by key:
+
+```text
+apply({ convergence_id: "…", action_results: {
+  "action/1/action.turf_action.verify_web@after_create@docker_container.web": {
+    succeeded: true,
+    progress: ["GET http://localhost:8080/ → 200 in 4 ms; the body has \"Welcome to nginx\""],
+    diagnostics: [{ severity: "warning", summary: "The image is not pinned by digest",
+                    detail: "nginx:1.27-alpine resolves by tag" }] } } })
+```
+
+The call goes on following the apply: to the next turf actions, the next plan gate, or the end. A result
+the engine cannot take (a failure with no error, a success with one, a severity other than `error` or
+`warning`) comes back under `refused`, and only that request stays open: fix it and send it alone.
+
+**Answering well.**
+
+- **Report honestly.** A step the agent could not perform failed: no tool reaches the system, or you
+  did not answer. It says why in an error. Nothing is retried.
+- **A decision is yours.** The agent never answers a question for you, and never weakens or removes a
+  trigger to get past it.
+- **A step that fails before it is asked** (its configuration cannot be resolved, holds a sensitive
+  value, or its `inputs` pass 64 KiB) fails the action without a request, and `on_failure` applies.
+
+**What a failure does**, by the trigger's `on_failure`:
+
+- `halt` stops the change and what depends on it. Independent changes in the round still apply. In the
+  guardrails example a failed `attest` or `check` stops the pet and podinfo; the cluster still applies.
+- `taint` (on `after_create`) marks the new object for replacement, so the next `up` replaces it.
+- `continue` only warns, and the apply goes on.
+
+<Aside type="caution" title="In a destroy, every failure is only a warning">
+The teardown goes on and ends `converged`, with the failure in `rounds[].actions` and the warnings. A
+`before_destroy` action cannot stop a `destroy`, so your yes at the approval point is what guards it.
+A `before_destroy` action on a delete that `up` plans (an orphan, a replace) does what its `if_failed`
+says.
+</Aside>
+
+**What the round records.** `rounds[].invoked` counts every action that ran. `rounds[].actions` lists
+only those that did not simply succeed: failed, skipped (the trigger's condition was false), tainting
+its caller, or carrying warnings. What a halt left unstarted is counted in `rounds[].skipped`.
+
+**No client capability is needed.** Nothing is asked through elicitation or sampling: the `apply` call
+returns, and the agent's next `apply` answers.
+
+## The request and the result
+
+| Request field | Meaning |
+|---|---|
+| `key` | What the result is filed under in `action_results`. |
+| `action`, `invocation` | The action's address, and this invocation of it. |
+| `caller`, `event` | The resource it is bound to, and the lifecycle edge. |
+| `on_failure`, `if_failed` | What a failure does, as a keyword and in words. |
+| `prompt`, `inputs` | What to do, and the values to do it with. |
+| `asked_at` | When the request opened. |
+
+| Result field | Meaning |
+|---|---|
+| `succeeded` | Required. `false` fails the action, and `on_failure` decides what that does. |
+| `progress` | What was done, a line each, in order: the commands, what each showed, your own words. |
+| `diagnostics` | `severity`, `summary`, `detail`. An `error` for each reason it failed, required when `succeeded` is `false` and refused when it is `true`; a `warning` for anything worth knowing that did not fail it. |
+
+## Related
+
+- [Turf actions](/docs/concepts/turf-actions/): what they are and why.
+- [Actions and overlays](/docs/authoring/actions-and-overlays/): declaring one.
+- [Invoke an action](/docs/using/invoke/): run one now.
+- [Policy checks on a plan](/docs/using/policy/): the guardrails example's policy check.

@@ -52,7 +52,7 @@ sidebar:
 ```
 
 Pages are `.mdx` when they use a component, `.md` otherwise. Import components from
-`../../components/<Name>.astro` (two levels up from a page in a group directory).
+`../../../components/<Name>.astro` (three levels up from a page in a group directory).
 
 - **Links** to other docs pages are absolute and carry the base and a trailing slash:
   `/docs/using/up/`. Links to the marketing site are full URLs: `https://turf.build/compatibility/`.
@@ -95,8 +95,8 @@ The marketing site's rules (`../CLAUDE.md`, "Copy and voice rules") apply; the o
 ## The generated reference
 
 `scripts/generate-reference.mjs` starts a `turf-mcp-server` (`TURF_MCP_SERVER=/path/to/binary`, default
-the one on PATH) over stdio and writes `reference/tools/*.mdx`, `reference/prompts.mdx`,
-`reference/resources.mdx`, `reference/skills/*.mdx` and `reference/instructions.mdx` from `tools/list`,
+the one on PATH) over stdio and writes `reference/tools/*.md`, `reference/prompts.md`,
+`reference/resources.md`, `reference/skills/*.md` and `reference/instructions.md` from `tools/list`,
 `prompts/list`, `resources/templates/list`, the three skill tools, `read_skill_file` and the
 `initialize` result. Each page carries a generated banner and the server version. Run it once per
 release; the diff is the release's reference change. The output is committed; the build never needs

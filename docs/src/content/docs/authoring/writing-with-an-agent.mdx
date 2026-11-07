@@ -1,0 +1,111 @@
+---
+title: Writing configurations with an agent
+description: Ask for infrastructure in plain words and your agent writes ordinary .tf files with its own file tools, after it loads the authoring skill. Files are yours.
+sidebar:
+  order: 1
+---
+
+import Conversation from '../../../components/Conversation.astro';
+import User from '../../../components/User.astro';
+import Agent from '../../../components/Agent.astro';
+
+Ask your agent for infrastructure in plain words and it writes the configuration: ordinary `.tf`
+files in a directory you name, edited with the agent's own file tools. Turf™ has no authoring tools.
+The files are the declaration. You can read them, check them into git, run them anywhere Terraform®
+runs, and reopen them next session.
+
+<Conversation>
+  <User>Write a configuration in ~/infra/artifacts for a versioned S3 bucket for our build artifacts.</User>
+  <Agent calls={['skill_authoring', 'init → ok', 'provider_search → hashicorp/aws']}>
+    I registered `~/infra/artifacts` and pinned `hashicorp/aws` in `versions.tf`. Installing it
+    first, so I write against the schema of the version that will run.
+  </Agent>
+  <Agent calls={['init → lock_file created', 'provider_describe → aws_s3_bucket', 'provider_describe → aws_s3_bucket_versioning']}>
+    I wrote three files, all yours to keep in git:
+
+    - `versions.tf`: the AWS provider, pinned
+    - `main.tf`: the bucket, with versioning on
+    - `variables.tf`: `bucket_name`, with no default
+
+    Want me to plan it? I'll need a bucket name.
+  </Agent>
+</Conversation>
+
+## The authoring skill
+
+Before your agent writes or changes a `.tf` or `*.turf.hcl` file, it loads `skill_authoring`. That
+is an MCP tool with no arguments, not a client-side skill; the server's instructions tell the agent
+to load it before it writes. It covers the loop around HCL and where Turf differs; the agent already knows
+HCL. Its reference files cover [providers](/docs/authoring/providers/),
+[variables](/docs/authoring/variables/), [data sources](/docs/authoring/data-sources/),
+[lifecycle](/docs/authoring/lifecycle/), [actions and overlays](/docs/authoring/actions-and-overlays/)
+and what agent memory may hold.
+
+`skill_deployment` comes first in any session: it runs what the agent writes. An agent with no file
+tool can still run an existing configuration (plan, apply, destroy, import, refresh, invoke), but
+writing one needs a file tool.
+
+## The loop
+
+```text
+init({ path: "/Users/you/infra/artifacts" })   # registers the directory; an absent one is created, with a .gitignore
+  …write versions.tf, main.tf…                  # the agent's own file tools
+init({ path: "/Users/you/infra/artifacts" })   # again: installs providers and modules, writes the lock file
+open({})                                        # the backend comes from the files
+up({})                                          # stops at round 1's plan gate
+plan({ convergence_id: "…" })                   # the plan of the whole directory, at its approval point
+  …edit, then up again                          # a new up supersedes the paused run
+```
+
+- **Every plan is the whole directory.** To change a plan, the agent edits the files and runs `up`
+  again. There is no per-resource planning call.
+- **No edits while a plan waits for approval.** The engine checks the files again before applying,
+  and a plan whose files changed is never applied: it ends `stale`.
+- **`init` again after a new provider or `module` block.** It installs them and updates the lock file.
+- **Errors name a file and a line.** The agent fixes the file and runs `up` again.
+- **No rewriting to force convergence.** A value known only after an apply defers to the next round,
+  which `apply` plans by itself; the agent does not hard-code it or split the work.
+
+## The files are yours
+
+The agent changes them only when you ask, and says what it changed: which files, and whether it
+added, changed or removed something.
+
+- **Files you wrote.** The agent reads them first, makes the smallest edit that does the job, and
+  keeps your layout, naming and comments. A new concern goes in a new file rather than a
+  restructured one.
+- **The why, as a comment.** The agent records the request, constraint or policy behind a block in a
+  comment above it. Nothing else carries it across sessions.
+- **Declining keeps the edits.** Declining a plan never reverts the files. Use git when you want the
+  edits gone too.
+- **Memory holds pointers.** Agent memory keeps the directory's path, the backend and workspace, your
+  intent and the *names* of the credentials. Never the configuration, secrets, computed values or
+  plan digests: the directory is the record, and `init` on its path rediscovers everything.
+
+## Setting values is deployment
+
+Setting variable values (`var`, `var_file`, a `.tfvars` line) is deployment, not authoring. The
+agent passes values to `open` and to each plan command; see
+[Variables and var files](/docs/using/variables/) and
+[Variables and TF_VAR_](/docs/environment/variables/).
+
+## Secrets never go in a file
+
+- **Provider credentials** go in the [engine's environment](/docs/environment/engine-environment/),
+  or a `sensitive` variable passed as `var` on each plan command.
+- **Backend credentials** stay out of the `backend` block, in `open`'s `backend_config`.
+- **A secret a resource needs** goes only to a write-only argument, fed by an ephemeral variable or
+  an `ephemeral` resource. Anything else keeps the secret in state forever.
+
+## A conventional layout
+
+Turf does not require it, but it is the layout most readers expect:
+
+| File | Holds |
+|---|---|
+| `versions.tf` | `terraform { required_providers { … } backend "…" { … } }`, each provider pinned `~> MAJOR.MINOR` |
+| `providers.tf` | `provider` blocks, one per aliased instance |
+| `variables.tf` | `variable` blocks |
+| `main.tf`, or one file per concern | resources, data sources, modules, locals |
+| `outputs.tf` | `output` blocks |
+| `*.turf.hcl` | Turf overlays: `action` and top-level `action_trigger` blocks, which `tofu` and `terraform` ignore |

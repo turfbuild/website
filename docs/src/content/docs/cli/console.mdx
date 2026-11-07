@@ -1,0 +1,51 @@
+---
+title: The console
+description: "turf console signs your browser in to the local Turf console at 127.0.0.1:8873 once, so every console link an agent hands you opens directly from then on."
+sidebar:
+  order: 6
+  badge: { text: 'Since 1.4', variant: 'note' }
+---
+
+import Since from '../../../components/Since.astro';
+
+`turf console` signs your browser in to the Turf™ console, once. <Since v="1.4" /> The console is a
+read-only web view of every workspace's runs, rounds, plans and approvals, and every result the MCP
+server hands your agent carries a link into it. Only you can open it, so the browser signs in first.
+
+```sh
+turf console                 # opens the console, signed in
+turf console <link>          # lands on the page an agent linked to
+turf console --print         # prints the sign-in link instead (for ssh -L)
+```
+
+The browser keeps a cookie, so links open directly from then on.
+
+## Where it runs
+
+The Homebrew service runs the console beside the engine, at http://127.0.0.1:8873, from the
+`turf-ui` binary. After an upgrade to 1.4, `brew services restart turf` starts it.
+
+- `TURF_CONSOLE_ADDR=127.0.0.1:<port>` moves it to another port; `TURF_CONSOLE_ADDR=off` leaves it out.
+- `TURF_CONSOLE_URL` on a server whose console lives elsewhere, such as in a cluster, points the links
+  there.
+- The engine does not depend on the console: if the console stops, the engine goes on.
+
+## What it shows
+
+A workspace opens on its runs, newest first, each opened into its rounds: what each round is doing or
+how it ended, the plan's size, its approval point and who gave it, how long it took. A round's page
+follows the plan gate, the plan with its counts by action, the approval point with the approver and
+the plan's digest, the apply, any turf action the apply is asking, and how the round ended the run.
+The Timeline tab draws every resource's lane as the apply runs, live; Plan and Graph show one round's
+plan and configuration graph; State shows what the workspace holds.
+
+The console is read-only. Approvals are given where they always were: by the agent, or by you in the
+CLI. In a terminal, [`turf up`](/docs/cli/up-and-destroy/#what-you-answer-in-the-terminal) shows the
+round's console link beside each plan gate and approval point.
+
+## How it signs in
+
+`turf console` asks the local `turf-mcp-server` for the sign-in link, so it finds the server as every
+turf command does: `--mcp-server`, then `TURF_MCP_SERVER`, then `PATH`. The links an agent hands you
+never carry the console's token. If the sign-in fails, turf says it could not sign in to the Turf
+console, and the server's own message above it says why.

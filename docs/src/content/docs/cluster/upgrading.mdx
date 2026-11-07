@@ -1,0 +1,84 @@
+---
+title: Upgrading
+description: "Upgrade Turf in a cluster: one tag for the server, engine and console, every old engine replica replaced before a new one serves, rollouts run again."
+sidebar:
+  order: 7
+---
+
+import Since from '../../../components/Since.astro';
+
+A Turf™ release is one image, so an upgrade moves the server, the engine and the console to the same
+new tag together. The rules:
+
+1. **Replace every 1.x engine replica before a 1.y replica serves.**
+2. **Keep the replicas alike**: the same `--data-dir`, the same CLI configuration, the same image.
+3. **Expect rollouts in flight to stop**, and run `up` again for what remains.
+
+Read the release's notes first: a minor release says in "Before you upgrade" what changes.
+
+## The engine
+
+**A plain Deployment** rolls every replica together with `strategy: Recreate`, so no two replicas
+serve different releases or configuration images:
+
+```yaml
+spec:
+  replicas: 2
+  strategy:
+    type: Recreate
+```
+
+All replicas need the same `--data-dir` and the same CLI configuration. Pin each module's source, a git
+source to a ref and a registry source to an exact version: a replica that has never seen a module
+fetches it at its first apply, and a source that could install differently on two replicas is refused
+by name until it is pinned.
+
+**A `RestateDeployment` on Knative** carries one `knative.tag` per Turf minor release. Change the tag
+with the image:
+
+```yaml
+knative:
+  tag: v1-4
+containers:
+  - image: ghcr.io/turfbuild/turf-mcp-server:v1.4.0
+```
+
+A new tag is a new Restate deployment: restate-server sends new work to it, and the old one finishes
+what it started, then drains. The same tag with a new image updates in place, which Restate allows only
+for a change compatible with invocations in flight.
+
+## Rollouts in flight
+
+An upgrade stops every rollout still on the old engine:
+
+- one waiting for approval, or for a turf action, ends `cancelled`, with the upgrade named as the cause;
+- one in the middle of an apply finishes what is in flight and ends `partial`.
+
+Everything already applied is kept. Run `up` again, and `plan` plans what remains.
+
+## The server and the console
+
+Move the server and the console to the same tag as the engine. A Turf CLI must be the same release as
+the server it drives. The server keeps `open`'s `var` and `var_file` in memory only:
+after it restarts, `open` each workspace again with the same values.
+
+## restate-server and the operator
+
+- `RESTATE_EXPERIMENTAL_ENABLE_PREFLIGHT_SIGNAL_RECORDING` is one-way: once a node has run with it,
+  its data cannot go back to a release before 1.8.1.
+- The partition count is fixed when a node first provisions.
+- On a Restate operator upgrade, check the operator's release notes: a CRD change may need applying
+  before the new image rolls out.
+
+## Upgrading to 1.4
+
+1.4 adds the console <Since v="1.4" />. Besides the new tag:
+
+- add the console's Deployment and its token Secret ([Minimal manifests](/docs/cluster/manifests/#the-console));
+- admit the console's pods to restate-server's ingress;
+- set `TURF_CONSOLE_URL` on the server, so every result links to the console.
+
+## Upgrading to 1.3
+
+If your MCP client has a call timeout under a minute, set the server's `--deadline`
+<Since v="1.3" /> below it. The kagent example runs `--deadline=25s`, under kagent's 30-second timeout.

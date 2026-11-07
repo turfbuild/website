@@ -1,0 +1,184 @@
+---
+title: Result shape
+description: "Read a convergence result: outcome, ended and next, the plan and its digest, the planfile, turf action requests, each round's counts, and every outcome."
+---
+
+import Since from '../../../components/Since.astro';
+
+Every call that starts or continues a convergence returns the same result: `up`, `destroy`, `refresh`,
+`import`, `invoke`, `plan`, `apply` and `cancel`. This page shows how to read one: where the convergence
+stands, the call that continues it, the plan waiting for approval and what each round did. The
+[outcomes table](#outcomes) is at the end.
+
+At an approval point, a result looks like this:
+
+```text
+{ convergence_id, outcome: "awaiting_approval", round: 1,
+  plan: { uri, digest, add, change, destroy, replace, import, forget, read, deferred, drift, outputs,
+          invocations: [{ address, type, caller, event, on_failure }] },
+  rounds, expires_at, next, console_url }
+```
+
+## outcome, ended and next
+
+Three fields say where the convergence stands. Every result carries them.
+
+| Field | Meaning |
+|---|---|
+| `outcome` | Where the convergence stands: a stop it waits at (`awaiting_plan`, `awaiting_approval`, `awaiting_actions`), a stage it was running when the call returned at the server's deadline (`planning`, `applying`), or how it ended. |
+| `ended` | `true` when `outcome` is an ending. `false` at a stop, at a stage, and at `detached`. |
+| `next` | The call that continues from here: `{ tool, args }`, the tool and its arguments. Absent when nothing continues it. |
+| `note` | What the agent should know beyond the fields: the guidance for the stage, led by anything this call has to say about it. A superseded convergence, a plan vended anew after a takeover, and the console link are reported here. |
+
+A call that reaches the server's [deadline](/docs/reference/server/#the-deadline) returns `planning` or
+`applying` with `ended: false`, and the convergence goes on in the engine. Calling `next` follows it.
+
+The other top-level fields:
+
+| Field | Meaning |
+|---|---|
+| `convergence_id` | The convergence. `plan` and `apply` take it. |
+| `workspace_alias` | The workspace it holds. |
+| `kind` | What started it: `up`, `destroy`, `refresh`, `import` or `invoke`. |
+| `round` | The round at the stop the convergence waits at, or the one running. |
+| `expires_at` | When the server stops waiting at this stop. A pause lasts 24 hours, at a plan gate, an approval point or turf actions; past it the server detaches and the convergence waits in the engine. |
+| `plan` | The plan waiting at an approval point. See [The plan](#the-plan). |
+| `planfile` | On a `planned` ending, the plan the engine keeps for a later apply. See [The planfile](#the-planfile). |
+| `action_requests` | At `awaiting_actions`, every turf action waiting on the agent. See [Turf action requests](#turf-action-requests). |
+| `refused` | The action results an `apply` sent that were not taken, each with the reason. Those requests stay open. |
+| `rounds` | Every round so far. See [Rounds](#rounds). |
+| `outputs` | `finalized`: the root outputs the last round finalized. `carried`: the ones carried forward because what they read is still deferred. Names only; `output` reads the values. |
+| `cancelling` | A cancel was asked, and the convergence is finishing what is in flight before it ends. |
+| `error` | What the engine raised, at outcome `error`. |
+| `lineage` | The workspace's statefile lineage, empty before the first round writes one. The console addresses a workspace by it. |
+| `console_url` | The convergence's page in the Turf™ console. See [console\_url](#console_url). |
+
+## The plan
+
+At an approval point, `plan` carries the plan's counts and the resource that serves the plan document.
+A zero count is left out.
+
+| Field | Meaning |
+|---|---|
+| `uri` | The round's plan resource: OpenTofu™'s JSON plan, exactly as `tofu show -json` prints it, sensitive values redacted. `show` reads it. `?show_sensitive=true` reads the clear bytes that `digest` hashes. |
+| `digest` | `sha256:` and the hex digest of the plan document. `apply` names it to approve this plan and no other. |
+| `add`, `change`, `destroy` | Instances created, updated in place, deleted. |
+| `replace` | Replacements, each also counted in `add` and `destroy`. |
+| `import` | Objects the plan adopts into state, by `import` blocks or the `import` tool. |
+| `forget` | Objects dropped from state and left running. |
+| `read` | Data-source reads moved to apply. |
+| `deferred` | Changes waiting for a later round, a module call deferred whole included. Above zero, another round follows. |
+| `drift` | Objects the refresh found changed outside Terraform®. |
+| `outputs` | Root outputs the plan changes. |
+| `invocations` | Every action the round runs: `address`, `type`, `caller`, `event`, `on_failure`, per caller in run order. |
+| `errored` | The plan errored; nothing in it is applied. |
+
+`apply({ convergence_id, plan_digest })` is the approval, of that plan only. The plan document's own
+fields and change symbols are in [Plans](/docs/reference/skills/deployment/plans/).
+
+## The planfile
+
+A start verb called with `plan_only: true` ends its round `planned`: nothing approved, nothing applied,
+the workspace free. The result carries `planfile`, and `plan` beside it as at an approval point.
+
+| Field | Meaning |
+|---|---|
+| `ref` | The planfile's name: the planned round's id. `apply` and `show` take it. |
+| `digest` | The digest of the plan document, the bytes `show({ planfile })` reads with `show_sensitive`. It equals `plan.digest`, and it is what `apply` names as the approval. |
+| `expires_at` | When the engine lets the planfile go: its retention, 24 hours by default. |
+
+`apply({ workspace_alias, planfile, plan_digest })` applies it later, from this server or another that
+opens the workspace. See [Planfiles](/docs/reference/skills/deployment/planfiles/).
+
+## Turf action requests
+
+When an apply reaches a turf action, it stops at `awaiting_actions` with every open request:
+
+```text
+{ outcome: "awaiting_actions", action_requests: [{ key, action, invocation, caller, event,
+    on_failure, if_failed, prompt, inputs, asked_at }], rounds, next }
+```
+
+| Field | Meaning |
+|---|---|
+| `key` | What answers it: `action_results[key]` in the next `apply`. |
+| `round` | The round whose apply asks. |
+| `action` | The action's address. |
+| `invocation` | The invocation's address: the action, the event and the caller. |
+| `caller` | The resource instance whose trigger fired it. Absent for a direct `invoke`. |
+| `event` | The lifecycle event, such as `before_create` or `after_update`, or `invoke`. |
+| `on_failure` | What a failed result does, `halt`, `continue` or `taint`, as the engine will apply it. In a destroy plan this is not what the trigger says. |
+| `if_failed` | The same, in words. |
+| `prompt` | What to do, and what counts as failure. |
+| `inputs` | The configuration's values for the step: IDs, endpoints, names. |
+| `asked_at` | When the engine asked. |
+
+`apply` with `action_results`, one result per key and all at once, answers them. A result the engine
+cannot take comes back under `refused`, and only that request stays open. See
+[Turf actions](/docs/reference/skills/deployment/turf-actions/).
+
+## Rounds
+
+`rounds[]` holds one entry per round so far.
+
+| Field | Meaning |
+|---|---|
+| `round` | The round's number. |
+| `round_id` | The engine's id for the round, which the console opens a round by. A planfile's `ref` is one. |
+| `status` | While the round runs: `awaiting_plan`, `planning`, `awaiting_approval` or `applying`. Then its verdict: `applied`, `failed`, `partial` (some changes skipped or cancelled), `cancelled` (it ended at a stop: declined, cancelled, or its plan went stale), `planned` (a plan-only round, sealed and over) or `error`. |
+| `approval` | How its plan came to be applied: `asked`, `auto`, `unneeded` (nothing to consent to) or `planfile` (the round applied a planfile, approved by the `apply` that named its digest). |
+| `failures` | Each failed change: `address` and `error`, in the provider's words. |
+| `actions` | The actions the round invoked that did not simply succeed, provider and turf actions alike: failed, skipped, tainting their caller, or carrying warnings. Each has `invocation`, `action`, `type`, `caller`, `event`, `status` (`invoked`, `failed` or `skipped`), `succeeded`, `on_failure`, `detail`, `warnings` and `caller_tainted`. |
+| `actions_omitted` | How many actions were left out of `actions` past the engine's bound. Failures are kept first. |
+| `warnings`, `diagnostics`, `check_failures` | What else the round reported. |
+| `cancel_cause` | Why it was cancelled. |
+| `decline_reason` | Why its plan was declined, in the words of whoever declined it. |
+| `stale_reason` | How the configuration moved after the plan, so it was never applied: it changed, or it no longer loads. |
+| `error` | What the engine raised. |
+
+Each entry counts what the round did:
+
+| Count | What it counts |
+|---|---|
+| `planned` | Changes planned, no-ops and deferrals included. |
+| `deferred` | Changes left for a later round. |
+| `applied` | Changes applied. |
+| `drift` | Objects the refresh found changed outside Terraform: what a refresh writes into state. |
+| `failed` | Changes that failed. |
+| `skipped` | Changes never started, because something they depend on failed or halted. |
+| `cancelled` | Changes a cancel abandoned. |
+| `invoked` | Actions that ran. A plain success is only counted here. |
+
+## console_url
+
+`console_url` is the convergence's page in the Turf console: the round at the stop, or the one running.
+<Since v="1.4" /> Every `up`, `plan`, `apply`, `status` and `open` result carries it when the server
+knows a console; `open` and `status` carry the workspace's page. The agent gives the link to the user
+verbatim, above all at an approval point, and never opens it itself. To set where the links point, see
+[The console](/docs/reference/server/#the-console).
+
+## Outcomes
+
+`ended` is `false` for the first five rows and for `detached`, and `true` for the rest.
+
+| Outcome | Meaning | Next |
+|---|---|---|
+| `awaiting_plan` | The round waits at its plan gate: nothing planned yet. | `plan` with `convergence_id`, and the round's `refresh` or `replace`. |
+| `awaiting_approval` | Paused at an approval point. | Review `plan`; `apply` with its digest, or `decline`; or edit and `up` again. |
+| `awaiting_actions` | The apply waits on turf actions (`action_requests`). | Perform them; `apply` with `action_results`. |
+| `planning` | Returned at the server's deadline; the convergence goes on in the engine. | `plan` with `convergence_id`, as `next` says; `cancel` stops it. |
+| `applying` | Returned at the server's deadline; the convergence goes on in the engine. | `apply` with `convergence_id`, as `next` says; `cancel` stops it. |
+| `converged` | Done: nothing left deferred. | `output`; report. |
+| `failed` | A change or an action failed, or the round ended before applying. | Read `rounds[].failures`, `.actions` and `.error`; fix the cause; `up` again. |
+| `stalled` | A round applied nothing and still defers: another round would plan the same thing. | Read the deferrals; change the configuration or the values; `up` again. |
+| `exhausted` | `max_rounds` reached (default 5) with work still deferred. | `up` again continues, or a larger `max_rounds`. |
+| `stale` | The configuration changed, or no longer loads, after the plan: nothing applied. Not `stalled`. | `up` again; review the new plan. |
+| `declined` | The plan was declined (`apply` with `decline`): nothing applied. | `up` to plan again. |
+| `cancelled` | Ended by `cancel`, or superseded at a plan gate or an approval point. What was in flight finished. | `up` to plan again. |
+| `planned` | A `plan_only` run sealed its plan as a planfile (`planfile`); nothing applied. | `apply` with `planfile` and `plan_digest`. |
+| `detached` | This server stopped following it; it waits in the engine. | `open` reports it; `plan` or `apply` with its `convergence_id` takes it up. |
+| `error` | The engine raised (`error`). | Read it, fix what it names, `up` again. |
+
+Nothing is retried. A failed change settles; the round finishes everything independent of it and ends
+`failed`. Fix the cause and run `up` again: it plans over what was left. See
+[Error handling](/docs/reference/skills/deployment/error-handling/).

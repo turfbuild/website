@@ -1,0 +1,137 @@
+---
+title: Topology
+description: "In a cluster, Turf runs as workloads: the MCP server over HTTP behind a bearer token, restate-server and the engine behind it, and the console beside them."
+sidebar:
+  order: 1
+---
+
+import Since from '../../../components/Since.astro';
+
+In a cluster, Turf™ runs as the same pieces it runs on a laptop, deployed as workloads: the MCP
+server, restate-server with the engine behind it, and the console. Any MCP client talks to the server
+over HTTP: an agent running in the cluster, Claude Code through a port-forward, a CI job. On a laptop
+the Homebrew service runs restate-server, the engine and the console for you; in a cluster each one is
+a workload you deploy.
+
+```text
+  any MCP client: an agent in the cluster, Claude Code through a port-forward, a CI job
+        │  POST /mcp
+        │  Authorization: Bearer <TURF_MCP_AUTH_TOKEN>
+        ▼
+  turf-mcp-server   :3000, --transport http        parses the configuration, opens state
+        │  TURF_RESTATE_URL                        ──► the state backend (a Secret and a Lease,
+        ▼                                               or any remote backend)
+  restate-server    ingress :8080 · admin :9070    ◄── turf-ui, the console :8873 (reads the ingress)
+        │  every request signed with the identity key
+        ▼
+  turf-engine       :9080, a Deployment's replicas or a Knative service
+        │  provider plugins run here, with the engine's credentials
+        ▼
+  cloud APIs, or the cluster itself
+
+  the configuration: an image volume (or any volume), read-only, at one path in the server's pod
+  and in every engine pod
+```
+
+## The MCP server
+
+`turf-mcp-server --transport http` serves MCP at `/mcp` on the address `--addr` names (`:3000` in
+the examples). It is the only piece a client talks to. Set `TURF_MCP_AUTH_TOKEN` <Since v="1.3" /> in
+its environment, from a Secret: every request must then carry `Authorization: Bearer <token>`, and
+anything else gets `401`. The server reads the token only from its environment. The token is not sent
+over TLS, so keep the network path private, or serve the server over TLS or behind a mesh.
+
+The server parses the configuration, opens state and drives the engine through restate-server's
+ingress, which `TURF_RESTATE_URL` names. Without that variable it looks for a local engine. It never
+runs a provider: the credentials it needs are the state backend's, and the variables it reads are
+`TF_VAR_` ones. See [Credentials in a cluster](/docs/cluster/credentials/).
+
+## restate-server
+
+restate-server is the durable-execution server the engine runs on. It comes from Restate's own image,
+`docker.io/restatedev/restate`; Turf's image carries none. The engine needs restate-server 1.7.7 or
+later with flow control on, which 1.8 builds in, and is tested against 1.8.1. The examples run one
+node with its data on a PersistentVolume.
+
+| Port | What | Who reaches it |
+|---|---|---|
+| 8080 | the ingress | the MCP server, and the console's reads |
+| 9070 | the admin API | the engine: its startup version check, and its registration |
+
+restate-server has no authentication of its own on either port, so NetworkPolicy decides who reaches
+them. It signs every request it sends the engine with the private half of the engine's identity key.
+
+Run it as a StatefulSet of your own, or as a `RestateCluster` that the Restate operator provisions.
+The operator also puts a default-deny NetworkPolicy around it and admits only the peers its
+`security.networkPeers` names.
+
+## The engine
+
+`turf-engine` plans and applies. It runs from the server's image with its own command. Provider
+plugins run in the engine, so the providers' credentials go on the engine's pods. It serves only
+requests restate-server signed (`TURF_ENGINE_IDENTITY_KEYS` holds the public half of the key) and
+answers one path unsigned, `/health`. At start it checks restate-server's version on the admin API.
+
+Two ways to run it:
+
+- **A plain Deployment.** The engine registers itself with restate-server at start, at the address
+  `--advertise` names: its Service. It runs as several replicas <Since v="1.2" />, and a round's steps
+  land on any of them. Each replica installs the modules a round planned into its own `--data-dir`.
+  Every replica runs with the same flags and the same mounts.
+- **Knative, through the Restate operator.** A `RestateDeployment` in Knative mode. The operator
+  creates a Knative Configuration and a cluster-local Route for each tag, registers the Route with
+  restate-server (the engine runs with `--register=false`), and keeps an old tag's deployment until
+  what it started has drained. Knative scales the pods with the work in flight: from zero when a round
+  starts, out while its steps run, back to zero when the cluster is quiet. Each new pod installs
+  providers and modules the first time a step lands on it.
+
+[Minimal manifests](/docs/cluster/manifests/) has both.
+
+## The console <Since v="1.4" />
+
+The console is `turf-ui`, from the same image: a read-only web view of every workspace's runs, rounds
+and approvals. It reads restate-server's ingress and nothing else. It runs no provider and holds no
+state, so it can be restarted or left out and the engine does not notice. Off loopback it takes a
+token, `TURF_CONSOLE_AUTH_TOKEN`. Set `TURF_CONSOLE_URL` on the server to the address a browser
+reaches it at, and every result the server hands a client carries a `console_url` for its round. See
+[The console in a cluster](/docs/cluster/console/).
+
+## The configuration
+
+The server and the engine each read the configuration themselves. Mount it at the same path in the
+server's pod and in every engine pod (both examples use `/turf/config`) and nothing more is needed:
+the engine reads the path the server names.
+
+The examples mount a [configuration image](/docs/cluster/images/#configuration-images): the
+configuration directory at the root of an otherwise empty OCI image, mounted read-only as a
+Kubernetes® image volume. A change to the configuration is a new image version. Any volume works the
+same way, as long as it is mounted alike in every pod.
+
+A read-only configuration plans when:
+
+- it commits its lock file, complete for every platform it runs on;
+- its state lives in a remote backend, since nothing can write a statefile beside it;
+- the server's `TF_DATA_DIR` names a directory `init` can write, for the server's own module
+  install. The engine installs modules under its own `--data-dir` and needs nothing set.
+
+**When the paths differ**, set the server's `--workdir` and `turf-engine --workdir` <Since v="1.1" />,
+both or neither, each to the directory that holds the same layout (`TURF_WORKDIR` and
+`TURF_ENGINE_WORKDIR` in the environment). The server names each configuration's path below its own
+`--workdir`, and the engine reads it below its own. Mount the configuration, and everything it reaches
+by a relative path, the same way under both. `init` then refuses a configuration outside `--workdir`.
+
+## State
+
+A configuration image declares no backend: whoever runs it names one when it opens a workspace, and it
+must be a remote one. Both examples use the OpenTofu™ kubernetes backend, which keeps a Secret and a
+Lease per workspace in the namespace `backend_config.namespace` names. The server writes them, as its
+ServiceAccount.
+
+## At a glance
+
+| Piece | Runs | Port | Reached by |
+|---|---|---|---|
+| MCP server | `ghcr.io/turfbuild/turf-mcp-server`, its default command | 3000, `/mcp` | your MCP clients, with the bearer token |
+| restate-server | `docker.io/restatedev/restate` | 8080 ingress, 9070 admin | the server and the console (ingress), the engine (admin) |
+| Engine | the same image, `/turf-engine` | 9080, HTTP/2 without TLS | restate-server alone, signed |
+| Console | the same image, `/turf-ui` | 8873 | a port-forward, with its token |

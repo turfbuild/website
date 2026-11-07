@@ -1,0 +1,167 @@
+---
+title: Import existing objects
+description: "Bring an object that already exists under management: an import block in the plan you approve, or the import tool's own round. Write the resource block first."
+sidebar:
+  order: 5
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import Conversation from '../../../components/Conversation.astro';
+import User from '../../../components/User.astro';
+import Agent from '../../../components/Agent.astro';
+import ToolResult from '../../../components/ToolResult.astro';
+
+Importing adopts an object that exists in the cloud, but not in state, at an address the configuration
+declares: one made by hand or by another tool, state that was lost, a move between workspaces. Turf™
+generates no configuration, so the resource block comes first. Then either an `import` block adopts the
+object in the next `up`, or the `import` tool adopts it in a round of its own.
+
+<Conversation>
+<User>We created the bucket my-logging-bucket by hand. Bring it under management as aws_s3_bucket.logs, with an import block.</User>
+<Agent calls={['up → awaiting_plan', 'plan → awaiting_approval']}>
+
+I added `resource "aws_s3_bucket" "logs"` to main.tf, matching the bucket, and an `import` block that
+names it. **Plan: 1 to import, 0 to add, 0 to change, 0 to destroy.**
+
+```text
+= aws_s3_bucket.logs   (importing my-logging-bucket, no change)
+```
+
+The block matches the bucket as it is, so nothing about it changes. Ready to apply these changes?
+
+</Agent>
+<ToolResult tool="plan" outcome="awaiting_approval">
+
+```text
+plan: { uri: "turf://workspaces/default/convergences/…/rounds/1/plan",
+        digest: "sha256:…", import: 1 }
+```
+
+</ToolResult>
+<User>Yes.</User>
+<Agent calls={['apply → converged']}>
+
+Imported: `aws_s3_bucket.logs` is in state. The `import` block does nothing from now on; keep it or
+delete it.
+
+</Agent>
+</Conversation>
+
+<Tabs syncKey="surface">
+<TabItem label="In your agent">
+
+Name the object and the address: "import the bucket my-logging-bucket as aws_s3_bucket.logs". Say
+"with an import block" to make the adoption part of the next `up`, or "with the import tool" to adopt it
+on its own first. Either way the agent needs the resource block in the configuration; it writes one only
+when you ask.
+
+An import needs your yes: the agent presents the plan and asks before applying it. It points out any
+import that would also replace the object, the one case where an import takes an object away.
+
+</TabItem>
+<TabItem label="Turf CLI">
+
+With an `import` block in the configuration, `turf up` adopts the object in its plan:
+
+```sh
+cd path/to/config && turf up
+```
+
+For the `import` tool, ask in `turf chat`: "import my-logging-bucket as aws_s3_bucket.logs".
+
+</TabItem>
+</Tabs>
+
+## How it works
+
+**Two ways in.** Prefer the block: the adoption is part of the plan you approve for everything else,
+and a block left behind afterwards is inert. Reach for the tool to get objects into state before
+anything else is planned.
+
+| | `import {}` block | `import` tool |
+|---|---|---|
+| Lives in | the configuration (root module) | nowhere: a tool call |
+| Adopts at | the `up` plan, which compares the configuration with the real object | its own import-only round, as `tofu import`; nothing else is planned |
+| Reviewable | the plan says `importing`, and one `apply` adopts and reconciles | the adoption only; the next `up` shows the difference |
+
+**The block.** It goes in the root module:
+
+```hcl
+import {
+  to = aws_s3_bucket.logs
+  id = "my-logging-bucket"        # or identity = { … }
+}
+```
+
+`up` adopts the object and compares the configuration with it: the change reads `no-op` or `update` and
+carries `importing`, and `plan.import` counts it. `apply` adopts first and updates after. `to` may name a
+nested address and carry dynamic keys, and the block may use `for_each`. `id` and `identity` must not
+be sensitive or ephemeral. An import into an address state already holds does nothing, so a block left
+in place is safe.
+
+**The tool.** `import` takes `targets`, each a resource instance address and exactly one of `id` (the
+provider's import ID) or `identity` (the provider's identity attributes, which `provider_describe`
+shows). The round reads each target and nothing else. It stops at its approval point like any round,
+and `apply` writes the objects into state. If any target is refused, the plan fails and nothing is
+imported. The provider instance is the resource's own, as with `tofu import`.
+
+**Then bring it under management.** After the tool's round:
+
+1. Look at what was imported: `state_list` with `include_values`, or `show` with `what: "state"`.
+2. Adjust the resource's block to the configuration you want, and run `up`: the plan shows any
+   difference between the object and the block.
+3. Review that plan and apply it if you approve.
+
+To adopt the object as it is, write the block to match the imported attributes: the plan is a no-op.
+
+**Differs from Terraform®.** An `import` block whose `id`, `to` key or `for_each` is not known at plan
+defers its resource (`resource_config_unknown`), and the import happens in a later round. Terraform
+refuses it.
+
+<Aside type="caution">
+A plan may replace the object it adopts. The agent points that out before approving: it is the one case
+where an import takes an object away rather than bringing it under management.
+</Aside>
+
+## Refusals and errors
+
+An import-only round refuses, naming the target:
+
+- a target the configuration does not declare, a data source, a target named twice, or one without
+  exactly one of `id` and `identity`;
+- an address state already holds (`Resource already managed by OpenTofu`);
+- a target whose resource cannot be planned yet (`cannot import … this round: … it is deferred`);
+- any configuration with a `moved` block: plan and apply normally first.
+
+An import into an address that a `moved` block vacates in the same round is refused too: apply the move
+first, then import.
+
+| Error | Cause | What to do |
+|---|---|---|
+| `Cannot import non-existent remote object` | A wrong ID, or the object is gone | Check the ID's format; if the object is gone, plan a create instead. |
+| `Resource already managed by OpenTofu` | The address is taken | The object at that address is already managed. |
+| `Configuration for import target does not exist` | No `resource` block for the target | Write the block first. |
+
+## Import IDs
+
+The `id` format is the provider's. A few common ones:
+
+| Resource type | Format | Example |
+|---|---|---|
+| `aws_instance` | instance ID | `i-1234567890abcdef0` |
+| `aws_s3_bucket` | bucket name | `my-bucket` |
+| `azurerm_resource_group` | resource ID | `/subscriptions/…/resourceGroups/my-rg` |
+| `google_compute_instance` | `project/zone/name` | `my-project/us-central1-a/my-instance` |
+
+## Arguments
+
+| Argument | Meaning |
+|---|---|
+| `targets` | The objects to adopt. Each has `addr` (a resource instance address the configuration declares, module-prefixed for one in a module) and exactly one of `id` or `identity`. |
+| `workspace_alias`, `var`, `var_file`, `overlays`, `plan_only` | As for every start verb: see [Deploy or update with up](/docs/using/up/#arguments). |
+
+## Related
+
+- [Reading state and outputs](/docs/using/state/)
+- [Writing configurations with an agent](/docs/authoring/writing-with-an-agent/): the resource block and the `import` block are authoring.
+- [Plan and apply by hand](/docs/using/plan-and-apply/)

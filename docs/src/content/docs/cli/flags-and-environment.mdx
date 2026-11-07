@@ -1,0 +1,90 @@
+---
+title: Flags and environment
+description: "Every flag the turf CLI takes, with its environment variable and default, plus the per-command flags, the environment-only variables and the files it uses."
+sidebar:
+  order: 7
+---
+
+import Since from '../../../components/Since.astro';
+
+Every Turf™ CLI command takes the global flags below; most have an environment variable that sets the
+default. A flag given on the command line wins over its variable.
+
+## Global flags
+
+| Flag | Env | Default | Description |
+|---|---|---|---|
+| `--model` | `TURF_MODEL` | `turf.yaml` `model:`, else `auto` | The model: a named model from `turf.yaml`, an inline `provider/model`, or `auto` ([Model providers](/docs/cli/models/)) |
+| `--base-url` | `TURF_MODEL_BASE_URL` | the provider's | Model endpoint for OpenAI-compatible servers (vLLM, LM Studio, gateways); Docker Model Runner and Ollama resolve their own |
+| `--mcp-server` | `TURF_MCP_SERVER` | looked up on `PATH` | Path to the `turf-mcp-server` binary |
+| `--tmp-dir` | `TURF_TMP_DIR` | system temp | Per-run scratch directory for the server (scratch configurations) |
+| `--plugin-cache-dir` | `TURF_PLUGIN_CACHE_DIR` | `<user cache>/turf/plugins` | Shared provider plugin cache, kept across runs; `off` disables it |
+| `--memory-path` | | `./.turf/memory.db` | SQLite memory database |
+| `--no-memory` | | `false` | Disable persistent agent memory |
+| `--session-db` | `TURF_SESSION_DB` | `./.turf/sessions.db` | SQLite session-history database (`chat` and `exec` resume through `--session` and `--continue`) |
+| `--no-session` | | `false` | Disable session persistence and resume |
+| `--chdir`, `-C` | | | Switch to this directory before running |
+| `--allow-path` | `TURF_ALLOW_PATH` | | Extra directory the file tools may read and write (auto-approved); repeatable, or a path list in the variable. A relative path resolves against the working directory; prefer absolute |
+| `--worktree[=name]` | | | Run in a fresh git worktree of the working directory, on a throwaway branch, isolating the HCL the agent writes (`--worktree=name` names it) |
+| `--worktree-base` | | `HEAD` | Branch the `--worktree` from this ref instead (`main`, `origin/main`); a remote-tracking ref is fetched first |
+| `--log-file` | `TF_LOG_PATH` | stderr | Write the server's logs to this file |
+| `--log-level` | `TF_LOG_CORE`, `TF_LOG` | `info` | `trace`, `debug`, `info`, `warn`, `error` or `off` |
+| `--log-format` | `TF_LOG` with a `-JSON` suffix | `text` | `text` or `json` |
+| `--debug` | `TURF_DEBUG` | `false` | Log turf's own debug lines to `<TURF_HOME>/turf.debug.log` (warnings and errors always go there) |
+| `--theme` | `TURF_THEME` | `stadium` | TUI theme name; overrides the saved choice for this run ([Theming](/docs/cli/theming/)) |
+| `--lean` | `TURF_LEAN` | `false` | Run `chat` in the lean TUI; `up` and `destroy` on a terminal always use it |
+| `--version`, `-v` | | | Print the version, the license line and the telemetry setting |
+
+`TURF_DEBUG` and `TURF_LEAN` turn on with any non-empty value. `TURF_ALLOW_PATH` separates its
+directories as `PATH` does.
+
+## Per-command flags
+
+| Command | Flag | Description |
+|---|---|---|
+| `up`, `destroy`, `exec` | `--yes`, alias `--auto-approve` | Answer the agent's approval questions yes, as each round's plan comes ([Up and destroy](/docs/cli/up-and-destroy/#unattended-runs-yes)) |
+| `turf`, `chat`, `exec` | `--session <id\|-N>` | Resume a session by ID or by relative offset (`-1` is the most recent) |
+| `turf`, `chat`, `exec` | `--continue`, `-c` | Resume the most recent session (the same as `--session -1`) |
+| `exec` | `--json` | Print each runtime event as one JSON object per line ([Scripting with exec](/docs/cli/exec/)) |
+| `exec` | `--hide-tool-calls` | Print only the agent's prose, without tool-call and tool-result lines |
+| `login` | `--token-stdin` | Read the token from stdin instead of prompting ([Log in to a host](/docs/cli/login/#in-ci)) |
+| `console` | `--print` | Print the sign-in link instead of opening it, for a console reached over `ssh -L` <Since v="1.4" /> |
+
+## Logging
+
+The three `--log-*` flags pass through to the `turf-mcp-server` subprocess. When they are unset, the
+`TF_LOG_*` variables, as OpenTofu™ names them, reach the server through the environment it inherits.
+Provider plugins inherit them too, so `TF_LOG_PROVIDER=DEBUG` turns on plugin-side debug logging into
+the same sink as the server's.
+
+## Environment only
+
+| Variable | Description |
+|---|---|
+| `TURF_HOME` | turf's own home, `~/.turf` by default: the global `turf.yaml`, skills, themes and the debug log |
+| `TURF_DEADLINE` | Replaces the five minutes the CLI gives each convergence call; the CLI then passes no `--deadline` and the server reads the variable |
+| `TF_LOG_PROVIDER` | Provider plugins' log level, into the server's log sink |
+| `TF_TOKEN_<hostname>` | An API token for a registry or backend host; wins over `credentials.tfrc.json` ([Log in to a host](/docs/cli/login/#precedence)) |
+| `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, … | The hosted model provider's key ([Model providers](/docs/cli/models/#hosted-providers)) |
+| `MODEL_RUNNER_HOST` | A remote Docker Model Runner, in place of the local one turf finds itself |
+| `OLLAMA_CONTEXT_LENGTH` | Ollama's context window; set it before starting the Ollama server ([Model providers](/docs/cli/models/#ollama)) |
+
+`--no-telemetry` (and `TURF_NO_TELEMETRY`) is still accepted, for scripts that pass it, and does
+nothing: the agent runtime's own telemetry is always off. Turf's usage telemetry is the engine's, and
+the variables that control it (`TURF_TELEMETRY`, `DO_NOT_TRACK`, `TURF_INSTALLATION_ID`) belong in the
+engine's environment, not the CLI's ([telemetry](https://turf.build/telemetry/)).
+
+## Files
+
+| Path | What it holds |
+|---|---|
+| `~/.turf/turf.yaml` | Global model and branding configuration ([Model providers](/docs/cli/models/#the-turfyaml-file)) |
+| `<project>/.turf/turf.yaml` | Project configuration, overriding the global file |
+| `.turf/sessions.db` | Session history, in the working directory |
+| `.turf/memory.db` | The agent's persistent memory, in the working directory |
+| `~/.turf/skills/<name>/SKILL.md`, `<project>/.turf/skills/<name>/SKILL.md` | Your skills ([Skills](/docs/cli/skills/)) |
+| `~/.turf/themes/<name>.yaml` | Custom themes ([Theming](/docs/cli/theming/)) |
+| `<TURF_HOME>/turf.debug.log` | turf's own warnings and errors, and debug lines with `--debug` |
+| `<TURF_HOME>/telemetry.json` | The telemetry setting the engine starts with (`turf telemetry on\|off`) |
+| `~/.terraform.d/credentials.tfrc.json` | Tokens from `turf login`, shared with `tofu` and `terraform` |
+| `<user cache>/turf/plugins` | The shared provider plugin cache |
