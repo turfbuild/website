@@ -1,6 +1,6 @@
 ---
 // The engine: provider calls that scale out (the fan-out figure), the rest of the engine with
-// Restate named in Restate's own words (D18, revised 2026-10-18), the console as a preview, and
+// Restate named in Restate's own words (D18, revised 2026-10-18), the console (shipped in 1.4), and
 // state encryption as HCL. Sources: /compatibility/'s strengths table, /engine/'s engine list, the
 // encrypted fixture in doof's v1 test suite.
 import FanOutFigure from './figures/FanOutFigure.astro';
@@ -44,17 +44,16 @@ import Still from './Still.astro';
           <li><b>OpenTelemetry built in.</b> Every run traced as it happens, exported over OTLP; metrics
             in Prometheus format.</li>
           <li><b>Encrypted at rest.</b> State encryption with a passphrase or a key.</li>
-          <li><b>Operator console.</b> Every stack, run and approval in one place.
-            <span class="pill soon">coming soon</span></li>
+          <li><b>Operator console.</b> Every run, round and approval, visible in one place.</li>
         </ul>
         <p>The engine runs on <a href="https://restate.dev">Restate</a>, in Restate’s words “a lightweight
           runtime to turn AI agents, workflows, and backend services into durable processes.”
           <a href="/engine/#engine">How the engine is built →</a></p>
       </div>
       <div>
-        <Still id="console" src="/console/aicr-converged.png" soon
-          alt="A preview of the Turf console: a deployment run in two rounds, converged, with a lane for every resource of the stack."
-          caption="A preview of the Turf console: every stack, run and approval in one place. Click to enlarge." />
+        <Still id="console" src="/console/aicr-converged.png"
+          alt="The Turf console: a run in two rounds, converged, with a lane for every resource of the stack."
+          caption="The Turf console: every run, round and approval, visible in one place. Click to enlarge." />
       </div>
     </div>
 
