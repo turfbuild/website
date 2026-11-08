@@ -1,0 +1,47 @@
+---
+// Three things you can run today (2026-11-07, for KubeCon NA): the AI Cluster Runtime stack on kind,
+// the agent in the cluster with kagent, and the gh-aw pipeline — the marquee examples, each a public
+// repository. The copy lives in data/examples.ts, shared with /demo/, the hub that carries each one's
+// visual; the band's one visual is the kagent figure (PipelineFigure renders on /use-cases/ and /demo/,
+// the AICR stills in the Engine band and on /demo/; one SVG figure per page). The home page's marks
+// note sits here, under the last band that names a third party, and covers UseCasesTeaser's names too.
+import { examples } from '../data/examples';
+import KagentFigure from './figures/KagentFigure.astro';
+---
+
+<section class="band alt" id="examples">
+  <div class="wrap">
+    <div class="band-head">
+      <h2>Three things you can run today.</h2>
+      <p>Each is a public repository and a README. The first two run on kind, on a laptop with Docker;
+        the third runs in your GitHub organization.</p>
+    </div>
+    <div class="figwide">
+      <KagentFigure />
+      <p class="figcap"><b>The agent in the cluster.</b> A person approves in the kagent UI; the agent
+        calls Turf through the egress gateway, which adds the token; the engine runs only while there
+        is work; the state never leaves the cluster.</p>
+    </div>
+    <div class="solutions">
+      {examples.map((ex) => (
+        <div class="sol">
+          <span class="tagline">{ex.tagline}</span>
+          <h3>{ex.title}</h3>
+          <p>{ex.blurb}</p>
+          <p class="links">{ex.links.map((l) => <a href={l.href}>{l.label} →</a>)}</p>
+        </div>
+      ))}
+    </div>
+    <p class="also">More, with each example’s walkthrough and two recordings from before 1.0 →
+      <a href="/demo/">turf.build/demo</a></p>
+    <p class="legal-note">NVIDIA, AI Cluster Runtime, NVCRE, NVSentinel, KAI Scheduler and NIM are trademarks or
+      product names of NVIDIA Corporation, referred to here only to describe interoperability. Amazon EKS,
+      Google Kubernetes Engine and Azure Kubernetes Service are trademarks of their respective owners. MAAS
+      is a trademark of Canonical Ltd. Redfish is a trademark of DMTF. Amazon Web Services and AWS are
+      trademarks of Amazon.com, Inc. or its affiliates. GitHub and GitHub Agentic Workflows are trademarks
+      of GitHub, Inc. kagent, gVisor and Knative are trademarks or project names of their respective owners.
+      Restate is a product of Restate Software, Inc. and Restate GmbH, named here to describe what Turf is
+      built on. Turf is not affiliated with, endorsed by, or sponsored by any of them. All other marks
+      belong to their owners.</p>
+  </div>
+</section>

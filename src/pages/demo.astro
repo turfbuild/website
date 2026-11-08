@@ -1,8 +1,20 @@
 ---
+// The demos hub (2026-11-07; until then this page was the kind-CRD recording alone). Three public
+// examples to run, each with its visual — the AICR console still, the kagent figure, the pipeline
+// figure — from data/examples.ts, shared with the home band; then the two recordings from before
+// 1.0: the kind-CRD stack up and down (kept here with its round-annotated HCL) and the Scalr take at
+// /demo/scalr/, which the KubeCon playbook shows on a phone, so its URL does not move.
 import Layout from '../layouts/Layout.astro';
-const title = 'Turf — Kubernetes stack demo: one turf up, converged';
+import FigureDefs from '../components/FigureDefs.astro';
+import Still from '../components/Still.astro';
+import KagentFigure from '../components/figures/KagentFigure.astro';
+import PipelineFigure from '../components/figures/PipelineFigure.astro';
+import { examples } from '../data/examples';
+
+const [aicr, kagent, ghaw] = examples;
+const title = 'Turf — Demos: three examples to run, and two recordings';
 const description =
-  'Watch Turf converge a Kubernetes stack — a kind cluster, a CRD, and a custom resource — in one governed turf up, then tear it down with turf destroy.';
+  'Run Turf yourself: the AI Cluster Runtime stack on kind, an agent in the cluster with kagent, and a pull request that applies itself. Plus two recordings.';
 const exampleUrl =
   'https://github.com/turfbuild/turf-examples/tree/main/terraform/kubernetes/kind-crd';
 
@@ -47,24 +59,84 @@ const jsonLd = [
 ---
 
 <Layout title={title} description={description} jsonLd={jsonLd}>
+  <FigureDefs />
   <section class="subhero">
     <div class="wrap">
-      <p class="eyebrow"><span class="dot"></span> Demo · Kubernetes stacks</p>
-      <h1>One <code class="mono">turf up</code>. The whole stack converges.</h1>
-      <p class="lede">A kind cluster, a <code>CustomResourceDefinition</code>, and an instance of
-        it — three resources that each depend on the previous one <strong>existing</strong>.
-        Terraform makes you apply these in awkward stages. Turf™ converges all three in a single,
-        governed run.</p>
+      <p class="eyebrow"><span class="dot"></span> Demos · three examples and two recordings</p>
+      <h1>See Turf running.</h1>
+      <p class="lede">Three public repositories, each a README away from a run: a GPU cloud’s runtime on a
+        Kubernetes® cluster in Docker, seventeen Helm® releases from one recipe; an agent that lives in
+        the cluster it manages; and a pipeline where an agent attends every Terraform® apply. Then two
+        recordings from before 1.0. <strong>Turf™ plans, approves and applies each of them the same
+        way, round by round.</strong></p>
     </div>
   </section>
 
-  <section class="section">
+  <section class="section" id="examples">
     <div class="wrap">
+      <div class="band-head">
+        <h2>Three things you can run today.</h2>
+        <p>The first two run on kind, on a laptop with Docker; the third runs in your GitHub organization.</p>
+      </div>
+
+      <div class="feature center" id={aicr.id}>
+        <div>
+          <Still id="aicr-certify" src="/console/aicr-round2-certify-action.png"
+            alt="The Turf console: round 2 of a run is applying, paused at the certify action, with a lane for every Helm release of the runtime."
+            caption="The Turf console: the AI Cluster Runtime stack applying in round 2, paused at the certify step. Click to enlarge." />
+        </div>
+        <div>
+          <p class="eyebrow"><span class="dot"></span> {aicr.tagline}</p>
+          <h3>{aicr.title}</h3>
+          {aicr.body.map((para) => <p>{para}</p>)}
+          <p class="links">{aicr.links.map((l) => <a href={l.href}>{l.label} →</a>)}</p>
+        </div>
+      </div>
+
+      <div class="feature center fig-lg-r" id={kagent.id}>
+        <div>
+          <p class="eyebrow"><span class="dot"></span> {kagent.tagline}</p>
+          <h3>{kagent.title}</h3>
+          {kagent.body.map((para) => <p>{para}</p>)}
+          <p class="links">{kagent.links.map((l) => <a href={l.href}>{l.label} →</a>)}</p>
+        </div>
+        <div>
+          <KagentFigure />
+          <p class="figcap"><b>The agent in the cluster.</b> A person approves in the kagent UI; the agent
+            calls Turf through the egress gateway, which adds the token; the engine runs only while there
+            is work; the state never leaves the cluster.</p>
+        </div>
+      </div>
+
+      <div class="feature center fig-lg" id={ghaw.id}>
+        <div>
+          <PipelineFigure />
+          <p class="figcap"><b>Every stop attended.</b> Open, plan, comment, review, merge, apply, verify,
+            promote: the reviewed plan is tied to the apply by its digest, and the agent runs in the
+            workflow’s sandbox beside Turf on the runner.</p>
+        </div>
+        <div>
+          <p class="eyebrow"><span class="dot"></span> {ghaw.tagline}</p>
+          <h3>{ghaw.title}</h3>
+          {ghaw.body.map((para) => <p>{para}</p>)}
+          <p class="links">{ghaw.links.map((l) => <a href={l.href}>{l.label} →</a>)}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section alt" id="recordings">
+    <div class="wrap">
+      <div class="band-head">
+        <h2>Two recordings, from before 1.0.</h2>
+        <p>A Kubernetes stack up and down in one <code>turf up</code>, and Scalr as the control plane with
+          Turf as the engine. Recorded on a pre-1.0 build; the loop is the same.</p>
+      </div>
+
       <figure class="demo-figure">
         <video
           class="demo-video"
           controls
-          autoplay
           muted
           playsinline
           preload="metadata"
@@ -79,18 +151,14 @@ const jsonLd = [
           <code class="mono">turf up</code> — cluster → CRD → custom resource, converged in one run.
         </figcaption>
       </figure>
-    </div>
-  </section>
 
-  <section class="section alt">
-    <div class="wrap">
       <div class="prose demo-config-head">
-        <h2>One config. Three rounds.</h2>
-        <p>The whole demo is a single Terraform file. Each resource can only be created once the one
-          above it exists — so Turf converges it in three planned, approved rounds, configuring the
-          kubernetes provider in round 2 once the cluster's endpoint is known. The round labels and
-          effects below are exactly what <code class="mono">turf up</code> computes; nothing is edited
-          or staged by hand.</p>
+        <h3>One config. Three rounds.</h3>
+        <p>The whole demo is a single Terraform file: a kind cluster, a <code>CustomResourceDefinition</code>,
+          and an instance of it, three resources that each depend on the previous one existing. Turf
+          converges it in three planned, approved rounds, configuring the kubernetes provider in round 2
+          once the cluster's endpoint is known. The round labels below are exactly what
+          <code class="mono">turf up</code> computes; nothing is edited or staged by hand.</p>
       </div>
 
       <div class="codeblock rounds">
@@ -153,22 +221,7 @@ const jsonLd = [
         </div>
       </div>
 
-      <div class="prose demo-config-foot">
-        <p>No <code>-target</code>, no staged applies, no edits to your <code>.tf</code> — the
-          deferral loop converges the file as-is. Browse the full configuration
-          <a href={exampleUrl}>on GitHub</a>.</p>
-        <p class="demo-ctas">
-          <a class="btn primary" href={exampleUrl}>Run it yourself →</a>
-          <a class="btn ghost" href="/get-started/">Install Turf →</a>
-          <a class="btn ghost" href="/demo/scalr/">Scalr demo →</a>
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="wrap">
-      <figure class="demo-figure">
+      <figure class="demo-figure demo-figure-after">
         <video
           class="demo-video"
           controls
@@ -184,15 +237,29 @@ const jsonLd = [
         </video>
         <figcaption class="demo-cap">
           <code class="mono">turf destroy</code> — reverse-dependency teardown: custom resource → CRD →
-          cluster.
+          cluster, planned and approved before anything is removed.
         </figcaption>
       </figure>
 
-      <div class="prose demo-prose">
-        <p>Tear it all down the same way it came up — planned and approved, in reverse dependency
-          order. No cloud account or credentials required: kind runs the cluster as local Docker
-          containers, so the whole demo is free to run yourself.</p>
+      <div class="prose demo-config-foot">
+        <p>No <code>-target</code>, no staged applies, no edits to your <code>.tf</code>: the deferral
+          loop converges the file as-is, and tears it down the same way. No cloud account or credentials
+          required; kind runs the cluster as local Docker containers. The second recording puts Scalr in
+          front of the engine: remote state, workspace variables and an OPA policy group over MCP, and a
+          plan that violates the group’s policy, caught before it runs.</p>
+        <p class="demo-ctas">
+          <a class="btn primary" href="/demo/scalr/">The Scalr recording →</a>
+          <a class="btn ghost" href={exampleUrl}>This stack on GitHub →</a>
+          <a class="btn ghost" href="/get-started/">Install Turf →</a>
+        </p>
       </div>
+
+      <p class="legal-note">NVIDIA and AI Cluster Runtime are trademarks or product names of NVIDIA Corporation.
+        kagent, gVisor and Knative are trademarks or project names of their respective owners. GitHub and
+        GitHub Agentic Workflows are trademarks of GitHub, Inc. Amazon Web Services, AWS and AWS Lambda are
+        trademarks of Amazon.com, Inc. or its affiliates. Scalr is a trademark of Scalr, Inc. Each is named
+        here only to describe interoperability. Turf is not affiliated with, endorsed by, or sponsored by
+        any of them. All other marks belong to their owners.</p>
     </div>
   </section>
 </Layout>
@@ -200,6 +267,9 @@ const jsonLd = [
 <style>
   .demo-figure {
     margin: 0 0 clamp(20px, 3vw, 32px);
+  }
+  .demo-figure-after {
+    margin-top: clamp(20px, 3vw, 32px);
   }
   .demo-video {
     display: block;
@@ -219,14 +289,23 @@ const jsonLd = [
   .demo-cap code {
     font-size: 12.5px;
   }
-  .demo-prose {
-    margin-top: clamp(20px, 3vw, 32px);
-  }
   .demo-ctas {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
     margin-top: 22px;
+  }
+  /* The example rows reuse .feature; their link rows match the home cards' .links. */
+  .feature .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    margin: 4px 0 0;
+  }
+  .feature .links a {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--ok-deep);
   }
 
   /* The round-annotated HCL panel is global: .codeblock.rounds / .round in global.css. */

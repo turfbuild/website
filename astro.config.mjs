@@ -41,7 +41,7 @@ const WEIGHTS = {
   '/use-cases/': { priority: 0.9, changefreq: WEEKLY },
   '/compatibility/': { priority: 0.9, changefreq: WEEKLY },
   '/get-started/': { priority: 0.9, changefreq: WEEKLY },
-  '/demo/': { priority: 0.7, changefreq: MONTHLY },
+  '/demo/': { priority: 0.8, changefreq: MONTHLY }, // the demos hub since 2026-11-07: three examples and the recordings
   '/demo/scalr/': { priority: 0.7, changefreq: MONTHLY },
   '/pricing/': { priority: 0.6, changefreq: MONTHLY },
   '/licensing/': { priority: 0.7, changefreq: MONTHLY },

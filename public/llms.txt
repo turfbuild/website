@@ -11,7 +11,8 @@ true Helm releases and Ansible playbooks as Terraform actions, and under them pu
 Terraform and OpenTofu don't have: multi-round convergence of layered stacks, Terraform
 actions with overlays, turf actions (a check, a question or a notification as a step of the apply),
 durable runs on Restate, provider calls that scale out until the cloud API is the ceiling, state
-encrypted at rest, OpenTelemetry built in. The engine and its MCP server (`turf-mcp-server`) are the product. Connect it to your
+encrypted at rest, OpenTelemetry built in, and since 1.4 a read-only console of every workspace's
+runs, rounds and approvals. The engine and its MCP server (`turf-mcp-server`) are the product. Connect it to your
 agent in one command (`npx add-mcp@2 "$(command -v turf-mcp-server)" --name turf -g`), or run
 the standalone CLI agent (`turf`) with your own model key. Install with
 `brew install restatedev/tap/restate-server turfbuild/tap/turf`, then `brew services start turf`.
@@ -46,6 +47,23 @@ The Turf docs are at https://turf.build/docs/ (one current version; features tha
 - [Metal to Tokens](https://turf.build/reference-architectures/): a reference architecture for managed GPU cloud infrastructure, as code — a neocloud from pools of inventory to a cluster that has passed NVCRE certification, with day 2 on the provider's runbook. The PDF: https://get.turf.build/papers/turf-neocloud-reference-architecture.pdf
 - [Pull Request to Production](https://turf.build/reference-architectures/pull-request-to-production/): a reference architecture for Terraform delivery on GitHub Agentic Workflows, with an agent in the pipeline — the plan judged by a policy in plain language on every pull request, approved as that exact plan, verified from inside the apply through a turf action, promoted by GitHub Environment; the pipeline is public at https://github.com/turfbuild/turf-agentic-workflows. The PDF: https://get.turf.build/papers/turf-pull-request-to-production.pdf
 - [Compatibility](https://turf.build/compatibility/): where Turf 1.3 is ahead of Terraform 1.16 and OpenTofu 1.13 — durable runs on Restate, encryption at rest, OpenTelemetry, provider calls that scale out, Terraform actions with overlays, turf actions, multi-round convergence — and an honest three-way matrix of every construct, with what is refused and what is coming soon.
+- [Demos](https://turf.build/demo/): three public examples to run yourself, with their walkthroughs, then two recordings from before 1.0.
+
+The home page's feature grid, "A new Terraform, reimagined for AI" (https://turf.build/#features), scores
+seven capabilities by where each comes from: modules as they are (Terraform and OpenTofu), state
+encryption enforced (OpenTofu), Terraform actions by overlay (Terraform), stacks converged in rounds
+(what Terraform Stacks does on HashiCorp's hosted platform, with plain modules, on your own engine),
+turf actions (an apply that asks), a clusterable engine, and the console. Two reference architectures
+are at https://turf.build/#papers.
+
+## Demos and examples
+
+[turf.build/demo/](https://turf.build/demo/) is the hub: three public examples to run, then two recordings.
+
+- [The AI Cluster Runtime stack on kind](https://github.com/turfbuild/turf-examples/tree/main/use-cases/datacenter/aicr-stack): seventeen Helm releases generated from one NVIDIA AI Cluster Runtime recipe, with the kind cluster in the graph; one up, two rounds, a certify turf action.
+- [Turf and kagent 1.0, one cluster](https://github.com/turfbuild/turf-kagent): the agent in a gVisor sandbox that holds no credential, Turf's engine scaling from zero on Knative, state in the cluster, every apply approved by a person in the kagent UI. The walkthrough: https://turf.build/docs/cluster/example-kagent/
+- [Turf on GitHub Agentic Workflows](https://github.com/turfbuild/turf-agentic-workflows): an agent in the pipeline reviews the plan on every pull request, approves that exact plan under a per-environment policy after the merge, verifies from inside the apply and reports on the pull request.
+- Recordings, from before 1.0: a Kubernetes stack up and down in one turf up (https://turf.build/demo/#recordings), and the Scalr integration, Scalr as the control plane and Turf as the engine (https://turf.build/demo/scalr/).
 
 ## Your ops environment
 

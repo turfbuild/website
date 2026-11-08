@@ -276,6 +276,7 @@ h2 {
 .feature.flip > * { direction: ltr; }
 .feature.center { align-items: center; }
 .feature.fig-lg { grid-template-columns: 1.3fr .7fr; }
+.feature.fig-lg-r { grid-template-columns: .7fr 1.3fr; } /* the figure second in the DOM, and large */
 /* A figure that needs the whole width to read: above its text, capped like a paragraph. */
 .figwide { max-width: 900px; margin: 0 0 clamp(22px, 3vw, 32px); }
 .figwide:last-child { margin-bottom: 0; }
@@ -678,6 +679,8 @@ table.matrix td.c { text-align: center; white-space: nowrap; font-family: var(--
 .f-cream { fill: color-mix(in srgb, var(--part-bg) 45%, var(--panel)); }
 .s-ok { stroke: var(--ok); } .s-inh { stroke: var(--inh); } .s-part { stroke: var(--part); } .s-hair { stroke: var(--hair-strong); }
 .s-stroke { stroke: var(--fig-stroke); } .s-faint { stroke: var(--faint); } .s-termok { stroke: var(--term-ok); } .s-termmuted { stroke: var(--term-muted); } .s-cream { stroke: color-mix(in srgb, var(--part) 30%, transparent); }
+/* The kagent figure is set a size down, as the paper set it: its boxes are full. */
+.fig.kagent .t-mono { font-size: 7.6px; }
 .figcap { margin-top: 10px; font-size: 13px; color: var(--muted); }
 .figcap b { color: var(--ink); font-weight: 600; }
 
@@ -727,6 +730,47 @@ table.matrix td.c { text-align: center; white-space: nowrap; font-family: var(--
 @media (max-width: 860px) { .solutions.four { grid-template-columns: 1fr; } }
 /* Nominative-use note for marks the footer fineprint doesn't cover. */
 .legal-note { margin-top: clamp(28px, 4vw, 44px); padding-top: 18px; border-top: 1px solid var(--hair); max-width: 92ch; color: var(--faint); font-size: 12.5px; line-height: 1.6; }
+
+/* ---------- the best-of-both grid (components/Engine.astro, 2026-11-07): four columns, a provenance chip row
+   per tile (the hero's chip swatches), and one double-wide tile for the console still ---------- */
+.solutions.grid4 { grid-template-columns: repeat(4, 1fr); }
+.sol .prov { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.sol .prov .chip, .prov-legend .chip { font-size: 11px; padding: 2px 9px; gap: 6px; }
+.band-head .prov-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.chip.turf .sw { background: var(--ok); }
+.sol p code { font-size: 12px; background: color-mix(in srgb, var(--ink) 6%, transparent); padding: 1px 5px; border-radius: 5px; }
+.sol .pill { margin-left: 0; margin-right: 4px; }
+.solutions .sol.wide { grid-column: span 2; display: grid; grid-template-columns: 1fr 1.3fr; gap: 20px; align-items: center; }
+.sol.wide .sol-text { display: flex; flex-direction: column; min-width: 0; }
+.sol.wide .sol-still { min-width: 0; }
+.sol.wide .stillcap { font-size: 12px; }
+/* Two links in a card's foot, where .runit carries one. */
+.sol .links { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 12px 0 0; }
+.solutions .sol .links { margin-top: auto; padding-top: 12px; }
+.sol .links a { font-family: var(--mono); font-size: 12px; color: var(--ok-deep); }
+/* A band's closing line: an "also" list, a pointer, the Restate sentence. */
+.also { margin: 18px 0 0; font-size: 14px; color: var(--muted); max-width: 92ch; }
+.also b { color: var(--ink); font-weight: 600; }
+@media (max-width: 1000px) { .solutions.grid4 { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) {
+  .solutions.grid4 { grid-template-columns: 1fr; }
+  .solutions .sol.wide { grid-column: auto; grid-template-columns: 1fr; }
+}
+
+/* ---------- papers band (components/Papers.astro, 2026-11-07): two cards, the cover beside the abstract ---------- */
+.papers { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.papers > * { min-width: 0; }
+.paper-card { display: grid; grid-template-columns: 136px 1fr; gap: 20px; align-items: start; border: 1px solid var(--hair); border-radius: 14px; background: var(--panel); padding: 20px; box-shadow: var(--shadow); }
+.band.alt .paper-card { background: var(--panel-2); box-shadow: none; }
+.paper-card .cover { display: block; }
+.paper-card .cover img { display: block; width: 100%; height: auto; aspect-ratio: 741 / 960; border-radius: 6px; border: 1px solid var(--hair-strong); box-shadow: var(--shadow); background: var(--panel-2); }
+.paper-card .tagline { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ok); display: block; margin-bottom: 8px; font-weight: 600; }
+.paper-card h3 { font-family: var(--display); font-weight: 700; font-size: 20px; letter-spacing: -.015em; margin: 0 0 8px; }
+.paper-card p { margin: 0 0 10px; color: var(--muted); font-size: 14px; }
+.paper-card .links { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0; }
+.paper-card .links a { font-family: var(--mono); font-size: 12.5px; color: var(--ok-deep); }
+@media (max-width: 900px) { .papers { grid-template-columns: 1fr; } }
+@media (max-width: 420px) { .paper-card { grid-template-columns: 1fr; } .paper-card .cover { max-width: 150px; } }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }

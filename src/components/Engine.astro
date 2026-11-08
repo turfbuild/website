@@ -1,86 +1,95 @@
 ---
-// The engine: provider calls that scale out (the fan-out figure), the rest of the engine with
-// Restate named in Restate's own words (D18, revised 2026-10-18), the console (shipped in 1.4), and
-// state encryption as HCL. Sources: /compatibility/'s strengths table, /engine/'s engine list, the
-// encrypted fixture in doof's v1 test suite.
-import FanOutFigure from './figures/FanOutFigure.astro';
+// "A new Terraform, reimagined for AI." — the best-of-both grid (Eron's headline, 2026-11-07; it
+// replaced "Built to run the whole stack", the fan-out figure and the encryption HCL). Seven tiles,
+// each wearing a provenance chip row, Terraform · OpenTofu · Turf, so the band reads as a scorecard
+// the way /compatibility/ does in depth; the console is a double-wide tile with its still, the band's
+// one visual. Sources: /compatibility/'s strengths table and matrix notes, the 1.2–1.4 release notes,
+// and the Restate sentence in Restate's own words (D18, revised 2026-10-18). Rules kept: "HCP" never
+// appears (say "HashiCorp's hosted platform"); no benchmark figure; `coming soon` at the capability
+// level; the marks' symbols are the hero's, so none here; the headline uses "Terraform" as the
+// category Turf re-does, never as Turf's name (CLAUDE.md, "Trademark").
 import Still from './Still.astro';
 ---
 
-<section class="band alt">
+<section class="band alt" id="features">
   <div class="wrap">
     <div class="band-head">
-      <h2>Built to run the whole stack.</h2>
-      <p>One engine for every stack on this page, on a laptop or as a service in the cluster.</p>
+      <h2>A new Terraform, reimagined for AI.</h2>
+      <p>The best of Terraform and OpenTofu, run by one distributed engine that an agent can drive —
+        and the things neither has: an apply that can ask, and a console that shows every round.</p>
+      <p class="provenance prov-legend">Where each one comes from:
+        <span class="chip tf"><span class="sw"></span>Terraform</span>
+        <span class="chip otf"><span class="sw"></span>OpenTofu</span>
+        <span class="chip turf"><span class="sw"></span>Turf</span></p>
     </div>
 
-    <div class="feature center fig-lg">
-      <div>
-        <FanOutFigure />
-        <p class="figcap"><b>Shipped:</b> every refresh, plan and apply call fans out from one engine, or from
-          several replicas of it, with a provider instance per region, account or alias.
-          <span class="pill soon">coming soon</span> per-provider flow control, to reach each API’s quota
-          without tripping it.</p>
+    <div class="solutions grid4">
+      <div class="sol">
+        <span class="prov"><span class="chip tf"><span class="sw"></span>Terraform</span><span class="chip otf"><span class="sw"></span>OpenTofu</span></span>
+        <h3>Modules, as they are.</h3>
+        <p>Registry, git and local sources; your private registries and mirrors; provider-defined
+          functions. <code>init</code> installs and locks them, as always. No new language to learn.</p>
+        <a class="runit" href="/compatibility/">every construct, scored →</a>
       </div>
-      <div>
-        <h3>Every provider call scales out. The cloud API is the ceiling.</h3>
-        <p>Refresh reads every managed resource on every plan, and in one process it is the classic
-          ceiling on a large stack.</p>
-        <p>Turf fans refresh, plan and apply out per resource across the engine, with durable
-          per-resource state instead of one statefile under one lock. <b>Thousands of resources per
-          stack</b>; the cloud API, not the tool, sets the pace. Per-provider flow control
-          <span class="pill soon">coming soon</span> paces each provider to its own quota.</p>
+      <div class="sol">
+        <span class="prov"><span class="chip otf"><span class="sw"></span>OpenTofu</span></span>
+        <h3>State encryption, enforced.</h3>
+        <p>OpenTofu’s <code>encryption</code> block, with a passphrase or a key provider. Migrating an
+          existing state is a no-op run; <code>enforced = true</code> refuses plaintext.</p>
+        <a class="runit" href="/docs/environment/state-encryption/">state encryption →</a>
+      </div>
+      <div class="sol">
+        <span class="prov"><span class="chip tf"><span class="sw"></span>Terraform</span></span>
+        <h3>Terraform actions, by overlay.</h3>
+        <p>The 1.16 action model — six lifecycle events, <code>on_failure</code>, a plan-time condition —
+          so an Ansible playbook, a certification run or a smoke test is a step in the plan.
+          <code>*.turf.hcl</code> overlays add triggers to modules you don’t own.</p>
+        <a class="runit" href="/docs/authoring/actions-and-overlays/">actions and overlays →</a>
+      </div>
+      <div class="sol">
+        <span class="prov"><span class="chip tf"><span class="sw"></span>Terraform</span><span class="chip turf"><span class="sw"></span>Turf</span></span>
+        <h3>Stacks, in rounds.</h3>
+        <p>A cluster, then the chart that runs on it: one <code>up</code> plans what it can know, defers
+          the rest and replans until converged. What Terraform Stacks does on HashiCorp’s hosted
+          platform, with plain modules, on your own engine.</p>
+        <a class="runit" href="/docs/concepts/rounds/">rounds and deferrals →</a>
+      </div>
+      <div class="sol">
+        <span class="prov"><span class="chip turf"><span class="sw"></span>Turf</span></span>
+        <h3>Turf actions: an apply that asks.</h3>
+        <p>A step of the apply that pauses for a check, a notification or a question — to an agent, or
+          to you — then continues under the same approved plan. Neither Terraform nor OpenTofu has one.</p>
+        <a class="runit" href="/docs/concepts/turf-actions/">turf actions →</a>
+      </div>
+      <div class="sol">
+        <span class="prov"><span class="chip turf"><span class="sw"></span>Turf</span></span>
+        <h3>Clusterable.</h3>
+        <p>Run the engine as replicas behind one restate-server. Refresh, plan and apply fan out per
+          resource; a run outlives the pod it started on; the cloud API, not the tool, is the ceiling.
+          <span class="pill soon">coming soon</span> per-provider flow control.</p>
+        <a class="runit" href="/docs/cluster/topology/">Turf in a cluster →</a>
+      </div>
+      <div class="sol wide">
+        <div class="sol-text">
+          <span class="prov"><span class="chip turf"><span class="sw"></span>Turf</span></span>
+          <h3>A console.</h3>
+          <p>Every workspace’s runs, rounds and approvals — who approved which plan, by digest — with a
+            link in every result. Read-only; on your laptop or in the cluster.</p>
+          <a class="runit" href="/docs/concepts/engine-and-console/">the engine and the console →</a>
+        </div>
+        <div class="sol-still">
+          <Still id="console" src="/console/aicr-converged.png"
+            alt="The Turf console: a run in two rounds, converged, with a lane for every resource of the stack."
+            caption="The Turf console: every run, round and approval, visible in one place. Click to enlarge." />
+        </div>
       </div>
     </div>
 
-    <div class="feature flip">
-      <div>
-        <h3>Durable, observable, yours to run.</h3>
-        <ul class="engine-list one">
-          <li><b>Durable runs.</b> Every step is recorded as it happens; an interrupted run picks up where
-            it stopped, a plan waiting for approval holds no process, and a rollout outlives the
-            conversation that started it.</li>
-          <li><b>Laptop or Kubernetes®.</b> Runs on a workstation, or as a service in the cluster.</li>
-          <li><b>OpenTelemetry built in.</b> Every run traced as it happens, exported over OTLP; metrics
-            in Prometheus format.</li>
-          <li><b>Encrypted at rest.</b> State encryption with a passphrase or a key.</li>
-          <li><b>Operator console.</b> Every run, round and approval, visible in one place.</li>
-        </ul>
-        <p>The engine runs on <a href="https://restate.dev">Restate</a>, in Restate’s words “a lightweight
-          runtime to turn AI agents, workflows, and backend services into durable processes.”
-          <a href="/engine/#engine">How the engine is built →</a></p>
-      </div>
-      <div>
-        <Still id="console" src="/console/aicr-converged.png"
-          alt="The Turf console: a run in two rounds, converged, with a lane for every resource of the stack."
-          caption="The Turf console: every run, round and approval, visible in one place. Click to enlarge." />
-      </div>
-    </div>
-
-    <div class="feature center">
-      <div class="codeblock">
-        <div class="cb-head"><span>versions.tf</span><span class="cb-legend">state encrypted at rest</span></div>
-<pre><span class="kw">terraform</span> &#123;
-  <span class="kw">encryption</span> &#123;
-    <span class="kw">key_provider</span> <span class="str">"pbkdf2"</span> <span class="str">"k"</span> &#123;
-      passphrase = var.passphrase
-    &#125;
-    <span class="kw">method</span> <span class="str">"aes_gcm"</span> <span class="str">"m"</span> &#123;
-      keys = key_provider.pbkdf2.k
-    &#125;
-    <span class="kw">state</span> &#123;
-      method   = method.aes_gcm.m
-      enforced = true
-    &#125;
-  &#125;
-&#125;</pre>
-      </div>
-      <div>
-        <h3>Encrypted at rest, enforced.</h3>
-        <p>An <code>encryption</code> block protects the statefile with a passphrase or a key provider;
-          migrating an existing state is a no-op run, and <code>enforced</code> refuses plaintext. A
-          secret a resource needs goes through a write-only argument and never reaches state at all.</p>
-      </div>
-    </div>
+    <p class="also"><b>Also:</b> planfiles you plan here and apply there, a permission tier per server,
+      OpenTelemetry built in, ephemeral module outputs —
+      <a href="/compatibility/">scored honestly against Terraform 1.16 and OpenTofu 1.13 →</a></p>
+    <p class="also">The engine runs on <a href="https://restate.dev">Restate</a>, in Restate’s words “a lightweight
+      runtime to turn AI agents, workflows, and backend services into durable processes.”
+      <a href="/engine/#engine">How the engine is built →</a></p>
   </div>
 </section>

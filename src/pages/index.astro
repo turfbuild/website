@@ -10,7 +10,8 @@ import CompatibilityTeaser from '../components/CompatibilityTeaser.astro';
 import OpsEnvironment from '../components/OpsEnvironment.astro';
 import Engine from '../components/Engine.astro';
 import UseCasesTeaser from '../components/UseCasesTeaser.astro';
-import Flexibility from '../components/Flexibility.astro';
+import ExamplesTeaser from '../components/ExamplesTeaser.astro';
+import Papers from '../components/Papers.astro';
 import Partner from '../components/Partner.astro';
 import Announcement from '../components/Announcement.astro';
 
@@ -60,17 +61,19 @@ const jsonLd = [
     downloadUrl: `${site}/get-started/`,
     softwareHelp: `${site}/docs/`,
     license: `${site}/licensing/`,
-    softwareVersion: '1.0.0',
-    releaseNotes: `${site}/engine/`,
+    softwareVersion: '1.4.0',
+    releaseNotes: `${site}/docs/releases/1-4/`,
     description:
       'Turf is a new engine for infrastructure as code, built on OpenTofu and exposed to AI agents as an MCP server. It plans the whole stack as standard Terraform, resources and actions in one plan, and converges it in rounds; every change is a Terraform plan, approved before it runs.',
     featureList: [
       'Every change is a Terraform plan, approved before it runs',
+      'A plan gate and an approval point every round; planfiles to plan in one place and apply in another',
       'Multi-round convergence of layered stacks in one run',
       'Terraform actions with lifecycle triggers and overlays',
       'Turf actions: checks, questions and notifications as steps of the apply',
-      'Durable runs on Restate; provider calls that scale out',
-      'State encryption at rest; OpenTelemetry built in',
+      'Durable runs on Restate; provider calls that scale out; engine replicas in a cluster',
+      'State encryption at rest; OpenTelemetry built in; permission tiers per server',
+      'The console: every workspace’s runs, rounds and approvals',
       'MCP server for Claude, Codex, Gemini, and any MCP client',
       'Standard Terraform: HCL, registry modules and OpenTofu providers',
     ],
@@ -91,6 +94,7 @@ const jsonLd = [
   <OpsEnvironment />
   <Engine />
   <UseCasesTeaser />
-  <Flexibility />
+  <ExamplesTeaser />
+  <Papers />
   <Partner />
 </Layout>

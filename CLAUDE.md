@@ -51,7 +51,9 @@ gates the Google Analytics tag behind `import.meta.env.PROD` (so dev never sends
 `Footer` are rendered by the layout, so pages render body content only. The one exception is the
 `banner` slot, rendered above `TopNav`: only home fills it, with `components/Announcement.astro`: the
 *Metal to Tokens* strip until the 1.0 release (10/16; from 10/18 it linked `/reference-architectures/`),
-the Turf 1.0 strip linking `/engine/` from the release on (launch plan §8).
+the Turf 1.0 strip linking `/engine/` from the release on (launch plan §8), and since 2026-11-07 the
+current release's strip (Turf 1.4: the console, planfiles, permission tiers) linking its notes at
+`/docs/releases/1-4/`; move it with each release.
 
 Pages pass four props, all optional: `title`, `description`, `noindex`, `jsonLd`.
 - **`noindex`** emits `robots: noindex,follow` *and* suppresses `canonical`/`og:url` — only `404.astro`
@@ -71,13 +73,20 @@ Pages pass four props, all optional: `title`, `description`, `noindex`, `jsonLd`
   — no backticks or markdown; they render literally in a result snippet.
 
 **Pages compose components; the home page composes them all.** `pages/index.astro` is nothing but an
-ordered list of section components (redesigned 2026-10-20, revised 10-21): FigureDefs, Hero (with
+ordered list of section components (redesigned 2026-10-20, revised 10-21 and 11-07): FigureDefs, Hero (with
 StackBuild), WhyEngine (two figures: the engine map and a run timeline), HowItWorks, ActionsInPlan,
 AgentInLoop, CompatibilityTeaser (three ecosystem cards), OpsEnvironment (the ops-environment band,
 moved from `/use-cases/` on 2026-10-21: the lane figure, the backend/registry/ephemeral HCL, a
-ticklist, proof links), Engine, UseCasesTeaser, Flexibility, Partner. Those components carry the
-home-page anchor ids (`#product` on HowItWorks, `#compatibility` on CompatibilityTeaser,
-`#ops-environment` on OpsEnvironment, `#use-cases` on UseCasesTeaser, `#get-started` on Footer);
+ticklist, proof links), Engine (since 2026-11-07 the best-of-both grid, "A new Terraform, reimagined
+for AI": seven tiles with a provenance chip row each, Terraform · OpenTofu · Turf, and the console as
+a double-wide tile with its still; it replaced the fan-out figure and the encryption HCL, and
+`figures/FanOutFigure.astro` is kept but rendered nowhere), UseCasesTeaser, ExamplesTeaser (the
+three marquee examples of `src/data/examples.ts`, the kagent figure, the home page's marks note),
+Papers (the two covers, the Scarf links tagged `?src=home-papers`), Partner. The Flexibility band
+(interfaces and models) was folded into the hero chips and the grid on 2026-11-07. Those components
+carry the home-page anchor ids (`#product` on HowItWorks, `#compatibility` on CompatibilityTeaser,
+`#ops-environment` on OpsEnvironment, `#features` on Engine, `#use-cases` on UseCasesTeaser,
+`#examples` on ExamplesTeaser, `#papers` on Papers, the nav's target, `#get-started` on Footer);
 cross-page links use a leading slash (`/#product`) so they work from subpages. UseCasesTeaser also
 carries an empty legacy anchor span `#solutions` (the 2026-08 UseCases section replaced Solutions,
 then SolutionsTeaser replaced UseCases, then the name went back to use cases on 2026-10-21) so old
@@ -99,12 +108,18 @@ tool and skill names carry no underscores ("skill: authoring HCL", "provider sea
 "awaiting plan", "awaiting approval"); HCL resource types keep theirs. It was `/solutions/` for one unpublished
 day (2026-10-20); nothing ever linked it. Every section's HCL is
 quoted from `turfbuild/turf-examples` where a file exists, and captioned "after …" or "illustrative"
-where it is adapted; keep that honesty when editing. Neither page links the pre-1.0 demo recordings
-(`/demo/`, `/demo/scalr/`): a 1.0 recording is coming, and the nav's "Demo" item is the only route
-to them until then. The Turf console is not in 1.0, so its stills (`public/console/`) carry a
-`coming soon` pill wherever they appear; they render through `components/Still.astro`, which
-enlarges the still on click with the HTML popover API (top layer, light dismiss, no script;
-pre-2024 browsers get an inert button). Figures that show an unshipped capability (per-provider
+where it is adapted; keep that honesty when editing. Neither page links the pre-1.0 recordings
+directly. Since 2026-11-07 `pages/demo.astro` is the **demos hub** behind the nav's "Demos": the three
+marquee examples (the AI Cluster Runtime stack on kind, the agent in the cluster with kagent, the
+gh-aw pipeline), each as a `.feature` row with its visual (the certify console still, KagentFigure,
+PipelineFigure) and the copy of `src/data/examples.ts`, which the home band `ExamplesTeaser` shares
+so each example is described once; then the kind-CRD recording with its round-annotated HCL and the
+two `VideoObject` nodes, a pointer to `/demo/scalr/` (the KubeCon playbook shows it on a phone, so
+that URL never moves), and the page's own marks note. The console shipped in 1.4: its stills
+(`public/console/`, re-taken on 1.4) carry no pill; they render through `components/Still.astro`,
+which enlarges the still on click with the HTML popover API (top layer, light dismiss, no script;
+pre-2024 browsers get an inert button). A still may repeat across pages, with a distinct `id` per
+page; an SVG figure renders once per page. Figures that show an unshipped capability (per-provider
 flow control, the valves in FanOutFigure; its three engine replicas shipped in 1.2) tag it
 `COMING SOON` inside the SVG and say what is shipped and what is coming in the `.figcap` beside it.
 
@@ -123,7 +138,10 @@ exists. Keep new interactivity in this style rather than adding a framework inte
 carry Figure 1 (StackFigure), Figure 8 (ShellVsTurfFigure) and Figure 9 (FleetFigure) of
 `headquarters/marketing/launch/refarch-neocloud.html`, plus five drawn in the same grammar
 (FanOutFigure, InstallerFigure, OpsEnvFigure, and WhyEngine's EngineMapFigure and
-RunTimelineFigure, whose lanes follow the console's grammar). Geometry is the paper's; every `fill`/`stroke` is a
+RunTimelineFigure, whose lanes follow the console's grammar), PipelineFigure (Figure 1 of *Pull
+Request to Production*) and KagentFigure (Figure 1 of the shelved kagent paper, `headquarters` branch
+`kagent-paper`, `refarch-kagent.html`; its mono text is set a size down by `.fig.kagent .t-mono`, as
+the paper set it, because its boxes are full). Geometry is the paper's; every `fill`/`stroke` is a
 class from the `.f-*`/`.s-*` utilities and every text a `.t-*` class, so the figures re-theme (never
 `fill="#…"` or `fill="var(--…)"` attributes). Marker defs live in `components/FigureDefs.astro`,
 rendered once per page at the top of the layout slot (`position:absolute`, not `display:none`:
@@ -158,7 +176,10 @@ after the first usage"); Prometheus® joins that clause if the site ever names i
 Rules: the symbol appears **once per page, at the first prominent body use** (the hero lede on
 home, "Turf™ plans, applies, …"; a subpage's lede) — headlines, `<title>`s, eyebrows, buttons and
 code stay clean; a mark is never possessive or plural ("Ansible playbooks", not "Ansible's"); the
-`turf.build` wordmark itself is unmarked, as in the PDF. The footer fineprint carries the attribution
+`turf.build` wordmark itself is unmarked, as in the PDF. **One deliberate exception** (Eron,
+2026-11-07): the home feature grid is headed "A new Terraform, reimagined for AI." — "Terraform" names
+the category Turf re-does, as "a new Terraform" and never as Turf's name; it still never appears in
+a product name, domain or logo, and the headline carries no ®. Don't "fix" it. The footer fineprint carries the attribution
 and non-affiliation statement on every page, and `public/llms.txt` the same block: "Turf™ is a
 trademark of Turf LLC. Terraform® is a registered trademark of HashiCorp, Inc. Ansible® is a
 registered trademark of Red Hat, Inc. in the United States and other countries. Helm® and
@@ -305,10 +326,14 @@ starts. Treat the headline as fixed unless the user reopens it.
   `pages/reference-architectures/pull-request-to-production.astro`, `public/papers/turf-pull-request-to-production.pdf`
   and `-cover.jpg`, text of record `headquarters/marketing/launch/refarch-cicd.md`, download tag
   `?src=refarch-cicd-page`; the two paper pages cross-link in an "Also" line. `/reference-architectures/`
-  stays the neocloud paper's URL (no index page until there is a third paper).
+  stays the neocloud paper's URL (no index page until there is a third paper); the nav's "Papers" goes
+  to the home band `components/Papers.astro` (2026-11-07), whose abstracts follow the paper pages and
+  whose download links carry `?src=home-papers`.
 - There is no mobile hamburger menu — below 860px `.nav-links a:not(.btn)` is hidden and only the CTA
-  shows. Adding a nav link means it's desktop-only unless you also add it to the footer sitemap
-  (Use cases is in the nav, the footer's Product column and the hero's CTA row).
+  shows. Adding a nav link means it's desktop-only unless you also add it to the footer sitemap.
+  The nav since 2026-11-07: Docs · Demos (`/demo/`) · Papers (`/#papers`) · Compatibility · Use cases ·
+  Pricing · Contact · the CTA; "How it works" left it (the loop stays on home under `#product`), and
+  the hero's CTA row is Try Turf free · Read the docs · Pilot program.
 
 ## Content provenance
 
