@@ -9,8 +9,8 @@
 #   turfbuild/tap/turf, then the engine starts as the turf Homebrew service
 #   (brew services start turf).
 # - Without it: the release archive, into ~/.turf/bin, with no sudo. That is
-#   turf, turf-mcp-server, turf-engine and turf-builtin-provider, plus
-#   restate-server, the engine's dependency, as Restate's own build from its
+#   turf, turf-mcp-server, turf-engine and turf-builtin-provider (and turf-ui,
+#   the Turf console, from 1.4), plus restate-server, the engine's dependency, as Restate's own build from its
 #   GitHub release. You start the engine yourself: turf-mcp-server engine run.
 # - Either way it ends with how to connect your agent (Claude Code, Claude Desktop,
 #   Cursor, Codex, Gemini CLI, VS Code): the npx add-mcp line for the installed
@@ -41,6 +41,9 @@ set -eu
 RELEASES=https://github.com/turfbuild/turf/releases
 INSTALL_LINE='curl -fsSL https://get.turf.build/install.sh | bash'
 TURF_BINARIES='turf turf-mcp-server turf-engine turf-builtin-provider'
+# Shipped from 1.4 on: staged when the archive has it, so --version can still
+# install an earlier release (the engine runs without its console then).
+TURF_OPTIONAL_BINARIES='turf-ui'
 # The restate-server the engine is tested on, and the sha256 of each of
 # Restate's archives of it (its release's .sha256 files).
 RESTATE_VERSION=1.7.13
@@ -437,6 +440,10 @@ install_archive() {
   for _b in $TURF_BINARIES; do
     if [ ! -f "$tmp/turf/$_b" ]; then die "$tarball has no $_b. Nothing was installed."; fi
   done
+  _installed=$TURF_BINARIES
+  for _b in $TURF_OPTIONAL_BINARIES; do
+    if [ -f "$tmp/turf/$_b" ]; then _installed="$_installed $_b"; fi
+  done
 
   _restate=fetch
   if [ -n "${TURF_RESTATE_SERVER:-}" ]; then
@@ -475,7 +482,7 @@ install_archive() {
   # Stage everything, then move it into place without stopping for a signal:
   # an interrupted install never leaves a mix of releases, and a running engine
   # keeps the files it has open.
-  for _b in $TURF_BINARIES; do stage "$tmp/turf/$_b" "$_b"; done
+  for _b in $_installed; do stage "$tmp/turf/$_b" "$_b"; done
   if [ "$_restate" = fetch ]; then stage "$_rd/restate-server" restate-server; fi
   trap '' HUP INT TERM
   for _b in $staged; do mv -f "$dir/.install-$$-$_b" "$dir/$_b"; done
@@ -498,7 +505,10 @@ install_archive() {
   fi
 
   say ""
-  say "Installed turf, turf-mcp-server, turf-engine and turf-builtin-provider $tag."
+  case " $_installed " in
+    *" turf-ui "*) say "Installed turf, turf-mcp-server, turf-engine, turf-builtin-provider and turf-ui $tag." ;;
+    *) say "Installed turf, turf-mcp-server, turf-engine and turf-builtin-provider $tag." ;;
+  esac
   case $_restate in
     fetch | kept)
       say "Beside them is restate-server $RESTATE_VERSION, the engine's dependency: Restate's own"
