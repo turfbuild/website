@@ -1,0 +1,86 @@
+---
+title: Rounds and deferrals
+description: "Why a Turf run has rounds: a value known only after an apply defers what needs it, each round plans what it can, and the run ends when nothing is deferred."
+sidebar:
+  order: 2
+---
+
+A plan can only describe what it can compute. A cluster's endpoint, the ID a provider mints, the kind
+a CRD registers: none exist until something is applied. Turf™ does not make you split a configuration
+or target resources by hand. It plans what it can, applies it, and plans again with what it now knows.
+Each pass is a **round**, and each round has its own plan and its own approval.
+
+## The canonical example
+
+A kind cluster, a CustomResourceDefinition on it, and a custom resource of that new kind, in one
+configuration:
+
+```hcl
+resource "kind_cluster" "demo" { name = "turf-demo" }
+
+provider "kubernetes" {
+  host                   = kind_cluster.demo.endpoint
+  client_certificate     = kind_cluster.demo.client_certificate
+  client_key             = kind_cluster.demo.client_key
+  cluster_ca_certificate = kind_cluster.demo.cluster_ca_certificate
+}
+
+resource "kubernetes_manifest" "crd" { /* a CustomResourceDefinition */ }
+resource "kubernetes_manifest" "instance" {
+  /* an object of that custom kind */
+  depends_on = [kubernetes_manifest.crd]
+}
+```
+
+- **Round 1** creates the cluster. The kubernetes provider's block reads endpoints not yet known, so
+  both manifests defer (`provider_config_unknown`).
+- **Round 2** configures the provider against the applied cluster, and the CRD plans and applies. The
+  API server does not know the instance's kind yet, so the provider defers it
+  (`resource_config_unknown`).
+- **Round 3** creates the instance. Nothing is deferred; the run ends `converged`.
+
+Each round starts its providers afresh, so a round sees what the last one applied rather than what a
+long-lived plugin process cached. How many rounds a configuration takes depends on its providers: one
+that accepts unknown configuration is configured at apply instead and may plan more in an earlier round.
+
+## Where deferrals show
+
+- `plan.deferred` counts what this round defers. Above zero, another round follows, and the agent
+  should say so when it presents the plan.
+- The plan document's `deferred_changes[]` lists each deferred resource with its reason.
+- A module call whose `count` or `for_each` is unknown defers whole: counted in `plan.deferred`, absent
+  from `deferred_changes` (its instances cannot be listed before it expands).
+- `rounds[].deferred` records each round's count in every result.
+
+| Reason | What happened |
+|---|---|
+| `instance_count_unknown` | A `count` or `for_each` reads something not yet applied. |
+| `provider_config_unknown` | The provider's block reads something not yet applied. |
+| `resource_config_unknown` | The provider deferred the resource itself (a custom resource ahead of its CRD), or an `import` block aimed at it has an unknown id or key. |
+| `absent_prereq` | It depends on something deferred, through a value, `depends_on`, its module or an action. |
+| `action_deferred` | An action it triggers is deferred, so the resource waits with it. |
+| `unknown` | The provider gave a reason the engine does not recognize; read the round's diagnostics. |
+
+Repetition must be known at plan: an unknown `count` or `for_each` defers, while an invalid one (null,
+negative, sensitive) is a plan error. A `count` whose only unknown is an impure function such as
+`timestamp()` is refused rather than deferred, since no later round would make it known.
+
+## When a run does not converge
+
+**`stalled`**: a round applied nothing and still defers. Another round would plan the same thing, so
+the value it waits on will never become known from here. Usually a reference to something nothing
+creates, a provider that can never be configured (credentials missing), or a cycle through a provider
+block. Read the last plan's `deferred_changes` and the round's diagnostics, change the configuration
+or the values, and run `up` again.
+
+**`exhausted`**: `max_rounds` (default 5) was reached with work still deferred. A long chain may need
+more. Run `up` again to continue from what was applied, or pass a larger `max_rounds`.
+
+The agent's rule, from its skill: converge the configuration as it stands. It never rewrites a
+configuration to stage an apply, and never hard-codes a value to skip a round.
+
+## Related
+
+- [Overview](/docs/concepts/overview/)
+- [Approval](/docs/concepts/approval/): every round is its own decision.
+- [When something goes wrong](/docs/using/troubleshooting/)

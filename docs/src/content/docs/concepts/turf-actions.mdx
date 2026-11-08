@@ -1,0 +1,110 @@
+---
+title: Turf actions
+description: A turf action is a step the configuration asks the agent to carry out during an apply, such as a backup, a check, a notification or a question for you. The apply pauses for it.
+sidebar:
+  order: 4
+---
+
+import Conversation from '../../../components/Conversation.astro';
+import User from '../../../components/User.astro';
+import Agent from '../../../components/Agent.astro';
+import ToolResult from '../../../components/ToolResult.astro';
+
+Some steps of a rollout are not resource changes. A snapshot before the database moves. A check that
+the new container actually serves. A word to the ops channel after. A question only you can answer. In
+Turf™ these are **turf actions**: steps the configuration declares, which the agent carries out with its
+own tools while the apply waits.
+
+<Conversation>
+  <Agent calls={['apply → awaiting_actions']}>
+    Before `aws_db_instance.primary` moves to PostgreSQL 17.6 the configuration asks for a snapshot.
+    Taking it: `aws rds create-db-snapshot orders-prod-before-17-6`, then waiting until it is
+    available.
+  </Agent>
+  <ToolResult tool="apply" outcome="awaiting_actions" open>
+```text
+action_requests: [{
+  key:        "action/1/action.turf_action.backup@before_update@aws_db_instance.primary",
+  caller:     "aws_db_instance.primary",
+  event:      "before_update",
+  on_failure: "halt",
+  if_failed:  "A failure halts the update and what depends on it.",
+  prompt:     "Snapshot ${caller.identifier} and wait until it is available …",
+  inputs:     { db: "orders-prod", region: "us-east-1" } }]
+```
+  </ToolResult>
+  <Agent calls={['apply(action_results) → awaiting_actions', 'apply(action_results) → converged']}>
+    Snapshot available; the update ran. After it, the configuration asked me to tell the team: posted
+    to #ops that orders-prod is on PostgreSQL 17.6. **Converged.**
+  </Agent>
+</Conversation>
+
+## What it is
+
+A turf action is an action no plugin performs, because the agent does. Its provider is the engine's
+built-in `turf` provider, implied by the `turf_` prefix: nothing to declare or install. It is bound to a
+resource by an `action_trigger` with an event: a `before_*` step gates the change, an `after_*` step
+follows it. It is **not an approval**: by the time it runs, the plan is approved. It is a step that may
+or may not succeed, and the trigger's `on_failure` says what a failure does to the change it is bound
+to: `halt` it (and what depends on it), `continue`, or `taint` the caller so the next plan replaces it.
+
+Every action a round will run is listed in the plan at the approval point (`plan.invocations`), per
+caller in run order, so you know before you say yes that the apply will pause, and where.
+
+## How the agent answers
+
+The apply stops with `awaiting_actions` and every open request: the `prompt` saying what to do and what
+counts as failure, the `inputs` to work with, the `caller` and `event`, and `if_failed` in words. The
+agent does the step with its own tools, then answers all open requests in one `apply` with
+`action_results`: `succeeded`, `progress` (what it did, a line each) and `diagnostics` (an error for
+each reason it failed; a warning for anything worth knowing). The call then goes on following the apply:
+to the next pause, the next approval point, or the end.
+
+Three rules the agent follows:
+
+- **Report honestly.** A step it could not perform failed, and it says why. Nothing is retried; to try
+  again, fix the cause and run `up`.
+- **A decision is yours.** When a prompt asks for one, the agent asks you, quotes your words in
+  `progress`, and reports a "no" as a failure with your reason. It never answers for you, and never
+  weakens or removes a trigger to get past it.
+- **In a destroy, every failure is only a warning** and the teardown goes on. That is why a destroy
+  plan always needs your explicit yes at its approval point.
+
+## Declaring one
+
+A turf action lives in an overlay, a `*.turf.hcl` file beside the `.tf` files, so the configuration's
+interaction points are laid over it without editing it:
+
+```hcl
+action "turf_action" "backup" {
+  config {
+    prompt = <<-EOT
+      Snapshot ${caller.identifier} with the AWS CLI or the AWS MCP tools, wait until it is
+      available, and report its identifier in progress. If it does not complete, fail.
+    EOT
+    inputs = { db = caller.identifier, region = var.region }
+  }
+}
+
+action_trigger "backup" {
+  target     = aws_db_instance.primary
+  events     = [before_update, before_destroy]
+  actions    = [action.turf_action.backup]
+  on_failure = halt
+}
+```
+
+`caller` is the resource instance that fired the trigger: the planned instance on a `before_*` event,
+the applied one after. The authoring page has the full grammar:
+[Actions and overlays](/docs/authoring/actions-and-overlays/).
+
+## Running one now
+
+`invoke` runs a single action outside a rollout: one the configuration declares, or an ad-hoc one laid
+over it in memory for that run alone. It stops at an approval point like every plan command, and the
+apply returns `awaiting_actions` for the agent to answer. [Invoke an action](/docs/using/invoke/).
+
+## Related
+
+- [Answering a turf action](/docs/using/turf-actions/): the request and result fields.
+- [Approval](/docs/concepts/approval/)

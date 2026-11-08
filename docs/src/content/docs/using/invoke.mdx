@@ -1,0 +1,120 @@
+---
+title: Invoke an action
+description: "Run one action now with invoke: one the configuration declares, or an ad-hoc one laid over it in memory. One round, one approval point, nothing else planned."
+sidebar:
+  order: 6
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import Conversation from '../../../components/Conversation.astro';
+import Example from '../../../components/Example.astro';
+import User from '../../../components/User.astro';
+import Agent from '../../../components/Agent.astro';
+import ToolResult from '../../../components/ToolResult.astro';
+
+`invoke` runs one action now, as `terraform apply -invoke` does: an action the configuration declares,
+or an ad-hoc one laid over the configuration in memory for this run alone. Turf™ plans it in one round
+and stops at the approval point. What the action's configuration reads is refreshed; nothing else
+changes.
+
+<Example path="terraform/kubernetes/kind-crd" />
+
+<Conversation>
+<User>Run a one-off check on kind-crd: is the custom resource being served?</User>
+<Agent calls={['invoke → awaiting_plan', 'plan → awaiting_approval']}>
+
+This runs one ad-hoc turf action, `action.turf_action.check`, laid over the configuration in memory.
+Nothing else is planned, and your files are untouched. The apply will stop for me to do the check.
+Ready to run it?
+
+</Agent>
+<User>Go ahead.</User>
+<Agent calls={['apply → awaiting_actions', 'apply → converged']}>
+
+I ran `kubectl --context kind-turf-crd-demo-1 get turf example-turf`: it is served, with
+`spec.message` "Hello from Turf". I reported the step as succeeded, with that command and its result as
+progress.
+
+</Agent>
+<ToolResult tool="apply" outcome="awaiting_actions">
+
+```text
+round: 1
+action_requests: [ {
+  key:    "…",
+  action: "action.turf_action.check",
+  prompt: "Check that the custom resource example-turf is served; fail if not.",
+  inputs: { context: "kind-turf-crd-demo-1", name: "example-turf" } } ]
+next: { tool: "apply", args: { convergence_id: "…" } }
+```
+
+</ToolResult>
+</Conversation>
+
+<Tabs syncKey="surface">
+<TabItem label="In your agent">
+
+Name the action, or describe the step: "invoke action.aws_lambda_invoke.warm", or "run a check that the
+bucket is private". The agent calls `invoke`, then `plan`; `plan.invocations` names the invocation.
+An invoke needs your yes: the agent presents it and asks before applying. A turf action then stops the
+apply for the agent to carry out, as on [Answering a turf action](/docs/using/turf-actions/).
+
+</TabItem>
+<TabItem label="Turf CLI">
+
+The CLI has no `invoke` command. Ask its agent in the configuration directory:
+
+```sh
+cd path/to/config && turf chat
+```
+
+Then type the request, such as "invoke action.aws_lambda_invoke.warm".
+
+</TabItem>
+</Tabs>
+
+## How it works
+
+**A declared action** is named by its address, module-qualified where a module declares it, in a `.tf`
+file or a `*.turf.hcl` overlay:
+
+```text
+invoke({ action_addr: "action.aws_lambda_invoke.warm" })
+invoke({ action_addr: "module.app.action.turf_action.check" })
+```
+
+**An ad-hoc action** is laid over the configuration as an in-memory overlay for this run only; the
+directory is untouched:
+
+```text
+invoke({ action: { type: "turf_action", name: "check",
+                   config: { prompt: "Check the bucket is private; fail if not.",
+                             inputs: { bucket: "prod-logs" } } } })
+```
+
+Its `config` is literal values: a `${` in it is text, not an expression. An action whose config needs
+nested blocks is declared in a `*.turf.hcl` file instead. `provider` names the provider instance to run
+it on (`aws.west`); omit it for the default.
+
+**One round.** `invoke` stops at its plan gate like every start verb; `plan` plans the invocation and
+stops at its approval point; `apply` with the digest runs it. A turf action returns `awaiting_actions`
+for the agent to answer. `caller` does not exist in a direct invoke, as in `tofu apply -invoke`, so an
+action whose config reads `caller` cannot run this way.
+
+**Provider actions** run the same way. `provider_describe` with `action_type` describes one (and
+`turf_action`, Turf's own, with no version). Declaring an action, a Terraform® action or a turf action,
+is authoring: see [Terraform actions and overlays](/docs/authoring/actions-and-overlays/).
+
+## Arguments
+
+| Argument | Meaning |
+|---|---|
+| `action_addr` | An action the configuration declares, by address (`action.aws_lambda_invoke.warm`, `module.app.action.turf_action.check`). Set this or `action`. |
+| `action` | An action to run without declaring it: `type` (`aws_lambda_invoke`, `turf_action`), `name` (default `invoke`), `config` (its attributes) and `provider` (the instance, such as `aws.west`). Set this or `action_addr`. |
+| `workspace_alias`, `var`, `var_file`, `overlays`, `plan_only` | As for every start verb: see [Deploy or update with up](/docs/using/up/#arguments). |
+
+## Related
+
+- [Answering a turf action](/docs/using/turf-actions/)
+- [Turf actions](/docs/concepts/turf-actions/): what they are.
+- [Terraform actions and overlays](/docs/authoring/actions-and-overlays/): declaring one.

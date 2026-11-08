@@ -1,0 +1,106 @@
+---
+title: Per-configuration environment with mise
+description: With mise on the engine's host, each configuration's providers get its mise environment, from a committed mise.toml and a per-machine mise.local.toml.
+sidebar:
+  order: 3
+---
+
+Give one configuration its own environment: an AWS profile, a kubeconfig path, a pinned tool, a
+Python virtualenv. With [mise](https://mise.jdx.dev) installed where the engine runs, each round's
+providers launch with what `mise env` adds in the configuration directory, as `terraform` would in a
+shell with mise active there.
+
+## How it works
+
+- **mise on the engine's host.** The engine uses the mise on its own `PATH`. `turf-mcp-server engine
+  status` shows which one, or `off`.
+- **Applied over the engine's environment.** The configuration's mise environment is laid over the
+  [engine's own](/docs/environment/engine-environment/), for that configuration's providers only.
+  Provider arguments in HCL still override both.
+- **`mise.toml` is committed.** Tool versions, a Python venv, an `[env]` table: what every machine
+  needs to plan this configuration.
+- **`mise.local.toml` is per machine.** Keep it out of git. It is the place for this machine's
+  credential *settings*.
+- **Settings, not secrets.** An `AWS_PROFILE` or a `KUBECONFIG` path belongs here. A secret's value
+  belongs in the profile or credential store it names, not in a committed file.
+- **Trust first.** A directory you have not run `mise trust` on fails the plan in mise's words.
+- **The engine installs nothing.** A tool `mise install` has not installed is missing, and the
+  provider says so. Setup is yours.
+- **Providers only.** mise never supplies [variables](/docs/environment/variables/), the state
+  backend or state encryption: the MCP server reads those, not the engine.
+
+To turn it off, set `TURF_MISE=off` in the engine's environment (`~/.homebrew/services/turf.env` for
+the `turf` service), then `brew services restart turf`.
+
+## A worked example
+
+A configuration that deploys to a staging account and runs a Python smoke test after each release.
+The account and the cluster differ per machine; the Python version and the venv do not.
+
+```text
+infra/staging/
+  main.tf
+  smoke.tf
+  scripts/smoke.py
+  requirements.txt
+  mise.toml          committed
+  mise.local.toml    this machine only, not in git
+```
+
+The committed file pins Python and keeps a venv in `.venv`, which mise puts on `PATH`:
+
+```toml title="mise.toml"
+[tools]
+python = "3.13"
+
+[env]
+_.python.venv = { path = ".venv", create = true }
+```
+
+The local file names this machine's account and cluster:
+
+```toml title="mise.local.toml"
+[env]
+AWS_PROFILE = "staging-admin"
+KUBECONFIG = "/Users/you/.kube/staging.yaml"
+```
+
+The smoke test is a provider action, `local_command` from the `local` provider. It runs in the
+engine with this directory's mise environment, so `python` is the venv's and the script sees
+`AWS_PROFILE` and `KUBECONFIG`. The `aws` provider reads the same `AWS_PROFILE`. `main.tf` requires
+`hashicorp/local` beside `hashicorp/aws`.
+
+```hcl title="smoke.tf"
+# Runs scripts/smoke.py after every release, in the engine, with the
+# directory's mise environment (the venv's python, mise.local.toml's [env]).
+action "local_command" "smoke" {
+  config {
+    command   = "python"
+    arguments = ["scripts/smoke.py"]
+  }
+}
+
+resource "terraform_data" "release" {
+  input = var.release
+  lifecycle {
+    action_trigger {
+      events  = [after_create, after_update]
+      actions = [action.local_command.smoke]
+    }
+  }
+}
+```
+
+`scripts/smoke.py` resolves from the configuration directory, the provider's working directory.
+
+Set the directory up once, on the engine's host:
+
+```sh
+cd infra/staging
+mise trust                                      # or the plan fails in mise's words
+mise install                                    # the tools mise.toml pins
+mise exec -- pip install -r requirements.txt    # the script's packages, into the venv
+```
+
+Then ask your agent to deploy it as usual. Change `mise.local.toml` on another machine to point the
+same configuration at another account.

@@ -132,6 +132,17 @@ page. Figure 9's racks, a load-time script in the paper, are generated in the co
 frontmatter. Console stills come from `headquarters/marketing/launch/assets/console/` resized with
 `sips -Z 1600 <src> --out public/console/<name>.png` (1600×1000 PNG; JPEG smears UI text).
 
+**The docs at `/docs/` are a second Astro project**, `docs/` (Starlight; added 2026-11-07, plan in
+`headquarters/marketing/docs-plan.md`). It has its own `package.json`, `astro.config.mjs` (`base: '/docs'`)
+and stylesheet (`docs/src/styles/docs.css` maps the tokens above onto Starlight's `--sl-color-*`). The
+root `npm run build` builds the site, then the docs, then `scripts/merge-docs.mjs` copies `docs/dist`
+into `dist/docs`; the root `postinstall` installs `docs/`, and `npm run check` checks both. The root
+`tsconfig.json` excludes `docs/`. The docs carry their own sitemap (`/docs/sitemap-index.xml`, listed in
+`public/robots.txt`), so `/docs/` has no entry in `WEIGHTS` and no page in `src/pages/`. The docs
+accept Starlight's client JS (search, theme, sidebar): the near-zero-JS rule below is the marketing
+site's. Authoring conventions, components and voice for the docs: `docs/README.md`. Add a sidebar group
+in `docs/astro.config.mjs`; every group autogenerates from its directory.
+
 ## Copy and voice rules
 
 This is marketing copy for commercial software with a legally-sensitive competitor relationship.

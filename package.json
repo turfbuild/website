@@ -6,9 +6,11 @@
   "description": "turf.build product marketing site",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "dev:docs": "npm --prefix docs run dev",
+    "build": "astro build && npm --prefix docs run build && node scripts/merge-docs.mjs",
     "preview": "astro preview",
-    "check": "astro check"
+    "check": "astro check && npm --prefix docs run check",
+    "postinstall": "npm --prefix docs install --no-audit --no-fund"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",

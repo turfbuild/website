@@ -1,0 +1,92 @@
+---
+title: What Turf is
+description: Turf is an MCP server and a durable engine for infrastructure as code. Your agent plans, you approve each plan, and the engine applies it with real OpenTofu providers.
+sidebar:
+  order: 1
+---
+
+import Conversation from '../../../components/Conversation.astro';
+import User from '../../../components/User.astro';
+import Agent from '../../../components/Agent.astro';
+import PipelineFigure from '../../../components/figures/PipelineFigure.astro';
+
+Turf™ runs infrastructure as code from inside your AI agent. You describe what you want, the agent writes
+or picks a configuration of ordinary Terraform® files, and Turf plans it. Nothing is applied until you
+have seen the plan and said yes.
+
+<Conversation>
+  <User>Deploy the configuration in ./infra.</User>
+  <Agent calls={['init → ok', 'open → default', 'up → awaiting_plan', 'plan → awaiting_approval']}>
+    **Plan: 3 to add, 0 to change, 0 to destroy.** A kind cluster, a CustomResourceDefinition and
+    one custom resource of that kind.
+
+    Ready to apply these changes?
+  </Agent>
+  <User>Yes.</User>
+  <Agent calls={['apply → awaiting_plan', 'plan → awaiting_approval', 'apply → converged']}>
+    The cluster came up first, then the CRD and the custom resource on it. **Apply complete: 3
+    added.** The run is in the console:
+    `http://127.0.0.1:8873/w/default/runs/…`
+  </Agent>
+</Conversation>
+
+## Three pieces
+
+**The MCP server** is what your agent talks to. `turf-mcp-server` speaks the Model Context Protocol
+over stdio or HTTP, so it plugs into Claude Code, Claude Desktop, Cursor, Codex, Gemini CLI, VS Code,
+an agent running in a cluster, or your own. It exposes Terraform's commands as tools, three prompts
+that show up as slash commands, and the skills that teach an agent how to use them.
+
+**The engine** is where plans are made and applied. It is a separate process, running as a service on
+your machine or as workloads in a cluster. It holds the state lock, runs the OpenTofu™ providers, and
+carries every run durably: a rollout survives a server restart, a dropped client and the end of the
+conversation. The engine is built on Restate for that durability.
+
+**The Turf CLI** is a convenience: Turf's own agent, which drives the same server and engine with a
+model you bring. `turf up` and `turf destroy` run a configuration from a terminal. It is not required.
+
+<PipelineFigure />
+
+## The loop
+
+A run of `up` is a **convergence**: plan, approve, apply, until the configuration is fully applied.
+
+1. The agent calls `up`. The run stops at its **plan gate** with nothing planned yet.
+2. The agent calls `plan`. The plan is made and the run stops at its **approval point**, with the plan
+   and a digest of it.
+3. Someone approves: `apply` with that digest is the approval, of that plan and no other. A low-risk
+   plan (creates and in-place updates) the agent may approve itself; anything else, and always a
+   destroy, it brings to you.
+4. The engine applies the plan. Anything that could only be planned once an earlier change existed
+   (a resource inside a cluster the plan just created) is planned next, and the loop goes back to
+   step 2. Each pass is a **round**; most runs take one.
+5. When nothing is left, the run ends `converged`.
+
+During an apply the configuration can ask the agent to do a step itself: a backup, a check, a question
+for you, a message to the team. That is a **turf action**. The apply pauses for it and continues when
+the agent reports back.
+
+The whole vocabulary, with a diagram, is in [Overview](/docs/concepts/overview/).
+
+## Agent in the loop, not in charge
+
+Turf produces the plan; the agent does not. The agent reads it, explains it, checks it against your
+policies if you have them, and asks. The server hands every agent a short set of
+[safety rules](/docs/concepts/safety-rules/): never approve a plan the user would not, destroy only on
+the user's explicit words, never answer a turf action's question for the user. The console, a read-only
+web view beside the engine, shows every run, round and approval so you can see what happened without
+asking the agent.
+
+## Terraform and OpenTofu
+
+Turf speaks the Terraform language and uses the module registry and the OpenTofu providers unchanged.
+It is an independent product built on the OpenTofu framework: the plan is OpenTofu's json-format plan,
+so policy engines and scanners read it directly. A few constructs are refused by name and there is no
+`-target`; the list is in [Differences from Terraform](/docs/authoring/differences-from-terraform/) and
+the matrix at [turf.build/compatibility](https://turf.build/compatibility/).
+
+## Next
+
+- [Install locally](/docs/start/install/): Homebrew or one script.
+- [Connect your agent](/docs/start/connect/): one command.
+- [Your first run](/docs/start/first-run/): a kind cluster, a CRD and a custom resource in one run.

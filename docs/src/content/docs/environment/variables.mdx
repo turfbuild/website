@@ -1,0 +1,81 @@
+---
+title: Variables and TF_VAR_
+description: Variable values reach Turf through the MCP server, from open and each plan command, TF_VAR_ in its environment and auto-loaded tfvars files. Never from mise.
+sidebar:
+  order: 4
+---
+
+Variable values are read by the MCP server, never the engine. Your agent passes them to `open` or to
+a plan command; `TF_VAR_<name>` comes from the server's environment; `terraform.tfvars` and
+`*.auto.tfvars` load on their own. mise never supplies one. For setting values as a task, see
+[Variables and var files](/docs/using/variables/).
+
+## Values your agent passes
+
+`open`'s `var` and `var_file` are kept for the workspace while it is open, in the server's memory
+only. `status` lists their names, never their values. Every tool on the workspace derives its backend
+and reads its state with them.
+
+Each plan command (`up`, `destroy`, `refresh`, `import`, `invoke`) takes its own `var` and
+`var_file`, laid over `open`'s name by name. They hold for that run, every round of it, and are never
+kept.
+
+```text
+open({ var: { region: "eu-west-1" }, var_file: ["/Users/you/secrets/prod.tfvars"] })
+up({ var: { image_tag: "v42" } })
+```
+
+Nothing is written down. After the server restarts, `open` the workspace again with the same values.
+
+Keep a secret in a file and give the agent its path as `var_file`: the agent never needs to read it.
+
+## `TF_VAR_` from your MCP client
+
+`TF_VAR_<name>` comes from the server's environment, which your MCP client sets in the server's
+definition. Put it in the `env` block:
+
+```json title="Claude Desktop, Cursor and others"
+{
+  "mcpServers": {
+    "turf": {
+      "command": "/path/to/turf-mcp-server",
+      "env": { "TF_VAR_region": "eu-west-1" }
+    }
+  }
+}
+```
+
+Restart your agent's MCP connection after editing it. From the Turf™ CLI, the server has the
+environment of the shell you started `turf` in.
+
+- `TF_VAR_` values load on their own, below `.tfvars` files and `var`.
+- They set declared variables only. A `TF_VAR_` for an undeclared variable is ignored.
+- A provider sees one only where its block references that variable.
+- The server applies it to every configuration it plans that declares the variable.
+
+## Files that load on their own
+
+`terraform.tfvars` and `terraform.tfvars.json`, then `*.auto.tfvars` and `*.auto.tfvars.json` in one
+lexical pass, as in Terraform®. They live in the configuration directory, so never put a secret in one.
+
+## Never from mise
+
+The configuration's [mise environment](/docs/environment/mise/) reaches providers in the engine.
+Variables are resolved in the server, so a `TF_VAR_` in `mise.toml` or `mise.local.toml` sets no variable.
+
+## Precedence
+
+Lowest to highest, as in Terraform:
+
+| | Source |
+|---|---|
+| 1 | the `variable` block's `default` |
+| 2 | `TF_VAR_<name>` from the server's environment |
+| 3 | `terraform.tfvars`, `terraform.tfvars.json`, then `*.auto.tfvars` and `*.auto.tfvars.json` |
+| 4 | `open`'s `var_file`, in listed order, then `open`'s `var` |
+| 5 | the plan command's `var_file`, in listed order |
+| 6 | the plan command's `var`: wins |
+
+**Differs from Terraform:** within one call `var` always wins over `var_file`, with no `-var` and
+`-var-file` interleaving; `open` keeps its values for the workspace; nothing prompts for a value at
+plan.

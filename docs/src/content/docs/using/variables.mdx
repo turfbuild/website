@@ -1,0 +1,128 @@
+---
+title: Variables and var files
+description: "Set inputs without editing the configuration: var and var_file for one run, open's values for the workspace, terraform.tfvars and TF_VAR_ loaded on their own."
+sidebar:
+  order: 8
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import Conversation from '../../../components/Conversation.astro';
+import Example from '../../../components/Example.astro';
+import User from '../../../components/User.astro';
+import Agent from '../../../components/Agent.astro';
+
+Variable values set a configuration's inputs without changing its `.tf` files. Give them to a start verb
+for one run, or to `open` to keep them for the workspace while it is open. `terraform.tfvars`,
+`*.auto.tfvars` and `TF_VAR_` variables load on their own, as they do for any Turf™ run.
+
+<Example path="terraform/kubernetes/kind-crd" />
+
+<Conversation>
+<User>Deploy kind-crd with cr_message set to "Hello from staging".</User>
+<Agent calls={['up → awaiting_plan', 'plan → awaiting_approval']}>
+
+**Plan: 0 to add, 1 to change, 0 to destroy.**
+
+```text
+~ kubernetes_manifest.instance
+    manifest.spec.message: "Hello from Turf" → "Hello from staging"
+```
+
+That value holds for this run only: the next `up` without it plans the default back. To keep it, I can
+put it in `terraform.tfvars`, which loads on its own. Ready to apply these changes?
+
+</Agent>
+<User>Yes, and put it in terraform.tfvars.</User>
+<Agent calls={['apply → converged']}>
+
+Applied: 1 changed. Then I wrote `cr_message = "Hello from staging"` to `terraform.tfvars`. I waited
+until after the apply: `terraform.tfvars` loads on its own, so writing it between the plan and the apply
+would have made the plan stale. The next `up` plans no change.
+
+</Agent>
+</Conversation>
+
+<Tabs syncKey="surface">
+<TabItem label="In your agent">
+
+Say the values, or name the file: "deploy with region eu-west-1", "use env/staging.tfvars". The agent
+passes them as `var` or `var_file`. When `init` reports a required variable that nothing supplies, the
+agent asks you for it. Setting variable values is deployment, not authoring: the configuration does not
+change, though the agent writes a line in a `.tfvars` file when you ask it to.
+
+`TF_VAR_name` variables come from the MCP server's environment: in most clients, the `env` block of the
+server's entry in the client's configuration.
+
+</TabItem>
+<TabItem label="Turf CLI">
+
+Words after `up` are instructions for the run, and a var file can be one:
+
+```sh
+cd path/to/config && turf up -- -var-file=env/staging.tfvars
+```
+
+The `--` is needed because the text starts with a dash. The CLI starts the MCP server itself, and the
+server inherits the CLI's environment, so an exported `TF_VAR_name` reaches it.
+
+</TabItem>
+</Tabs>
+
+## How it works
+
+**For one run.** A start verb's `var` and `var_file` (on `up`, `destroy`, `refresh`, `import` or
+`invoke`) hold for that run's rounds and are never kept. They are laid over the values `open` was given,
+name by name. The read tools (`state_list`, `output`, `show`) use `open`'s values, not these.
+
+**For the workspace.** `open` keeps its own `var` and `var_file` for the workspace while it is open:
+in the server's memory only, never written down, never shown back (`status` lists the names). Every later
+tool on the workspace reads the state with them, and each run lays its own values over them. Opening the
+workspace again with `var` or `var_file` replaces them. They last as long as the session: when it ends,
+the workspace closes. A value the backend block reads, and a state-encryption passphrase, go to `open`.
+
+**Loaded on their own.** `terraform.tfvars` and `*.auto.tfvars` in the configuration directory, and
+`TF_VAR_` variables in the MCP server's environment. `TF_VAR_` never comes from mise.
+
+**What `init` reports.** `variables[]` lists what the configuration declares, never resolved values.
+`required` means the declaration has no default, not that no value exists: the environment or a
+`.tfvars` file may still supply one. There are no interactive prompts at plan, so the agent asks you
+for a required value nothing supplies. A module's `source` or `version` that reads a variable takes its
+value from `init`'s own `var`, for that `init` only; every plan installs the modules again, so give the
+same value to `open` as well.
+
+**How a value is read.** A string is the raw text a `-var` carries, parsed by the declaration's type:
+`"2"` is a number for a number variable. Any other JSON value is passed as its HCL literal. A relative
+`var_file` path is relative to the configuration directory.
+
+**Values never make a plan stale.** `var`, `var_file` and `TF_VAR_` values are pinned with the run. An
+edit to an auto-loaded `.tfvars` file between `plan` and `apply` does make the plan stale: the run ends
+`stale` and nothing is applied.
+
+<Aside type="caution" title="No secrets in the configuration">
+Never put a secret in a `.tf` file, a `.tfvars` file in the configuration, or an overlay. `open`'s
+`var_file` is read again at each use, so name a file outside the configuration that holds the secret
+rather than reading the secret into the conversation.
+</Aside>
+
+**Differs from Terraform®.** `tofu` takes `-var` on every command. Here `open`'s values serve every
+later tool on the workspace, as an exported `TF_VAR_` serves a shell. Within one call, `var` always
+wins over `var_file`; there is no interleaving of `-var` and `-var-file`.
+
+## Where a value comes from
+
+Highest first. A name set higher wins.
+
+| Source | Kept for |
+|---|---|
+| The start verb's `var` | This run |
+| The start verb's `var_file`, in order | This run |
+| `open`'s `var` | The workspace, while it is open |
+| `open`'s `var_file`, in order | The workspace, while it is open |
+| `terraform.tfvars` and `*.auto.tfvars` | Loaded at every use |
+| `TF_VAR_name` in the MCP server's environment | Loaded at every use |
+
+## Related
+
+- [Workspaces and backends](/docs/using/workspaces/)
+- [Where credentials are read](/docs/environment/where-credentials-are-read/): variables are read by the server, providers by the engine.
+- [Deploy or update with up](/docs/using/up/)

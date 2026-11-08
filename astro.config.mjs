@@ -43,7 +43,6 @@ const WEIGHTS = {
   '/get-started/': { priority: 0.9, changefreq: WEEKLY },
   '/demo/': { priority: 0.7, changefreq: MONTHLY },
   '/demo/scalr/': { priority: 0.7, changefreq: MONTHLY },
-  '/docs/': { priority: 0.6, changefreq: MONTHLY },
   '/pricing/': { priority: 0.6, changefreq: MONTHLY },
   '/licensing/': { priority: 0.7, changefreq: MONTHLY },
   '/reference-architectures/': { priority: 0.8, changefreq: MONTHLY },
@@ -67,6 +66,10 @@ const REDIRECTS = {
 };
 const isRedirect = (/** @type {string} */ page) =>
   Object.keys(REDIRECTS).some((route) => new URL(page).pathname === `${route}/`);
+
+// The docs at /docs/ are a second Astro project (docs/, Starlight) built by `npm run build` after this
+// one and copied into dist/docs by scripts/merge-docs.mjs. They carry their own sitemap
+// (/docs/sitemap-index.xml, listed in public/robots.txt), so no /docs/ route or weight lives here.
 
 // https://astro.build/config
 export default defineConfig({

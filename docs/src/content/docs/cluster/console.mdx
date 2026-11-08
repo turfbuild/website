@@ -1,0 +1,80 @@
+---
+title: The console in a cluster
+description: "Run the Turf console in a cluster: turf-ui from the server's image, behind its own token, reached by port-forward, and linked from every result."
+sidebar:
+  order: 6
+---
+
+
+The console is a read-only web view of every workspace Turf™ runs: its convergences,
+each round's plan, approval point and apply, who approved what, and every resource's lane as the apply
+ran. In a cluster it is one more Deployment, `turf-ui` from the same image as the server and the
+engine. It reads restate-server's ingress and nothing else, and it answers only those who show its
+token. Approvals are given where they always were, by the agent or the CLI.
+
+## Deploy it
+
+Three things: a Deployment and a Service, a token Secret, and room on restate-server's ingress.
+
+```yaml
+containers:
+  - name: turf-ui
+    image: ghcr.io/turfbuild/turf-mcp-server:v1.4.0   # the same tag as the server and the engine
+    command: ["/turf-ui"]
+    args:
+      - --addr=0.0.0.0:8873
+      - --ingress-addr=http://restate.turf.svc:8080
+      - --scopes=on                                   # must match the engine's
+    env:
+      - name: TURF_CONSOLE_AUTH_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: turf-console-auth
+            key: token
+```
+
+The whole Deployment, its Service and its NetworkPolicy are in
+[Minimal manifests](/docs/cluster/manifests/#the-console), with the Secret. restate-server's ingress
+must admit the console's pods: in your own NetworkPolicy for a StatefulSet, or under
+`security.networkPeers.ingress` for a `RestateCluster`.
+
+The console runs no provider and holds no state. Restart it or leave it out, and the engine does not
+notice. Its pod mounts no ServiceAccount token (`automountServiceAccountToken: false`).
+
+## Sign in
+
+Off loopback, `turf-ui` takes a token, `TURF_CONSOLE_AUTH_TOKEN`, and answers no read without it. A
+browser gives it once at `/login?token=…` and keeps a cookie. A program sends it as a bearer header.
+Only `/api/health` answers without it.
+
+```sh
+kubectl port-forward -n turf svc/turf-console 8873
+open "http://localhost:8873/login?token=$(cat .secrets/console-token)"
+```
+
+Without the cookie, a read is refused:
+
+```sh
+curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8873/config.json   # 401
+```
+
+Nothing in the cluster can reach the console: its NetworkPolicy admits no ingress. A port-forward goes
+through the API server and the kubelet straight into the pod, past the network plugin, so it is the
+one way in, and the token is what its reader then has to show.
+
+## A link in every result
+
+Set `TURF_CONSOLE_URL` (or `--console-url`) on the server to the address a browser opens the console
+at; through the port-forward above, `http://localhost:8873`. Every `up`, `plan`, `apply`, `status` and
+`open` result then carries a `console_url`, the page for the workspace or round it is about, so an
+agent's message about a plan links to that round at its approval point. The links never carry the
+token. Without `TURF_CONSOLE_URL`, a server driving an engine of your own returns no links.
+
+## At a glance
+
+| Setting | On | What it does |
+|---|---|---|
+| `TURF_CONSOLE_AUTH_TOKEN` | the console | the token every read needs, from the `turf-console-auth` Secret |
+| `--ingress-addr` | the console | restate-server's ingress, the only backend it talks to |
+| `--scopes` | the console | must match the engine's (`on` by default) |
+| `TURF_CONSOLE_URL` | the server | where a browser opens the console; every result links there |

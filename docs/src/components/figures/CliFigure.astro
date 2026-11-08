@@ -1,0 +1,47 @@
+---
+// How the CLI fits: `turf` brings an agent runtime and a model; your own agent brings its own; both
+// speak MCP over stdio to the same server, which drives the same engine and providers. Tokens only
+// (docs.css, "figures"); markers local.
+interface Props { caption?: string }
+const { caption } = Astro.props;
+---
+
+<figure class="docfig">
+  <svg class="fig" viewBox="0 0 672 244" role="img" aria-label="Two clients over one server. The turf CLI runs an agent runtime with a model you bring: local through Docker Model Runner or Ollama, or hosted from Anthropic, OpenAI, Google and others. Your own agent, Claude Code, Cursor or Codex, uses its own model. Both talk MCP over stdio to turf-mcp-server, a separate binary on PATH, which drives the Turf engine, turf-engine and restate-server started by brew services, which runs the OpenTofu providers, downloaded on demand.">
+    <defs>
+      <marker id="cl-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-stroke"/></marker>
+      <marker id="cl-inh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-inh"/></marker>
+    </defs>
+
+    <rect x="0.5" y="0.5" width="320" height="64" rx="8" class="f-panel s-hair"/>
+    <text x="14" y="20" class="t-name">turf</text>
+    <text x="44" y="20" class="t-mono">the CLI</text>
+    <text x="14" y="34" class="t-mono">an agent runtime and a model you bring:</text>
+    <text x="14" y="45" class="t-mono">local through Docker Model Runner or Ollama,</text>
+    <text x="14" y="56" class="t-mono">or hosted: Anthropic, OpenAI, Google, …</text>
+
+    <rect x="351.5" y="0.5" width="320" height="64" rx="8" class="f-inhbg s-inh"/>
+    <text x="365" y="20" class="t-name f-inh">your agent</text>
+    <text x="365" y="34" class="t-mono">Claude Code, Cursor, Codex, …</text>
+    <text x="365" y="45" class="t-mono">its own model</text>
+
+    <line x1="160.5" y1="65" x2="160.5" y2="92" class="s-stroke" stroke-width="1.4" marker-end="url(#cl-ink)"/>
+    <line x1="511.5" y1="65" x2="511.5" y2="92" class="s-inh" stroke-width="1.4" marker-end="url(#cl-inh)"/>
+    <text x="336" y="83" text-anchor="middle" class="t-mono">MCP over stdio</text>
+
+    <rect x="0.5" y="94.5" width="671" height="40" rx="8" class="f-panel s-hair"/>
+    <text x="14" y="112" class="t-name">turf-mcp-server</text>
+    <text x="14" y="126" class="t-mono">a separate binary, on PATH (or TURF_MCP_SERVER)</text>
+    <line x1="40.5" y1="135" x2="40.5" y2="162" class="s-stroke" stroke-width="1.4" marker-end="url(#cl-ink)"/>
+
+    <rect x="0.5" y="164.5" width="671" height="40" rx="8" class="f-ok"/>
+    <text x="14" y="182" class="t-name f-panel">the Turf engine</text>
+    <text x="14" y="196" class="t-mono f-okbg">turf-engine and restate-server · brew services start turf</text>
+    <line x1="40.5" y1="205" x2="40.5" y2="232" class="s-stroke" stroke-width="1.4" marker-end="url(#cl-ink)"/>
+
+    <rect x="0.5" y="234.5" width="671" height="9" rx="0" class="f-none"/>
+    <text x="14" y="242" class="t-name">OpenTofu providers</text>
+    <text x="138" y="242" class="t-mono">downloaded on demand</text>
+  </svg>
+  {caption && <figcaption class="figcap" set:html={caption} />}
+</figure>

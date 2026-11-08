@@ -1,0 +1,23 @@
+---
+// A screenshot that enlarges on click: the HTML popover API, no script (a port of the marketing
+// site's components/Still.astro). `src` is a path under public/, written from the docs root
+// (`stills/console-runs.png`); the component prefixes the base. One `id` per still on a page.
+interface Props { id: string; src: string; alt: string; caption?: string; soon?: boolean; width?: number; height?: number }
+const { id, src, alt, caption, soon = false, width = 1600, height = 1000 } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const url = src.startsWith('/') || src.startsWith('http') ? src : `${base}${src}`;
+const lb = `lb-${id}`;
+---
+
+<figure class="still-fig">
+  <button type="button" class="still-btn" popovertarget={lb} aria-label={`Enlarge: ${alt}`}>
+    <img class="still" src={url} width={width} height={height} loading="lazy" decoding="async" alt={alt} />
+    <span class="still-zoom" aria-hidden="true">⤢</span>
+  </button>
+  {caption && <figcaption class="stillcap">{soon && <span class="pill soon">coming soon</span>} {caption}</figcaption>}
+  <div id={lb} popover="auto" class="lightbox">
+    <button type="button" class="lb-close" popovertarget={lb} popovertargetaction="hide" aria-label="Close">×</button>
+    <img src={url} width={width} height={height} loading="lazy" decoding="async" alt={alt} />
+    {caption && <p class="lb-cap">{caption}</p>}
+  </div>
+</figure>

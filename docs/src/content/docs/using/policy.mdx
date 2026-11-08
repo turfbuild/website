@@ -1,0 +1,207 @@
+---
+title: Policy checks on a plan
+description: "Check each plan against policy before approval: show's document as input.tfplan to OPA or conftest, where a deny means do not apply. Scan providers first."
+sidebar:
+  order: 13
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import Conversation from '../../../components/Conversation.astro';
+import Example from '../../../components/Example.astro';
+import User from '../../../components/User.astro';
+import Agent from '../../../components/Agent.astro';
+import ToolResult from '../../../components/ToolResult.astro';
+
+A plan waits at its approval point, and nothing applies until its digest is named, so a policy tool can
+read the exact plan that gets approved. Turf™ serves it as OpenTofu™'s JSON plan; OPA or conftest read it
+as `input.tfplan`. A deny means do not apply. Before the first plan, the providers `init` installed can
+be scanned the same way.
+
+<Example path="use-cases/guardrails" />
+<Example path="integrations/scalr" />
+
+<Conversation>
+<User>Deploy the guardrails example.</User>
+<Agent calls={['init', 'open', 'up → awaiting_plan', 'plan → awaiting_approval', 'show']}>
+
+Before opening the workspace I scanned the three providers `init` installed (kind, helm, random) by
+package directory: nothing blocking. The plan creates the cluster and the pet; podinfo follows once the
+cluster is up.
+
+I evaluated `policies/readable_pet_names.rego` against the plan document. One denial:
+
+```text
+random_pet.name: random_pet length should be >= 2 for readable names (got 1)
+```
+
+A deny means I don't apply this plan. The remedy is a value, not an edit: `length = 2`. Shall I plan
+again with it?
+
+</Agent>
+<ToolResult tool="show">
+
+```text
+{ "resource_changes": [
+    { "address": "random_pet.name", "type": "random_pet",
+      "change": { "actions": ["create"], "after": { "length": 1, … } } },
+    … ], … }
+```
+
+</ToolResult>
+<User>Yes, use 2.</User>
+<Agent calls={['up → awaiting_plan', 'plan → awaiting_approval', 'show']}>
+
+Running `up` again set the denied plan aside. With `length = 2`, OPA returns no denials.
+
+```text
++ kind_cluster.demo
+    name: turf-guardrails
++ random_pet.name
+    length: 2
+```
+
+The apply will stop twice before the pet is created, for the `attest` and `check` turf actions.
+Ready to apply these changes?
+
+</Agent>
+</Conversation>
+
+<Tabs syncKey="surface">
+<TabItem label="In your agent">
+
+Ask for it: "check the plan against policies/ before you approve". With policy tools available, the
+agent hands every non-trivial plan to them on its own. It needs one of: `opa` or `conftest` on the
+`PATH`, or an OPA MCP server. For the provider scan, `trivy` or `grype` on the `PATH`, or the Grype MCP
+server.
+
+The agent includes the result in what it presents at the approval point. On a deny it reports the
+finding and proposes a remedy instead of asking you to approve.
+
+</TabItem>
+<TabItem label="Turf CLI">
+
+```sh
+cd use-cases/guardrails && turf up
+```
+
+The CLI's agent uses the tools on your `PATH`, and MCP servers that `.turf/turf.yaml` wires under
+`mcps:`. The Scalr example wires OPA this way:
+
+```yaml title=".turf/turf.yaml"
+mcps:
+  opa:
+    command: docker
+    args: [run, --rm, -i, "orygn/opa-mcp:latest"]
+```
+
+</TabItem>
+</Tabs>
+
+## How it works
+
+**The document.** `plan.uri` is the round's plan resource: the `tofu show -json` document, sensitive
+values redacted. `show` reads it. Pass `show_sensitive: true` only if a policy reads a secret: the
+secret then enters the conversation. The rules read `input.tfplan`, so the input is the document under
+a `tfplan` key:
+
+```json
+{ "tfplan": { "resource_changes": [ … ], … } }
+```
+
+Written to a file, OPA evaluates it against a policy directory:
+
+```sh
+opa eval -i plan-input.json -d policies/ 'data.terraform.deny'
+```
+
+**A rule.** The guardrails and Scalr examples use rego v1: `package terraform`, a `deny` set of
+human-readable strings, the plan at `input.tfplan`.
+
+```text title="policies/readable_pet_names.rego"
+package terraform
+
+import rego.v1
+
+deny contains reason if {
+	some rc in input.tfplan.resource_changes
+	rc.type == "random_pet"
+	rc.change.after.length < 2
+	reason := sprintf(
+		"%s: random_pet length should be >= 2 for readable names (got %d)",
+		[rc.address, rc.change.after.length],
+	)
+}
+```
+
+**A deny means do not apply.** The agent reports the finding, proposes the smallest remedy, and plans
+again once you agree: `up` again supersedes the plan waiting at its approval point (or `cancel` ends it).
+It approves by the digest of the plan that was checked; a plan that changed since is refused.
+
+**Make it a step of the apply.** A turf action can run the same check during the apply, so a run that
+skips the approval pause (`--yes`) cannot skip it. The guardrails example's `guardrails.turf.hcl` binds
+two turf actions `before_create` on `random_pet.name`, with `halt`: `attest` (the agent stands behind the
+provider scan) and `check` (the same rego, against the values about to be created). See
+[Answering a turf action](/docs/using/turf-actions/).
+
+## The Scalr example
+
+In `integrations/scalr`, Scalr is the control plane and Turf the engine: Turf plans and applies locally,
+Scalr holds the state, the variables and the policy group. Scalr's OPA policies normally fire only on
+runs Scalr executes. Here the local session asks Scalr what to enforce and at what level, through the
+Scalr MCP server, and evaluates the rego with the OPA MCP server, before the agent asks for approval:
+
+1. `scalr_list_policy_groups`, then `scalr_get_policy_group`: each policy's name, its enforcement
+   level, and the group's VCS repository. Scalr returns the definition, never the rego itself.
+2. Read each policy's `.rego` from that repository.
+3. `show` the plan.
+4. `opa_rego_eval` with the rego inline and `input = { "tfplan": <plan> }`.
+5. Withhold `apply` according to each policy's level.
+
+| Enforcement level | What a violation does |
+|---|---|
+| `hard-mandatory` | Blocks the apply. The plan has to change. |
+| `soft-mandatory` | Blocks, unless overridden with approval. |
+| `advisory` | Warns; the run continues. |
+
+```sh
+cd integrations/scalr/chat && turf --allow-path .. chat
+```
+
+`--allow-path ..` lets the CLI's file tools read the shared `policies/` directory beside `chat/`. The
+example's README has the prompts and the credentials it needs.
+
+## Check the providers before the first plan
+
+`init` installs the providers and reports every one any module requires, as the lock file records it,
+with the directory it is installed in. It does not scan them. Hand `providers[]` to a scanner before the
+first `up`, and before `open`, so a provider's binary never runs unscanned:
+
+```sh
+trivy rootfs --scanners vuln,secret <package_dir>
+grype dir:<package_dir>
+```
+
+A CRITICAL finding, or an unknown signature, means stop: do not open the workspace.
+
+`init` also writes the dependency lock file, `.terraform.lock.hcl`. Commit it: every plan honours it,
+and the engine refuses a provider whose hash no longer matches. If a package no longer matches the
+checksums the lock records, stop and look before running `init` again: that can be a tampered package.
+
+| `providers[]` field | Meaning |
+|---|---|
+| `provider` | The provider's address. |
+| `version` | The version the lock file selects. |
+| `constraints` | The version constraints it was selected under; none means nothing pins it. |
+| `hashes` | The package's checksums, in lock-file form. |
+| `package_dir` | Where the package is installed: what a scanner reads. |
+
+Built-in providers are never listed.
+
+## Related
+
+- [Answering a turf action](/docs/using/turf-actions/): a policy check as a step of the apply.
+- [Plan and apply by hand](/docs/using/plan-and-apply/)
+- [Approval](/docs/concepts/approval/)
+- [The guardrails example](https://github.com/turfbuild/turf-examples/tree/main/use-cases/guardrails) and [the Scalr example](https://github.com/turfbuild/turf-examples/tree/main/integrations/scalr)
+
+Scalr is a trademark of Scalr, Inc. Turf is not affiliated with, endorsed by, or sponsored by Scalr, Inc.

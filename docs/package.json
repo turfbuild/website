@@ -1,0 +1,24 @@
+{
+  "name": "turf-docs",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "description": "turf.build/docs — the Turf documentation, a Starlight site built into the marketing site's dist/docs",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "generate": "node scripts/generate-reference.mjs"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.42.10",
+    "astro": "^7.4.7",
+    "sharp": "^0.35.5"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "typescript": "^6.0.3"
+  }
+}

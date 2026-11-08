@@ -1,0 +1,61 @@
+---
+// Where credentials are read: your shell starts the agent; the MCP server reads its own environment
+// for variables, the backend and encryption; the engine reads its own for the providers. Tokens only
+// (docs.css, "figures"); markers are local to this svg.
+interface Props { caption?: string }
+const { caption } = Astro.props;
+---
+
+<figure class="docfig">
+  <svg class="fig" viewBox="0 0 672 312" role="img" aria-label="Three processes. Your shell starts your agent, or the Turf CLI. The agent starts the MCP server, turf-mcp-server, whose environment is what the agent was started with plus the env block of its MCP config; it reads TF_VAR values, backend credentials, TF_TOKEN values, TF_ENCRYPTION and the tofurc there, and handles variables, the state backend, state encryption and init's installs. The server sends plans and applies to the engine, turf-engine: variable values travel, the server's environment stays. The engine's environment is its own, the turf service's launchd environment, Homebrew's PATH and turf.env, then the configuration's mise environment; the providers run there and read it, along with files such as the AWS config and the kubeconfig.">
+    <defs>
+      <marker id="en-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-stroke"/></marker>
+    </defs>
+
+    <!-- your shell -->
+    <rect x="0.5" y="0.5" width="671" height="38" rx="8" class="f-panel s-hair"/>
+    <text x="14" y="24" class="t-name">your shell</text>
+    <text x="100" y="24" class="t-mono">you start your agent, or the Turf CLI, from it</text>
+    <line x1="40.5" y1="39" x2="40.5" y2="66" class="s-stroke" stroke-width="1.4" marker-end="url(#en-ink)"/>
+    <text x="50" y="57" class="t-mono">starts</text>
+
+    <!-- the MCP server -->
+    <rect x="0.5" y="68.5" width="671" height="112" rx="8" class="f-panel s-hair"/>
+    <text x="14" y="89" class="t-name">MCP server</text>
+    <text x="90" y="89" class="t-mono">turf-mcp-server</text>
+    <g class="t-cap">
+      <text x="14" y="110">ENVIRONMENT</text>
+      <text x="340" y="110">READS HERE</text>
+      <text x="340" y="150">HANDLES</text>
+    </g>
+    <g class="t-mono f-ink">
+      <text x="14" y="124">what your agent was started with,</text>
+      <text x="14" y="135">plus the env block of its MCP config</text>
+      <text x="340" y="124">TF_VAR_*, backend credentials, TF_TOKEN_*,</text>
+      <text x="340" y="135">TF_ENCRYPTION, ~/.tofurc</text>
+      <text x="340" y="164">variables, the state backend, state encryption,</text>
+      <text x="340" y="175">init's installs</text>
+    </g>
+    <line x1="40.5" y1="181" x2="40.5" y2="208" class="s-stroke" stroke-width="1.4" marker-end="url(#en-ink)"/>
+    <text x="50" y="193" class="t-mono">plans and applies: variable values travel;</text>
+    <text x="50" y="204" class="t-mono">the server's environment stays</text>
+
+    <!-- the engine -->
+    <rect x="0.5" y="210.5" width="671" height="101" rx="8" class="f-okbg s-ok" stroke-width="1.2"/>
+    <text x="14" y="231" class="t-name">engine</text>
+    <text x="60" y="231" class="t-mono">turf-engine</text>
+    <g class="t-cap">
+      <text x="14" y="252">ENVIRONMENT</text>
+      <text x="340" y="252">RUNS HERE</text>
+    </g>
+    <g class="t-mono f-ink">
+      <text x="14" y="266">its own: the turf service's (launchd,</text>
+      <text x="14" y="277">Homebrew's PATH, turf.env), then the</text>
+      <text x="14" y="288">configuration's mise environment</text>
+      <text x="340" y="266">the providers, which read it,</text>
+      <text x="340" y="277">and ~/.aws/config, ~/.kube/config</text>
+    </g>
+  </svg>
+  {caption && <figcaption class="figcap" set:html={caption} />}
+</figure>
+

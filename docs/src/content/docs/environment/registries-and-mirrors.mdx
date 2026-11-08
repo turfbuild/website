@@ -1,0 +1,104 @@
+---
+title: State backend, registries and mirrors
+description: Backend credentials go in the MCP server's environment. Registry tokens and provider mirrors must reach both the server and the engine, read once at start.
+sidebar:
+  order: 5
+---
+
+
+The state backend is the MCP server's business, so its credentials go in the server's environment.
+Registry tokens and provider mirrors are read by both processes: the server for `init`, the engine
+for each plan's installs. Set them once where both can see them.
+
+## The state backend
+
+The server reads and writes state, so a backend (S3, azurerm, gcs, `remote`) authenticates with the
+server's environment, plus `open`'s `backend_config`.
+
+- Keep the backend's non-secret settings in the `backend` block, so a reopen needs nothing but
+  credentials.
+- Put a secret in `open`'s `backend_config`, never in the block.
+- Set the backend's environment in your MCP client's `env` block, beside any
+  [`TF_VAR_`](/docs/environment/variables/). Providers do not see it: they read the
+  [engine's environment](/docs/environment/engine-environment/).
+
+```json title="An S3 backend's profile, in the server's definition"
+{
+  "mcpServers": {
+    "turf": {
+      "command": "/path/to/turf-mcp-server",
+      "env": { "AWS_PROFILE": "tfstate" }
+    }
+  }
+}
+```
+
+## Registry and `remote` backend tokens
+
+A private module or provider registry, and the `remote` backend (HCP Terraform®, Scalr, TFE),
+authenticate with a token for their host. Two ways:
+
+- **`turf login <host>`**, the simplest. Like `tofu login`, it writes the token to
+  `~/.terraform.d/credentials.tfrc.json`, which the server and the engine both read. A co-installed
+  `tofu` or `terraform` reads it too.
+- **`TF_TOKEN_<host>`**, with the host's dots as underscores (`TF_TOKEN_app_terraform_io`). It works
+  per process: the server's environment for the `remote` backend and `init`'s installs, the engine's
+  for the installs a plan makes. Set it in both, or use the credentials file.
+
+```sh
+turf login app.terraform.io
+echo "$TFE_TOKEN" | turf login --token-stdin tfe.example.com   # in CI
+```
+
+A `TF_TOKEN_<host>` variable wins over the credentials file, and `turf login` warns when the token it
+is about to write would be shadowed by one. `turf logout <host>` forgets the token locally; it does not
+revoke it on the host.
+
+Two limits beside `tofu login`: a `credentials` block hand-written in `.tofurc` or `.terraformrc`
+silently keeps winning over the file `turf login` writes, and credentials helpers are not supported.
+
+## Provider mirrors
+
+A provider mirror, or an air-gapped network, is a `provider_installation` block in the OpenTofu™ CLI
+configuration, exactly as `tofu` reads it: `~/.tofurc` with `~/.terraform.d/*.tfrc`, or the one file
+`TF_CLI_CONFIG_FILE` names. It takes `filesystem_mirror`, `network_mirror` or `oci_mirror`, then
+`direct` for the rest. Mirrors belong here, never in the `.tf` files.
+
+```hcl title="~/.tofurc"
+provider_installation {
+  network_mirror {
+    url     = "https://mirror.example.com/providers/"
+    include = ["registry.opentofu.org/hashicorp/*"]
+  }
+  direct {
+    exclude = ["registry.opentofu.org/hashicorp/*"]
+  }
+}
+```
+
+A `filesystem_mirror` takes a `path`; make it absolute, since the service has no working directory of
+yours.
+
+**The server and the engine must read the same block.** The server reads it for `init` and
+`provider_describe`, the engine for a plan's installs, and the engine checks what `init` locked.
+
+- For the local service, use `~/.tofurc`, or set `TF_CLI_CONFIG_FILE` in `turf.env` and in your
+  agent's server definition.
+- In a cluster, mount one ConfigMap on both.
+
+**Each reads it once, at start.** After an edit, restart both:
+
+```sh
+brew services restart turf
+# then restart your agent's MCP connection
+```
+
+A CLI configuration in error stops either process from starting, where `tofu` warns and carries on.
+Turf™ stops because carrying on would install from the public registry what you meant to take from
+your mirror.
+
+A provider the engine's block does not serve fails the plan in OpenTofu's words: "was not found in any
+of the search locations", a registry that "does not have a provider named" it, or a version that "is
+not available for" the engine's platform, as from a mirror filled on another machine. The fix is the
+engine's CLI configuration or the mirror it names, then a restart of the engine. Another `up` before
+that fails the same way.

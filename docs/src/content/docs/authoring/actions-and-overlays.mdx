@@ -1,0 +1,175 @@
+---
+title: Actions and overlays
+description: Bind an action to a resource's lifecycle, a provider's or a turf action your agent carries out, in the resource or in a *.turf.hcl overlay beside your files.
+sidebar:
+  order: 6
+---
+
+Some steps of a rollout change no resource: a backup before the database moves, a check after the
+container starts, a question for you. In Terraform® these are actions, bound to a resource's lifecycle.
+A **turf action** is an action your agent carries out itself during the apply. An **overlay** is a
+`*.turf.hcl` file beside the configuration that binds actions to resources without editing the `.tf`
+files.
+
+```hcl title="database.turf.hcl"
+# A backup before the database changes, a word to the team after.
+action "turf_action" "backup" {
+  config {
+    prompt = <<-EOT
+      Snapshot ${caller.identifier} with the AWS CLI or the
+      AWS MCP tools, wait until it is available, and report
+      its identifier. If it does not complete, fail: the
+      database stays as it is.
+    EOT
+    inputs = { db = caller.identifier, region = var.region }
+  }
+}
+
+action_trigger "backup" {
+  target     = aws_db_instance.primary
+  events     = [before_update, before_destroy]
+  actions    = [action.turf_action.backup]
+  on_failure = halt
+}
+
+action "turf_action" "notify" {
+  config {
+    prompt = <<-EOT
+      Tell the ops channel that ${caller.identifier} is now on
+      ${caller.engine} ${caller.engine_version}, with your
+      messaging tool; without one, fail and say so.
+    EOT
+  }
+}
+
+action_trigger "notify" {
+  target     = aws_db_instance.primary
+  events     = [after_update]
+  actions    = [action.turf_action.notify]
+  on_failure = continue
+}
+```
+
+An illustrative overlay. When the apply reaches the database, it stops with the backup request
+(`awaiting_actions`); your agent takes the snapshot with its own tools and answers, and the update
+runs. How that looks from the agent's side: [turf actions](/docs/concepts/turf-actions/).
+
+## Action blocks
+
+A provider's actions are described like its resources:
+`provider_describe({ action_type: "aws_lambda_invoke" })`.
+
+A `turf_action` is the action your agent performs. Its provider is the engine's built-in
+`terraform.io/builtin/turf`, implied by the `turf_` prefix, so there is nothing to declare or install,
+and it needs no `init`.
+
+| Field | Required | Meaning |
+|---|---|---|
+| `prompt` | yes | What to do, and what counts as failure. A decision for you is a prompt that tells the agent to ask you. |
+| `inputs` | no | Any value (IDs, endpoints, names), evaluated like any action config, `caller` included, sent as JSON. Nothing sensitive (wrap a value in `nonsensitive()` to show it on purpose); at most 64 KiB. |
+| `non_interactive` | no | `fail` (the default) or `skip`: the answer only where no agent is in the loop, such as the engine's own command line, unattended. |
+
+## Bind it in the resource
+
+Terraform's own syntax, a `lifecycle.action_trigger`:
+
+```hcl
+resource "terraform_data" "release" {
+  input = var.version
+  lifecycle {
+    action_trigger {
+      events     = [after_create, after_update]
+      actions    = [action.turf_action.verify_web]
+      on_failure = halt
+    }
+  }
+}
+```
+
+Your agent respects it where you wrote it.
+
+## Bind it in an overlay
+
+An overlay is Turf™'s extension, and the way to add a step without changing your Terraform. A
+`*.turf.hcl` file in the configuration directory holds `action` blocks and top-level `action_trigger`
+blocks that name a `target`. `tofu` and `terraform` ignore the file by its name; the engine lays it
+over the configuration at every plan. When your agent writes one, it tells you which file: it is
+yours.
+
+- **`target`** is a managed resource of the overlay's own module or any module beneath it, by path:
+  `module.db.aws_db_instance.main`, `module.net.module.vpc.aws_vpc.this`. That is how a registry or
+  git module's resource is reached, since its directory is not yours to write in. A package module's
+  own overlays are ignored, with a warning.
+- **Name the module with no instance key.** The trigger binds every instance of a counted or
+  `for_each` call; `module.db["a"]` is refused. A target in a module the overlay's module does not
+  declare is refused.
+- **`caller` is the target instance.** The `actions` and the `condition` are the overlay's own
+  module's: its actions, variables and locals. An action that reads the module it is bound into
+  (`module.db.endpoint` while bound to `module.db.aws_db_instance.main`) is refused as a cycle: read
+  `caller` instead.
+- **Order.** On one resource, a module's own triggers run before those of the modules above it, and
+  within one module in the order they are written.
+- **Overlay only.** The address-targeted `action_trigger` is refused in a `.tf` file.
+- **`init`.** Run it again when an overlay's action needs a provider not yet installed.
+
+**For one run only**, the same file can ride a plan command instead of the directory, as `overlays`:
+`up({ overlays: { "postcheck.turf.hcl": "…" } })`. Its triggers bind in every round of that run and
+nothing is written. A later `up` without it drops it; a name that collides with a real file is
+refused. `init` does not report it.
+
+## Events, `on_failure` and `condition`
+
+**Events:** `before_create`, `after_create`, `before_update`, `after_update`, `before_destroy`,
+`after_destroy`. A `before_*` step holds the change: the change waits on the action. An `after_*` step follows
+it.
+
+**`condition`** is an expression known at plan that decides whether the trigger fires; false skips
+the action. A
+`condition` on a trigger with a destroy event is refused.
+
+**`on_failure`** is what a failed action does to the change it is bound to:
+
+| `on_failure` | In a plan made by `up` and the other forward commands | In a `destroy` |
+|---|---|---|
+| `halt` (the default) | Fails the round: on a `before_*` event the change never runs, and what waits on it is skipped. | A warning; the teardown goes on. |
+| `continue` | A warning; the apply goes on. | A warning. |
+| `taint` | On `after_create`: taints the new object, so the next plan replaces it, and halts what waits on it. On any other event it acts as `halt`. | A warning. |
+
+As in Terraform, a `before_destroy` step cannot stop a `destroy`: only your approval of the plan can.
+
+## What `caller` and the config read
+
+An action's `config`, `prompt` and `inputs` alike, may interpolate `${…}` expressions. What they
+resolve against depends on the event, with Terraform 1.16 semantics:
+
+| Event | `caller` is |
+|---|---|
+| `before_create`, `before_update` | the triggering resource's **planned** value: a computed attribute is not known yet, so read what the configuration sets, or move the step to an `after_*` event |
+| `after_create`, `after_update` | the **applied** value |
+| `before_destroy`, `after_destroy` | the **prior** value: what is being destroyed |
+
+- **Destroy-event configs freeze at plan.** Every expression resolves when the plan is made, against
+  the world before the teardown; anything unresolvable fails the plan.
+- **Create- and update-event configs** are reference-checked at plan, so a typo fails the plan, and
+  resolved again when the action runs, so a resource created earlier in the round gives its real value.
+- **A `before_*` config must not reference its triggering resource by address.** That is an ordering
+  cycle, and the plan says so: use `caller`.
+- **A config that cannot be resolved**, holds a sensitive value, or has `inputs` past the bound fails
+  the action without asking; `on_failure` applies as for any failure.
+- **`caller` does not exist** in a direct `invoke`.
+
+## Keyed entries
+
+An entry in `actions` may name each instance's own action:
+`actions = [action.local_command.cordon[each.key]]` on a `for_each` resource, or `[count.index]` on a
+counted one. The key is the calling instance's; in an overlay trigger, the target instance's. A key of
+the wrong type is a plan error for that instance, and a key the action does not have is "Reference to
+non-existent action instance".
+
+## Bare tokens, not strings
+
+- `events` are bare identifiers: `events = [before_create]`. `["before_create"]` fails with "Invalid
+  action_trigger event".
+- `actions` are bare references: `actions = [action.turf_action.gate]`. `["action.turf_action.gate"]`
+  is a list of one string.
+- `on_failure` is a bare keyword: `halt`, `continue` or `taint`. `"halt"` is rejected.
