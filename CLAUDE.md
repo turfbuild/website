@@ -74,7 +74,8 @@ Pages pass four props, all optional: `title`, `description`, `noindex`, `jsonLd`
 
 **Pages compose components; the home page composes them all.** `pages/index.astro` is nothing but an
 ordered list of section components (redesigned 2026-10-20, revised 10-21 and 11-07): FigureDefs, Hero (with
-StackBuild), WhyEngine (two figures: the engine map and a run timeline), HowItWorks, ActionsInPlan,
+StackBuild), WhyEngine (two figures: the engine map and a run timeline; it carries the legacy
+`#product` anchor), ActionsInPlan,
 AgentInLoop, CompatibilityTeaser (three ecosystem cards), OpsEnvironment (the ops-environment band,
 moved from `/use-cases/` on 2026-10-21: the lane figure, the backend/registry/ephemeral HCL, a
 ticklist, proof links), Engine (since 2026-11-07 the best-of-both grid, "A new Terraform, reimagined
@@ -84,15 +85,19 @@ a double-wide tile with its still; it replaced the fan-out figure and the encryp
 three marquee examples of `src/data/examples.ts`, the kagent figure, the home page's marks note),
 Papers (the two covers, the Scarf links tagged `?src=home-papers`), Partner. The Flexibility band
 (interfaces and models) was folded into the hero chips and the grid on 2026-11-07. Those components
-carry the home-page anchor ids (`#product` on HowItWorks, `#compatibility` on CompatibilityTeaser,
+carry the home-page anchor ids (`#product` on WhyEngine, `#compatibility` on CompatibilityTeaser,
 `#ops-environment` on OpsEnvironment, `#features` on Engine, `#use-cases` on UseCasesTeaser,
 `#examples` on ExamplesTeaser, `#papers` on Papers, the nav's target, `#get-started` on Footer);
 cross-page links use a leading slash (`/#product`) so they work from subpages. UseCasesTeaser also
 carries an empty legacy anchor span `#solutions` (the 2026-08 UseCases section replaced Solutions,
 then SolutionsTeaser replaced UseCases, then the name went back to use cases on 2026-10-21) so old
 inbound links still land — don't remove it. A
-standalone `/how-it-works` page was tried and dropped (too thin); the loop lives on home. The home
-band striping alternates `band`/`band alt` in the order above (WhyEngine is the first `alt`) —
+standalone `/how-it-works` page was tried and dropped (too thin), and the HowItWorks band ("Layered
+stacks converge in rounds", the two-round HCL and the five-step strip) was removed on 2026-11-07
+(Eron: little value there): the loop now lives in WhyEngine's run timeline, the grid's "Stacks, in
+rounds" tile and `/docs/concepts/rounds/`. The home
+band striping alternates `band`/`band alt` in the order above (WhyEngine is plain, right under the
+hero; ActionsInPlan is the first `alt`) —
 inserting or removing a section means re-checking the alternation. Subpages follow a fixed shape:
 `.subhero` → alternating `.section` / `.section alt` → `.prose` or a grid. `pages/use-cases.astro`
 is the five-use-case page (one section per job, each: who it's for, a figure, HCL, Day 1 / Day 2
@@ -332,7 +337,7 @@ starts. Treat the headline as fixed unless the user reopens it.
 - There is no mobile hamburger menu — below 860px `.nav-links a:not(.btn)` is hidden and only the CTA
   shows. Adding a nav link means it's desktop-only unless you also add it to the footer sitemap.
   The nav since 2026-11-07: Docs · Demos (`/demo/`) · Papers (`/#papers`) · Compatibility · Use cases ·
-  Pricing · Contact · the CTA; "How it works" left it (the loop stays on home under `#product`), and
+  Pricing · Contact · the CTA; "How it works" left it (`/#product` still lands, on WhyEngine), and
   the hero's CTA row is Try Turf free · Read the docs · Pilot program.
 
 ## Content provenance
