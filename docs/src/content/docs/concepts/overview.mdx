@@ -5,24 +5,12 @@ sidebar:
   order: 1
 ---
 
+import LoopFigure from '../../../components/figures/LoopFigure.astro';
+
 Turf™ has a small vocabulary, and every tool result uses it. This page is the map; the pages after it
 take one idea each.
 
-```text
- configuration ──init──▶ registered     workspace ──open──▶ bound to the configuration
- (a directory of .tf                    (a backend + a state slot)
-  files and *.turf.hcl overlays)                │
-                                                ▼
-            convergence: one run of up (or destroy, refresh, import, invoke)
-            ┌──────────────────────────────────────────────────────────────────┐
-            │ round 1          round 2          round 3 …   until nothing is  │
-            │ plan gate        plan gate        plan gate    deferred          │
-            │   │ plan           │ plan           │ plan                       │
-            │ approval point   approval point   approval point                 │
-            │   │ apply          │ apply          │ apply                      │
-            │ apply ──(turf action? pause, answer, continue)──▶ next round      │
-            └──────────────────────────────────────────────────────────────────┘
-```
+<LoopFigure caption="<b>The map.</b> A configuration and a workspace feed a convergence; each round stops at its plan gate and its approval point, and the run ends when nothing is left deferred." />
 
 ## The words
 

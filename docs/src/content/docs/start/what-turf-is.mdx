@@ -8,6 +8,7 @@ sidebar:
 import Conversation from '../../../components/Conversation.astro';
 import User from '../../../components/User.astro';
 import Agent from '../../../components/Agent.astro';
+import PipelineFigure from '../../../components/figures/PipelineFigure.astro';
 
 Turf™ runs infrastructure as code from inside your AI agent. You describe what you want, the agent writes
 or picks a configuration of ordinary Terraform® files, and Turf plans it. Nothing is applied until you
@@ -44,11 +45,7 @@ conversation. The engine is built on Restate for that durability.
 **The Turf CLI** is a convenience: Turf's own agent, which drives the same server and engine with a
 model you bring. `turf up` and `turf destroy` run a configuration from a terminal. It is not required.
 
-```text
-you ─▶ your agent ──(MCP)──▶ turf-mcp-server ──▶ Turf engine ──▶ OpenTofu providers ──▶ cloud
-       Claude Code, Cursor,     the interface       durable           the real plugins
-       the Turf CLI, kagent…                        plan and apply
-```
+<PipelineFigure />
 
 ## The loop
 

@@ -1,0 +1,34 @@
+---
+// What Turf is, in one line: you, your agent, the MCP server, the engine, the providers, the cloud.
+// Tokens only (docs.css, "figures"); markers are local to this svg.
+interface Props { caption?: string }
+const { caption } = Astro.props;
+const boxes = [
+  { x: 0, w: 50, name: 'you', cls: 'f-panel s-hair', sub: [] },
+  { x: 71, w: 112, name: 'your agent', cls: 'f-inhbg s-inh', sub: ['Claude Code, Cursor,', 'the Turf CLI, kagent…'] },
+  { x: 204, w: 120, name: 'turf-mcp-server', cls: 'f-panel s-hair', sub: ['the interface'] },
+  { x: 345, w: 104, name: 'Turf engine', cls: 'f-ok', ink: 'f-panel', sub: ['durable plan and apply'] },
+  { x: 470, w: 128, name: 'OpenTofu providers', cls: 'f-panel s-hair', sub: ['the real plugins'] },
+  { x: 619, w: 53, name: 'cloud', cls: 'f-panel s-hair', sub: [] },
+];
+---
+
+<figure class="docfig">
+  <svg class="fig" viewBox="0 0 672 100" role="img" aria-label="You talk to your agent, such as Claude Code, Cursor, the Turf CLI or kagent. The agent talks over MCP to turf-mcp-server, the interface. The server drives the Turf engine, which plans and applies durably, running the OpenTofu providers, the real plugins, against the cloud.">
+    <defs>
+      <marker id="pl-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-stroke"/></marker>
+    </defs>
+    {boxes.map((b, i) => (
+      <g>
+        <rect x={b.x + 0.5} y="22.5" width={b.w - 1} height="38" rx="8" class={b.cls}/>
+        <text x={b.x + b.w / 2} y="45.5" text-anchor="middle" class={`t-name ${b.ink ?? ''}`}>{b.name}</text>
+        {b.sub.map((t, k) => <text x={b.x + b.w / 2} y={76 + k * 11} text-anchor="middle" class="t-mono">{t}</text>)}
+        {i < boxes.length - 1 && (
+          <line x1={b.x + b.w + 1} y1="41.5" x2={boxes[i + 1].x - 1} y2="41.5" class="s-stroke" stroke-width="1.4" marker-end="url(#pl-ink)"/>
+        )}
+      </g>
+    ))}
+    <text x="193.5" y="15" text-anchor="middle" class="t-mono f-inh">MCP</text>
+  </svg>
+  {caption && <figcaption class="figcap" set:html={caption} />}
+</figure>

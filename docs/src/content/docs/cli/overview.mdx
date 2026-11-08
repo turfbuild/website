@@ -6,6 +6,7 @@ sidebar:
 ---
 
 import { Aside } from '@astrojs/starlight/components';
+import CliFigure from '../../../components/figures/CliFigure.astro';
 
 The Turf™ CLI, `turf`, is an agent of its own: it drives the same MCP server and engine your agent
 uses, with a model you bring. It is a convenience, not a requirement. The MCP server is the product,
@@ -57,22 +58,7 @@ names the binary it ran and says to point it at a matching one.
 
 ## How it fits
 
-```text
-turf (the CLI)                          your agent (Claude Code, Cursor, Codex, …)
-   │                                       │
-   │  agent runtime + a model              │  the agent's own model
-   │  (local via Docker Model Runner /     │
-   │   Ollama, or hosted: Anthropic /      │
-   │   OpenAI / Google / …)                │
-   ▼                                       ▼
-turf-mcp-server (a separate binary, on PATH; MCP over stdio)
-   │
-   ▼
-the Turf engine (turf-engine + restate-server; brew services start turf)
-   │
-   ▼
-OpenTofu providers (downloaded on demand)
-```
+<CliFigure />
 
 The CLI runs its agent on Docker's [docker-agent](https://github.com/docker/docker-agent) runtime. It
 never imports the server's code: the only contract is the MCP protocol, spoken over stdio.

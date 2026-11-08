@@ -1,0 +1,68 @@
+---
+// Turf in a cluster: any MCP client → the server over HTTP → restate-server → the engine → the
+// cloud; the state backend beside the server, the console beside Restate, the configuration mounted
+// in the server's pod and every engine pod. Tokens only (docs.css, "figures"); markers local.
+interface Props { caption?: string }
+const { caption } = Astro.props;
+---
+
+<figure class="docfig">
+  <svg class="fig" viewBox="0 0 672 324" role="img" aria-label="Any MCP client, an agent in the cluster, Claude Code through a port-forward or a CI job, posts to turf-mcp-server at /mcp with a bearer token. The server, on port 3000 with the HTTP transport, parses the configuration and opens state in the state backend, a Secret and a Lease or any remote backend. Through TURF_RESTATE_URL it reaches restate-server, whose ingress the console, turf-ui on port 8873, also reads. Restate signs every request with the identity key and drives turf-engine on port 9080, a Deployment's replicas or a Knative service, where the provider plugins run with the engine's credentials against the cloud APIs or the cluster itself. The configuration is an image volume, or any volume, mounted read-only at one path in the server's pod and in every engine pod.">
+    <defs>
+      <marker id="ct-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-stroke"/></marker>
+      <marker id="ct-inh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-inh"/></marker>
+    </defs>
+
+    <!-- client -->
+    <rect x="0.5" y="0.5" width="400" height="40" rx="8" class="f-inhbg s-inh"/>
+    <text x="14" y="18" class="t-name f-inh">any MCP client</text>
+    <text x="14" y="32" class="t-mono">an agent in the cluster · Claude Code through a port-forward · a CI job</text>
+    <line x1="40.5" y1="41" x2="40.5" y2="68" class="s-inh" stroke-width="1.4" marker-end="url(#ct-inh)"/>
+    <text x="50" y="59" class="t-mono">POST /mcp · Authorization: Bearer &lt;TURF_MCP_AUTH_TOKEN&gt;</text>
+
+    <!-- server, and the state backend beside it -->
+    <rect x="0.5" y="70.5" width="400" height="40" rx="8" class="f-panel s-hair"/>
+    <text x="14" y="88" class="t-name">turf-mcp-server</text>
+    <text x="14" y="102" class="t-mono">:3000 · --transport http · parses the configuration, opens state</text>
+    <line x1="401" y1="90.5" x2="448" y2="90.5" class="s-stroke" stroke-width="1.4" marker-end="url(#ct-ink)"/>
+    <rect x="450.5" y="70.5" width="221" height="40" rx="8" class="f-panel s-hair"/>
+    <text x="464" y="88" class="t-name">state backend</text>
+    <text x="464" y="102" class="t-mono">a Secret and a Lease, or any remote backend</text>
+    <line x1="40.5" y1="111" x2="40.5" y2="138" class="s-stroke" stroke-width="1.4" marker-end="url(#ct-ink)"/>
+    <text x="50" y="129" class="t-mono">TURF_RESTATE_URL</text>
+
+    <!-- restate, and the console reading its ingress -->
+    <rect x="0.5" y="140.5" width="400" height="40" rx="8" class="f-panel s-hair"/>
+    <text x="14" y="158" class="t-name">restate-server</text>
+    <text x="14" y="172" class="t-mono">ingress :8080 · admin :9070</text>
+    <line x1="449" y1="160.5" x2="403" y2="160.5" class="s-stroke" stroke-width="1.4" marker-end="url(#ct-ink)"/>
+    <rect x="450.5" y="140.5" width="221" height="40" rx="8" class="f-panel s-hair"/>
+    <text x="464" y="158" class="t-name">the console</text>
+    <text x="464" y="172" class="t-mono">turf-ui :8873 · reads the ingress</text>
+    <line x1="40.5" y1="181" x2="40.5" y2="208" class="s-stroke" stroke-width="1.4" marker-end="url(#ct-ink)"/>
+    <text x="50" y="199" class="t-mono">every request signed with the identity key</text>
+
+    <!-- engine -->
+    <rect x="0.5" y="210.5" width="400" height="40" rx="8" class="f-ok"/>
+    <text x="14" y="228" class="t-name f-panel">turf-engine</text>
+    <text x="14" y="242" class="t-mono f-okbg">:9080 · a Deployment's replicas, or a Knative service</text>
+    <line x1="40.5" y1="251" x2="40.5" y2="278" class="s-stroke" stroke-width="1.4" marker-end="url(#ct-ink)"/>
+    <text x="50" y="269" class="t-mono">provider plugins run here, with the engine's credentials</text>
+
+    <!-- the world -->
+    <rect x="0.5" y="280.5" width="400" height="40" rx="8" class="f-panel s-hair" stroke-dasharray="4 3"/>
+    <text x="14" y="304" class="t-name">cloud APIs, or the cluster itself</text>
+
+    <!-- the configuration, mounted in the server's pod and every engine pod -->
+    <rect x="450.5" y="210.5" width="221" height="110" rx="8" class="f-panel2 s-hair" stroke-dasharray="4 3"/>
+    <text x="464" y="229" class="t-cap">THE CONFIGURATION</text>
+    <g class="t-mono f-ink">
+      <text x="464" y="248">an image volume, or any volume,</text>
+      <text x="464" y="259">read-only, at one path in the</text>
+      <text x="464" y="270">server's pod and in every</text>
+      <text x="464" y="281">engine pod</text>
+    </g>
+    <text x="464" y="306" class="t-mono">--workdir on both when paths differ</text>
+  </svg>
+  {caption && <figcaption class="figcap" set:html={caption} />}
+</figure>

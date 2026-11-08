@@ -78,6 +78,10 @@ Pages are `.mdx` when they use a component, `.md` otherwise. Import components f
 - **Bare URLs.** `http://127.0.0.1:8873` in prose is auto-linked and clickable; write it in backticks.
 - **Stills.** `<Still id="runs" src="stills/console-runs.png" alt="…" caption="…" />`; one `id` per
   still on a page; PNG at 1600 wide in `public/stills/`.
+- **Figures.** Diagrams are inline SVG components in `src/components/figures/` (`<LoopFigure caption="<b>The map.</b> …" />`),
+  on the website's figure classes (`.t-name`, `.t-mono`, `.f-ok`, `.s-hair`, … in `docs.css`) so they
+  follow the theme; a 672-wide viewBox, real text, an `aria-label` that tells the whole picture, and marker
+  ids prefixed per figure. Never an ASCII diagram in a code fence.
 
 ## Voice
 

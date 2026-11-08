@@ -21,6 +21,7 @@
   --inh: #78b0dd; --inh-bg: #142737;
   --term-bg: #0b120f; --term-ink: #d9e5df; --term-muted: #7d8f88;
   --term-ok: #5fd398; --term-amber: #e0b657; --term-blue: #6fb2e6; --term-violet: #b48ead;
+  --fig-stroke: #9baba4;
   --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px -14px rgba(0,0,0,.6);
   --mono: ui-monospace, "SF Mono", "SFMono-Regular", "Menlo", "Consolas", monospace;
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -62,6 +63,7 @@
   --part: #9a6c06; --part-bg: #f6ecd5;
   --inh: #2a6395; --inh-bg: #dfeaf3;
   --term-bg: #101a17; --term-ink: #d9e5df; --term-muted: #7d8f88;
+  --fig-stroke: #566863;
   --shadow: 0 1px 2px rgba(20,32,29,.05), 0 8px 24px -12px rgba(20,32,29,.12);
 
   --sl-color-accent-low: var(--ok-bg);
@@ -188,3 +190,19 @@ h1, .hero h1, .hero .tagline, .site-title, .turf-sitetitle {
 .starlight-aside { border-radius: 10px; }
 .example-link { font-size: 13.5px; color: var(--muted); margin: 0 0 .75rem; }
 .example-link code { font-size: 12.5px; }
+
+/* figures: inline SVG (components/figures/*), the website's classes; fills and strokes are tokens */
+.docfig { margin: 1.5rem 0; }
+.fig { display: block; width: 100%; height: auto; overflow: visible; }
+.t-name { font-family: var(--display); font-weight: 700; font-size: 11.5px; fill: var(--ink); }
+.t-mono { font-family: var(--mono); font-size: 8.6px; fill: var(--muted); }
+.t-sans { font-family: var(--sans); font-size: 9.6px; fill: var(--ink); }
+.t-cap { font-family: var(--mono); font-size: 7.6px; letter-spacing: .14em; fill: var(--faint); }
+.f-ok { fill: var(--ok); } .f-okbg { fill: var(--ok-bg); } .f-okdeep { fill: var(--ok-deep); }
+.f-inh { fill: var(--inh); } .f-inhbg { fill: var(--inh-bg); }
+.f-panel { fill: var(--panel); } .f-panel2 { fill: var(--panel-2); }
+.f-ink { fill: var(--ink); } .f-stroke { fill: var(--fig-stroke); } .f-none { fill: none; }
+.s-ok { stroke: var(--ok); } .s-inh { stroke: var(--inh); } .s-hair { stroke: var(--hair-strong); } .s-stroke { stroke: var(--fig-stroke); }
+.figcap { margin: 10px 0 0; font-size: 13px; color: var(--muted); }
+.figcap b { color: var(--ink); font-weight: 600; }
+@media (max-width: 560px) { .docfig { overflow-x: auto; } .docfig .fig { min-width: 600px; } }

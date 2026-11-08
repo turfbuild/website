@@ -5,6 +5,8 @@ sidebar:
   order: 1
 ---
 
+import ClusterTopologyFigure from '../../../components/figures/ClusterTopologyFigure.astro';
+
 
 In a cluster, Turf™ runs as the same pieces it runs on a laptop, deployed as workloads: the MCP
 server, restate-server with the engine behind it, and the console. Any MCP client talks to the server
@@ -12,25 +14,7 @@ over HTTP: an agent running in the cluster, Claude Code through a port-forward, 
 the Homebrew service runs restate-server, the engine and the console for you; in a cluster each one is
 a workload you deploy.
 
-```text
-  any MCP client: an agent in the cluster, Claude Code through a port-forward, a CI job
-        │  POST /mcp
-        │  Authorization: Bearer <TURF_MCP_AUTH_TOKEN>
-        ▼
-  turf-mcp-server   :3000, --transport http        parses the configuration, opens state
-        │  TURF_RESTATE_URL                        ──► the state backend (a Secret and a Lease,
-        ▼                                               or any remote backend)
-  restate-server    ingress :8080 · admin :9070    ◄── turf-ui, the console :8873 (reads the ingress)
-        │  every request signed with the identity key
-        ▼
-  turf-engine       :9080, a Deployment's replicas or a Knative service
-        │  provider plugins run here, with the engine's credentials
-        ▼
-  cloud APIs, or the cluster itself
-
-  the configuration: an image volume (or any volume), read-only, at one path in the server's pod
-  and in every engine pod
-```
+<ClusterTopologyFigure caption="<b>The pieces.</b> Only the server faces clients; the engine faces the cloud; the configuration is mounted in both." />
 
 ## The MCP server
 
