@@ -1,0 +1,57 @@
+---
+// Two reference architectures (2026-11-07, for KubeCon NA): each paper's cover (public/papers/*-cover.jpg,
+// page 1 of the PDF) beside a one-paragraph abstract, the page, and the Scarf download link tagged
+// ?src=home-papers. The abstracts follow each paper's page of record (pages/reference-architectures.astro
+// and …/pull-request-to-production.astro, themselves from headquarters/marketing/launch/refarch-*.md):
+// change those first. The papers' own pages carry the marks notes; the titles here are clean.
+const papers = [
+  {
+    tagline: 'For neocloud providers · 17 pages',
+    title: 'Metal to Tokens',
+    abstract:
+      'A reference architecture for managed GPU cloud infrastructure, as code: a neocloud from pools of inventory to a cluster that has passed NVCRE certification and a served model, in one convergence loop, with day 2 on the provider’s runbook.',
+    page: '/reference-architectures/',
+    pdf: 'https://get.turf.build/papers/turf-neocloud-reference-architecture.pdf?src=home-papers',
+    cover: '/papers/turf-neocloud-reference-architecture-cover.jpg',
+    alt: 'The cover of Metal to Tokens: the title over an isometric data hall, with the stack rising out of it, control planes to hardware, labelled as code.',
+  },
+  {
+    tagline: 'For platform engineers · 13 pages',
+    title: 'Pull Request to Production',
+    abstract:
+      'A reference architecture for Terraform delivery on GitHub Agentic Workflows, with an agent in the pipeline: the plan judged by a policy in plain language on every pull request, approved as that exact plan after the merge, verified from inside the apply, promoted by GitHub Environment.',
+    page: '/reference-architectures/pull-request-to-production/',
+    pdf: 'https://get.turf.build/papers/turf-pull-request-to-production.pdf?src=home-papers',
+    cover: '/papers/turf-pull-request-to-production-cover.jpg',
+    alt: 'The cover of Pull Request to Production: the title over a commit graph, with the pipeline’s stops, open, plan, comment, review, merge, apply, verify, promote, drawn along a branch merging into main.',
+  },
+];
+---
+
+<section class="band" id="papers">
+  <div class="wrap">
+    <div class="band-head">
+      <h2>Two reference architectures.</h2>
+      <p>Each one is a PDF to hand to a team: the problem as it stands, the architecture, and a worked
+        example with the agent’s own transcripts.</p>
+    </div>
+    <div class="papers">
+      {papers.map((p) => (
+        <article class="paper-card">
+          <a class="cover" href={p.pdf}>
+            <img src={p.cover} alt={p.alt} width="741" height="960" loading="lazy" decoding="async" />
+          </a>
+          <div>
+            <span class="tagline">{p.tagline}</span>
+            <h3>{p.title}</h3>
+            <p>{p.abstract}</p>
+            <p class="links">
+              <a href={p.page}>Read the page →</a>
+              <a href={p.pdf}>Download the PDF →</a>
+            </p>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

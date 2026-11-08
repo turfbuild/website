@@ -1,0 +1,91 @@
+---
+// Figure 1 of the kagent showcase (headquarters, branch kagent-paper, refarch-kagent.html), ported:
+// Turf and kagent 1.0 in one cluster. Left, kagent's namespace: the UI where a person approves, the
+// controller, and the Agent "turf". Middle, Agent Substrate: the agent's gVisor sandbox, which holds
+// no credential, and the egress gateway that adds the bearer token to every call. Right, everything
+// Turf: the MCP server, restate-server and the engine as a Knative RestateDeployment that scales from
+// zero, with the state as Secrets and Leases. Geometry is the paper's; fills and strokes are the
+// `.f-*`/`.s-*` utilities. Markers come from FigureDefs. Rendered once per page.
+---
+
+<svg class="fig kagent" viewBox="0 0 672 318" role="img" aria-label="Turf and kagent 1.0 in one cluster. kagent: the UI, the controller, and the Agent turf with its Harness, AgentTemplate, ModelConfig and RemoteMCPServers. Agent Substrate: the agent's gVisor sandbox on the WorkerPool in the kagent namespace, and the egress gateway in ate-system. turf: the MCP server, restate-server as a RestateCluster, and the engine as a RestateDeployment on Knative, from zero pods, with the state Secrets and Leases. Arrows: the person approves in the UI; the sandbox calls the MCP server through the gateway, which adds the bearer token; the server drives restate-server; restate-server calls the engine through Knative; the engine applies to the cluster.">
+  <text x="0" y="10" class="t-cap">TURF AND KAGENT 1.0, ONE CLUSTER</text>
+
+  <!-- ns kagent -->
+  <rect x="0.5" y="22.5" width="190" height="236" rx="12" class="f-panel2 s-hair"/>
+  <text x="14" y="40" class="t-cap">NS KAGENT</text>
+  <rect x="14.5" y="50.5" width="162" height="40" rx="7" class="f-panel s-hair"/>
+  <text x="26" y="67" class="t-name" style="font-size:10.5px">kagent UI</text>
+  <text x="26" y="81" class="t-mono">a person approves</text>
+  <circle cx="160" cy="70" r="9" class="f-inhbg s-inh"/>
+  <text x="160" y="73.5" text-anchor="middle" class="t-m9" style="fill:var(--inh)">✓</text>
+  <rect x="14.5" y="100.5" width="162" height="34" rx="7" class="f-panel s-hair"/>
+  <text x="26" y="116" class="t-name" style="font-size:10.5px">controller</text>
+  <text x="26" y="128" class="t-mono">A2A · MCP · discovery</text>
+  <rect x="14.5" y="144.5" width="162" height="102" rx="7" class="f-okbg s-ok"/>
+  <text x="26" y="161" class="t-name" style="font-size:10.5px; fill:var(--ok-deep)">Agent “turf”</text>
+  <text x="26" y="174" class="t-mono">Harness · AgentTemplate</text>
+  <text x="26" y="186" class="t-mono">ModelConfig · Sonnet 5.5</text>
+  <text x="26" y="200" class="t-mono" style="fill:var(--ok-deep)">RemoteMCPServer turf</text>
+  <text x="26" y="211" class="t-mono" style="fill:var(--ok-deep)">  headersFrom: turf-mcp-auth</text>
+  <text x="26" y="223" class="t-mono" style="fill:var(--ok-deep)">+ turf-k8s-reader (view)</text>
+  <text x="26" y="235" class="t-mono" style="fill:var(--ok-deep)">+ opentofu-registry</text>
+
+  <!-- Agent Substrate -->
+  <rect x="212.5" y="22.5" width="190" height="236" rx="12" class="f-panel2 s-hair"/>
+  <text x="226" y="40" class="t-cap">AGENT SUBSTRATE</text>
+  <rect x="226.5" y="50.5" width="162" height="84" rx="7" class="f-panel s-inh" stroke-dasharray="4 3"/>
+  <text x="238" y="67" class="t-name" style="font-size:10.5px">the agent’s sandbox</text>
+  <text x="238" y="81" class="t-mono">a Session · gVisor Actor</text>
+  <text x="238" y="94" class="t-mono">WorkerPool · ns kagent</text>
+  <rect x="238" y="104" width="138" height="20" rx="4" class="f-term"/>
+  <text x="245" y="117" class="t-m7" style="fill:var(--term-amber)">Authorization: (placeholder)</text>
+  <rect x="226.5" y="160.5" width="162" height="86" rx="7" class="f-panel s-hair"/>
+  <text x="238" y="177" class="t-name" style="font-size:10.5px">egress gateway</text>
+  <text x="238" y="191" class="t-mono">ns ate-system · default deny</text>
+  <text x="238" y="204" class="t-mono">the model · the MCP servers</text>
+  <rect x="238" y="214" width="138" height="20" rx="4" class="f-term"/>
+  <text x="245" y="227" class="t-m7" style="fill:var(--term-ok)">Authorization: Bearer ••••</text>
+
+  <!-- ns turf -->
+  <rect x="424.5" y="22.5" width="247" height="236" rx="12" class="f-panel2 s-hair"/>
+  <text x="438" y="40" class="t-cap">NS TURF · EVERYTHING TURF</text>
+  <rect x="438.5" y="50.5" width="219" height="34" rx="7" class="f-panel s-hair"/>
+  <text x="450" y="66" class="t-name" style="font-size:10.5px">turf-mcp-server</text>
+  <text x="450" y="78" class="t-mono">:3000/mcp · checks the bearer token</text>
+  <rect x="438.5" y="94.5" width="219" height="34" rx="7" class="f-panel s-hair"/>
+  <text x="450" y="110" class="t-name" style="font-size:10.5px">restate-server</text>
+  <text x="450" y="122" class="t-mono">RestateCluster “turf” · signs requests</text>
+  <rect x="438.5" y="138.5" width="219" height="58" rx="7" class="f-okbg s-ok"/>
+  <text x="450" y="154" class="t-name" style="font-size:10.5px; fill:var(--ok-deep)">turf-engine</text>
+  <text x="450" y="166" class="t-mono">RestateDeployment · Knative · providers here</text>
+  <g>
+    <rect x="450" y="174" width="12" height="12" rx="3" class="f-ok"/>
+    <rect x="466" y="174" width="12" height="12" rx="3" class="f-ok"/>
+    <rect x="482" y="174" width="12" height="12" rx="3" class="f-ok"/>
+    <rect x="498" y="174" width="12" height="12" rx="3" class="f-panel s-hair"/>
+    <rect x="514" y="174" width="12" height="12" rx="3" class="f-panel s-hair"/>
+  </g>
+  <text x="534" y="184" class="t-mono" style="fill:var(--ok-deep)">from zero, with the work</text>
+  <rect x="438.5" y="206.5" width="219" height="40" rx="7" class="f-panel s-hair"/>
+  <text x="450" y="222" class="t-name" style="font-size:10.5px">state</text>
+  <text x="450" y="236" class="t-mono">Secret tfstate-&lt;stack&gt;-turf · its Lease</text>
+
+  <!-- arrows -->
+  <path d="M177,70 H200 V92 H222" fill="none" class="s-inh" stroke-width="1.4" marker-end="url(#a-inh)"/>
+  <text x="182" y="62" class="t-mono" style="fill:var(--inh); font-size:7.2px">turns</text>
+  <line x1="307" y1="135" x2="307" y2="156" class="s-inh" stroke-width="1.4" marker-end="url(#a-inh)"/>
+  <text x="312" y="150" class="t-mono" style="fill:var(--inh); font-size:7.2px">every call</text>
+  <path d="M389,190 H410 V67 H434" fill="none" class="s-ok" stroke-width="1.6" marker-end="url(#a-ok)"/>
+  <line x1="548" y1="85" x2="548" y2="91" class="s-stroke" stroke-width="1.4" marker-end="url(#a-ink)"/>
+  <line x1="548" y1="129" x2="548" y2="135" class="s-stroke" stroke-width="1.4" marker-end="url(#a-ink)"/>
+  <path d="M658,67 H666 V226 H662" fill="none" class="s-stroke" stroke-width="1.2" marker-end="url(#a-ink)"/>
+  <line x1="307" y1="247" x2="307" y2="282" class="s-stroke" stroke-width="1.2" stroke-dasharray="3 3" marker-end="url(#a-ink)"/>
+  <rect x="252.5" y="284.5" width="110" height="28" rx="7" class="f-panel s-hair"/>
+  <text x="307" y="302" text-anchor="middle" class="t-mono">the model provider</text>
+  <line x1="548" y1="197" x2="548" y2="203" class="s-ok" stroke-width="1.4" marker-end="url(#a-ok)"/>
+  <path d="M600,247 V282" fill="none" class="s-ok" stroke-width="1.6" marker-end="url(#a-ok)"/>
+  <rect x="520.5" y="284.5" width="151" height="28" rx="7" class="f-ok"/>
+  <text x="596" y="302" text-anchor="middle" class="t-name" style="font-size:10px; fill:#fff">the cluster · any cloud API</text>
+  <text x="0" y="304" class="t-mono" style="fill:var(--faint); font-size:7.6px">No credential crosses into the sandbox.</text>
+</svg>
