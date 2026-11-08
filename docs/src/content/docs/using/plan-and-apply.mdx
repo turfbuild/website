@@ -1,0 +1,158 @@
+---
+title: Plan and apply by hand
+description: "Drive a run one call at a time: plan at the plan gate, read the plan at its approval point, then apply it by its digest, decline it, or cancel the run."
+sidebar:
+  order: 3
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import Conversation from '../../../components/Conversation.astro';
+import Example from '../../../components/Example.astro';
+import User from '../../../components/User.astro';
+import Agent from '../../../components/Agent.astro';
+import ToolResult from '../../../components/ToolResult.astro';
+
+Every Turf™ run is the same loop. A start verb stops at the round's plan gate; `plan` plans the round
+and stops at its approval point; `apply` with the plan's digest approves and applies that plan. At the
+approval point you can also decline the plan, and at any stage you can cancel the run.
+
+<Example path="terraform/kubernetes/kind-crd" />
+
+<Conversation>
+<User>Plan kind-crd, but don't apply anything yet.</User>
+<Agent calls={['up → awaiting_plan', 'plan → awaiting_approval']}>
+
+**Plan: 1 to add, 2 deferred to a later round.**
+
+```text
++ kind_cluster.demo
+    name: turf-crd-demo-1
+    node_image: kindest/node:v1.29.7
+```
+
+The CRD and the custom resource wait for the cluster's endpoint and plan in later rounds. The plan
+is waiting at its approval point; nothing is applied until you say so.
+
+</Agent>
+<User>Decline it. I want a newer node image first.</User>
+<Agent calls={['apply (decline) → declined']}>
+
+Declined: nothing was applied, and the workspace is free. Give me the image and I'll plan again with
+it as `node_image`.
+
+</Agent>
+<ToolResult tool="apply" outcome="declined">
+
+```text
+convergence_id: "…"   kind: up   ended: true
+outcome: declined
+rounds: [ { round: 1, status: "cancelled", planned: 3, deferred: 2, applied: 0 } ]
+```
+
+</ToolResult>
+</Conversation>
+
+<Tabs syncKey="surface">
+<TabItem label="In your agent">
+
+Ask for the step you want, in words:
+
+- "Plan it, but don't apply" stops at the approval point and shows you the plan.
+- "Apply it" approves that plan. The agent calls `apply` with the plan's digest.
+- "No" or "decline it" declines the plan. Nothing of it is applied.
+- "Cancel the run" ends it wherever it stands.
+
+The agent presents each plan in the same shape `/turf:up` uses and asks "Ready to apply these
+changes?" for anything that is not low-risk. It never resends an old digest: if the run now waits on
+another plan, it reads that plan and asks again.
+
+</TabItem>
+<TabItem label="Turf CLI">
+
+```sh
+cd path/to/config && turf up
+```
+
+At a terminal the CLI's agent asks at each approval point; answer no and it declines the plan. For a
+step-by-step session, use `turf chat` in the configuration directory and ask for each step as you would
+in your own agent.
+
+</TabItem>
+</Tabs>
+
+## How it works
+
+**The plan gate.** `up`, `destroy`, `refresh`, `import` and `invoke` each start a convergence and stop
+at round 1's plan gate (`awaiting_plan`), with nothing planned. Each `apply` that leaves work deferred
+stops at the next round's plan gate.
+
+**`plan`** plans the round and stops at its approval point (`awaiting_approval`). The result carries the
+plan's counts, its resource (`plan.uri`: OpenTofu™'s JSON plan, as `tofu show -json` prints it,
+sensitive values redacted) and its digest (`plan.digest`). `show` reads the document. `refresh` and
+`replace` are that round's options alone. A round with nothing to apply needs no approval: `plan` runs
+it through to the next plan gate or the end.
+
+**`apply` with the digest is the approval**, of that plan and no other. A digest of any other plan is
+refused, and nothing is applied. The apply stops at the next round's plan gate, at a turf action
+(`awaiting_actions`), or at the run's end.
+
+**Decline** with `apply` and `decline: true` (and a `reason`, recorded on the round). Nothing of the
+plan is applied, the run ends `declined`, and the workspace is free. Calling neither `apply` nor
+decline leaves the paused run holding the state lock.
+
+**Cancel** with `cancel` and a `cause`. It names the run by its workspace (`workspace_alias`), never by
+a `convergence_id`, and works at any stage. What is in flight finishes, nothing new starts, and the run
+ends `cancelled`. A cancel still finishing at the server's deadline returns with `cancelling: true`;
+`apply` with the run's `convergence_id` follows it to its end.
+
+**The server's deadline.** Every call returns within it. A long plan or apply comes back `planning` or
+`applying` with `ended: false`: the run goes on in the engine, and `next` names the call that follows
+it.
+
+**`rounds[].approval`** records how each round's plan came to be applied: `asked`, `unneeded` (nothing
+to consent to) or `planfile`.
+
+<Aside type="caution" title="Never edit between plan and apply">
+The engine re-reads the configuration before applying. If a file the plan parsed changed, the run ends
+`stale` and nothing is applied. Run `up` again and review the new plan.
+</Aside>
+
+## Arguments
+
+`plan`:
+
+| Argument | Meaning |
+|---|---|
+| `convergence_id` | The run, from any of its results. Omit it to name the run by its workspace. |
+| `workspace_alias` | Without `convergence_id`: the workspace whose run to plan. Omit it for the default. |
+| `refresh` | Read each managed object first (default `true`); `false` plans against the state as recorded. This round only. |
+| `replace` | Addresses to replace in this round, as `tofu plan -replace`. An `up`'s plan only. |
+
+`apply`:
+
+| Argument | Meaning |
+|---|---|
+| `convergence_id` | The run that vended the plan or listed the turf actions. To approve or pick up a run it may be omitted for the workspace it holds; `decline` and `action_results` need it. |
+| `workspace_alias` | Without `convergence_id`: the workspace whose run to continue. |
+| `plan_digest` | `plan.digest` from the result that vended the plan: the plan you approve. |
+| `decline` | At `awaiting_approval`: decline instead. Never with `plan_digest` or `action_results`. |
+| `reason` | With `decline`: why, recorded on the round. |
+| `action_results` | At `awaiting_actions`: a result for every open request, by key. See [Answering a turf action](/docs/using/turf-actions/). |
+| `planfile` | Apply a planfile instead, with its digest. See [Plan now, apply later](/docs/using/planfiles/). |
+
+With no digest, no decline and no results, `apply` answers nothing: a run waiting at a plan gate or an
+approval point is handed back as it stands, and one planning or applying is followed.
+
+`cancel`:
+
+| Argument | Meaning |
+|---|---|
+| `workspace_alias` | The workspace whose run to stop. Omit it for the default. |
+| `cause` | Why, recorded on the run. |
+
+## Related
+
+- [Deploy or update with up](/docs/using/up/)
+- [Policy checks on a plan](/docs/using/policy/): read the plan document before you approve it.
+- [Approval](/docs/concepts/approval/)
+- [When something goes wrong](/docs/using/troubleshooting/)

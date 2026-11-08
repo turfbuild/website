@@ -1,0 +1,208 @@
+/* turf.build/docs — brand over Starlight.
+   The tokens are the marketing site's (website/src/styles/global.css :root); they are mapped onto
+   Starlight's --sl-color-* properties here, so the docs read as turf.build. Starlight themes with
+   :root (dark) and :root[data-theme='light']; both blocks below must carry every token. */
+
+@font-face {
+  font-family: 'Schibsted Grotesk';
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url('/docs/fonts/schibsted-grotesk.woff2') format('woff2');
+}
+
+:root {
+  /* turf tokens, dark */
+  --ground: #0e1614; --panel: #141f1c; --panel-2: #18251f;
+  --ink: #e7efeb; --muted: #9baba4; --faint: #6d7f78;
+  --hair: #263531; --hair-strong: #32453f;
+  --ok: #52c88a; --ok-bg: #123023; --ok-deep: #6fdba1;
+  --part: #e0b657; --part-bg: #332a12;
+  --inh: #78b0dd; --inh-bg: #142737;
+  --term-bg: #0b120f; --term-ink: #d9e5df; --term-muted: #7d8f88;
+  --term-ok: #5fd398; --term-amber: #e0b657; --term-blue: #6fb2e6; --term-violet: #b48ead;
+  --fig-stroke: #9baba4;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px -14px rgba(0,0,0,.6);
+  --mono: ui-monospace, "SF Mono", "SFMono-Regular", "Menlo", "Consolas", monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --display: 'Schibsted Grotesk', var(--sans);
+
+  /* Starlight */
+  --sl-font: var(--sans);
+  --sl-font-system-mono: var(--mono);
+  --sl-color-accent-low: var(--ok-bg);
+  --sl-color-accent: var(--ok);
+  --sl-color-accent-high: var(--ok-deep);
+  --sl-color-white: var(--ink);
+  --sl-color-gray-1: #d9e5df;
+  --sl-color-gray-2: var(--muted);
+  --sl-color-gray-3: var(--faint);
+  --sl-color-gray-4: var(--hair-strong);
+  --sl-color-gray-5: var(--hair);
+  --sl-color-gray-6: var(--panel);
+  --sl-color-gray-7: var(--panel-2);
+  --sl-color-black: var(--ground);
+  --sl-color-text: var(--ink);
+  --sl-color-text-accent: var(--ok-deep);
+  --sl-color-bg: var(--ground);
+  --sl-color-bg-nav: var(--ground);
+  --sl-color-bg-sidebar: var(--ground);
+  --sl-color-bg-inline-code: color-mix(in srgb, var(--ink) 8%, transparent);
+  --sl-color-hairline-light: var(--hair);
+  --sl-color-hairline: var(--hair);
+  --sl-color-hairline-shade: var(--hair-strong);
+  --sl-shadow-sm: var(--shadow);
+  --sl-shadow-md: var(--shadow);
+  --sl-shadow-lg: var(--shadow);
+}
+:root[data-theme='light'] {
+  --ground: #f2f5f3; --panel: #ffffff; --panel-2: #f8faf9;
+  --ink: #14201d; --muted: #566863; --faint: #849790;
+  --hair: #dde5e1; --hair-strong: #c9d4cf;
+  --ok: #147a48; --ok-bg: #e4f1e9; --ok-deep: #0f5f38;
+  --part: #9a6c06; --part-bg: #f6ecd5;
+  --inh: #2a6395; --inh-bg: #dfeaf3;
+  --term-bg: #101a17; --term-ink: #d9e5df; --term-muted: #7d8f88;
+  --fig-stroke: #566863;
+  --shadow: 0 1px 2px rgba(20,32,29,.05), 0 8px 24px -12px rgba(20,32,29,.12);
+
+  --sl-color-accent-low: var(--ok-bg);
+  --sl-color-accent: var(--ok);
+  --sl-color-accent-high: var(--ok-deep);
+  --sl-color-white: var(--ink);
+  --sl-color-gray-1: #2b3a36;
+  --sl-color-gray-2: var(--muted);
+  --sl-color-gray-3: var(--faint);
+  --sl-color-gray-4: var(--hair-strong);
+  --sl-color-gray-5: var(--hair);
+  --sl-color-gray-6: var(--panel-2);
+  --sl-color-gray-7: var(--panel);
+  --sl-color-black: var(--ground);
+  --sl-color-text: var(--ink);
+  --sl-color-text-accent: var(--ok-deep);
+  --sl-color-bg: var(--ground);
+  --sl-color-bg-nav: var(--panel);
+  --sl-color-bg-sidebar: var(--ground);
+  --sl-color-bg-inline-code: color-mix(in srgb, var(--ink) 6%, transparent);
+  --sl-color-hairline-light: var(--hair);
+  --sl-color-hairline: var(--hair);
+  --sl-color-hairline-shade: var(--hair-strong);
+}
+
+/* type */
+.sl-markdown-content h1, .sl-markdown-content h2, .sl-markdown-content h3, .sl-markdown-content h4,
+h1, .hero h1, .hero .tagline, .site-title, .turf-sitetitle {
+  font-family: var(--display);
+  letter-spacing: -.015em;
+}
+.sl-markdown-content h2 { font-weight: 800; }
+.sl-markdown-content h3 { font-weight: 700; }
+.sl-markdown-content { font-size: 15.5px; line-height: 1.6; }
+.sl-markdown-content :is(p, li) code { font-size: .86em; padding: .1em .4em; border-radius: 5px; }
+.sl-markdown-content table { font-size: 14px; }
+.sl-markdown-content th { font-weight: 600; color: var(--muted); font-size: 12.5px; text-transform: uppercase; letter-spacing: .06em; }
+.sl-markdown-content :is(th, td) { border-color: var(--hair); }
+.sl-markdown-content tr:nth-child(2n) { background: transparent; }
+.sl-markdown-content hr { border-color: var(--hair); }
+
+/* header */
+.turf-sitetitle { display: inline-flex; align-items: baseline; gap: 10px; }
+.turf-sitetitle .wordmark { display: inline-flex; align-items: center; gap: 9px; font-family: var(--display); font-weight: 800; font-size: 21px; letter-spacing: -.02em; color: var(--ink); text-decoration: none; }
+.turf-sitetitle .wordmark .mark { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 7px; background: var(--ok); color: #fff; font-family: var(--mono); font-size: 16px; font-weight: 700; line-height: 1; padding-bottom: 1px; }
+:root:not([data-theme='light']) .turf-sitetitle .wordmark .mark { color: #0e1614; }
+.turf-sitetitle .wordmark .tld { color: var(--faint); font-weight: 500; }
+.turf-sitetitle .docs { font-family: var(--display); font-weight: 600; font-size: 17px; color: var(--muted); text-decoration: none; }
+.turf-sitetitle .docs:hover { color: var(--ink); }
+
+/* footer fineprint */
+.turf-fineprint { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--hair); font-size: 12px; color: var(--faint); line-height: 1.5; }
+.turf-fineprint p { margin: 0 0 .5rem; }
+.turf-fineprint a { color: var(--muted); }
+
+/* pills: Since 1.x, coming soon */
+.pill { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 700; padding: 2px 8px; border-radius: 999px; border: 1px solid transparent; vertical-align: middle; line-height: 1.5; }
+.pill.since { color: var(--inh); background: var(--inh-bg); border-color: color-mix(in srgb, var(--inh) 24%, transparent); }
+.pill.soon { color: var(--part); background: var(--part-bg); border-color: color-mix(in srgb, var(--part) 24%, transparent); }
+
+/* conversation */
+.convo { border: 1px solid var(--hair-strong); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); background: var(--inh-bg); padding: 14px 16px 10px; display: flex; flex-direction: column; gap: 10px; margin: 1.25rem 0; }
+.convo-head { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--inh); font-weight: 600; }
+.convo-head .av { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--panel); border: 1px solid var(--inh); font-size: 12px; }
+.convo-head .tag { margin-left: auto; font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--inh); }
+.convo .turn { display: grid; grid-template-columns: 48px 1fr; gap: 10px; align-items: start; }
+.convo .who { font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--inh); padding-top: 12px; }
+.convo .turn.user .who { color: var(--muted); }
+.convo .msg { background: var(--panel); border: 1px solid color-mix(in srgb, var(--inh) 35%, transparent); border-radius: 12px; padding: 10px 14px; font-size: 14px; color: var(--ink); min-width: 0; }
+.convo .turn.user .msg { background: var(--panel-2); border-color: var(--hair-strong); }
+.convo .msg > :first-child { margin-top: 0; }
+.convo .msg > :last-child { margin-bottom: 0; }
+.convo .msg p { margin: 0 0 8px; }
+.convo .msg pre { font-size: 12.5px; margin: 8px 0; }
+.convo .msg code:not(pre code) { font-size: 12px; }
+.convo .body { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.convo .calls { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.convo .calls li { display: inline-flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 11.5px; color: var(--muted); background: var(--panel); border: 1px solid var(--hair-strong); border-radius: 999px; padding: 2px 9px; }
+.convo .calls code { background: none; padding: 0; color: var(--ink); font-weight: 600; font-size: 11.5px; }
+.convo .calls .arrow { color: var(--faint); }
+.convo .calls .outcome { color: var(--ok-deep); }
+.convo .result { grid-column: 2; margin: 0; }
+.convo .turn .result { grid-column: auto; }
+.convo .result summary { cursor: pointer; font-family: var(--mono); font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 8px; list-style: none; }
+.convo .result summary::-webkit-details-marker { display: none; }
+.convo .result summary::before { content: '▸'; color: var(--faint); }
+.convo .result[open] summary::before { content: '▾'; }
+.convo .result .lab { font-size: 10.5px; letter-spacing: .12em; color: var(--faint); }
+.convo .result b { color: var(--ink); }
+.convo .result i { color: var(--part); font-style: normal; }
+.convo .result .arrow { color: var(--faint); }
+.convo .report-body { margin: 6px 0 0; }
+.convo .report-body > * { margin: 0; }
+.convo .report-body .expressive-code { margin: 0; }
+.convo .report-body pre { font-size: 12.5px; line-height: 1.6; }
+.convo-note { margin: 2px 0 0; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.sl-markdown-content .convo > :not(:first-child) { margin-top: 0; }
+
+/* stills: click to enlarge (popover, no script) */
+.still-fig { margin: 1.25rem 0; }
+.still { display: block; width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--hair-strong); box-shadow: var(--shadow); background: var(--term-bg); }
+.still-btn { all: unset; display: block; width: 100%; box-sizing: border-box; cursor: zoom-in; position: relative; border-radius: 12px; }
+.still-btn:focus-visible { outline: 2px solid var(--ok); outline-offset: 3px; }
+.still-zoom { position: absolute; right: 10px; bottom: 10px; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 8px; background: color-mix(in srgb, var(--term-bg) 72%, transparent); color: var(--term-ink); font-size: 15px; pointer-events: none; }
+.stillcap { margin: 10px 0 0; font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.lightbox { border: 0; padding: 0; margin: auto; background: var(--panel); color: var(--ink); border-radius: 14px; box-shadow: var(--shadow); width: min(96vw, 1600px); max-height: 94vh; overflow: auto; }
+.lightbox::backdrop { background: rgb(0 0 0 / .72); }
+.lightbox img { display: block; width: 100%; height: auto; }
+.lightbox .lb-cap { margin: 0; padding: 10px 14px 12px; font-size: 13px; color: var(--muted); }
+.lb-close { all: unset; position: sticky; top: 8px; float: right; margin: 8px 8px -36px 0; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; background: var(--panel); color: var(--ink); border: 1px solid var(--hair-strong); cursor: pointer; font-size: 18px; line-height: 1; z-index: 1; }
+.lb-close:focus-visible { outline: 2px solid var(--ok); }
+
+/* landing */
+.hero .tagline { color: var(--muted); }
+.card .title { font-family: var(--display); }
+
+/* asides and badges on the brand tokens (Starlight's defaults are saturated blues and oranges) */
+:root {
+  --sl-color-blue-low: var(--inh-bg); --sl-color-blue: var(--inh); --sl-color-blue-high: color-mix(in srgb, var(--inh) 70%, var(--ink));
+  --sl-color-green-low: var(--ok-bg); --sl-color-green: var(--ok); --sl-color-green-high: var(--ok-deep);
+  --sl-color-orange-low: var(--part-bg); --sl-color-orange: var(--part); --sl-color-orange-high: color-mix(in srgb, var(--part) 70%, var(--ink));
+  --sl-color-purple-low: var(--inh-bg); --sl-color-purple: var(--inh); --sl-color-purple-high: color-mix(in srgb, var(--inh) 70%, var(--ink));
+}
+.starlight-aside { border-radius: 10px; }
+.example-link { font-size: 13.5px; color: var(--muted); margin: 0 0 .75rem; }
+.example-link code { font-size: 12.5px; }
+
+/* figures: inline SVG (components/figures/*), the website's classes; fills and strokes are tokens */
+.docfig { margin: 1.5rem 0; }
+.fig { display: block; width: 100%; height: auto; overflow: visible; }
+.t-name { font-family: var(--display); font-weight: 700; font-size: 11.5px; fill: var(--ink); }
+.t-mono { font-family: var(--mono); font-size: 8.6px; fill: var(--muted); }
+.t-sans { font-family: var(--sans); font-size: 9.6px; fill: var(--ink); }
+.t-cap { font-family: var(--mono); font-size: 7.6px; letter-spacing: .14em; fill: var(--faint); }
+.f-ok { fill: var(--ok); } .f-okbg { fill: var(--ok-bg); } .f-okdeep { fill: var(--ok-deep); }
+.f-inh { fill: var(--inh); } .f-inhbg { fill: var(--inh-bg); }
+.f-panel { fill: var(--panel); } .f-panel2 { fill: var(--panel-2); }
+.f-ink { fill: var(--ink); } .f-stroke { fill: var(--fig-stroke); } .f-none { fill: none; }
+.s-ok { stroke: var(--ok); } .s-inh { stroke: var(--inh); } .s-hair { stroke: var(--hair-strong); } .s-stroke { stroke: var(--fig-stroke); }
+.figcap { margin: 10px 0 0; font-size: 13px; color: var(--muted); }
+.figcap b { color: var(--ink); font-weight: 600; }
+@media (max-width: 560px) { .docfig { overflow-x: auto; } .docfig .fig { min-width: 600px; } }

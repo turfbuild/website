@@ -1,0 +1,147 @@
+---
+title: Images
+description: "One Turf image runs the MCP server, the engine and the console. Configuration images carry a configuration, and restate-server comes from Restate's image."
+sidebar:
+  order: 2
+---
+
+
+A cluster deployment of Turf™ pulls from three places:
+
+- **`ghcr.io/turfbuild/turf-mcp-server`**, Turf's image. It runs the MCP server, the engine and the
+  console, each with its own command.
+- **A configuration image** per configuration, if you ship configurations that way: the configuration
+  directory and nothing else.
+- **`docker.io/restatedev/restate`**, Restate's image, for restate-server. The Restate operator's chart
+  is optional.
+
+## The Turf image
+
+`ghcr.io/turfbuild/turf-mcp-server` is published for `linux/amd64` and `linux/arm64`, tagged with each
+release (`v1.4.0`) and `latest`. It is built on Alpine with `ca-certificates` and `git`, and runs as a
+non-root user, `turf`, whose home is `/home/turf`. Four binaries sit at its root:
+
+| Binary | What it is |
+|---|---|
+| `/turf-mcp-server` | the MCP server, the image's default |
+| `/turf-engine` | the engine |
+| `/turf-builtin-provider` | the engine's built-in provider, beside the engine, where the engine looks for it |
+| `/turf-ui` | the console |
+
+The entrypoint, `/docker-entrypoint.sh`, picks one by its first argument: `turf-engine` runs the
+engine, `turf-ui` runs the console, and anything else runs the server with those arguments. Both
+examples name the binary directly instead:
+
+```yaml
+# The MCP server: the image's default command.
+args: [--transport=http, --addr=:3000]
+---
+# The engine.
+command: ["/turf-engine"]
+---
+# The console.
+command: ["/turf-ui"]
+```
+
+Keep the three tags equal: the server, the engine and the console are one release. The image carries
+no restate-server.
+
+The image sets `TURF_DEPLOYMENT=container`, so usage telemetry reports the engine as a container
+deployment. `TURF_TELEMETRY=off` or `DO_NOT_TRACK=1` in the engine's environment turns telemetry off
+for that engine.
+
+### Verify the image
+
+The image is signed with cosign (keyless, through GitHub's OIDC issuer) and carries build provenance,
+a CycloneDX SBOM and an OpenVEX disposition, all recorded in the public Rekor transparency log. Verify
+the signature and the SBOM attestation before you deploy:
+
+```sh
+IMAGE=ghcr.io/turfbuild/turf-mcp-server:v1.4.0
+ID='^https://github.com/turfbuild/turf-mcp-server/'
+ISS=https://token.actions.githubusercontent.com
+
+# the signature
+cosign verify "$IMAGE" \
+  --certificate-identity-regexp "$ID" --certificate-oidc-issuer "$ISS"
+
+# the SBOM attestation
+cosign verify-attestation --type cyclonedx "$IMAGE" \
+  --certificate-identity-regexp "$ID" --certificate-oidc-issuer "$ISS"
+```
+
+## Configuration images
+
+A configuration image is one configuration directory at the root of an otherwise empty OCI image.
+Nothing runs in it. Mounted read-only as a Kubernetes® [image
+volume](https://kubernetes.io/docs/tasks/configure-pod-container/image-volumes/) where the server and
+the engine read the configuration, it is exactly the configuration that was tagged, and nothing has
+to be shared between the pods that read it.
+
+```yaml
+volumes:
+  - name: configuration
+    image:
+      reference: ghcr.io/turfbuild/turf-examples/kubernetes-in-cluster:1.0.0
+      pullPolicy: IfNotPresent
+```
+
+The turf-examples repository publishes its configurations this way. Pushing a tag
+`terraform/<path>/vX.Y.Z` publishes `terraform/<path>` as
+`ghcr.io/turfbuild/turf-examples/<path>:X.Y.Z`, the path's slashes as dashes, for `linux/amd64` and
+`linux/arm64`:
+
+```sh
+git tag -s terraform/kubernetes/in-cluster/v1.0.0 -m "kubernetes/in-cluster 1.0.0"
+git push origin terraform/kubernetes/in-cluster/v1.0.0
+# → ghcr.io/turfbuild/turf-examples/kubernetes-in-cluster:1.0.0
+```
+
+The image is two lines, built with the configuration directory as its context:
+
+```dockerfile
+FROM scratch
+COPY . /
+```
+
+A configuration published this way:
+
+- **declares no backend**, so whoever runs it names one when it opens a workspace. It must be a
+  remote one: nothing can write a statefile beside a read-only configuration.
+- **commits its lock file**, `.terraform.lock.hcl`, complete for every platform it runs on, since
+  nothing can write it where the image is mounted:
+
+  ```sh
+  tofu -chdir=terraform/kubernetes/in-cluster providers lock \
+    -platform=linux_amd64 -platform=linux_arm64 -platform=darwin_arm64 -platform=darwin_amd64
+  ```
+
+- **is never re-tagged.** A change is a new version. In production, pin the image by its digest;
+  the turf-examples workflow prints it in the run's summary.
+
+The first publish of a new name on GHCR creates a private package. Make it public once in the
+package's settings, or give the pods that mount it an `imagePullSecrets` entry.
+
+Knative admits image volumes only with its `kubernetes.podspec-volumes-image` feature enabled (see
+[the operator variant](/docs/cluster/manifests/#restate-server-and-the-engine)).
+
+## restate-server and the Restate operator
+
+restate-server comes from Restate's own image, `docker.io/restatedev/restate`. The engine needs 1.7.7
+or later with flow control on, which 1.8 builds in, and Turf is tested against 1.8.1. Set
+`RESTATE_EXPERIMENTAL_ENABLE_PREFLIGHT_SIGNAL_RECORDING=true` on 1.8.1: it keeps a signal sent to an
+invocation that has not started yet. It is one-way: once a node has run with it, its data cannot go
+back to a release before 1.8.1.
+
+The Restate operator is optional. It runs restate-server from a `RestateCluster`, and registers,
+versions and drains the engine from a `RestateDeployment`. Its CRDs come with its Helm® chart:
+
+```sh
+helm upgrade --install restate-operator oci://ghcr.io/restatedev/restate-operator-helm \
+  --version 3.2.0 \
+  --namespace restate-operator --create-namespace \
+  --wait --timeout 5m
+```
+
+turf-kagent is tested with the operator at 3.2.0 and restate-server 1.8.1. On an operator upgrade,
+check its release notes: a CRD change may need applying before the new image rolls out.

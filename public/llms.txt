@@ -24,6 +24,20 @@ its own credentials and its own permission tier (`--tier read|plan|apply|full`),
 use, requires a license (https://turf.build/licensing/). Some capabilities are marked coming soon
 on the site.
 
+## Documentation
+
+The Turf docs are at https://turf.build/docs/ (one current version; features that arrived after 1.0 carry a "Since 1.x" badge):
+
+- [Start here](https://turf.build/docs/start/what-turf-is/): what Turf is, install locally, connect your agent, your first run, install in a cluster.
+- [Concepts](https://turf.build/docs/concepts/overview/): the vocabulary (configuration, workspace, convergence, round, plan gate, approval point, turf action, planfile, overlay, backend), rounds and deferrals, approval, turf actions, the engine and the console, the safety rules.
+- [Using Turf](https://turf.build/docs/using/up/): one page per task: up, destroy, plan and apply by hand, refresh, import, invoke, workspaces, variables, planfiles, turf actions, state, troubleshooting, policy checks.
+- [Provider environment and credentials](https://turf.build/docs/environment/where-credentials-are-read/): providers read the engine's environment, variables and the backend read the server's; the engine's environment, mise, registries and mirrors, state encryption, workload identity (coming soon).
+- [Authoring configurations](https://turf.build/docs/authoring/writing-with-an-agent/): writing .tf files with an agent, providers, variables, data sources, lifecycle, actions and overlays, differences from Terraform.
+- [The Turf CLI](https://turf.build/docs/cli/overview/): chat, up and destroy, exec, login, console, flags, models and turf.yaml, skills, theming.
+- [Running Turf in a cluster](https://turf.build/docs/cluster/topology/): topology, images, minimal manifests, credentials, connecting clients, the console, upgrading, an agent in the cluster with kagent.
+- [MCP reference](https://turf.build/docs/reference/server/): the server and its flags, the result shape, every tool, the prompts, the resources, the skills and their reference files, the server instructions, the Claude Code slash commands. Generated from the shipping server.
+- [Release notes](https://turf.build/docs/releases/1-4/): 1.0 to 1.4.
+
 ## Start here
 
 - [Use cases](https://turf.build/use-cases/): five things people build with Turf, each with its day 1 and day 2: GPU clouds from metal to tokens, managed services on Kubernetes fleets, products that install themselves, the ultimate infrastructure agent, and pull request to production, Terraform CI/CD with an agent in the pipeline.

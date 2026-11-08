@@ -1,0 +1,20 @@
+---
+// One turn from the agent inside a <Conversation>. `calls` lists the Turf tool calls it made before
+// speaking, each "tool → outcome" (e.g. "up → awaiting_plan"); they render as chips above the message.
+interface Props { calls?: string[] }
+const { calls = [] } = Astro.props;
+---
+<div class="turn agent">
+  <span class="who">Agent</span>
+  <div class="body">
+    {calls.length > 0 && (
+      <ul class="calls" aria-label="Turf tool calls">
+        {calls.map((c) => {
+          const [tool, outcome] = c.split('→').map((s) => s.trim());
+          return (<li><code>{tool}</code>{outcome && <span class="arrow">→</span>}{outcome && <span class="outcome">{outcome}</span>}</li>);
+        })}
+      </ul>
+    )}
+    <div class="msg"><slot /></div>
+  </div>
+</div>

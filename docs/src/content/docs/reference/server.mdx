@@ -1,0 +1,190 @@
+---
+title: The server
+description: Run turf-mcp-server over stdio or HTTP, choose its permission tier, point it at an engine, and set its deadline, logging and console. Every flag is listed.
+---
+
+
+`turf-mcp-server` is the Turf™ MCP server: the binary your agent starts. This page shows how to choose
+how it is reached, which tools it lists and which engine it drives. Every flag, with its environment
+variable, is in the [table at the end](#flags-and-environment-variables).
+
+```sh
+turf-mcp-server                      # MCP over stdio: every tool, the local engine
+turf-mcp-server --transport http     # MCP over HTTP on 127.0.0.1:3000
+turf-mcp-server --tier plan          # list only what a plan-tier server may call
+turf-mcp-server --version            # the version, then the license line
+```
+
+An agent's MCP configuration starts it with no arguments: see [Connect your agent](/docs/start/connect/).
+Where a flag has an environment variable, the variable sets the flag's default and a flag given on the
+command line wins.
+
+## Transports
+
+**stdio** is the default. The client starts the server as a child process and speaks MCP over its
+standard input and output.
+
+**HTTP** is `--transport http`. The server serves MCP's Streamable HTTP transport at `/mcp` on
+`--addr`, `127.0.0.1:3000` by default, so a client connects to `http://127.0.0.1:3000/mcp`. The default
+binds loopback only. Over HTTP the server also offers subscriptions to its
+[resources](/docs/reference/resources/); over stdio it does not.
+
+The HTTP endpoint is open to whoever can reach it. To require a bearer token, set
+`TURF_MCP_AUTH_TOKEN` in the server's environment:
+
+- Every request must then send `Authorization: Bearer <token>`. Any other request gets `401`.
+- The token is read only from the environment, so it stays out of the process list. It must be
+  printable ASCII with no whitespace, or the server refuses to start.
+- Set it whenever anything you do not trust can reach the port: a CI runner where the agent's container
+  shares the network with the server, or a bind other than loopback.
+- The endpoint has no TLS. The token crosses the network in cleartext, so keep the path to the server
+  private.
+- The stdio transport ignores it.
+
+A non-loopback `--addr` without a token is served, with a warning in the log.
+
+## Tiers
+
+`--tier` (`TURF_TIER`) decides which tools the server lists and what their arguments may do. A
+credential handed to a server buys its tier's calls and no other. The default is `full`.
+
+| Tier | Tools it lists | What it may do |
+|---|---|---|
+| `read` | `init`, `open`, `close`, `status`, `list`, `show`, `output`, `state_list`, `provider_search`, `provider_describe`, `skill_deployment`, `skill_authoring`, `skill_guide`, `read_skill_file` | Read workspaces, states, plans, outputs and the provider registry. Nothing runs: `init`, `open` and `close` only bind the workspace a read needs. |
+| `plan` | the `read` tools, plus `up`, `destroy`, `refresh`, `import`, `invoke`, `plan`, `cancel` | Start runs, every one `plan_only`: it ends `planned`, with a planfile for an applier. `cancel` stops a convergence before its apply begins. |
+| `apply` | the `read` tools, plus `apply`, `cancel` | Apply a planfile, or approve a plan waiting at its approval point. It starts no run of its own. |
+| `full` | every tool: the above, plus `taint`, `untaint`, `delete` | Everything, `open`'s `force_unlock` included. |
+
+The `read` tier lists 14 tools, `plan` 21, `apply` 16 and `full` 25. Each tool's page says which tiers
+list it: [Tools](/docs/reference/tools/init/).
+
+Tiers split planning from applying. A plan-tier server plans and keeps each plan as a planfile; an
+apply-tier server, run with its own credentials, applies it: `apply` with `workspace_alias`, `planfile`
+and `plan_digest`. See [Planfiles](/docs/reference/skills/deployment/planfiles/).
+
+The tier also shows in what the agent is offered:
+
+- The `up` and `destroy` [prompts](/docs/reference/prompts/) are listed at the `plan` and `full` tiers
+  only. `guide` is listed at every tier.
+- At the `read`, `plan` and `apply` tiers the [server instructions](/docs/reference/instructions/) gain a
+  section that names the tier and what it can do.
+
+## The engine
+
+Plans and applies run in the **Turf engine**, a separate process the server drives. `--restate-url`
+(`TURF_RESTATE_URL`) names its restate-server ingress: an `http(s)` URL such as
+`http://127.0.0.1:8080`, or `unix:<socket path>`.
+
+Left empty, the server uses this user's **local engine**: a restate-server, turf-engine and the console
+(turf-ui) in `$TURF_HOME/engine`, by default `~/.turf/engine`. The `turf` Homebrew service runs it
+(`brew services start turf`); without Homebrew, run `turf-mcp-server engine run` in a terminal. Every
+server on the machine shares it, and a convergence waits in it between sessions.
+
+- **The server never starts the engine.** It connects whenever it needs one, so an engine started after
+  the server is still found. Without one, plan and apply fail and say `brew services start turf`.
+- **`init`, the provider tools and the skills work without an engine.** At startup an engine that cannot
+  be reached is only a warning in the log. An engine the server cannot drive stops it.
+- **Providers run in the engine**, with the engine's environment, not the server's. See
+  [Where credentials are read](/docs/environment/where-credentials-are-read/).
+
+`--scopes` (`TURF_ENGINE_SCOPES`, `on` or `off`, default `on`) sets flow-control scopes. It must match
+the engine's own `--scopes`, which the server checks when it connects. The local engine runs with
+scopes on, so `--scopes off` needs `--restate-url`.
+
+### engine subcommands
+
+`turf-mcp-server engine` manages the local engine:
+
+| Command | What it does |
+|---|---|
+| `engine run` | Runs the local engine in the foreground until interrupted. The Homebrew service runs this. |
+| `engine status` | Where the engine listens, whether it answers, its version, the console's address and its logs. After a minor upgrade it also shows the previous line's engine while that drains. |
+| `engine console [--print] [url]` | Signs this browser in to the console, once, so only you can open it. `url` is a console link to land on. `--print` prints the sign-in link instead of opening it. `turf console` runs this. |
+
+## Working directory: --workdir
+
+The engine reads each configuration itself. The local engine, and any engine that mounts the
+configuration at the same path as the server, needs nothing set: it reads the path the server names.
+
+When an engine of your own mounts the configuration elsewhere, such as in a pod, set the server's
+`--workdir` (`TURF_WORKDIR`) and `turf-engine --workdir`. Set both or neither, each to the directory
+holding the same layout. The engine is told each configuration's path below the server's directory and
+reads it below its own.
+
+- Mount the configuration, and everything it reaches by a relative path, the same way under both.
+- Every configuration must then be under `--workdir`: `init` refuses one outside it, and a relative
+  `init` path resolves against it.
+- The server refuses `--workdir` against the local engine: it needs `--restate-url`.
+
+## The deadline
+
+`--deadline` (`TURF_DEADLINE`, default `55s`) caps how long a convergence call (`up`, `destroy`,
+`refresh`, `import`, `invoke`, `plan`, `apply`, `cancel`) runs. At the deadline the call returns the stage
+the convergence is at, `planning` or `applying`, with `ended: false` and `next` naming the call that
+follows. The convergence goes on in the engine. See [Result shape](/docs/reference/result-shape/).
+
+The default sits under the MCP TypeScript SDK's 60-second request timeout. A client with no cap of its
+own can set it longer. `0` disables it. A `TURF_DEADLINE` that does not read as a duration (`55s`, `5m`
+or `0`) stops the server before it serves.
+
+## Logging
+
+| Flag | Default |
+|---|---|
+| `--log-file` | stderr, or `$TF_LOG_PATH` |
+| `--log-level` | `trace`, `debug`, `info`, `warn`, `error` or `off`: `$TF_LOG_CORE` or `$TF_LOG`, else `info` |
+| `--log-format` | `text` or `json`: `text`, or JSON when `$TF_LOG` ends in `-JSON` |
+
+## Provider plugin cache
+
+`--plugin-cache-dir` (`TF_PLUGIN_CACHE_DIR`) is the shared provider plugin cache, kept across runs and
+reusable by `tofu`. It is the same directory the engine's `--plugin-cache-dir` names. `init` installs a
+configuration's providers into it, and `provider_describe` installs and runs one from it. The default
+is `<user cache>/turf/plugins`, under your user cache directory; `off` disables it.
+
+`--tmp-dir` is the server's own scratch directory, for scratch configurations and the local
+provider-plugin target. By default it is a new system temp directory, removed on exit.
+
+## The console
+
+The Turf console is a read-only web view of every workspace's runs, rounds and approvals.
+ Every `up`, `plan`, `apply`, `status` and `open` result carries a `console_url` link
+into it when the server knows a console. The server finds the local engine's console by itself.
+
+| Variable | Read by | Meaning |
+|---|---|---|
+| `TURF_CONSOLE_URL` (`--console-url`) | the server | Where a browser opens the console for the engine `--restate-url` names, such as `http://localhost:8873` through a port-forward. Empty: no links, except for the local engine. |
+| `TURF_CONSOLE_ADDR` | `engine run` | Where the local console listens: `http://127.0.0.1:8873` by default, another loopback address, or `off`. For the Homebrew service, set it in `turf.env`. |
+| `TURF_CONSOLE_AUTH_TOKEN` | the console | The console's token. Locally it is kept in `console.token` in the engine's directory, and this overrides it. Off loopback, as in a cluster, the console requires it: a browser signs in once at `/login?token=…` and keeps a cookie, and a program sends it as a bearer header. |
+
+See [The engine and the console](/docs/concepts/engine-and-console/).
+
+## Flags and environment variables
+
+| Flag | Environment | Default | Meaning |
+|---|---|---|---|
+| `--transport` | | `stdio` | `stdio` or `http`. |
+| `--addr` | | `127.0.0.1:3000` | HTTP listen address, with `--transport http`. |
+| | `TURF_MCP_AUTH_TOKEN` | unset | Bearer token every HTTP request must send. Environment only. |
+| `--tier` | `TURF_TIER` | `full` | `read`, `plan`, `apply` or `full`: which tools the server lists and what their arguments may do. |
+| `--restate-url` | `TURF_RESTATE_URL` | empty: the local engine | The engine's restate-server ingress: an `http(s)` URL or `unix:<socket path>`. |
+| | `TURF_HOME` | `~/.turf` | The local engine lives in `$TURF_HOME/engine`. |
+| `--scopes` | `TURF_ENGINE_SCOPES` | `on` | Flow-control scopes, `on` or `off`; must match the engine's. |
+| `--workdir` | `TURF_WORKDIR` | empty: no mapping | Maps this server's working directory to an engine's own `--workdir`. Needs `--restate-url`. |
+| `--deadline` | `TURF_DEADLINE` | `55s` | How long a convergence call runs before it returns the stage; `0` disables. |
+| `--console-url` | `TURF_CONSOLE_URL` | empty | Where a browser opens the console for an engine of your own. |
+| `--plugin-cache-dir` | `TF_PLUGIN_CACHE_DIR` | `<user cache>/turf/plugins` | Shared provider plugin cache; `off` disables. |
+| `--tmp-dir` | | a system temp directory | Per-process scratch directory, removed on exit when defaulted. |
+| `--log-file` | `TF_LOG_PATH` | stderr | Where logs go. |
+| `--log-level` | `TF_LOG_CORE`, `TF_LOG` | `info` | `trace`, `debug`, `info`, `warn`, `error` or `off`. |
+| `--log-format` | `TF_LOG` | `text` | `text` or `json`; JSON when `TF_LOG` ends in `-JSON`. |
+| `--lease-ttl` | | `60s` | How long the server's hold on a convergence it follows lasts. A server that dies holding one is taken over after this. |
+| `--drain-interval` | | `2s` | Minimum gap between statefile writes while a convergence applies. |
+| `--cpu-profile` | | | Write a CPU profile to this file, flushed on shutdown. |
+| `--mem-profile` | | | Write a heap profile to this file on shutdown. |
+| `--goroutine-profile` | | | Write a goroutine dump to this file on shutdown. |
+| `--trace` | | | Write an execution trace to this file, flushed on shutdown; read it with `go tool trace`. |
+| `--pprof-addr` | | empty: off | Serve Go's pprof endpoints on this address, such as `localhost:6060`. |
+| `--version` | | | Print the version and the license line, and exit. |
+| | `TURF_CONSOLE_ADDR` | `127.0.0.1:8873` | Where the local console listens, or `off`. Read by `engine run`. |
+| | `TURF_CONSOLE_AUTH_TOKEN` | `console.token` | The console's token. |

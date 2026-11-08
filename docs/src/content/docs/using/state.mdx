@@ -1,0 +1,121 @@
+---
+title: Reading state and outputs
+description: "Read what a workspace holds with show, output and state_list, none of which plans; mark an instance for replacement with taint, and clear it with untaint."
+sidebar:
+  order: 11
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import Conversation from '../../../components/Conversation.astro';
+import Example from '../../../components/Example.astro';
+import User from '../../../components/User.astro';
+import Agent from '../../../components/Agent.astro';
+import ToolResult from '../../../components/ToolResult.astro';
+
+Three tools read what a workspace holds and change nothing: `show`, `output` and `state_list`. None of
+them plans. Two tools edit state at once: `taint` marks an instance for replacement on the next `up`,
+and `untaint` clears the mark. Turf™ reads the state from the engine's records of the workspace.
+
+<Example path="terraform/kubernetes/kind-crd" />
+
+<Conversation>
+<User>What does kind-crd's state hold, and what's the kubectl context?</User>
+<Agent calls={['state_list', 'output']}>
+
+Three resources: `kind_cluster.demo`, `kubernetes_manifest.crd` and `kubernetes_manifest.instance`.
+The output `cluster_name` is `turf-crd-demo-1`, so the context is `kind-turf-crd-demo-1`.
+
+</Agent>
+<ToolResult tool="state_list">
+
+```text
+workspace_alias: "default"   lineage: "…"   serial: …
+resources: [
+  { address: "kind_cluster.demo", provider_name: "registry.opentofu.org/tehcyx/kind", … },
+  { address: "kubernetes_manifest.crd", create_before_destroy: true, … },
+  { address: "kubernetes_manifest.instance", depends_on: ["kubernetes_manifest.crd", …],
+    create_before_destroy: true, … } ]
+outputs: { cluster_name: …, cluster_endpoint: …, crd_name: …, cr_name: …, cr_message: … }
+```
+
+</ToolResult>
+<User>Show me the custom resource's recorded attributes.</User>
+<Agent calls={['state_list (include_values)']}>
+
+`kubernetes_manifest.instance`: kind `Turf`, name `example-turf` in namespace `default`,
+`spec.message` "Hello from Turf". Nothing in it is sensitive.
+
+</Agent>
+</Conversation>
+
+<Tabs syncKey="surface">
+<TabItem label="In your agent">
+
+Ask in words: "what's in the state?", "show me the outputs", "show me round 2's plan", "taint
+kubernetes_manifest.instance". The agent reads with the values `open` was given. It reads a sensitive
+value in the clear only when it needs it, since the value then enters the conversation.
+
+</TabItem>
+<TabItem label="Turf CLI">
+
+The CLI has no state or output commands. Ask its agent, interactively or in one shot:
+
+```sh
+cd path/to/config && turf chat
+cd path/to/config && turf exec "show me the outputs"
+```
+
+</TabItem>
+</Tabs>
+
+## How it works
+
+**`show`** prints a plan or the state as OpenTofu™'s machine-readable document (`tofu show -json`):
+
+- a round's plan (the default): the round waiting at its approval point, or else the latest, or any
+  round by `convergence_id` and `round`. It is the document the engine captured as the round sealed,
+  so it reads the same after the round applies, for as long as the engine keeps the round;
+- a planfile's document, by `planfile`;
+- the workspace's state, with `what: "state"`.
+
+**`output`** reads the root output values the last apply recorded (`tofu output -json`), all of them
+or one by `name`. A module's outputs are not kept: to keep one, the configuration exposes it as a root
+output.
+
+**`state_list`** lists the resources in state (`tofu state list`): one row per instance in address
+order, with its provider, schema version, taint, dependencies and identity, plus the root outputs.
+`include_values` adds each resource's attributes.
+
+**Sensitive values** print as `__cty_sensitive__` unless `show_sensitive` is set. Set it only when the
+secret is needed: it enters the conversation.
+
+**`taint` and `untaint`** are state edits, made at once, with no plan and no approval. `taint` marks
+instances so the next `up` plans each one destroyed and created again (`replace_because_tainted`).
+`untaint` clears the mark, so the next `up` plans them as their configuration says. To replace
+something without editing state, use `plan`'s `replace` in an `up` instead: it replaces in that round
+only. Both edits need a server at the `full` tier, and a `taint` makes any planfile on the workspace
+stale.
+
+## Arguments
+
+| Tool | Argument | Meaning |
+|---|---|---|
+| `show` | `what` | `plan` (default) or `state`. |
+| | `convergence_id` | For a plan: the run (default: the one holding the workspace). |
+| | `round` | For a plan: the round (default: the one at its approval point, else the latest). |
+| | `planfile` | For a plan: a planfile's ref; `convergence_id` and `round` are then not read. |
+| | `show_sensitive` | Print sensitive values in the clear. A plan read so is the document `plan.digest` hashes. |
+| `output` | `name` | One output (default: every output). |
+| | `show_sensitive` | Print a sensitive output's value. |
+| `state_list` | `include_values` | Include each resource's attribute values. |
+| | `show_sensitive` | Print sensitive values in the clear. |
+| `taint`, `untaint` | `addrs` | Resource instance addresses (`aws_instance.web`, `module.m.aws_instance.x[0]`). |
+
+Every one also takes `workspace_alias`; omit it for the default workspace.
+
+## Related
+
+- [Refresh state](/docs/using/refresh/): bring state up to date with the world.
+- [Import existing objects](/docs/using/import/)
+- [Policy checks on a plan](/docs/using/policy/): what to do with `show`'s document.
+- [Plan now, apply later](/docs/using/planfiles/)

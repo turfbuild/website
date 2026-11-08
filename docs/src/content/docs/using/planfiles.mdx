@@ -1,0 +1,140 @@
+---
+title: Plan now, apply later
+description: "Make a planfile with plan_only, review it, then apply it by its ref and digest, here or on another server: how a plan moves between a planner and an applier."
+sidebar:
+  order: 9
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import Conversation from '../../../components/Conversation.astro';
+import Example from '../../../components/Example.astro';
+import User from '../../../components/User.astro';
+import Agent from '../../../components/Agent.astro';
+import ToolResult from '../../../components/ToolResult.astro';
+
+A planfile is a plan the engine keeps after the run that made it has ended, so it can be reviewed in one
+place and applied in another: a second session, a second server, a second set of credentials. Add
+`plan_only: true` to a start verb to make one. Apply it with its ref and its digest. Turf™ applies it
+exactly as it was made, or not at all.
+
+<Example path="terraform/kubernetes/kind-crd" />
+
+<Conversation>
+<User>Plan kind-crd with cr_message "Hello from review" for the change review. Don't apply anything.</User>
+<Agent calls={['up (plan_only) → awaiting_plan', 'plan → planned']}>
+
+The run ended `planned`: nothing applied, and the workspace is free.
+
+```text
+~ kubernetes_manifest.instance
+    manifest.spec.message: "Hello from Turf" → "Hello from review"
+```
+
+The planfile's digest is `sha256:…`. It expires in 24 hours.
+
+</Agent>
+<ToolResult tool="plan" outcome="planned">
+
+```text
+convergence_id: "…"   kind: up   ended: true
+planfile: { ref: "…", digest: "sha256:…", expires_at: "…" }
+plan:     { uri: "turf://workspaces/default/convergences/…/rounds/1/plan",
+            digest: "sha256:…", change: 1 }
+next:     { tool: "apply", args: { workspace_alias: "default", planfile: "…" } }
+```
+
+</ToolResult>
+<User>The review passed. Apply that planfile.</User>
+<Agent calls={['show', 'apply (planfile) → converged']}>
+
+I read the planfile's document again: it is the plan that was reviewed. Applied with its digest:
+0 added, 1 changed, 0 destroyed.
+
+</Agent>
+</Conversation>
+
+<Tabs syncKey="surface">
+<TabItem label="In your agent">
+
+Ask for a plan only: "plan this for review, don't apply". The agent adds `plan_only: true` to the start
+verb and reports the planfile's ref and digest. To apply it later, in this session or another: "apply
+planfile `<ref>`". The agent reads the document with `show`, applies the approval rules as for any plan,
+and calls `apply` with the planfile and its digest. `status` lists the planfiles a workspace holds.
+
+</TabItem>
+<TabItem label="Turf CLI">
+
+Ask the CLI's agent in the configuration directory, in `turf chat`: "plan this for review, don't apply",
+and later "apply planfile `<ref>`".
+
+```sh
+cd path/to/config && turf chat
+```
+
+</TabItem>
+</Tabs>
+
+## How it works
+
+**Making one.** `plan_only: true` works on every start verb: `up`, `destroy`, `refresh`, `import` and
+`invoke`. The run stops at its plan gate as usual. `plan` plans the round and ends it `planned` instead
+of waiting at its approval point: nothing is approved, nothing is applied, the workspace is free. The
+result carries:
+
+- `planfile.ref`, the planfile's name. `apply` and `show` take it.
+- `planfile.digest`, the digest of the plan document. It is what `apply` names as the approval, and it
+  equals `plan.digest`.
+- `planfile.expires_at`, when the engine lets it go (24 hours by default).
+- `plan`, the same summary an approval point hands over, so the plan is reviewed exactly as a waiting
+  one is.
+
+A plan-only run is one round. What it defers stays deferred: the next plan is another `plan_only` run.
+
+**Reviewing one.** `show` with `planfile` reads the document, sensitive values redacted. Hand it to your
+policy tools as you would a waiting plan. The approval rule is the same: the agent approves only a
+low-risk plan itself, and consults you on anything else, always on a destroy plan.
+
+**Applying one.** `apply` with `workspace_alias`, `planfile` and `plan_digest` is the approval, of
+exactly that plan. The digest must be the planfile's, read from the document you reviewed. It starts a
+new one-round run on the workspace, which must be free (nothing is superseded for a planfile), and
+follows it as any apply: to `awaiting_actions` for turf actions, or to its end. Never with
+`convergence_id`, `decline` or `action_results`.
+
+**What makes it stale.** The engine holds the run to the plan, and ends it `stale`
+(`rounds[].stale_reason` says which pin failed) when anything moved since the plan was made:
+
+- the configuration: a `.tf`, `.tfvars` or lock-file edit, a module source that fetches other bytes;
+- the state: another run's apply, a `taint`, a statefile edited outside Turf;
+- the mode or the workspace: a destroy planfile applied as an `up`, or on another workspace;
+- the digest: the plan approved is not the plan sealed.
+
+A stale planfile stays where it was: revert what moved and apply again, or plan anew. One that expired,
+or was already applied (a plan is applied once), is refused by name: plan again. `converged` ends the
+apply as any apply does; `exhausted` says the plan deferred work, so the next step is a new plan.
+
+<Aside title="Plan here, apply there">
+The planfile lets a server that can plan but not apply hand its work to one that can apply but not
+plan. The first ends every run `planned` and reports `planfile.ref` and `planfile.digest`. A reviewer
+approves the document. The second opens the same workspace and calls `apply` with the planfile and its
+digest. What the reviewer approved is what applies, or nothing does. The round's record names the
+applying server and its client as the approver.
+</Aside>
+
+## Tiers
+
+A server runs at a permission tier (`--tier read|plan|apply|full`, or `TURF_TIER`; `full` is the
+default), chosen by whoever launches it. Tools outside the tier are not listed, and arguments outside it
+are refused in words. The server's instructions end with a paragraph naming its tier.
+
+| Tier | What it can do |
+|---|---|
+| `read` | `list`, `status`, `show`, `output`, `state_list`, `provider_search`, `provider_describe`, the skills, and `init`, `open`, `close` to bind the workspace a read needs. Nothing runs. |
+| `plan` | The reads, the start verbs, `plan` and `cancel`. Every run is `plan_only` whether you asked or not, and there is no `apply`. `cancel` stops a run at a plan gate, an approval point or planning; one applying or at `awaiting_actions` is the applier's to stop. |
+| `apply` | The reads, `apply` and `cancel`: applies a planner's planfile, or approves a plan another server left at its approval point. No start verb, no `plan`. |
+| `full` | Everything, with `taint`, `untaint`, `delete` and `open` with `force_unlock`, which every other tier refuses. |
+
+## Related
+
+- [Plan and apply by hand](/docs/using/plan-and-apply/)
+- [Policy checks on a plan](/docs/using/policy/)
+- [The server](/docs/reference/server/): flags, `--tier` among them.

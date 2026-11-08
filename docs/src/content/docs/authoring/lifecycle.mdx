@@ -1,0 +1,112 @@
+---
+title: Lifecycle
+description: Replace, keep, rename or let go of what a configuration manages, with lifecycle options, replace_triggered_by for hosts, and moved and removed blocks.
+sidebar:
+  order: 5
+---
+
+
+How an object is replaced, kept, renamed or let go is written in the files: the `lifecycle` options,
+host replacement, and the `moved` and `removed` blocks. Every plan reads them. Ask your agent for the
+change in plain words; this is what it writes.
+
+| You want | The agent edits |
+|---|---|
+| Change a resource | its block, then `up` |
+| Remove it, and destroy it | deletes the block; `up` plans the delete |
+| Stop managing it, leave it running | deletes the block and adds a `removed` block with `destroy = false` |
+| Rename or move it | the address, and adds a `moved` block: no destroy and create |
+| Adopt something that exists | an `import` block, reviewable in the plan, or the `import` tool |
+| Replace it though nothing changed | nothing: `replace` on the round's `plan` |
+| Tear everything down, keep the files | nothing: `destroy` |
+
+"Remove" and "destroy" are different requests, and your agent asks which you mean. A delete of
+anything that holds data (a database, a bucket, a volume) is your call before it is planned: the agent
+offers a backup, or the `removed` block.
+
+## `lifecycle` options
+
+- **`create_before_destroy`.** A replace creates the new object before deleting the old:
+  `change.actions` is `["create","delete"]`. Otherwise it is delete, then create.
+- **`ignore_changes`.** The listed attribute paths keep their prior value when diffing; `all` ignores
+  every argument.
+- **`replace_triggered_by`.** Replace this object whenever a referenced resource or attribute is
+  replaced or changes.
+- **`prevent_destroy`**. A plan that would destroy the object fails, naming it, and
+  nothing is applied: a delete, a replace, a `destroy`. An expression is accepted, as in OpenTofu™
+  (Terraform® takes only a literal), so `prevent_destroy = var.protect` guards while true. It must be
+  known at plan and not null. `destroy = false` on the same block overrides it. Your agent never
+  disables it, or removes its block, to get a plan through without your say-so.
+- **`destroy = false`.** Forgets the object instead of destroying it, as an orphan, in a `destroy`,
+  and as the old object of a replace (`["forget","create"]`). The object stays where it is, out of
+  state.
+- **`action_trigger`.** Binds an action to the object's lifecycle: see
+  [Actions and overlays](/docs/authoring/actions-and-overlays/).
+
+During a create-before-destroy replace, dependents see the new object as soon as its create applies.
+The old one is deposed and deleted after.
+
+## Host replacement
+
+When a provider is configured from a resource, such as a kubernetes provider reading
+`kind_cluster.demo.endpoint`, replacing that resource raises a question nothing can infer: do the
+objects that provider serves live inside the host, and so go with it? Often they do (manifests in a
+cluster). Often they do not (an `aws` provider assuming a role it reads). So it is declared, with
+Terraform's own mechanism:
+
+```hcl
+resource "kubernetes_manifest" "crd" {
+  # …
+  lifecycle {
+    replace_triggered_by = [kind_cluster.demo.endpoint]
+  }
+}
+```
+
+- **With the trigger**, replacing the cluster plans the manifest's delete this round, run through the
+  old cluster before the cluster's own destroy, and defers its create to the next round, which plans
+  it against the new cluster.
+- **With `create_before_destroy` on the contents too**, the engine keeps the old host until they move.
+  The next round replaces the contents create-before-destroy, and the old host is destroyed last.
+- **Without a trigger**, nothing is deleted. The contents defer and converge over rounds against the
+  new host, and the round warns, naming them and `replace_triggered_by`. If they live in the host,
+  declare the trigger; if they only read it, the warning is noise.
+- **Reference an identity attribute** of the host (`kind_cluster.demo.endpoint`), not the bare
+  resource: a whole-resource reference fires on a mere update too.
+
+**Differs from Terraform:** a forced replace (`replace`, `replace_triggered_by`) of an object whose
+provider is configured from something this round applies, and which cannot plan with the unknowns,
+splits: the delete now, the create next round. A replace the provider requires is never split, and
+neither is a taint.
+
+## `moved`: rename without destroying
+
+Change the address in the files and record the move:
+
+```hcl
+moved {
+  from = aws_instance.web
+  to   = aws_instance.app
+}
+```
+
+The plan relocates the object and shows no destroy and create. Keep the block until every workspace
+that holds the old address has applied it. `from` and `to` may be resources or module calls.
+
+## `removed`: stop managing without destroying
+
+Delete the resource block and declare its removal:
+
+```hcl
+removed {
+  from = aws_s3_bucket.archive
+  lifecycle {
+    destroy = false
+  }
+}
+```
+
+The plan drops the object from state and leaves it running: `change.actions` is `["forget"]`, counted
+in `plan.forget`. Without `destroy = false`, or without the block at all, deleting the resource block
+plans a delete. A forgotten object is no longer guarded by anything here, so your agent confirms with
+you first. Provisioners in a `removed` block are refused.

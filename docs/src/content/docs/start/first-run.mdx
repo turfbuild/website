@@ -1,0 +1,206 @@
+---
+title: Your first run
+description: Deploy a kind cluster, a CRD and a custom resource from your agent in one run, approve the plans, open the run in the console, then tear it down with destroy.
+sidebar:
+  order: 4
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import Conversation from '../../../components/Conversation.astro';
+import Example from '../../../components/Example.astro';
+import User from '../../../components/User.astro';
+import Agent from '../../../components/Agent.astro';
+import ToolResult from '../../../components/ToolResult.astro';
+
+The first run needs no cloud account. The kind-crd example in turf-examples builds a local Kubernetes®
+cluster with kind, registers a CustomResourceDefinition on it, and creates one custom resource of that
+kind. With plain Terraform this takes targeted applies, because the provider cannot connect until the
+cluster exists. Turf™ deploys it in one run, and asks you before each apply.
+
+You need Docker running and `kind` on your PATH, and the example checked out:
+
+```sh
+git clone https://github.com/turfbuild/turf-examples
+cd turf-examples/terraform/kubernetes/kind-crd
+```
+
+## What it deploys
+
+Three resources, and a provider configured from the first of them:
+
+```hcl title="main.tf and providers.tf (trimmed)"
+resource "kind_cluster" "demo" {
+  name           = "${var.cluster_name}-${var.generation}"
+  node_image     = var.node_image
+  wait_for_ready = true
+}
+
+provider "kubernetes" {
+  host                   = kind_cluster.demo.endpoint
+  client_certificate     = kind_cluster.demo.client_certificate
+  client_key             = kind_cluster.demo.client_key
+  cluster_ca_certificate = kind_cluster.demo.cluster_ca_certificate
+}
+
+resource "kubernetes_manifest" "crd" {
+  manifest = { # a CustomResourceDefinition: demo.local/v1, kind Turf
+    apiVersion = "apiextensions.k8s.io/v1"
+    kind       = "CustomResourceDefinition"
+    metadata   = { name = "turfs.demo.local" }
+    # …
+  }
+}
+
+resource "kubernetes_manifest" "instance" {
+  depends_on = [kubernetes_manifest.crd]
+  manifest = {
+    apiVersion = "demo.local/v1"
+    kind       = "Turf"
+    metadata   = { name = "example-turf", namespace = var.namespace }
+    spec       = { message = var.cr_message }
+  }
+}
+```
+
+<Example path="terraform/kubernetes/kind-crd" />
+
+## 1. Ask for the walkthrough
+
+In Claude Code, Turf's prompts are slash commands. Start with the guide:
+
+```text
+/turf:guide
+```
+
+The agent loads Turf's skills and offers a short tour. In another client, ask in words: "show me how
+Turf works".
+
+## 2. Deploy
+
+```text
+/turf:up terraform/kubernetes/kind-crd
+```
+
+Slash-command arguments are one word each, so the path has no spaces. In any client you can also say
+"deploy the configuration in terraform/kubernetes/kind-crd with Turf". What follows is the shape of
+the session:
+
+<Conversation>
+  <User>/turf:up terraform/kubernetes/kind-crd</User>
+  <Agent calls={['init → ok', 'open → default', 'up → awaiting_plan', 'plan → awaiting_approval']}>
+    **Plan: 1 to add now, 2 to follow.**
+
+    ```text
+    + kind_cluster.demo
+        name: turf-crd-demo-1
+    ```
+
+    The CRD and the custom resource are planned once the cluster is up. Ready to apply these changes?
+  </Agent>
+  <User>Yes.</User>
+  <Agent calls={['apply → awaiting_plan', 'plan → awaiting_approval']}>
+    The cluster is up. Next, the CRD:
+
+    ```text
+    + kubernetes_manifest.crd      turfs.demo.local
+    ```
+
+    Ready to apply these changes?
+  </Agent>
+  <User>Yes.</User>
+  <Agent calls={['apply → awaiting_plan', 'plan → awaiting_approval', 'apply → converged', 'output']}>
+    The CRD is in. The last plan was the custom resource, a single create, so I approved it.
+    **Apply complete: 3 added, 0 changed, 0 destroyed.**
+
+    Outputs: `cluster_name = turf-crd-demo-1`, `cr_name = example-turf`, `cr_message = Hello from Turf`.
+
+    The run is in the console: `http://127.0.0.1:8873/…`
+  </Agent>
+</Conversation>
+
+Notice what the agent did and did not do. Turf made each plan; the agent read it, explained it and
+asked. The last plan was a single create with nothing risky in it, so the agent approved it itself, as
+its rules allow, and told you. Every result the agent saw carried a link to the console.
+
+<ToolResult tool="plan" outcome="awaiting_approval">
+```text
+convergence_id: cv_8f3a…
+outcome: awaiting_approval   ended: false   round: 1
+plan:
+  uri:     turf://workspaces/default/convergences/cv_8f3a…/rounds/1/plan
+  digest:  sha256:4c1e…
+  add: 1   deferred: 2
+next: apply with convergence_id and plan_digest to approve, or decline
+console_url: http://127.0.0.1:8873/w/…?round=…
+```
+</ToolResult>
+
+## 3. Look at the run
+
+Open the console link. The first time, run `turf console` in a terminal to sign your browser in; after
+that every link opens directly. The round's page tells its story: the plan gate, the plan with its counts,
+the approval point with who approved and the plan's digest, the apply, and how the round ended the run.
+The Timeline tab draws every resource's lane. The console is read-only: approvals are given by the agent
+or the CLI, as above.
+
+## 4. Check the cluster
+
+```sh
+kind get clusters
+kubectl get turfs.demo.local
+```
+
+## 5. Tear it down
+
+```text
+/turf:destroy terraform/kubernetes/kind-crd
+```
+
+<Conversation>
+  <User>/turf:destroy terraform/kubernetes/kind-crd</User>
+  <Agent calls={['init → ok', 'open → default', 'destroy → awaiting_plan', 'plan → awaiting_approval']}>
+    **Plan: 3 to destroy.**
+
+    ```text
+    - kubernetes_manifest.instance
+    - kubernetes_manifest.crd
+    - kind_cluster.demo
+    ```
+
+    Dependents go first, so the custom resource before the CRD that defines it, then the cluster.
+    Ready to destroy these resources? This cannot be undone.
+  </Agent>
+  <User>Yes, destroy them.</User>
+  <Agent calls={['apply → converged']}>
+    **Destroy complete: 3 destroyed.**
+  </Agent>
+</Conversation>
+
+A destroy plan is never approved by the agent. It presents the plan, asks in those words, and waits for
+your explicit yes.
+
+<Tabs>
+  <TabItem label="The same run from the Turf CLI">
+The Turf CLI is Turf's own agent; it needs a model key (or a local model). The run is the same loop,
+with the approval questions in the terminal.
+```sh
+export ANTHROPIC_API_KEY=sk-...
+cd terraform/kubernetes/kind-crd && turf up
+cd terraform/kubernetes/kind-crd && turf destroy
+```
+More in [The Turf CLI](/docs/cli/overview/).
+  </TabItem>
+</Tabs>
+
+<Aside type="tip" title="Replace the cluster with no gap">
+The example's README shows a second run with `generation = 2`: the new cluster comes up beside the
+old one, the CRD and custom resource are created on it, and only then are the old ones removed. Ask
+your agent to run `up` with that variable and read the plan: it reports the replacement as
+`replace_by_triggers`.
+</Aside>
+
+## Next
+
+- [Deploy or update with up](/docs/using/up/): the task page, with every argument.
+- [Approval](/docs/concepts/approval/): what the agent may approve itself and what it brings to you.
+- [Rounds and deferrals](/docs/concepts/rounds/): how one run covers a cluster and what lives on it.

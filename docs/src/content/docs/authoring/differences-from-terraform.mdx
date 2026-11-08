@@ -1,0 +1,78 @@
+---
+title: Differences from Terraform
+description: The constructs Turf refuses by name and what to write instead, why there is no -target or retry, and the behaviour that differs from Terraform and OpenTofu.
+sidebar:
+  order: 7
+---
+
+Turf™ is built on the OpenTofu™ framework and runs ordinary Terraform® configurations. Where it does
+not do what Terraform does, it says so. A few constructs are refused by name, a few command-line
+habits have no equivalent, and a few behaviours differ. Each is here with what to do instead. For the feature-by-feature matrix, see
+[Compatibility](https://turf.build/compatibility/).
+
+## Refused constructs
+
+The engine refuses these at plan rather than plan without them, so a run never looks complete while
+ignoring part of the configuration. The plan names one construct at a time: fix it and plan again to
+find the next.
+
+Your agent never strips a construct out to get past a refusal without your say-so: it may be guarding
+something.
+
+| Construct | Write instead |
+|---|---|
+| `check` blocks | An `after_create` or `after_update` turf action that verifies the same thing, or a policy check on the plan. |
+| `precondition` or `postcondition` on an ephemeral resource; a `precondition` on an output | The same condition on the resource or data source the value comes from (those are honoured); variable `validation` for inputs; a turf action that verifies after the change; a policy check on the plan. |
+| Provisioners (also in `removed` blocks) and `connection` blocks | A provider action bound to the event (`action_trigger`, such as the `local` provider's `local_command`), or a turf action. |
+| `enabled` on module calls, resources, data sources or ephemeral resources | `count = var.enabled ? 1 : 0`. |
+| Provider blocks in child modules (a legacy module shape) | The module declares `configuration_aliases`; the root declares the provider blocks and passes them in the call's `providers = { … }`. For a registry module that declares its own, pick a version without, or vendor it under the configuration directory and change it, with your say-so. |
+| Provider `for_each`, and instance keys on a provider reference | One aliased `provider` block per instance. |
+| `count` or `for_each` on an ephemeral resource | One ephemeral resource per instance. |
+| The `cloud` block | A `backend "remote"` for state storage and locking, with the workspace's execution mode `local`. |
+| Test files (`*.tftest.hcl`) in the configuration directory | Keep them out of the directory Turf plans; run them with `tofu test`. |
+| A `count` whose only unknown is an impure function (`timestamp()`, `uuid()`) | A known value, such as a variable. |
+
+Turf actions and provider actions are in [Actions and overlays](/docs/authoring/actions-and-overlays/).
+
+## Not available
+
+- **No `-target` or `-exclude`.** Every plan is the whole configuration. To leave something broken
+  out of a run, the configuration has to stop declaring it, and your agent asks before editing it that
+  way.
+- **Nothing is retried.** Each change and each action gets one try. A failure settles, and `up` again
+  plans over what was left.
+- **No imperative reads.** No tool reads one data source or refreshes one resource: declare a `data`
+  block and plan, or `refresh` the whole workspace.
+- **No prompts at plan.** Variable values come from `open` and from each plan command. `init` alone
+  asks you for a value a module source needs.
+- **No `-var` and `-var-file` interleaving.** Within one call, `var` always wins over `var_file`, and a
+  plan command's values win over `open`'s, name by name.
+
+## Behaviour that differs
+
+- **Plans include overlays.** A `*.turf.hcl` overlay, or one passed in memory as `overlays`, is part
+  of every plan; `tofu` and `terraform` ignore it.
+- **`open` keeps variable values for the workspace,** as an exported `TF_VAR_` serves a shell, while a
+  plan command's own values hold for that run's rounds alone. Nothing is written down.
+- **A validation decidable only at apply** fails after the round applied: the round is recorded as
+  applied, and the run ends `failed`. See [Variables](/docs/authoring/variables/#validation).
+- **A forced replace can split across rounds.** A `replace` or `replace_triggered_by` replace of an
+  object whose provider is configured from something this round applies, where the provider cannot
+  plan with the unknowns, deletes the old object now and creates the new one next round. See
+  [Host replacement](/docs/authoring/lifecycle/#host-replacement).
+- **A failed `before_create` step on a create-before-destroy replace** leaves the old object current,
+  with nothing deposed. Terraform deposes first and leaves nothing current.
+- **Deposed and tainted objects are not refreshed** before the plan replaces or destroys them.
+- **Data-source reads are committed with an apply,** never at a plan that was declined, cancelled or
+  stale. See [Data sources](/docs/authoring/data-sources/#what-is-stored).
+- **Provider plugins start afresh every round,** so a round sees what the previous one applied.
+- **An import whose `id`, `to` key or `for_each` is unknown defers** its resource to a later round
+  instead of failing.
+- **`list` is refused** when the backend body reads `terraform.workspace`.
+- **`path.cwd` is the configuration directory,** as `tofu` gives it when run inside that directory, not
+  a launch directory, which an MCP client does not have. Give paths a module resolves against
+  `path.cwd` relative to the configuration directory, or use `path.module` and `path.root`.
+- **`TF_DATA_DIR` is the MCP server's setting alone.** It applies to `init`'s own install; the engine
+  installs under a data directory of its own, one per workspace, never in the configuration. `init`
+  refuses a second configuration on a data directory another already uses, as an absolute
+  `TF_DATA_DIR` makes every one: make it relative to give each configuration its own.

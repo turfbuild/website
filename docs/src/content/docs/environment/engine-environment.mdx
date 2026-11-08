@@ -1,0 +1,112 @@
+---
+title: The engine's environment
+description: Providers read the engine's environment. Set credentials for the turf service in turf.env, for a terminal engine in its shell, for a remote one in its pod.
+sidebar:
+  order: 2
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Providers run in the engine, so the environment they see is the engine's. Set a credential there
+once and every configuration's providers can use it. Where "there" is depends on how the engine runs:
+the `turf` Homebrew service, a terminal, or a deployment of your own.
+
+## The local service
+
+The `turf` Homebrew service runs the engine with launchd's environment on a Mac, Homebrew's `PATH`,
+and what `~/.homebrew/services/turf.env` sets. It does not see your shell's environment. Put what
+your providers need in `turf.env`, one `KEY=value` per line:
+
+```sh title="~/.homebrew/services/turf.env"
+AWS_PROFILE=platform-admin
+ARM_SUBSCRIPTION_ID=00000000-0000-0000-0000-000000000000
+```
+
+Then restart the service:
+
+```sh
+brew services restart turf
+```
+
+A run paused at a plan gate or an approval point waits through the restart.
+
+`turf.env` holds the engine's other settings too: `TURF_MISE=off` turns off
+[mise](/docs/environment/mise/), and `TURF_CONSOLE_ADDR` and `DO_NOT_TRACK` are read there, not in
+your shell.
+
+<Aside type="caution" title="A PATH in turf.env replaces the service's">
+Follow your own directories with Homebrew's `bin` and the system directories, or the engine loses
+the tools Homebrew's `PATH` gave it.
+</Aside>
+
+## An engine in a terminal
+
+Without Homebrew, or to watch the engine work, run it in the foreground:
+
+```sh
+export AWS_PROFILE=platform-admin
+turf-mcp-server engine run
+```
+
+It has that terminal's environment, and runs until you interrupt it.
+
+## A remote engine
+
+When `TURF_RESTATE_URL` points the server at an engine you run yourself, the engine has whatever its
+deployment gives it. In a Kubernetes® cluster that is the engine pod's environment: Secrets, through
+`env` or `envFrom`. See [Credentials in a cluster](/docs/cluster/credentials/).
+
+## Credential files
+
+Credentials in their usual files are read in the engine as anywhere: the default profile in
+`~/.aws/config`, `~/.kube/config`. The local service is this user's engine, so it reads your files.
+A remote engine reads its own.
+
+Provider plugins run with the configuration directory as their working directory. A relative path a
+provider resolves, such as a kubeconfig it writes, lands there, as with Terraform® run from that
+directory.
+
+## Provider arguments win
+
+Arguments in a provider block (`profile`, `assume_role`, `config_path`) override the environment.
+They are the way to pin an account in the configuration itself:
+
+```hcl title="providers.tf"
+provider "aws" {
+  profile = "staging"
+  region  = var.region
+}
+```
+
+A secret in a provider block arrives through a variable, never a literal. With the credentials in
+the engine's environment, a default provider instance needs no block at all; aliased instances need
+their own blocks for what differs.
+
+## Check what the engine runs with
+
+```sh
+turf-mcp-server engine status
+```
+
+It says where the engine runs and whether it answers, the mise it found on its `PATH` (or `off`),
+and where its logs are:
+
+```text
+directory       /Users/you/.turf/engine
+…
+mise            /usr/local/bin/mise (2025.11.10 macos-x64 (2025-11-27))
+logs            /Users/you/.turf/engine/restate.log
+                /Users/you/.turf/engine/engine.log
+```
+
+If `brew services restart turf` does not bring the engine up, the reason is in `engine.log`.
+
+## Common variable names
+
+| Provider | Environment variables |
+|---|---|
+| AWS | `AWS_PROFILE`, `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`, `AWS_REGION` |
+| Azure | `ARM_SUBSCRIPTION_ID`, `ARM_CLIENT_ID`, `ARM_CLIENT_SECRET`, `ARM_TENANT_ID` |
+| Google Cloud | `GOOGLE_APPLICATION_CREDENTIALS`, `GOOGLE_PROJECT` |
+
+Why the engine and not the server: [Where credentials are read](/docs/environment/where-credentials-are-read/).

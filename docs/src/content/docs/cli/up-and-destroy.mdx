@@ -1,0 +1,83 @@
+---
+title: Up and destroy
+description: "turf up deploys or updates the configuration in the current directory and turf destroy tears it down, asking you where a plan needs your yes, or --yes."
+sidebar:
+  order: 3
+---
+
+
+`turf up` deploys or updates the configuration in the current directory, and `turf destroy` tears it
+down. Each runs the Turf™ agent through the whole convergence, round by round, and stops to ask you
+where a plan needs your yes.
+
+```sh
+cd path/to/config && turf up
+cd path/to/config && turf destroy
+```
+
+In your own agent the same tasks are `/turf:up path/to/config` and `/turf:destroy path/to/config` in
+Claude Code, or a request in words anywhere else: see [Deploy or update with up](/docs/using/up/).
+
+## Choose the directory
+
+Both commands work on the `.tf` files in the current directory. To name another one, use `-C` (long
+form `--chdir`), as with `tofu -chdir=DIR`:
+
+```sh
+turf -C ./examples/azure-storage-container up
+turf -C ./examples/azure-storage-container destroy
+```
+
+Words after `up` or `destroy` are instructions, not a path: write `turf -C path/to/config up`, never
+`turf up path/to/config`.
+
+## Steer the plan with instructions
+
+Pass freeform instructions after the command to steer the plan. Use `--` when the text starts with a
+dash:
+
+```sh
+turf up replace aws_s3_bucket.assets
+turf up -- -var-file=env/staging.tfvars
+turf destroy only module.staging
+turf destroy -- -var-file=env/staging.tfvars
+```
+
+Instructions are honored within the normal plan and approve flow. They never bypass an approval or
+the destroy confirmation.
+
+## What you answer in the terminal
+
+On a terminal, both commands run in the lean TUI, in your scrollback. Each round stops at its plan
+gate, where the agent plans it, and then at its approval point, with the plan. The agent approves a
+low-risk plan itself: creates and in-place updates only. Anything else, such as a destroy, a replace,
+an import or an invoke, waits for your answer. A destroy always asks you to confirm.
+
+`turf up` shows the round's console link beside each plan gate and approval point,
+so you can read the plan in the browser before you answer. Sign the browser in once with
+[`turf console`](/docs/cli/console/).
+
+Turf's own tools never ask for permission: the questions you answer are the agent's, about plans.
+
+## Unattended runs: --yes
+
+Without a terminal, in a pipe or a CI job, nobody can answer. A plan that needs your yes is declined
+and left waiting at its approval point, where a later interactive `turf` can pick it up. A destroy's
+confirmation is declined, and nothing is destroyed.
+
+`--yes` (alias `--auto-approve`) answers those questions yes, as each round's plan comes, a destroy's
+included:
+
+```sh
+cd path/to/config && turf up --yes
+cd path/to/config && turf destroy --yes
+```
+
+`--yes` approves nothing up front. The run still goes through every round: the agent plans each one
+and approves each plan by its digest, so a `--yes` destroy is one the agent saw the plan of.
+
+## Long rounds
+
+The CLI gives each convergence call five minutes. A round that takes longer keeps running in the
+engine: the call says it is still planning or applying, and the agent calls again to follow it.
+`TURF_DEADLINE` in the environment replaces the five minutes.

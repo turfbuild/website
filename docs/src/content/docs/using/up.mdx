@@ -1,0 +1,205 @@
+---
+title: Deploy or update with up
+description: "Deploy a configuration, or bring an applied one back in line with its files: up plans each round, waits for your yes at its approval point, then applies."
+sidebar:
+  order: 1
+---
+
+import { Tabs, TabItem, Aside, Steps } from '@astrojs/starlight/components';
+import Conversation from '../../../components/Conversation.astro';
+import Example from '../../../components/Example.astro';
+import User from '../../../components/User.astro';
+import Agent from '../../../components/Agent.astro';
+import ToolResult from '../../../components/ToolResult.astro';
+
+`up` deploys a configuration directory, or brings one you applied before back in line with its files.
+Turf™ plans one round at a time, stops at each round's approval point with the plan, and applies it
+only on a yes. The run ends `converged` when nothing is left deferred.
+
+<Example path="terraform/kubernetes/kind-crd" />
+
+<Conversation>
+<User>Set the custom resource's message in kind-crd to "Hello again" and deploy it. Show me the plan first.</User>
+<Agent calls={['init', 'open', 'up → awaiting_plan', 'plan → awaiting_approval']}>
+
+**Plan: 0 to add, 1 to change, 0 to destroy.**
+
+```text
+~ kubernetes_manifest.instance
+    manifest.spec.message: "Hello from Turf" → "Hello again"
+```
+
+One change in place, nothing replaced or deleted. I would approve a plan like this myself, but you
+asked to see it. Ready to apply these changes?
+
+</Agent>
+<ToolResult tool="plan" outcome="awaiting_approval">
+
+```text
+convergence_id: "…"   kind: up   round: 1
+plan:        { uri: "turf://workspaces/default/convergences/…/rounds/1/plan",
+               digest: "sha256:…", change: 1 }
+expires_at:  "…"
+next:        { tool: "apply", args: { convergence_id: "…" } }
+console_url: "http://127.0.0.1:8873/w/…?round=…"
+```
+
+</ToolResult>
+<User>Yes.</User>
+<Agent calls={['apply → converged', 'output']}>
+
+Apply complete! Resources: 0 added, 1 changed, 0 destroyed. The output `cr_message` now reads
+`Hello again`. The round is in the console at `http://127.0.0.1:8873/w/…?round=…`
+
+</Agent>
+</Conversation>
+
+<Tabs syncKey="surface">
+<TabItem label="In your agent">
+
+In Claude Code, the prompt is a slash command:
+
+```text
+/turf:up terraform/kubernetes/kind-crd
+```
+
+Slash-command arguments are one word each: the directory, then at most one word of instructions. Say
+anything longer in words, in any client: "deploy terraform/kubernetes/kind-crd with Turf, and replace
+kubernetes_manifest.instance". Instructions steer the run inside the normal plan and approval; they
+never skip an approval point.
+
+The agent follows the `/up` runbook, one call at a time:
+
+<Steps>
+
+1. `init` the directory. It reads the backend, the variables (noting the required ones), the providers
+   and the README, and scans `providers[]` if it has a scanner.
+2. `open` the workspace. If a run already holds it, the agent tells you and picks it up.
+3. `up`, with a value for every required variable nothing else supplies (it asks you), then `plan`.
+4. Present the plan, in this shape:
+
+   ```text
+   Plan: X to add, Y to change, Z to destroy (R replaced), D deferred to a later round
+
+     + <address>
+         <key>: <value>
+     ~ <address>
+         <key>: <old> → <new>
+     ∓ <address> (must be replaced: <replace_paths>)
+     - <address>   (will be destroyed)
+   ```
+
+   It calls out before and after for every update and replacement, every turf action the round will
+   run, and says when another round follows. It never prints a sensitive value.
+5. Approve a low-risk plan itself. Anything else, it asks: "Ready to apply these changes?" and waits for
+   your explicit yes.
+6. At each further round, plan, present and approve again, printing `Round k: applied N, deferred M`.
+7. Report "Apply complete! Resources: X added, Y changed, Z destroyed." and the outputs.
+
+</Steps>
+
+A low-risk plan has creates and in-place updates only: no replace, no delete of anything holding data
+or state, no IAM or network-exposure change, no warning the agent cannot explain, and you have not asked
+to be consulted. Say "show me every plan" and it will. If the first plan is `converged` with nothing
+applied, the agent says "All resources up to date." and stops.
+
+</TabItem>
+<TabItem label="Turf CLI">
+
+```sh
+cd path/to/config && turf up
+```
+
+The Turf CLI is Turf's own agent, driven by a model you bring. `turf up` sends it the same `/up`
+runbook and runs it in the terminal, where it asks its approval questions. The terminal shows the
+console link at each plan gate and approval point.
+
+Words after `up` are instructions for the run:
+
+```sh
+turf up replace aws_s3_bucket.assets
+turf up -- -var-file=env/staging.tfvars    # -- when the text starts with a dash
+```
+
+Without a terminal (a pipe, CI) nobody can answer, so a plan that needs your yes is declined and left
+waiting at its approval point, where a later interactive `turf` can pick it up. `--yes` approves every
+plan of the run. Nothing is approved up front: the agent still plans each round and approves each plan
+by its digest.
+
+| Flag | Meaning |
+|---|---|
+| `--yes`, `--auto-approve` | Approve every plan of the run without asking. |
+| `-C`, `--chdir` | Switch to this directory before running. |
+| `--model` | The model: a named model, `provider/model`, or `auto`. |
+
+</TabItem>
+</Tabs>
+
+## How it works
+
+**Rounds.** `up` starts a convergence and stops at round 1's plan gate (`awaiting_plan`): nothing is
+planned yet. `plan` plans the round and stops at its approval point (`awaiting_approval`) with the plan
+(`plan.uri`, which `show` reads) and its digest (`plan.digest`). `apply` with that digest is the
+approval, of that plan and no other. It applies the round and stops at the next round's plan gate, or
+ends the run. A round with nothing to apply needs no approval: `plan` runs it straight through.
+
+Something that can only be planned once an earlier change exists, such as a resource inside a cluster
+the run is creating, is planned in a further round after that change applies. Every round is its own
+decision, and the agent applies the low-risk test afresh each time.
+
+**Every result says what comes next.** It carries `outcome` (where the run stands), `ended` (whether
+it is over) and `next` (the call that continues it, with its arguments; an approval's digest is never
+filled in). `console_url` is the round's page in the Turf console: the agent gives
+you the link verbatim and never opens it itself.
+
+**Do not edit between plan and apply.** The engine re-reads the configuration before it applies. If a
+file the plan parsed has changed (a `.tf` file, an overlay, an installed module, an auto-loaded
+`.tfvars`, the lock file), the run ends `stale` and nothing is applied. `var`, `var_file` and `TF_VAR_`
+values are pinned with the run and never make it stale. Run `up` again and review the new plan.
+
+**A pause lasts 24 hours** (`expires_at`), at a plan gate, an approval point or a turf action. Past it
+the server stops following the run, which waits in the engine for someone to
+[pick it up](/docs/using/troubleshooting/#picking-up-a-convergence). A paused run holds the state lock.
+
+**Running `up` again** supersedes a run waiting at its plan gate or approval point (it is cancelled,
+and the result's note says so), and is refused while one is planning or applying. To change course at
+an approval point, edit the files and run `up`.
+
+**Nothing is retried.** A failed change settles. The round finishes everything independent of it and
+ends `failed`. Fix the cause and run `up` again: it plans over what was left.
+
+<Aside>
+A value given to `up` holds for that run only. Run `up` again without it and the plan goes back to the
+default. For a value that lasts, use `terraform.tfvars` or give it to `open`: see
+[Variables and var files](/docs/using/variables/).
+</Aside>
+
+## Arguments
+
+`up` takes the arguments every start verb takes, plus `max_rounds`:
+
+| Argument | Meaning |
+|---|---|
+| `workspace_alias` | The workspace, as `open` named it. Omit it for the default workspace. |
+| `var` | Root variable values, as `tofu -var`, for this run only: laid over `open`'s values name by name, and above `var_file`, the auto-loaded `.tfvars` files and `TF_VAR_`. |
+| `var_file` | Variables files, as `tofu -var-file`, in order, below `var`, for this run only. A relative path is relative to the configuration directory. |
+| `overlays` | `*.turf.hcl` (or `.turf.json`) files, name to content, laid over the configuration in memory for this run alone. A name that collides with a file in the directory is refused. |
+| `plan_only` | Plan one round and end `planned`, keeping the plan as a planfile. See [Plan now, apply later](/docs/using/planfiles/). |
+| `max_rounds` | The most rounds before the run ends `exhausted` with work still deferred (default 5). |
+
+`plan` takes the round's own options. They apply to that round alone; the next round plans with the
+defaults.
+
+| Argument | Meaning |
+|---|---|
+| `convergence_id` | The run, from any of its results. Omit it to name the run by the workspace it holds (`workspace_alias`). |
+| `refresh` | Read each managed object before planning (default `true`). `false` is `tofu plan -refresh=false`. |
+| `replace` | Addresses to replace in this round even where nothing changed, as `tofu plan -replace`. An `up`'s plan only. |
+
+## Related
+
+- [Plan and apply by hand](/docs/using/plan-and-apply/): the plan gate, the approval point, decline and cancel.
+- [Rounds and deferrals](/docs/concepts/rounds/): why a run has rounds.
+- [Approval](/docs/concepts/approval/): what the agent may approve itself.
+- [When something goes wrong](/docs/using/troubleshooting/): every outcome and what to do next.
+- [Tear down with destroy](/docs/using/destroy/)

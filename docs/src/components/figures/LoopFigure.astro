@@ -1,0 +1,72 @@
+---
+// The Concepts map: a configuration (init) and a workspace (open) feed a convergence, which runs in
+// rounds, each round the same chain: plan gate → plan → approval point → apply, until nothing is
+// deferred. Fills and strokes are tokens (docs.css, "figures"); markers are local to this svg.
+interface Props { caption?: string }
+const { caption } = Astro.props;
+const cols = [
+  { x: 20, label: 'ROUND 1' },
+  { x: 236, label: 'ROUND 2' },
+  { x: 452, label: 'ROUND 3 …' },
+];
+const nodes = [
+  { y: 154, name: 'plan gate', notes: ['waits for plan'] },
+  { y: 196, name: 'approval point', notes: ['the plan and its digest;', 'apply approves that plan'] },
+  { y: 238, name: 'apply', notes: ['may pause at a turf action'] },
+];
+---
+
+<figure class="docfig">
+  <svg class="fig" viewBox="0 0 672 306" role="img" aria-label="A configuration, registered by init, and a workspace, bound to it by open, feed a convergence: one run of up, destroy, refresh, import or invoke. The run proceeds in rounds. Each round waits at its plan gate for plan, then at its approval point with the plan and its digest, which apply approves; the apply may pause at a turf action. A value known only after an apply defers what needs it to the next round, and the run ends converged when nothing is left deferred.">
+    <defs>
+      <marker id="lp-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-stroke"/></marker>
+      <marker id="lp-ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-ok"/></marker>
+    </defs>
+
+    <!-- what a run is made of -->
+    <text x="0" y="10" class="t-cap">CONFIGURATION · init registers it</text>
+    <rect x="0.5" y="18.5" width="300" height="50" rx="8" class="f-panel s-hair"/>
+    <text x="14" y="39" class="t-name">configuration</text>
+    <text x="14" y="55" class="t-mono">a directory of .tf files, plus *.turf.hcl overlays</text>
+
+    <text x="372" y="10" class="t-cap">WORKSPACE · open binds it to a configuration</text>
+    <rect x="372.5" y="18.5" width="299" height="50" rx="8" class="f-panel s-hair"/>
+    <text x="386" y="39" class="t-name">workspace</text>
+    <text x="386" y="55" class="t-mono">a backend and a state slot</text>
+
+    <line x1="150.5" y1="69" x2="150.5" y2="96" class="s-stroke" stroke-width="1.4" marker-end="url(#lp-ink)"/>
+    <line x1="521.5" y1="69" x2="521.5" y2="96" class="s-stroke" stroke-width="1.4" marker-end="url(#lp-ink)"/>
+
+    <!-- the convergence -->
+    <rect x="0.5" y="98.5" width="671" height="207" rx="11" class="f-panel2 s-hair"/>
+    <text x="14" y="117" class="t-cap">CONVERGENCE</text>
+    <text x="96" y="117.5" class="t-sans">one run of up, destroy, refresh, import or invoke: rounds, until nothing is deferred</text>
+
+    {cols.map((c, i) => (
+      <g>
+        <text x={c.x} y="140" class="t-cap">{c.label}</text>
+        <line x1={c.x + 14} y1={nodes[0].y} x2={c.x + 14} y2={nodes[2].y} class="s-hair" stroke-width="1.2"/>
+        {nodes.map((n, j) => (
+          <g>
+            {j === 0 && <polygon points={`${c.x + 14},${n.y - 6} ${c.x + 20},${n.y} ${c.x + 14},${n.y + 6} ${c.x + 8},${n.y}`} class="f-panel s-ok" stroke-width="1.3"/>}
+            {j === 1 && <polygon points={`${c.x + 14},${n.y - 6} ${c.x + 20},${n.y} ${c.x + 14},${n.y + 6} ${c.x + 8},${n.y}`} class="f-ok"/>}
+            {j === 2 && <circle cx={c.x + 14} cy={n.y} r="5" class="f-ok"/>}
+            <text x={c.x + 30} y={n.y + 3.5} class="t-name">{n.name}</text>
+            {n.notes.map((t, k) => <text x={c.x + 30} y={n.y + 15 + k * 10.5} class="t-mono">{t}</text>)}
+          </g>
+        ))}
+        {i < cols.length - 1 && (
+          <path d={`M${c.x + 170},${nodes[2].y} H${c.x + 204} V${nodes[0].y} H${c.x + 221}`} class="s-stroke f-none" stroke-width="1.3" marker-end="url(#lp-ink)"/>
+        )}
+      </g>
+    ))}
+
+    <!-- how it ends -->
+    <text x="20" y="289" class="t-mono">a value known only after an apply defers what needs it to the next round</text>
+    <line x1="466" y1="244" x2="466" y2="278" class="s-ok" stroke-width="1.3" marker-end="url(#lp-ok)"/>
+    <circle cx="466" cy="285" r="5" class="f-ok"/>
+    <text x="482" y="288.5" class="t-name f-okdeep">converged</text>
+    <text x="556" y="288.5" class="t-mono">nothing left deferred</text>
+  </svg>
+  {caption && <figcaption class="figcap" set:html={caption} />}
+</figure>

@@ -1,0 +1,146 @@
+---
+title: Tear down with destroy
+description: "Tear down everything a workspace's state holds with destroy: one round, dependents first, your files untouched, and never applied without your explicit yes."
+sidebar:
+  order: 2
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import Conversation from '../../../components/Conversation.astro';
+import Example from '../../../components/Example.astro';
+import User from '../../../components/User.astro';
+import Agent from '../../../components/Agent.astro';
+import ToolResult from '../../../components/ToolResult.astro';
+
+`destroy` tears down everything the workspace's state holds, dependents first, in one round. It never
+touches your files. Turf™ stops at the approval point with the plan, and the agent never approves a
+destroy plan itself: it asks you, and waits for an explicit yes.
+
+<Example path="terraform/kubernetes/kind-crd" />
+
+<Conversation>
+<User>Tear down kind-crd.</User>
+<Agent calls={['init', 'open', 'destroy → awaiting_plan', 'plan → awaiting_approval']}>
+
+**Plan: 3 to destroy.**
+
+```text
+- kubernetes_manifest.instance
+- kubernetes_manifest.crd
+- kind_cluster.demo
+```
+
+The custom resource goes first, then the CRD that defines its kind, then the cluster that holds both.
+Nothing here keeps data outside the cluster. Ready to destroy these resources? This cannot be undone.
+
+</Agent>
+<ToolResult tool="plan" outcome="awaiting_approval">
+
+```text
+convergence_id: "…"   kind: destroy   round: 1
+plan:  { uri: "turf://workspaces/default/convergences/…/rounds/1/plan",
+         digest: "sha256:…", destroy: 3 }
+next:  { tool: "apply", args: { convergence_id: "…" } }
+```
+
+</ToolResult>
+<User>Yes, destroy them.</User>
+<Agent calls={['apply → converged']}>
+
+Destroy complete! 3 resources destroyed.
+
+</Agent>
+</Conversation>
+
+<Tabs syncKey="surface">
+<TabItem label="In your agent">
+
+In Claude Code:
+
+```text
+/turf:destroy terraform/kubernetes/kind-crd
+```
+
+Or in words, in any client: "destroy everything in terraform/kubernetes/kind-crd". The agent runs the
+`/destroy` runbook: `init` and `open`, then `destroy` with the values the configuration needs (a
+provider's variables too), then `plan`. If nothing is planned, it says there is nothing to destroy and
+stops.
+
+It presents the plan as `Plan: X to destroy`, one `- <address>` per line, with anything to be
+forgotten as `. <address>`. It names everything that holds data, and every turf action the round will
+run. Then it asks, in these words:
+
+```text
+Ready to destroy these resources? This cannot be undone.
+```
+
+It applies only on your explicit yes, and declines the plan on a no. Instructions steer the teardown
+("only destroy module.staging") but never replace that question.
+
+</TabItem>
+<TabItem label="Turf CLI">
+
+```sh
+cd path/to/config && turf destroy
+```
+
+The CLI's agent runs the same runbook and asks the same question in the terminal. Words after
+`destroy` are instructions for the teardown:
+
+```sh
+turf destroy only module.staging
+turf destroy -- -var-file=env/staging.tfvars    # -- when the text starts with a dash
+```
+
+Without a terminal (a pipe, CI) nobody can answer, so the destroy is declined and nothing is destroyed.
+`--yes` (or `--auto-approve`) approves it. The agent still sees the plan and approves it by its digest.
+
+</TabItem>
+</Tabs>
+
+## How it works
+
+**One round, dependents first.** `destroy` starts a convergence that plans tearing down everything in
+state, dependents before what they depend on, and stops at its plan gate. `plan` plans it; `apply` with
+the plan's digest applies it. An address with a `removed` block and `lifecycle { destroy = false }`
+plans as a forget: it leaves state and keeps running.
+
+**Your yes is the guard.** In a destroy, a failing turf action is only a warning: the teardown goes on
+and ends `converged`, with the failure listed in `rounds[].actions` and the warnings. A `before_destroy`
+action cannot stop a `destroy`. So the agent says, when it presents the plan, that your yes is what
+guards it.
+
+**Keeping something.** If you want something in the workspace kept, the agent stops and offers a backup
+first, or to stop managing it and leave it running: it deletes the resource's block and adds a
+`removed` block with `lifecycle { destroy = false }`, then plans the teardown again. It edits your files
+only when you ask.
+
+**`prevent_destroy` holds.** A plan that `prevent_destroy` refuses fails, names the instance, and
+applies nothing. The agent tells you what the plan wanted to destroy, and never disables the flag or
+removes its block without your say-so.
+
+<Aside type="caution" title="Remove and destroy are different requests">
+Removing one resource is an edit: delete its block and `up` plans its delete, or add a `removed` block
+to forget it. `destroy` tears down everything in the workspace and leaves the files. If it is unclear
+which you mean, the agent asks.
+</Aside>
+
+## Arguments
+
+`destroy` takes the arguments every start verb takes. `plan` takes `refresh` for the round; `replace`
+is refused in a destroy.
+
+| Argument | Meaning |
+|---|---|
+| `workspace_alias` | The workspace, as `open` named it. Omit it for the default workspace. |
+| `var` | Root variable values for this run only, as `tofu -var`. A provider's variables are needed here too. |
+| `var_file` | Variables files for this run only, in order, below `var`. |
+| `overlays` | `*.turf.hcl` files laid over the configuration in memory for this run alone. |
+| `plan_only` | Plan the teardown and end `planned`, keeping it as a planfile for a later apply. See [Plan now, apply later](/docs/using/planfiles/). |
+
+## Related
+
+- [Deploy or update with up](/docs/using/up/)
+- [Plan and apply by hand](/docs/using/plan-and-apply/): decline and cancel.
+- [Safety rules](/docs/concepts/safety-rules/): destroy only on the user's explicit words.
+- [Answering a turf action](/docs/using/turf-actions/)
