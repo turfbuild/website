@@ -46,7 +46,7 @@ TURF_BINARIES='turf turf-mcp-server turf-engine turf-builtin-provider'
 TURF_OPTIONAL_BINARIES='turf-ui'
 # The restate-server the engine is tested on, and the sha256 of each of
 # Restate's archives of it (its release's .sha256 files).
-RESTATE_VERSION=1.7.13
+RESTATE_VERSION=1.8.1
 RESTATE_RELEASE=https://github.com/restatedev/restate/releases/download/v$RESTATE_VERSION
 
 say() { printf '%s\n' "$*"; }
@@ -138,16 +138,16 @@ detect_platform() {
   case $os/$arch in
     darwin/arm64)
       restate_triple=aarch64-apple-darwin
-      restate_sha=503c9a74eaad9b3579a373a5cd558b6910b179d17d87c2a75307cd975d1a299d ;;
+      restate_sha=e2ea3dce01140981fe4d15a09e53718681574d3a290f5566b1025b4a2696a3eb ;;
     darwin/amd64)
       restate_triple=x86_64-apple-darwin
-      restate_sha=8bebb7787f003530e4959631111505b5003c87470e8ce3c070b6d02aff73ca89 ;;
+      restate_sha=c6c079291b6171ff34358dd94b9315d5c374fc1e2ca96b62573caf8ac047e6c0 ;;
     linux/arm64)
       restate_triple=aarch64-unknown-linux-musl
-      restate_sha=c0218d5ae5052cc2c6f842bbcfa57fd10240cfe30795c381850c452fbcef2b61 ;;
+      restate_sha=7d30d4c73a6978f7b4e4a2c08163fbf4e5689c4534af013bb8fd37e003474857 ;;
     linux/amd64)
       restate_triple=x86_64-unknown-linux-musl
-      restate_sha=5429b216b68f3fa52b7f0e6627a2c2a86fc0c75d19b1e152cd2e7dcd8bab4c82 ;;
+      restate_sha=56f12ccc54ee227657d4d8b070622849977444425184ee242a33e3ccc28bf745 ;;
   esac
 }
 
