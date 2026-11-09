@@ -1,5 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import FigureDefs from '../components/FigureDefs.astro';
+import EngineArchitectureFigure from '../components/figures/EngineArchitectureFigure.astro';
 // The Turf 1.0 announcement (launch plan §3, §8: the descriptor, the two layers, the four
 // pillars, what is in 1.0, what comes next). Sources, in order of use: the launch paragraph and
 // the two-layer frame (launch-plan.md §1, §3); the engine list and the three-ecosystems chapter
@@ -46,6 +48,7 @@ const engine = [
 ---
 
 <Layout title={title} description={description} jsonLd={jsonLd}>
+  <FigureDefs />
   <section class="subhero">
     <div class="wrap">
       <p class="eyebrow"><span class="dot"></span> Announcement · Turf 1.0</p>
@@ -155,6 +158,14 @@ const engine = [
       <div class="band-head">
         <h2>One engine, from a laptop to the data center.</h2>
         <p>The same engine runs every stack, on a workstation or in the cluster.</p>
+      </div>
+      <div class="figwide">
+        <EngineArchitectureFigure />
+        <p class="figcap"><b>Same files, same providers. A different engine.</b> Above, OpenTofu as you run
+          it today: one command, one process, one pass, one statefile, and then it exits. Below, the same
+          pieces run as a service: the MCP server parses your configuration and opens your state as today,
+          Restate keeps the durable journal, and engine replicas refresh, plan and apply per resource, in
+          rounds, until nothing is deferred. Flow control is drawn dashed: it is not shipped yet.</p>
       </div>
       <ul class="engine-list">
         {engine.map(([name, what]) => (
