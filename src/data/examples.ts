@@ -31,21 +31,22 @@ export const examples: Example[] = [
     ],
     links: [
       { label: 'the example on GitHub', href: 'https://github.com/turfbuild/turf-examples/tree/main/use-cases/datacenter/aicr-stack' },
-      { label: 'Metal to Tokens, the paper', href: '/reference-architectures/' },
+      { label: 'Metal to Tokens, the paper', href: '/reference-architectures/metal-to-tokens/' },
     ],
   },
   {
     id: 'kagent',
-    tagline: 'An agent in the cluster it manages',
+    tagline: 'The cluster as a control plane',
     title: 'Turf and kagent 1.0, one cluster',
     blurb:
-      'kagent runs the agent in a gVisor sandbox that holds no credential; Turf’s engine scales from zero on Knative; state stays in the cluster. Every apply waits for a person in the kagent UI.',
+      'Ask in the kagent chat for a fleet of AWS Lambda functions, read the plan and approve it. Turf’s engine applies it with a key the agent never holds, and the agent fetches each URL to check what it built.',
     body: [
-      'kagent 1.0 runs the agent in a gVisor sandbox beside Turf, and the agent reaches Turf’s MCP server over HTTP like any other client, through an egress gateway that adds the bearer token: no credential crosses into the sandbox. The engine is a Knative service on restate-server, scaling from zero when a round starts and back to zero after. State stays in the cluster, a Secret per stack.',
-      'One script builds the whole setup on a kind cluster. Every apply waits for a person in the kagent UI, and a step that needs eyes pauses the apply for the agent, inside the approved plan.',
+      'kagent 1.0 runs the agent in a gVisor sandbox that holds no credentials, and Turf gives it Terraform plan and apply as tools. Ask in the kagent chat for infrastructure outside the cluster, here a fleet of AWS Lambda functions, and it comes back as a plan. Every apply waits for a person in the kagent UI. Only Turf’s engine holds the AWS key, scoped by name to the example’s own resources.',
+      'After the apply, a turf action has the agent fetch each function’s URL and report what it answered, and a person approves that report too. The engine is a Knative service on restate-server, scaling from zero when a plan or an apply needs it and back after. State stays in the cluster, a Secret per stack. After a one-time step that makes the engine’s AWS key, one script builds the whole setup on a kind cluster.',
     ],
     links: [
       { label: 'the repository on GitHub', href: 'https://github.com/turfbuild/turf-kagent' },
+      { label: 'An Agentic Infrastructure Control Plane, the paper', href: '/reference-architectures/agentic-infrastructure-control-plane/' },
       { label: 'the walkthrough in the docs', href: '/docs/cluster/example-kagent/' },
     ],
   },
