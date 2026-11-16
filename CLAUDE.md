@@ -75,7 +75,9 @@ Pages pass four props, all optional: `title`, `description`, `noindex`, `jsonLd`
 **Pages compose components; the home page composes them all.** `pages/index.astro` is nothing but an
 ordered list of section components (redesigned 2026-10-20, revised 10-21 and 11-07): FigureDefs, Hero (with
 StackBuild), WhyEngine (two figures: the engine map and a run timeline; it carries the legacy
-`#product` anchor), DriftDetection (since 2026-11-15, `#drift`: "Drift, caught as it happens.", the
+`#product` anchor), DriftDetection (since 2026-11-15, `#drift`: "Terraform, on watch.", Eron's
+headline of 2026-11-16, over a lede that opens "Continuous drift detection for everything a Terraform
+provider manages." and says it is not a scheduled plan; the
 signal → read → notice → agent → plan figure, four supports as a ticklist and one illustrative
 exchange; it sits right after WhyEngine because watching between plans is the first thing only an
 engine that does not exit can do), ActionsInPlan,
@@ -191,10 +193,12 @@ after the first usage"); Prometheus® joins that clause if the site ever names i
 Rules: the symbol appears **once per page, at the first prominent body use** (the hero lede on
 home, "Turf™ plans, applies, …"; a subpage's lede) — headlines, `<title>`s, eyebrows, buttons and
 code stay clean; a mark is never possessive or plural ("Ansible playbooks", not "Ansible's"); the
-`turf.build` wordmark itself is unmarked, as in the PDF. **One deliberate exception** (Eron,
-2026-11-07): the home feature grid is headed "A new Terraform, reimagined for AI." — "Terraform" names
-the category Turf re-does, as "a new Terraform" and never as Turf's name; it still never appears in
-a product name, domain or logo, and the headline carries no ®. Don't "fix" it. The footer fineprint carries the attribution
+`turf.build` wordmark itself is unmarked, as in the PDF. **Two deliberate exceptions, and only these
+two**, both Eron's lines, both on home: the feature grid is headed "A new Terraform, reimagined for
+AI." (2026-11-07), and the drift band "Terraform, on watch." (2026-11-16; "on watch" as in keeping
+watch, and `watch` is also the tool's name). In both, "Terraform" names the category Turf re-does,
+as "a new Terraform" and never as Turf's name; it still never appears in a product name, domain or
+logo, and neither headline carries a ®. Don't "fix" either, and don't add a third. The footer fineprint carries the attribution
 and non-affiliation statement on every page, and `public/llms.txt` the same block: "Turf™ is a
 trademark of Turf LLC. Terraform® is a registered trademark of HashiCorp, Inc. Ansible® is a
 registered trademark of Red Hat, Inc. in the United States and other countries. Helm® and
@@ -491,7 +495,10 @@ webhook. Never implied: the engine applying a fix on its own (it detects and not
 off-plan"), event feeds for cloud audit logs, object-level drift inside a Helm release, or a watch on
 Helm releases at all (the sweep reads a `helm_release` through its provider). No number or speed
 claim: "as it happens", "between plans", never "in seconds". "GitOps controllers" is the generic
-term; none is named. The surfaces: the home band and its grid tile, the day-2 exchange in the agent
+term; none is named. The band's lede must not read as a plan on a timer or a wrapper that runs
+Terraform: Turf's engine keeps watch and wakes the agent only when something really changed. With
+two "Terraform" headlines on home, the grid's lede says "drift caught between plans" and leaves
+"watch" to the band, and the band names "a Terraform provider" once, in the lede's opening line. The surfaces: the home band and its grid tile, the day-2 exchange in the agent
 band (illustrative: the AWS provider plans an ElastiCache engine downgrade as a replacement, so a
 revert goes to a person), the Day 2 beats of use cases 01 to 04, `/engine/#drift`, one strengths row
 and two workflow rows on `/compatibility/` (HashiCorp's health assessments described from

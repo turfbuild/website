@@ -2,7 +2,11 @@
 // Continuous drift detection: the engine watches between plans. Placed right after WhyEngine on
 // purpose: that band says Turf is a service where the old tool is a process that exits, and this
 // is the first thing only a service can do. Its run timeline is "one run"; this figure is
-// "between runs". Rules kept: present tense; no number or speed claim ("as it happens",
+// "between runs". The headline is "Terraform, on watch." (Eron, 2026-11-16: keeping watch, and
+// `watch` is the tool's name): the second of the two deliberate exceptions to the nominative-use
+// rule, with the grid's "A new Terraform, reimagined for AI." (CLAUDE.md, "Trademark"); it carries
+// no ®. Don't "fix" it. The lede opens on the phrase people search for, and says plainly that this
+// is the engine keeping watch, not a plan on a schedule. Rules kept: present tense; no number or speed claim ("as it happens",
 // "between plans"); "GitOps controllers" is the generic term and none is named; the engine
 // detects and notifies, and never applies on its own; Helm releases are caught by the sweep (the
 // provider's own read), so no watch is claimed for them. The exchange is illustrative, in the
@@ -16,10 +20,11 @@ import DriftFigure from './figures/DriftFigure.astro';
 <section class="band alt" id="drift">
   <div class="wrap">
     <div class="band-head">
-      <h2>Drift, caught as it happens.</h2>
-      <p>Terraform looks at the world only when someone runs a plan. Turf keeps watching between
-        plans: a change made outside it reaches your agent as a drift notice, and the fix is a plan
-        like any other.</p>
+      <h2>Terraform, on watch.</h2>
+      <p><strong>Continuous drift detection for everything a Terraform provider manages.</strong>
+        Turf’s engine keeps watch between plans and wakes your agent only when something really
+        changed. Not a scheduled plan: a change made outside Turf arrives as a drift notice, and the
+        fix is a plan like any other.</p>
     </div>
 
     <div class="figwide">
@@ -43,8 +48,8 @@ import DriftFigure from './figures/DriftFigure.astro';
             <code>ignore_changes</code>. The plan reads only what drifted and stops at the same approval
             points. Nothing runs off-plan.</span></div></li>
           <li><span class="g">✓</span><div><b>Beyond the cluster</b> <span>— what GitOps controllers do for
-            Kubernetes manifests, for everything a Terraform provider manages: cloud resources, DNS,
-            Helm releases, the clusters themselves.</span></div></li>
+            Kubernetes manifests, for the rest of the stack: cloud resources, DNS, Helm releases, the
+            clusters themselves.</span></div></li>
         </ul>
         <div class="proof">
           <span class="lab">More</span>
