@@ -108,7 +108,7 @@ spec:
             - name: TURF_FEED_WORKSPACE_LINEAGE
               value: "00000000-0000-0000-0000-000000000000"   # EDIT: the workspace's lineage
             - name: TURF_FEED_PROVIDER
-              value: 'provider["registry.terraform.io/hashicorp/kubernetes"]'   # EDIT
+              value: 'provider["registry.opentofu.org/hashicorp/kubernetes"]'   # EDIT
             - name: TURF_FEED_ID
               valueFrom:
                 fieldRef:
@@ -145,12 +145,12 @@ names the workspace to the engine.
 `provider["<host>/<namespace>/<name>"]`, with `.<alias>` when the configuration is aliased.
 
 ```text
-provider["registry.terraform.io/hashicorp/kubernetes"]
+provider["registry.opentofu.org/hashicorp/kubernetes"]
 provider["registry.opentofu.org/hashicorp/kubernetes"].west
 ```
 
-Take the host from the state. A state Terraform® wrote records `registry.terraform.io`, where
-OpenTofu™'s default is `registry.opentofu.org`.
+Take the host from the state. For a provider whose source names no host, Turf records the OpenTofu™
+default, `registry.opentofu.org`. A state Terraform® wrote records `registry.terraform.io`.
 
 A wrong spelling does not fail. The watch set comes back empty, and the feed's log counts every
 signal and resync item as `unknown`. Check the log after the first start.
