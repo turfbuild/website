@@ -189,20 +189,26 @@ until registration issues. Terraform® is HashiCorp's. Ansible® is Red Hat's, w
 (<https://docs.ansible.com/projects/ansible/latest/dev_guide/style_guide/trademarks.html>) ask for
 the symbol on the first reference. Helm® and Kubernetes® are registered marks, and OpenTofu™ a
 trademark, of the Linux Foundation (<https://www.linuxfoundation.org/legal/trademarks>, "immediately
-after the first usage"); Prometheus® joins that clause if the site ever names it (the PDF does).
+after the first usage"); Prometheus® joined that clause on 2026-11-16, as in the PDF: `/engine/` and
+`/compatibility/` say "metrics in Prometheus® format".
 Rules: the symbol appears **once per page, at the first prominent body use** (the hero lede on
-home, "Turf™ plans, applies, …"; a subpage's lede) — headlines, `<title>`s, eyebrows, buttons and
-code stay clean; a mark is never possessive or plural ("Ansible playbooks", not "Ansible's"); the
-`turf.build` wordmark itself is unmarked, as in the PDF. **Two deliberate exceptions, and only these
+home, "Turf™ plans, applies, …"; a subpage's lede) — headlines, `<title>`s, eyebrows, buttons,
+code, and figures with their labels and captions stay clean (the engine architecture figure's print
+version carries symbols; the web one has none); a mark is never possessive or plural ("Ansible
+playbooks", not "Ansible's"), nor hyphenated into a compound ("only in OpenTofu", not
+"OpenTofu-only"; "Terraform-compatible" stays); the `turf.build` wordmark itself is unmarked, as in
+the PDF. **Two deliberate exceptions, and only these
 two**, both Eron's lines, both on home: the feature grid is headed "A new Terraform, reimagined for
 AI." (2026-11-07), and the drift band "Terraform, on watch." (2026-11-16; "on watch" as in keeping
 watch, and `watch` is also the tool's name). In both, "Terraform" names the category Turf re-does,
 as "a new Terraform" and never as Turf's name; it still never appears in a product name, domain or
-logo, and neither headline carries a ®. Don't "fix" either, and don't add a third. The footer fineprint carries the attribution
-and non-affiliation statement on every page, and `public/llms.txt` the same block: "Turf™ is a
+logo, and neither headline carries a ®. Don't "fix" either, and don't add a third. Each stands once, as its band's headline: neither is
+repeated as link text, in `llms.txt`, a `<title>` or a social card. The footer fineprint carries the
+attribution and non-affiliation statement on every page, and `public/llms.txt` and the docs footer
+(`docs/src/components/Footer.astro`) the same block, byte for byte: "Turf™ is a
 trademark of Turf LLC. Terraform® is a registered trademark of HashiCorp, Inc. Ansible® is a
-registered trademark of Red Hat, Inc. in the United States and other countries. Helm® and
-Kubernetes® are registered trademarks, and OpenTofu™ is a trademark, of the Linux Foundation. Turf
+registered trademark of Red Hat, Inc. in the United States and other countries. Helm®, Kubernetes®
+and Prometheus® are registered trademarks, and OpenTofu™ is a trademark, of the Linux Foundation. Turf
 is not affiliated with, endorsed by, or sponsored by HashiCorp, IBM, Red Hat, the Linux Foundation
 or the OpenTofu project." "Terraform" is only ever used nominatively (compatibility, comparison),
 never in a product name, domain, or logo. Never write "the Terraform Registry" — its ToS restricts
@@ -498,7 +504,9 @@ claim: "as it happens", "between plans", never "in seconds". "GitOps controllers
 term; none is named. The band's lede must not read as a plan on a timer or a wrapper that runs
 Terraform: Turf's engine keeps watch and wakes the agent only when something really changed. With
 two "Terraform" headlines on home, the grid's lede says "drift caught between plans" and leaves
-"watch" to the band, and the band names "a Terraform provider" once, in the lede's opening line. The surfaces: the home band and its grid tile, the day-2 exchange in the agent
+"watch" to the band, and the band names "a Terraform provider" once, in the lede's opening line. The
+grid's lede lists drift among "the things neither does in full", never "neither has": the matrix
+scores Terraform ◑ on that row. The surfaces: the home band and its grid tile, the day-2 exchange in the agent
 band (illustrative: the AWS provider plans an ElastiCache engine downgrade as a replacement, so a
 revert goes to a person), the Day 2 beats of use cases 01 to 04, `/engine/#drift`, one strengths row
 and two workflow rows on `/compatibility/` (HashiCorp's health assessments described from
