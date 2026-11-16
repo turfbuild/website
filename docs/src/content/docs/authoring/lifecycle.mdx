@@ -29,7 +29,7 @@ offers a backup, or the `removed` block.
 - **`create_before_destroy`.** A replace creates the new object before deleting the old:
   `change.actions` is `["create","delete"]`. Otherwise it is delete, then create.
 - **`ignore_changes`.** The listed attribute paths keep their prior value when diffing; `all` ignores
-  every argument.
+  every argument. It is the answer to [a contended field](#a-contended-field).
 - **`replace_triggered_by`.** Replace this object whenever a referenced resource or attribute is
   replaced or changes.
 - **`prevent_destroy`**. A plan that would destroy the object fails, naming it, and
@@ -45,6 +45,31 @@ offers a backup, or the `removed` block.
 
 During a create-before-destroy replace, dependents see the new object as soon as its create applies.
 The old one is deposed and deleted after.
+
+## A contended field
+
+Sometimes another controller writes a field the configuration also sets: an autoscaler changes
+`replicas`, an operator rewrites an annotation. Every `up` puts the field back, and the controller
+changes it again. [Drift detection](/docs/concepts/drift/) names this. When the same paths have
+drifted again after two runs put them back, the notice's class is `contended`, and another apply is
+not the answer. The answer is in the files:
+
+```hcl
+resource "kubernetes_deployment_v1" "web" {
+  # …
+  lifecycle {
+    ignore_changes = [spec[0].replicas]
+  }
+}
+```
+
+- A plan no longer puts the listed paths back: they keep the value state records.
+- A change to them between runs is noise, and never a notice.
+- The notice's `paths` are the ones to list. A path the notice shows as `[*]` is a set element or a
+  redacted map key: name it from the files.
+
+The other way out is to stop the other controller. Which one is your call, and the agent asks before
+it edits the files.
 
 ## Host replacement
 

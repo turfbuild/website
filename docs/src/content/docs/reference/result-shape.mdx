@@ -9,6 +9,9 @@ Every call that starts or continues a convergence returns the same result: `up`,
 stands, the call that continues it, the plan waiting for approval and what each round did. The
 [outcomes table](#outcomes) is at the end.
 
+`watch` and `drift` start no convergence and return results of their own, with the same `outcome`,
+`ended` and `next`: see [Watching for drift](/docs/using/drift/#wait-for-it).
+
 At an approval point, a result looks like this:
 
 ```text
@@ -43,6 +46,7 @@ The other top-level fields:
 | `expires_at` | When the server stops waiting at this stop. A pause lasts 24 hours, at a plan gate, an approval point or turf actions; past it the server detaches and the convergence waits in the engine. |
 | `plan` | The plan waiting at an approval point. See [The plan](#the-plan). |
 | `planfile` | On a `planned` ending, the plan the engine keeps for a later apply. See [The planfile](#the-planfile). |
+| `refresh_scope` | On the result of a `plan` call that scoped its round's refresh: the addresses read, and as `skipped` how many rows were planned unread. See [A scoped refresh](/docs/using/refresh/#a-scoped-refresh). |
 | `action_requests` | At `awaiting_actions`, every turf action waiting on the agent. See [Turf action requests](#turf-action-requests). |
 | `refused` | The action results an `apply` sent that were not taken, each with the reason. Those requests stay open. |
 | `rounds` | Every round so far. See [Rounds](#rounds). |
@@ -143,6 +147,7 @@ Each entry counts what the round did:
 | `deferred` | Changes left for a later round. |
 | `applied` | Changes applied. |
 | `drift` | Objects the refresh found changed outside Terraform: what a refresh writes into state. |
+| `refresh_skipped` | Managed rows a scoped refresh planned from their records without reading them. Drift on them was not looked for. |
 | `failed` | Changes that failed. |
 | `skipped` | Changes never started, because something they depend on failed or halted. |
 | `cancelled` | Changes a cancel abandoned. |

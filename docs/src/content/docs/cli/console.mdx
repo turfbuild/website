@@ -37,8 +37,25 @@ the plan's digest, the apply, any turf action the apply is asking, and how the r
 The Timeline tab draws every resource's lane as the apply runs, live; Plan and Graph show one round's
 plan and configuration graph; State shows what the workspace holds.
 
-The console is read-only. Approvals are given where they always were: by the agent, or by you in the
-CLI. In a terminal, [`turf up`](/docs/cli/up-and-destroy/#what-you-answer-in-the-terminal) shows the
+**The Drift tab** shows the workspace between runs: what changed outside Turf, and how much of the
+workspace anything watches. Its label carries the number of open addresses.
+
+- **Open notices.** Each address with its class, the changed paths, what saw the change, when it was
+  first seen and when it was read. A row opens the notice: what its class means, and the call that
+  continues it as text to copy, `up` and then `plan` with `refresh_drift: true`.
+- **Coverage.** How many managed objects are watched and live, swept or uncovered, and why. With the
+  sweep on, its cycle and how far it has come.
+- **Pipeline.** Each feed, live or lost; what is settling and what is being read; the read budget; the
+  webhook's last delivery.
+- **Recent reads and cleared notices.** The reads that found only noise are here, and nowhere an agent
+  sees them.
+
+Where nothing watches the workspace, the tab says so and names what is missing: a standing
+configuration (the console's words for the standing seal), a feed, the sweep. It shows paths, never
+values: a plan's diff has those. See [Drift](/docs/concepts/drift/).
+
+The console is read-only. It starts no run and acknowledges no notice. Approvals are given where they
+always were: by the agent, or by you in the CLI. In a terminal, [`turf up`](/docs/cli/up-and-destroy/#what-you-answer-in-the-terminal) shows the
 round's console link beside each plan gate and approval point.
 
 ## How it signs in

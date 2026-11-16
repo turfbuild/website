@@ -54,6 +54,7 @@ export default defineConfig({
                 { label: 'Configuration', items: ['reference/tools/init'] },
                 { label: 'Workspaces', items: ['reference/tools/open', 'reference/tools/close', 'reference/tools/status', 'reference/tools/list', 'reference/tools/delete'] },
                 { label: 'Convergence', items: ['reference/tools/up', 'reference/tools/destroy', 'reference/tools/refresh', 'reference/tools/import', 'reference/tools/invoke', 'reference/tools/plan', 'reference/tools/apply', 'reference/tools/cancel'] },
+                { label: 'Drift', items: ['reference/tools/watch', 'reference/tools/drift'] },
                 { label: 'State', items: ['reference/tools/show', 'reference/tools/output', 'reference/tools/state_list', 'reference/tools/taint', 'reference/tools/untaint'] },
                 { label: 'Providers', items: ['reference/tools/provider_search', 'reference/tools/provider_describe'] },
                 { label: 'Skills', items: ['reference/tools/skill_deployment', 'reference/tools/skill_authoring', 'reference/tools/skill_guide', 'reference/tools/read_skill_file'] },

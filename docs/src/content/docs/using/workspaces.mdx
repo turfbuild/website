@@ -159,7 +159,7 @@ When a call fails with "the state is already locked by another tofu client":
 
 **`status`** lists what is open here: each workspace's alias, configuration, backend, lineage, and the
 run holding it (its `kind`, `stage`, `round`, open questions, and `next`). It also lists the planfiles
-a workspace holds.
+a workspace holds, and its open [drift notices](/docs/using/drift/#see-what-drifted).
 
 **`list`** lists the workspaces in the configuration's backend, as `tofu workspace list`: `"default"`
 first, the rest sorted. It is refused when the backend block reads `terraform.workspace`: each workspace

@@ -80,6 +80,11 @@ tool on the workspace reads the state with them, and each run lays its own value
 workspace again with `var` or `var_file` replaces them. They last as long as the session: when it ends,
 the workspace closes. A value the backend block reads, and a state-encryption passphrase, go to `open`.
 
+**What the engine keeps.** The engine pins a run's values with the run. When an `up` converges, the
+engine keeps that run's configuration with its values, sensitive ones included, so it can read
+objects between runs. The next converged `up` replaces the copy, and a converged `destroy` removes
+it. Ephemeral variables are never kept. See [Drift](/docs/concepts/drift/#what-the-engine-reads-with).
+
 **Loaded on their own.** `terraform.tfvars` and `*.auto.tfvars` in the configuration directory, and
 `TF_VAR_` variables in the MCP server's environment. `TF_VAR_` never comes from mise.
 

@@ -1,0 +1,289 @@
+---
+title: Watching for drift
+description: "Turn on drift detection for a workspace, read its notices with status, wait for new ones with watch, and remediate with a plan that reads only what drifted."
+sidebar:
+  order: 4.5
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import Conversation from '../../../components/Conversation.astro';
+import User from '../../../components/User.astro';
+import Agent from '../../../components/Agent.astro';
+import ToolResult from '../../../components/ToolResult.astro';
+
+Between runs, the engine can watch what a workspace manages and tell your agent when an object changes
+outside Turf™. You turn it on with `drift`, read what is open with `status`, and wait for what is new
+with `watch`. A change is put back by an ordinary `up` whose plan reads only what drifted. The plan
+and its approval point govern every change, as in any run.
+
+The conversation below is shaped on one Deployment the configuration sets to three replicas:
+
+```hcl title="main.tf"
+resource "kubernetes_deployment_v1" "web" {
+  metadata { name = "web" }
+  spec {
+    replicas = 3
+    # …
+  }
+}
+```
+
+<Conversation>
+<User>Watch this workspace, and put back anything that changes outside Turf.</User>
+<Agent calls={['watch → unwatched']}>
+
+Nothing watches this workspace between runs yet. I can turn on a sweep: the engine would read every
+managed object once an hour, unattended, against the provider's API with its own credentials. Shall I?
+
+</Agent>
+<User>Yes, hourly is fine.</User>
+<Agent calls={['drift → configured', 'watch → waiting']}>
+
+The sweep is on, one cycle an hour, and I am watching. I will tell you when something drifts.
+
+</Agent>
+<Agent calls={['watch → drift', 'up → awaiting_plan', 'plan → awaiting_approval', 'apply → converged', 'watch → waiting']}>
+
+The sweep found one change: `kubernetes_deployment_v1.web`, class `configured`, at `spec[0].replicas`.
+I planned with only that object read:
+
+```text
+~ kubernetes_deployment_v1.web
+    spec.replicas: 5 → 3
+```
+
+An in-place update back to what your files say, so I approved it. The other 41 objects planned from
+their records, unread. I am watching again.
+
+</Agent>
+<ToolResult tool="watch" outcome="drift">
+
+```text
+outcome: drift   ended: true
+drift:
+  counts:   { configured: 1 }
+  notices:  [ { address: "kubernetes_deployment_v1.web", class: "configured",
+                paths: ["spec[0].replicas"], source: "sweep", new: true } ]
+  coverage: "42 managed: 42 swept (each read within 58m); settle 30s, sweep cycle 60m"
+cursor: "w2.…"
+next:   { tool: "up", args: { workspace_alias: "default" } }
+```
+
+</ToolResult>
+</Conversation>
+
+<Tabs syncKey="surface">
+<TabItem label="In your agent">
+
+In Claude Code, the prompt is a slash command:
+
+```text
+/turf:watch path/to/config
+```
+
+In any client, ask in words: "watch this workspace for drift and put back what changes". The agent
+loads its drift reference, opens the workspace, and loops: `watch`, and on drift `up`, `plan` with
+`refresh_drift: true`, a review of the plan, `apply` with its digest, then `watch` again.
+
+The first `watch` returns what is already open. To act only on what drifts from now on, say so: "watch
+from now on".
+
+</TabItem>
+<TabItem label="Turf CLI">
+
+Ask the CLI's agent in the configuration directory:
+
+```sh
+cd path/to/config && turf chat
+```
+
+Then type "watch this workspace for drift". It calls the same tools.
+
+</TabItem>
+</Tabs>
+
+## Turn it on
+
+```text
+drift({ workspace_alias, sweep: 3600 })
+→ outcome: configured, settings: { settle: 30, sweep: 3600 }, next: watch
+```
+
+`drift` changes the settings it names and leaves the rest as they stand. Its first call turns drift on
+for the workspace.
+
+| Setting | Meaning |
+|---|---|
+| `settle` | Seconds an object must be quiet before its signal is read. `0` takes the engine's default, 30. |
+| `sweep` | Seconds for one cycle over every managed object. `0` turns the sweep off, which is where it starts. |
+| `confirm` | `false` turns the confirming read off: every notice then stays `unconfirmed`. |
+
+<Aside type="caution" title="The sweep is your choice">
+The sweep reads every managed object, unattended, against the provider's API, with the engine's
+credentials. No approval point stands in front of those reads. The agent offers it and calls `drift`
+only when you ask or agree, never on its own.
+</Aside>
+
+Detection needs two things besides the setting, and the result's `note` says which is still missing:
+
+- **Something to signal a change.** The sweep, or a [drift feed](/docs/cluster/drift-feed/) in the
+  cluster. A feed that reaches the workspace turns drift on by itself, with no `drift` call and no
+  sweep.
+- **A standing seal** for the confirming read. The engine takes it from the last `up` that converged,
+  so a workspace needs one converged run on this engine first. `drift` is refused on a workspace with
+  no state.
+
+`drift` is listed only by a server at the `full` [tier](/docs/reference/server/#tiers). `watch` and
+`status` are listed at every tier.
+
+The sweep paces itself across the cycle and draws on the engine's
+[read budget](/docs/environment/engine-environment/#drift-detection). It pauses while a run holds the
+workspace, and an `up` that converges after reading every object starts its cycle over. An object a
+live feed watches is swept every fourth cycle.
+
+## See what drifted
+
+`status` carries each workspace's open notices under `drift`:
+
+```text
+drift: { counts: { configured: 1, gone: 1 },
+         notices: [ { address, class, paths, source, first_seen } ],
+         omitted, coverage, next, note }
+```
+
+- `notices` has one entry per address, most severe class first: `gone`, `configured`, `referenced`,
+  `contended`, `unconfirmed`, `uncovered`. It lists up to 20; `omitted` counts the rest.
+- `paths` are the attribute paths that changed. Values are never in a notice.
+- `coverage` is one line: how many objects are watched live, swept or uncovered, then the settings
+  that explain it, such as `settle 30s, sweep off`.
+- `next` is the `up` to call, and `note` says what each class present asks.
+
+With nothing open, the block is the coverage line alone, or absent when there is no coverage to
+report. A workspace with drift not turned on has no block. What each class means:
+[Drift](/docs/concepts/drift/#classes).
+
+## Wait for it
+
+`watch` returns when there is something new to act on: an open notice it has not reported yet.
+
+```text
+watch({ workspace_alias })           → outcome: drift, drift, cursor, next: up
+watch({ workspace_alias, cursor })   → waits for what is new since
+```
+
+- **The cursor** is what the last result reported. Pass it back exactly as it came, and the watch
+  wakes only on what is new since. A notice clearing wakes nobody.
+- **No cursor** is a catch-up: anything open is new, and the call returns at once. The note says which
+  notices were already open before the call.
+- **`cursor: "now"`** takes what is open as reported and waits only for what opens after. Use it right
+  after reading `status`.
+- **`quiet_for`** holds new drift back until the open notices have been still that many seconds: no
+  new signal, no new read. Use it when someone may be mid-change, or when a rollout touches many
+  objects and you want one plan for all of it.
+- **`wake_on`** picks the classes. `confirmed`, the default, wakes on every class but `unconfirmed`,
+  which the engine's own read will settle. Where nothing will read it (no standing seal, or `confirm`
+  off), `unconfirmed` wakes the watch too. `any` wakes on every class.
+- **`for`** bounds the whole watch in seconds, across calls. Past it with nothing new, the outcome is
+  `quiet` and the watch has ended.
+
+| Outcome | Meaning | Next |
+|---|---|---|
+| `drift` | Something new is open. The entries the cursor had not reported carry `new: true`. | `up`, then `plan` with `refresh_drift: true`. Then `watch` with the new cursor. |
+| `waiting` | The server's deadline came first. Nothing is new. | The same `watch`, with the cursor the result carries. |
+| `quiet` | `for` has passed with nothing new. | Nothing. |
+| `unwatched` | Nothing watches the workspace, so the watch would never wake. | `drift`, if you agree to turn it on. Until then, an `up`'s plan reads every object and is the drift report. |
+
+While a run holds the workspace, a `drift` result has no `next`: finish or cancel that run first. At
+the `read` tier there is no `up`, so the agent reports the drift and a server at another tier makes
+the change.
+
+## What an idle watch costs
+
+A `watch` call waits inside the server until its deadline, then returns `waiting`. Each such return
+costs your agent a turn and says nothing new.
+
+- At the default deadline, 55 seconds, an idle watch is 3600 ÷ 55 ≈ 65 turns an hour.
+- `--watch-deadline 30m` (or `TURF_WATCH_DEADLINE=30m`) on the server makes it 2 an hour. Set it under
+  your client's limit on a tool call. In Claude Code that limit is `MCP_TOOL_TIMEOUT`, in milliseconds.
+- Without `--watch-deadline`, `watch` takes the server's `--deadline`.
+- A call that carries a progress token gets a progress notification every 15 seconds while it waits,
+  for a client that resets its timeout on progress.
+
+The deadline is the operator's setting, not an argument of the call. See
+[The server](/docs/reference/server/#the-watch-deadline).
+
+## Plan only what drifted
+
+```text
+up({ workspace_alias })                        → awaiting_plan
+plan({ convergence_id, refresh_drift: true })  → awaiting_approval, refresh_scope
+apply({ convergence_id, plan_digest })         → converged
+
+refresh_scope: { addresses: ["kubernetes_deployment_v1.web"],
+                 count: 1, from_drift: 1, skipped: 41 }
+```
+
+With `refresh_drift: true`, the round reads only the objects the open notices name. The server fills
+that list in as the round plans, so anything that drifted since you looked is included. Every other
+row plans from its record, and a row that then plans a change is read and planned again, so nothing
+is applied over a stale record.
+
+- **`refresh_addresses`** names addresses yourself. With `refresh_drift`, the round reads both sets.
+- **`refresh_scope.skipped`** counts the rows planned from their records, unread. Drift on them was
+  not looked for. The round's `refresh_skipped` is the same count.
+- **Uncovered objects are not read** by a scoped plan, and the result's note says how many there are.
+  `plan` with neither argument reads everything. Use it when the coverage has gaps, or when a notice
+  says signals were dropped.
+- **With nothing open**, `refresh_drift` reads every object, and the result says so.
+
+Both arguments belong to an `up`'s plan and to that round alone. More in
+[Refresh state](/docs/using/refresh/#a-scoped-refresh).
+
+## Decide
+
+The notice says what changed. Which side wins is the agent's decision, and often yours.
+
+| Decision | What happens | Who approves |
+|---|---|---|
+| **Remediate** | `up` plans the object back to what the files say. | The agent, when the plan is an in-place update that reverts a setting. You, for a replace, a delete, or a create of something that held data. |
+| **Adopt** | The files change to match the world, then `up`. | You. The files are yours, and the agent asks before it edits them. |
+| **Suppress** | [`ignore_changes`](/docs/authoring/lifecycle/#a-contended-field) on the paths another controller owns. | You. A `contended` notice has no `next`, because another `up` will not hold. |
+
+The approval rules do not change because the plan came from drift:
+[Approval](/docs/concepts/approval/#drift).
+
+A notice clears itself when a run commits its address, or when a later read finds the object as
+recorded. A `gone` object you meant to delete clears when you remove it from the configuration and
+apply.
+
+## Arguments
+
+`drift`:
+
+| Argument | Meaning |
+|---|---|
+| `workspace_alias` | The workspace. Omit it for the default. |
+| `settle` | Seconds of quiet before a signal is read; `0` takes the engine's 30. |
+| `sweep` | Seconds for one sweep cycle; `0` turns the sweep off. |
+| `confirm` | `false`: no confirming read. `true`, the default: a settled object is read against the standing seal. |
+
+Name at least one setting. `watch`:
+
+| Argument | Meaning |
+|---|---|
+| `workspace_alias` | The workspace. Omit it for the default. |
+| `cursor` | The cursor from the last result; `"now"` to wait only for what opens after the call begins; omit to catch up. |
+| `quiet_for` | Seconds the open notices must have been still before the watch returns them. Default 0. |
+| `wake_on` | `confirmed` (default) or `any`. |
+| `for` | Total seconds to keep watching, counted from the first call. Omit to watch until something drifts. |
+
+`plan`'s `refresh_drift` and `refresh_addresses` are in
+[Plan and apply by hand](/docs/using/plan-and-apply/#arguments).
+
+## Related
+
+- [Drift](/docs/concepts/drift/): signals, observations, classes and coverage.
+- [The drift feed](/docs/cluster/drift-feed/): signals from a Kubernetes® cluster.
+- [When something goes wrong](/docs/using/troubleshooting/#drift): unwatched, unconfirmed, uncovered,
+  contended, a watch that never wakes.
+- [`watch`](/docs/reference/tools/watch/) and [`drift`](/docs/reference/tools/drift/) in the reference.

@@ -19,12 +19,12 @@ npm --prefix docs run generate   # the MCP reference, from a turf-mcp-server bin
 src/content/docs/
   index.mdx            the landing page (template: splash)
   start/               Start here: what Turf is, install, connect, first run, cluster pointer
-  concepts/            Overview, rounds and deferrals, approval, turf actions, engine and console, safety rules
-  using/               one page per task: up, destroy, plan-and-apply, refresh, import, invoke, …
+  concepts/            Overview, rounds and deferrals, approval, turf actions, engine and console, drift, safety rules
+  using/               one page per task: up, destroy, plan-and-apply, refresh, drift, import, invoke, …
   environment/         provider environment and credentials (its own chapter)
   authoring/           writing configurations with an agent; differences from Terraform
   cli/                 the Turf CLI
-  cluster/             running Turf in a cluster; kagent as the closing example
+  cluster/             running Turf in a cluster, the console and the drift feed; kagent as the closing example
   reference/           the MCP reference: server, result shape, tools/ (generated), prompts, resources,
                        skills/ (generated), instructions (generated), slash commands
   releases/            release notes, one page per release

@@ -53,7 +53,7 @@ Turf actions and provider actions are in [Actions and overlays](/docs/authoring/
 - **Plans include overlays.** A `*.turf.hcl` overlay, or one passed in memory as `overlays`, is part
   of every plan; `tofu` and `terraform` ignore it.
 - **`open` keeps variable values for the workspace,** as an exported `TF_VAR_` serves a shell, while a
-  plan command's own values hold for that run's rounds alone. Nothing is written down.
+  plan command's own values hold for that run's rounds alone. The server writes nothing down.
 - **A validation decidable only at apply** fails after the round applied: the round is recorded as
   applied, and the run ends `failed`. See [Variables](/docs/authoring/variables/#validation).
 - **A forced replace can split across rounds.** A `replace` or `replace_triggered_by` replace of an
@@ -63,6 +63,14 @@ Turf actions and provider actions are in [Actions and overlays](/docs/authoring/
 - **A failed `before_create` step on a create-before-destroy replace** leaves the old object current,
   with nothing deposed. Terraform deposes first and leaves nothing current.
 - **Deposed and tainted objects are not refreshed** before the plan replaces or destroys them.
+- **Drift is found between plans.** Terraform sees drift when a plan refreshes. Turf's engine can also
+  watch between runs: a feed or a paced sweep signals a change, one read confirms it, and your agent
+  gets a drift notice. Detection only reports. A change is still a plan at an approval point. See
+  [Drift](/docs/concepts/drift/).
+- **A plan can read only what drifted.** `plan` with `refresh_drift` or `refresh_addresses` reads the
+  named objects and plans every other row from its record, reading a row again when it plans a
+  change. It is not `-target`: the plan is still the whole configuration. See
+  [A scoped refresh](/docs/using/refresh/#a-scoped-refresh).
 - **Data-source reads are committed with an apply,** never at a plan that was declined, cancelled or
   stale. See [Data sources](/docs/authoring/data-sources/#what-is-stored).
 - **Provider plugins start afresh every round,** so a round sees what the previous one applied.
