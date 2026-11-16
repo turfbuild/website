@@ -74,7 +74,7 @@ point as `up`. `plan` reads every managed object and plans writing what it found
 with the plan's digest writes it. A `refresh` always reads every object. To read fewer, scope an `up`'s
 plan: [a scoped refresh](#a-scoped-refresh).
 
-**Where drift shows.** `plan.drift` counts the objects the refresh found changed outside Terraform®,
+**Where drift shows.** `plan.drift` counts the objects the refresh found changed outside Turf,
 and the plan document lists them under `resource_drift`. After the apply, `rounds[].drift` records how
 many the round wrote into state.
 

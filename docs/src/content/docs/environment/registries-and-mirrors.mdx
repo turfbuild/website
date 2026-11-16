@@ -35,7 +35,7 @@ server's environment, plus `open`'s `backend_config`.
 
 ## Registry and `remote` backend tokens
 
-A private module or provider registry, and the `remote` backend (HCP Terraform®, Scalr, TFE),
+A private module or provider registry, and the `remote` backend (HashiCorp's hosted platform, Scalr, TFE),
 authenticate with a token for their host. Two ways:
 
 - **`turf login <host>`**, the simplest. Like `tofu login`, it writes the token to
@@ -97,7 +97,7 @@ A CLI configuration in error stops either process from starting, where `tofu` wa
 Turf™ stops because carrying on would install from the public registry what you meant to take from
 your mirror.
 
-A provider the engine's block does not serve fails the plan in OpenTofu's words: "was not found in any
+A provider the engine's block does not serve fails the plan in the OpenTofu wording: "was not found in any
 of the search locations", a registry that "does not have a provider named" it, or a version that "is
 not available for" the engine's platform, as from a mirror filled on another machine. The fix is the
 engine's CLI configuration or the mirror it names, then a restart of the engine. Another `up` before

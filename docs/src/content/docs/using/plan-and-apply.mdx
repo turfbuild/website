@@ -87,7 +87,7 @@ at round 1's plan gate (`awaiting_plan`), with nothing planned. Each `apply` tha
 stops at the next round's plan gate.
 
 **`plan`** plans the round and stops at its approval point (`awaiting_approval`). The result carries the
-plan's counts, its resource (`plan.uri`: OpenTofu™'s JSON plan, as `tofu show -json` prints it,
+plan's counts, its resource (`plan.uri`: the OpenTofu™ JSON plan, as `tofu show -json` prints it,
 sensitive values redacted) and its digest (`plan.digest`). `show` reads the document. `refresh`,
 `replace`, `refresh_addresses` and `refresh_drift` are that round's options alone. A round with nothing
 to apply needs no approval: `plan` runs it through to the next plan gate or the end.

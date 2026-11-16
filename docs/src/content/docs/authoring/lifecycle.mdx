@@ -77,7 +77,7 @@ When a provider is configured from a resource, such as a kubernetes provider rea
 `kind_cluster.demo.endpoint`, replacing that resource raises a question nothing can infer: do the
 objects that provider serves live inside the host, and so go with it? Often they do (manifests in a
 cluster). Often they do not (an `aws` provider assuming a role it reads). So it is declared, with
-Terraform's own mechanism:
+the Terraform mechanism:
 
 ```hcl
 resource "kubernetes_manifest" "crd" {

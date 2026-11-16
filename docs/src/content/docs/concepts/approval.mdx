@@ -64,7 +64,7 @@ the run ends `stale` and nothing is applied.
 
 ## Checks before the yes
 
-**A policy check on the plan.** The plan is OpenTofu's json-format plan, exactly as `tofu show -json`
+**A policy check on the plan.** The plan is the OpenTofu™ json-format plan, exactly as `tofu show -json`
 prints it, with sensitive values redacted. The agent reads it with `show` and hands it to your policy
 tool (OPA or conftest, Checkov) as `input.tfplan`. A deny means do not apply. The Scalr example in
 turf-examples runs an OPA policy group this way. [Policy checks on a plan](/docs/using/policy/).

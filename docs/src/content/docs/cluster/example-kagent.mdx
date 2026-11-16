@@ -104,7 +104,7 @@ on the way out. The Anthropic key travels the same way. The server's NetworkPoli
 controller and the egress gateway.
 
 The agent's Kubernetes tools come from a tool server of its own, read-only, whose ServiceAccount has
-Kubernetes' `view` role (which leaves Secrets out) and can list the Leases in `turf`. kagent's built-in
+the Kubernetes `view` role (which leaves Secrets out) and can list the Leases in `turf`. kagent's built-in
 tool server runs as `cluster-admin`, so this agent does not bind it.
 
 ## Approvals
