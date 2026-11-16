@@ -128,7 +128,7 @@ The engine re-reads the configuration before applying. If a file the plan parsed
 | `refresh` | Read each managed object first (default `true`); `false` plans against the state as recorded. This round only. |
 | `replace` | Addresses to replace in this round, as `tofu plan -replace`. An `up`'s plan only. |
 | `refresh_addresses` | Managed resource instance addresses this round reads before planning. Every other row plans from its record, and one that then plans a change is read and planned again. An `up`'s plan only, never with `refresh: false`. This round only. |
-| `refresh_drift` | `true` reads what the workspace's open drift notices name; with `refresh_addresses`, both sets. With nothing open the round reads every object. An `up`'s plan only, never with `refresh: false`. This round only. |
+| `refresh_drift` | `true` reads what the workspace's open drift notices name; with `refresh_addresses`, both sets. With nothing open the round reads every object. An `up`'s plan only, never with `refresh: false`. This round only. A run started with `up` and `drift: true` names it in `next` at each plan gate. |
 
 With either of the last two, the result carries `refresh_scope`: what was read, and as `skipped` how
 many rows were planned unread. See [A scoped refresh](/docs/using/refresh/#a-scoped-refresh).

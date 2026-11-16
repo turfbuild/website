@@ -212,6 +212,28 @@ again. If nothing comes when you expect it, check in this order:
 - **Did the client give up first?** A `--watch-deadline` longer than the client's limit on a tool
   call ends the call on the client's side. In Claude Code, raise `MCP_TOOL_TIMEOUT`.
 
+**The sweep is behind its cycle.** The `coverage` line in `status` ends by saying so, and `drift`
+says it when you change a setting. It means a cycle will not reach every object within its target.
+The line names one of two limits:
+
+- **The read budget.** One cycle needs more reads a second than the budget allows. A longer cycle
+  fixes it, or a higher [read budget](/docs/environment/engine-environment/#drift-detection).
+- **The engine's own cadence.** The budget would allow it, but a swept read takes only what is above
+  the budget's reserve, about two reads a second at the defaults. A longer cycle fixes it: `drift`
+  with a larger `sweep`. A workspace of *n* objects needs about *n* ÷ 2 seconds.
+
+Nothing is lost while the sweep is behind. Every object is still read, later than the cycle says.
+
+**`watch` or `status` shows drift and no `next`.** Either a run holds the workspace (finish or cancel
+it first), or every open notice is `contended`, or the server runs at a tier that lists no `up`:
+`read` or `apply`. The note says which. A remediation starts from a server at the `plan` or `full`
+[tier](/docs/reference/server/#tiers).
+
+**A plan's `drift` is zero, and `resource_drift` lists rows.** Those rows differ from their records
+only in a null collection against an empty one. OpenTofu™ lists them, so the document does. No plan
+changes them, so the count leaves them out, and the result's note says so. Between runs the same
+difference is noise and raises no notice.
+
 **A notice does not clear.** A notice clears when a run commits its address, or when a later read
 finds the object as recorded. If a plan shows no change for the address, the difference is one the
 provider does not plan, and the notice stays open while reads keep finding it. No tool acknowledges a

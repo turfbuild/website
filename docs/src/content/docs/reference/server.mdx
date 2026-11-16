@@ -66,8 +66,8 @@ The tier also shows in what the agent is offered:
 
 - The `up`, `destroy` and `watch` [prompts](/docs/reference/prompts/) are listed at the `plan` and
   `full` tiers only. `guide` is listed at every tier.
-- At the `read` tier `watch` reports drift and names no next call: there is no `up` there to act on
-  it.
+- The `read` and `apply` tiers list no `up`. There, `watch` and `status` report drift and name no
+  next call, and their note says the remediation starts from a server at the `plan` or `full` tier.
 - At the `read`, `plan` and `apply` tiers the [server instructions](/docs/reference/instructions/) gain a
   section that names the tier and what it can do.
 

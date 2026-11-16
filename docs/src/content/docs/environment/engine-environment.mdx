@@ -101,6 +101,11 @@ behind one provider share it. A signal's confirming read is served first, and th
 from the upper half of the budget, so a sweep cannot starve it. A run's own plan and apply never draw
 on the budget.
 
+That reserve also sets the sweep's pace. A swept batch takes at most what is above the reserve, 5
+reads at the default burst of 10, and never waits for more. So at the defaults the sweep reads about
+two objects a second, whatever the rate, and a larger `TURF_DRIFT_READ_BURST` lets a batch take
+more. To size a sweep cycle from this: [Choosing a cycle](/docs/using/drift/#turn-it-on).
+
 **The webhook.** A workspace's drift settings can name a webhook, for a host that cannot hold a
 `watch` open. The engine posts each new notice to it as JSON: addresses, classes and paths, never
 values.

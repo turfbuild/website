@@ -42,8 +42,8 @@ Every argument is optional:
 every round. The agent approves only a low-risk plan itself, asks you about any other, and always asks
 about a destroy plan. See [Approval](/docs/concepts/approval/).
 
-`/turf:watch` sets the agent on a loop: `watch`, and on drift an `up` whose plan reads only what
-drifted, then `watch` again. Every plan in the loop stops at its approval point as any other does.
+`/turf:watch` sets the agent on a loop: `watch`, and on drift an `up` with `drift: true`, whose plan
+reads only what drifted, then `watch` again. Every plan in the loop stops at its approval point as any other does.
 Where nothing watches the workspace yet, the agent offers to turn drift detection on and does so only
 if you agree. See [Watching for drift](/docs/using/drift/).
 

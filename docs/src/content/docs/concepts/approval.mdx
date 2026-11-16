@@ -37,7 +37,9 @@ Every round is its own decision. Approving round 1 says nothing about round 2.
 ## Drift
 
 A plan that answers a [drift notice](/docs/concepts/drift/) is approved as any plan is. The rules do
-not change because the plan came from drift.
+not change because the plan came from drift. A run started with `up` and `drift: true` carries its
+`cause` on every result, so at the approval point you and the agent can see that the plan reverts
+drift. The cause informs the decision and changes none of the rules.
 
 - **An in-place update that puts a setting back** to what the files say is low-risk. The agent may
   approve it, and tells you.

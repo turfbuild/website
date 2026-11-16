@@ -13,8 +13,8 @@ import ToolResult from '../../../components/ToolResult.astro';
 
 Between runs, the engine can watch what a workspace manages and tell your agent when an object changes
 outside Turf™. You turn it on with `drift`, read what is open with `status`, and wait for what is new
-with `watch`. A change is put back by an ordinary `up` whose plan reads only what drifted. The plan
-and its approval point govern every change, as in any run.
+with `watch`. A change is put back by a run that says what it answers: `up` with `drift: true`, whose
+plan reads only what drifted. The plan and its approval point govern every change, as in any run.
 
 The conversation below is shaped on one Deployment the configuration sets to three replicas:
 
@@ -42,10 +42,10 @@ managed object once an hour, unattended, against the provider's API with its own
 The sweep is on, one cycle an hour, and I am watching. I will tell you when something drifts.
 
 </Agent>
-<Agent calls={['watch → drift', 'up → awaiting_plan', 'plan → awaiting_approval', 'apply → converged', 'watch → waiting']}>
+<Agent calls={['watch → drift', 'up (drift) → awaiting_plan', 'plan → awaiting_approval', 'apply → converged', 'watch → waiting']}>
 
 The sweep found one change: `kubernetes_deployment_v1.web`, class `configured`, at `spec[0].replicas`.
-I planned with only that object read:
+I started a run that answers that notice and planned with only that object read:
 
 ```text
 ~ kubernetes_deployment_v1.web
@@ -66,7 +66,16 @@ drift:
                 paths: ["spec[0].replicas"], source: "sweep", new: true } ]
   coverage: "42 managed: 42 swept (each read within 58m); settle 30s, sweep cycle 60m"
 cursor: "w2.…"
-next:   { tool: "up", args: { workspace_alias: "default" } }
+next:   { tool: "up", args: { workspace_alias: "default", drift: true } }
+```
+
+</ToolResult>
+<ToolResult tool="up" outcome="awaiting_plan">
+
+```text
+convergence_id: "…"   kind: up   round: 1
+cause: { kind: "drift", notices: 1, addresses: 1 }
+next:  { tool: "plan", args: { convergence_id: "…", refresh_drift: true } }
 ```
 
 </ToolResult>
@@ -82,8 +91,9 @@ In Claude Code, the prompt is a slash command:
 ```
 
 In any client, ask in words: "watch this workspace for drift and put back what changes". The agent
-loads its drift reference, opens the workspace, and loops: `watch`, and on drift `up`, `plan` with
-`refresh_drift: true`, a review of the plan, `apply` with its digest, then `watch` again.
+loads its drift reference, opens the workspace, and loops: `watch`, and on drift `up` with
+`drift: true`, `plan` with `refresh_drift: true`, a review of the plan, `apply` with its digest, then
+`watch` again. Each call is the `next` of the one before.
 
 The first `watch` returns what is already open. To act only on what drifts from now on, say so: "watch
 from now on".
@@ -141,6 +151,13 @@ The sweep paces itself across the cycle and draws on the engine's
 workspace, and an `up` that converges after reading every object starts its cycle over. An object a
 live feed watches is swept every fourth cycle.
 
+**Choosing a cycle.** A swept read takes only what the read budget holds above its reserve, so at the
+default budget the sweep reads about two objects a second, not five. A workspace of *n* objects
+therefore needs a cycle of at least about *n* ÷ 2 seconds: 1,000 objects, about 500 seconds; 7,200
+objects, about an hour. That is arithmetic to choose a setting by, not a measured rate: a slower
+provider needs longer. A cycle too short for the workspace cannot finish in time, and `status` says
+the sweep is [behind](/docs/using/troubleshooting/#drift).
+
 ## See what drifted
 
 `status` carries each workspace's open notices under `drift`:
@@ -155,8 +172,9 @@ drift: { counts: { configured: 1, gone: 1 },
   `contended`, `unconfirmed`, `uncovered`. It lists up to 20; `omitted` counts the rest.
 - `paths` are the attribute paths that changed. Values are never in a notice.
 - `coverage` is one line: how many objects are watched live, swept or uncovered, then the settings
-  that explain it, such as `settle 30s, sweep off`.
-- `next` is the `up` to call, and `note` says what each class present asks.
+  that explain it, such as `settle 30s, sweep off`. When the sweep is behind its cycle, the line ends
+  by saying so and what limits it: the read budget, or the engine's own cadence.
+- `next` is the `up` to call, with `drift: true`, and `note` says what each class present asks.
 
 With nothing open, the block is the coverage line alone, or absent when there is no coverage to
 report. A workspace with drift not turned on has no block. What each class means:
@@ -167,7 +185,8 @@ report. A workspace with drift not turned on has no block. What each class means
 `watch` returns when there is something new to act on: an open notice it has not reported yet.
 
 ```text
-watch({ workspace_alias })           → outcome: drift, drift, cursor, next: up
+watch({ workspace_alias })           → outcome: drift, drift, cursor,
+                                       next: up with drift: true
 watch({ workspace_alias, cursor })   → waits for what is new since
 ```
 
@@ -188,14 +207,15 @@ watch({ workspace_alias, cursor })   → waits for what is new since
 
 | Outcome | Meaning | Next |
 |---|---|---|
-| `drift` | Something new is open. The entries the cursor had not reported carry `new: true`. | `up`, then `plan` with `refresh_drift: true`. Then `watch` with the new cursor. |
+| `drift` | Something new is open. The entries the cursor had not reported carry `new: true`. | `up` with `drift: true`, then its own `next`, `plan` with `refresh_drift: true`. Then `watch` with the new cursor. |
 | `waiting` | The server's deadline came first. Nothing is new. | The same `watch`, with the cursor the result carries. |
 | `quiet` | `for` has passed with nothing new. | Nothing. |
 | `unwatched` | Nothing watches the workspace, so the watch would never wake. | `drift`, if you agree to turn it on. Until then, an `up`'s plan reads every object and is the drift report. |
 
-While a run holds the workspace, a `drift` result has no `next`: finish or cancel that run first. At
-the `read` tier there is no `up`, so the agent reports the drift and a server at another tier makes
-the change.
+While a run holds the workspace, a `drift` result has no `next`: finish or cancel that run first. A
+server at the `read` or `apply` tier lists no `up`, so there too `watch` and `status` offer no `next`.
+Their note says the remediation starts from a server at the `plan` or `full` tier, and the agent
+reports the drift.
 
 ## What an idle watch costs
 
@@ -215,13 +235,30 @@ The deadline is the operator's setting, not an argument of the call. See
 ## Plan only what drifted
 
 ```text
-up({ workspace_alias })                        → awaiting_plan
-plan({ convergence_id, refresh_drift: true })  → awaiting_approval, refresh_scope
-apply({ convergence_id, plan_digest })         → converged
+up({ workspace_alias, drift: true })
+  → awaiting_plan, cause, next: plan with refresh_drift: true
+plan({ convergence_id, refresh_drift: true })
+  → awaiting_approval, refresh_scope
+apply({ convergence_id, plan_digest })
+  → converged
 
+cause:         { kind: "drift", notices: 1, addresses: 1 }
 refresh_scope: { addresses: ["kubernetes_deployment_v1.web"],
                  count: 1, from_drift: 1, skipped: 41 }
 ```
+
+**`up` with `drift: true` starts a drift remediation.** The run records the open notices it answers
+as its **cause**.
+
+- Every result of the run carries `cause`, with how many notices and addresses it answers: at each
+  plan gate, at each approval point, at a turf action, and at its end. `status` shows it on the run
+  too. Whoever approves the plan, or answers a turf action, can see the run exists to revert drift.
+- Each round's plan gate offers `plan` with `refresh_drift: true` as its `next`. `plan` itself has
+  not changed: called without the argument, it reads every object.
+- With nothing open, or with drift not turned on, the run starts as an ordinary one, and the note
+  says so. It is never refused for that.
+- Only `up` takes `drift`. `destroy`, `refresh`, `import` and `invoke` refuse it.
+- The cause decides nothing. The plan, its digest and the approval rules are the ones every run has.
 
 With `refresh_drift: true`, the round reads only the objects the open notices name. The server fills
 that list in as the round plans, so anything that drifted since you looked is included. Every other
@@ -245,7 +282,7 @@ The notice says what changed. Which side wins is the agent's decision, and often
 
 | Decision | What happens | Who approves |
 |---|---|---|
-| **Remediate** | `up` plans the object back to what the files say. | The agent, when the plan is an in-place update that reverts a setting. You, for a replace, a delete, or a create of something that held data. |
+| **Remediate** | `up` with `drift: true` plans the object back to what the files say. | The agent, when the plan is an in-place update that reverts a setting. You, for a replace, a delete, or a create of something that held data. |
 | **Adopt** | The files change to match the world, then `up`. | You. The files are yours, and the agent asks before it edits them. |
 | **Suppress** | [`ignore_changes`](/docs/authoring/lifecycle/#a-contended-field) on the paths another controller owns. | You. A `contended` notice has no `next`, because another `up` will not hold. |
 
@@ -253,12 +290,19 @@ The approval rules do not change because the plan came from drift:
 [Approval](/docs/concepts/approval/#drift).
 
 A notice clears itself when a run commits its address, or when a later read finds the object as
-recorded. A `gone` object you meant to delete clears when you remove it from the configuration and
-apply.
+recorded. The engine records which run and round cleared it, and the console's Drift tab links to
+that round. A `gone` object you meant to delete clears when you remove it from the configuration and
+apply. A remediation that never touches an address leaves its notice open.
 
 ## Arguments
 
-`drift`:
+`up` takes one argument for drift, beside [its others](/docs/using/up/#arguments):
+
+| Argument | Meaning |
+|---|---|
+| `drift` | `true` makes the run a drift remediation: it records the workspace's open notices as its cause, every result carries `cause`, and each plan gate's `next` is `plan` with `refresh_drift: true`. |
+
+`drift`, the tool:
 
 | Argument | Meaning |
 |---|---|

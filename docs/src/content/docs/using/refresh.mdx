@@ -78,6 +78,11 @@ plan: [a scoped refresh](#a-scoped-refresh).
 and the plan document lists them under `resource_drift`. After the apply, `rounds[].drift` records how
 many the round wrote into state.
 
+**The count can be lower than the list.** The count is the engine's. A row whose read differs from
+its record only in a null collection against an empty one is still listed in `resource_drift`, as
+OpenTofu™ lists it, and is not counted: a plan of the two plans nothing. The result's note says so
+when the count and the list differ. The count is never higher than the list.
+
 **`refresh: false` is something else.** It is an option of a round's `plan`
 (`tofu plan -refresh=false`): plan against the state as recorded, without reading the objects. It
 holds for that round only.
@@ -110,9 +115,14 @@ plan({ convergence_id, refresh_drift: true })
                    count: 1, from_drift: 1, skipped: 41 }
 ```
 
+A run started with `up` and `drift: true` is offered this plan: at each of its plan gates, `next` is
+`plan` with `refresh_drift: true`. The default has not changed. `plan` without either argument reads
+everything, in that run as in any other.
+
 The plan is still a plan of the whole configuration. What changes is what it reads first:
 
 - **A row in the scope** is read before it is planned, as every row is by default.
+- **A row inside a module** is matched as a root row is, by its full instance address.
 - **A row outside it** is planned from its record. If that plan is a change, the row is read and
   planned again, so nothing is applied over a record nobody checked. A deferral is not a change.
 - **Data sources** are read at every plan, scoped or not.

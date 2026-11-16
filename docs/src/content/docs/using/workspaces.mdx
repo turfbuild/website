@@ -158,7 +158,8 @@ When a call fails with "the state is already locked by another tofu client":
 ## `status`, `list` and `delete`
 
 **`status`** lists what is open here: each workspace's alias, configuration, backend, lineage, and the
-run holding it (its `kind`, `stage`, `round`, open questions, and `next`). It also lists the planfiles
+run holding it (its `kind`, `stage`, `round`, open questions, `next`, and its `cause` when it answers
+drift). It also lists the planfiles
 a workspace holds, and its open [drift notices](/docs/using/drift/#see-what-drifted).
 
 **`list`** lists the workspaces in the configuration's backend, as `tofu workspace list`: `"default"`

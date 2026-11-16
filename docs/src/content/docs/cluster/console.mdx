@@ -75,7 +75,8 @@ token. Without `TURF_CONSOLE_URL`, a server driving an engine of your own return
 A workspace's Drift tab shows it between runs: the open [drift notices](/docs/concepts/drift/), how
 many objects are watched and live, swept or uncovered, and each [drift feed](/docs/cluster/drift-feed/)
 with whether it is live or lost. A feed silent for 90 seconds raises a banner that names it and counts
-the objects nothing now reports on.
+the objects nothing now reports on. A cleared notice names the run whose commit cleared it and links
+to that round, and the Runs tab marks a run started to answer drift with a `drift` chip.
 
 The tab needs nothing set: the console reads drift from restate-server's ingress, as it reads
 everything else. It is read-only here too. A notice's continuation is text to copy, the console

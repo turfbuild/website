@@ -41,14 +41,16 @@ plan and configuration graph; State shows what the workspace holds.
 workspace anything watches. Its label carries the number of open addresses.
 
 - **Open notices.** Each address with its class, the changed paths, what saw the change, when it was
-  first seen and when it was read. A row opens the notice: what its class means, and the call that
-  continues it as text to copy, `up` and then `plan` with `refresh_drift: true`.
+  first seen and when it was read. A row opens the notice: what its class means, and the calls that
+  continue it, as text to copy.
 - **Coverage.** How many managed objects are watched and live, swept or uncovered, and why. With the
   sweep on, its cycle and how far it has come.
 - **Pipeline.** Each feed, live or lost; what is settling and what is being read; the read budget; the
   webhook's last delivery.
 - **Recent reads and cleared notices.** The reads that found only noise are here, and nowhere an agent
-  sees them.
+  sees them. A notice a run cleared names that run and links to the round.
+
+On the Runs tab, a run started to answer drift notices carries a `drift` chip.
 
 Where nothing watches the workspace, the tab says so and names what is missing: a standing
 configuration (the console's words for the standing seal), a feed, the sweep. It shows paths, never

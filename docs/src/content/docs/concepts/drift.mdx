@@ -104,6 +104,9 @@ What drift detection does not see, whatever the coverage:
 
 Watched and live is counted per provider configuration, not per object.
 
+A sweep whose cycle is too short for the workspace falls behind, and `status` says so. How long a
+cycle a workspace needs: [Choosing a cycle](/docs/using/drift/#turn-it-on).
+
 ## A notice is not yet a plan
 
 A notice says an object differs from its record. It does not say what a run would do about it.
@@ -115,7 +118,8 @@ A notice says an object differs from its record. It does not say what a run woul
 - A plan evaluates the whole configuration, as every Turf plan does. It may show more than the notice
   named, or nothing at all.
 
-So every notice continues the same way: `up`, then `plan`. The plan is what you read and approve.
+So every notice continues the same way: `up` with `drift: true`, then `plan`. The plan is what you
+read and approve.
 
 ## Drift at plan time, and between plans
 
@@ -127,15 +131,21 @@ So every notice continues the same way: `up`, then `plan`. The plan is what you 
 | What is written | `refresh` writes state, once you approve its plan. | Nothing. |
 
 The two meet at the plan. A round's `plan` reads every object by default; with `refresh_drift: true`
-it reads only what the open notices name. See [Watching for drift](/docs/using/drift/).
+it reads only what the open notices name. A run started to answer drift is offered that plan at each
+of its plan gates. See [Watching for drift](/docs/using/drift/).
 
 ## Who decides
 
 The engine detects and reports. Your agent, and you, decide which side wins:
 
-- **Remediate.** Run `up` and bring the object back to what the files say.
+- **Remediate.** Run `up` with `drift: true` and bring the object back to what the files say.
 - **Adopt.** Change the files to match, then `up`. The files are yours, so the agent asks first.
 - **Suppress.** Add `ignore_changes` for a field another controller owns.
+
+**A remediation carries its cause.** A run started with `drift: true` records the notices it answers.
+Every result of the run says so, at its approval points and at any turf action its apply asks, so
+whoever is asked knows the run exists to revert drift. The console marks the run, and a notice the run
+clears names the run and the round that cleared it. The cause is a record. It decides nothing.
 
 The approval rules are the ones every plan has. An in-place update back to what the files say is
 low-risk, and the agent may approve it. A replace or a delete comes to you.
