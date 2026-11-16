@@ -34,6 +34,9 @@ const TOOL_GROUPS = [
   ['State', ['show', 'output', 'state_list', 'taint', 'untaint']],
   ['Providers', ['provider_search', 'provider_describe']],
   ['Skills', ['skill_deployment', 'skill_authoring', 'skill_guide', 'read_skill_file']],
+  // Last here so the pages before it keep their order numbers; the sidebar (astro.config.mjs) lists
+  // the group after Convergence.
+  ['Drift', ['watch', 'drift']],
 ];
 const ANNOTATIONS = ['title', 'readOnlyHint', 'destructiveHint', 'idempotentHint', 'openWorldHint'];
 
