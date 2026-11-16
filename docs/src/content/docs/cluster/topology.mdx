@@ -82,13 +82,15 @@ reaches it at, and every result the server hands a client carries a `console_url
 ## The configuration
 
 The server and the engine each read the configuration themselves. Mount it at the same path in the
-server's pod and in every engine pod (both examples use `/turf/config`) and nothing more is needed:
-the engine reads the path the server names.
+server's pod and in every engine pod (the [minimal manifests](/docs/cluster/manifests/) use
+`/turf/config`, turf-kagent `/turf/examples`) and nothing more is needed: the engine reads the path the
+server names.
 
-The examples mount a [configuration image](/docs/cluster/images/#configuration-images): the
+A [configuration image](/docs/cluster/images/#configuration-images) is one way to mount it: the
 configuration directory at the root of an otherwise empty OCI image, mounted read-only as a
-Kubernetes® image volume. A change to the configuration is a new image version. Any volume works the
-same way, as long as it is mounted alike in every pod.
+Kubernetes® image volume. turf-kagent mounts one image that holds the whole turf-examples repository
+the same way, and its agent names the path of a configuration inside it. A change to the configuration
+is a new image version. Any volume works the same way, as long as it is mounted alike in every pod.
 
 A read-only configuration plans when:
 

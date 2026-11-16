@@ -45,7 +45,9 @@ const WEIGHTS = {
   '/demo/scalr/': { priority: 0.7, changefreq: MONTHLY },
   '/pricing/': { priority: 0.6, changefreq: MONTHLY },
   '/licensing/': { priority: 0.7, changefreq: MONTHLY },
-  '/reference-architectures/': { priority: 0.8, changefreq: MONTHLY },
+  '/reference-architectures/': { priority: 0.8, changefreq: MONTHLY }, // the index of papers since 2026-11-16
+  '/reference-architectures/metal-to-tokens/': { priority: 0.8, changefreq: MONTHLY },
+  '/reference-architectures/agentic-infrastructure-control-plane/': { priority: 0.8, changefreq: MONTHLY },
   '/reference-architectures/pull-request-to-production/': { priority: 0.8, changefreq: MONTHLY },
   '/engine/': { priority: 0.9, changefreq: MONTHLY },
   '/contact/': { priority: 0.5, changefreq: YEARLY },

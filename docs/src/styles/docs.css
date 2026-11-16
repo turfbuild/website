@@ -203,6 +203,9 @@ h1, .hero h1, .hero .tagline, .site-title, .turf-sitetitle {
 .f-panel { fill: var(--panel); } .f-panel2 { fill: var(--panel-2); }
 .f-ink { fill: var(--ink); } .f-stroke { fill: var(--fig-stroke); } .f-none { fill: none; }
 .s-ok { stroke: var(--ok); } .s-inh { stroke: var(--inh); } .s-hair { stroke: var(--hair-strong); } .s-stroke { stroke: var(--fig-stroke); }
+.s-faint { stroke: var(--faint); }
+.f-term { fill: var(--term-bg); } .f-termok { fill: var(--term-ok); }
+.t-m9 { font-family: var(--mono); font-size: 9.4px; } .t-m7 { font-family: var(--mono); font-size: 7.4px; }
 .figcap { margin: 10px 0 0; font-size: 13px; color: var(--muted); }
 .figcap b { color: var(--ink); font-weight: 600; }
 @media (max-width: 560px) { .docfig { overflow-x: auto; } .docfig .fig { min-width: 600px; } }

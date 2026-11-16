@@ -65,8 +65,8 @@ const jsonLd = [
       <p class="eyebrow"><span class="dot"></span> Demos · three examples and two recordings</p>
       <h1>See Turf running.</h1>
       <p class="lede">Three public repositories, each a README away from a run: a GPU cloud’s runtime on a
-        Kubernetes® cluster in Docker, seventeen Helm® releases from one recipe; an agent that lives in
-        the cluster it manages; and a pipeline where an agent attends every Terraform® apply. Then two
+        Kubernetes® cluster in Docker, seventeen Helm® releases from one recipe; an agent in
+        your cluster that provisions what is outside it; and a pipeline where an agent attends every Terraform® apply. Then two
         recordings from before 1.0. <strong>Turf™ plans, approves and applies each of them the same
         way, round by round.</strong></p>
     </div>
@@ -76,7 +76,8 @@ const jsonLd = [
     <div class="wrap">
       <div class="band-head">
         <h2>Three things you can run today.</h2>
-        <p>The first two run on kind, on a laptop with Docker; the third runs in your GitHub organization.</p>
+        <p>The first two run on kind, on a laptop with Docker (the second also needs an AWS account); the third
+          runs in your GitHub organization.</p>
       </div>
 
       <div class="feature center" id={aicr.id}>
@@ -102,9 +103,9 @@ const jsonLd = [
         </div>
         <div>
           <KagentFigure />
-          <p class="figcap"><b>The agent in the cluster.</b> A person approves in the kagent UI; the agent
-            calls Turf through the egress gateway, which adds the token; the engine runs only while there
-            is work; the state never leaves the cluster.</p>
+          <p class="figcap"><b>What runs where.</b> A person asks and approves in the kagent UI; the agent
+            plans through Turf’s MCP server; the engine applies, with the key, to what is outside the
+            cluster; the agent then fetches the public URLs of what it built.</p>
         </div>
       </div>
 
@@ -255,8 +256,8 @@ const jsonLd = [
       </div>
 
       <p class="legal-note">NVIDIA and AI Cluster Runtime are trademarks or product names of NVIDIA Corporation.
-        kagent, gVisor and Knative are trademarks or project names of their respective owners. GitHub and
-        GitHub Agentic Workflows are trademarks of GitHub, Inc. Amazon Web Services, AWS and AWS Lambda are
+        kagent, gVisor, Knative and Argo CD are trademarks or project names of their respective owners. GitHub and
+        GitHub Agentic Workflows are trademarks of GitHub, Inc. Amazon Web Services, AWS, AWS Lambda and Amazon EKS are
         trademarks of Amazon.com, Inc. or its affiliates. Scalr is a trademark of Scalr, Inc. Each is named
         here only to describe interoperability. Turf is not affiliated with, endorsed by, or sponsored by
         any of them. All other marks belong to their owners.</p>

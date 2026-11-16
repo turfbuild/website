@@ -679,8 +679,6 @@ table.matrix td.c { text-align: center; white-space: nowrap; font-family: var(--
 .f-cream { fill: color-mix(in srgb, var(--part-bg) 45%, var(--panel)); }
 .s-ok { stroke: var(--ok); } .s-inh { stroke: var(--inh); } .s-part { stroke: var(--part); } .s-hair { stroke: var(--hair-strong); }
 .s-stroke { stroke: var(--fig-stroke); } .s-faint { stroke: var(--faint); } .s-termok { stroke: var(--term-ok); } .s-termmuted { stroke: var(--term-muted); } .s-cream { stroke: color-mix(in srgb, var(--part) 30%, transparent); }
-/* The kagent figure is set a size down, as the paper set it: its boxes are full. */
-.fig.kagent .t-mono { font-size: 7.6px; }
 .figcap { margin-top: 10px; font-size: 13px; color: var(--muted); }
 .figcap b { color: var(--ink); font-weight: 600; }
 
@@ -771,6 +769,23 @@ table.matrix td.c { text-align: center; white-space: nowrap; font-family: var(--
 .paper-card .links a { font-family: var(--mono); font-size: 12.5px; color: var(--ok-deep); }
 @media (max-width: 900px) { .papers { grid-template-columns: 1fr; } }
 @media (max-width: 420px) { .paper-card { grid-template-columns: 1fr; } .paper-card .cover { max-width: 150px; } }
+/* Three across on home: the cover sits above the text, at thumbnail size. Below 1000px the cards
+   stack and go back to the cover beside the text. */
+.papers.three { grid-template-columns: repeat(3, 1fr); }
+.papers.three .paper-card { grid-template-columns: 1fr; gap: 16px; align-content: start; }
+.papers.three .paper-card .cover { max-width: 136px; }
+@media (max-width: 1000px) {
+  .papers.three { grid-template-columns: 1fr; }
+  .papers.three .paper-card { grid-template-columns: 136px 1fr; gap: 20px; }
+}
+@media (max-width: 420px) { .papers.three .paper-card { grid-template-columns: 1fr; } }
+/* The index at /reference-architectures/: one paper a row, the cover larger. */
+.papers.list { grid-template-columns: 1fr; gap: 20px; }
+.papers.list .paper-card { grid-template-columns: 200px 1fr; gap: clamp(20px, 3vw, 36px); padding: clamp(20px, 3vw, 28px); scroll-margin-top: 90px; }
+.papers.list .paper-card h2 { font-family: var(--display); font-weight: 700; font-size: clamp(22px, 2.6vw, 28px); letter-spacing: -.015em; margin: 0 0 10px; }
+.papers.list .paper-card p { font-size: 15.5px; max-width: 70ch; }
+.papers.list .paper-card .links a { font-size: 13px; }
+@media (max-width: 640px) { .papers.list .paper-card { grid-template-columns: 1fr; } .papers.list .paper-card .cover { max-width: 180px; } }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
