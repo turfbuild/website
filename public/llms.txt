@@ -1,19 +1,19 @@
 # Turf
 
 > One tool, from metal to workload, at fleet scale. Turf™ is a new engine for infrastructure
-> as code: the whole stack in the Terraform language — hosts, clusters, charts, playbooks, the
+> as code: the whole stack in the Terraform® language — hosts, clusters, charts, playbooks, the
 > workload — planned as one, resources and actions, converged in rounds, with an agent
 > overseeing. Every change is planned, visible, and approved before it happens.
 
-Turf is a new infrastructure-as-code engine, built on OpenTofu and exposed to AI agents as an MCP
-server. It speaks standard Terraform — HCL, registry modules, the provider ecosystem — runs Helm charts as
-true Helm releases and Ansible playbooks as Terraform actions, and under them puts an engine
+Turf is a new infrastructure-as-code engine, built on OpenTofu™ and exposed to AI agents as an MCP
+server. It speaks standard Terraform — HCL, registry modules, the provider ecosystem — runs Helm® charts as
+true Helm releases and Ansible® playbooks as Terraform actions, and under them puts an engine
 Terraform and OpenTofu don't have: multi-round convergence of layered stacks, Terraform
 actions with overlays, turf actions (a check, a question or a notification as a step of the apply),
 durable runs on Restate, provider calls that scale out until the cloud API is the ceiling, state
 encrypted at rest, OpenTelemetry built in, and since 1.4 a read-only console of every workspace's
 runs, rounds and approvals. The engine also watches between plans (continuous drift detection):
-watch events from a feed in a Kubernetes cluster and a paced sweep of provider reads everywhere
+watch events from a feed in a Kubernetes® cluster and a paced sweep of provider reads everywhere
 else, each signal confirmed by one read and classified, noise dropped, and what holds up sent to
 the agent as a drift notice (`watch`, `status`, the console, a webhook). The agent remediates,
 adopts or suppresses; the fix is a plan that reads only what drifted and is approved like any
@@ -108,7 +108,7 @@ Five things people build with Turf, at [turf.build/use-cases/](https://turf.buil
 
 Turf is an independent product built on the OpenTofu framework. Turf™ is a trademark of Turf LLC.
 Terraform® is a registered trademark of HashiCorp, Inc. Ansible® is a registered trademark of
-Red Hat, Inc. in the United States and other countries. Helm® and Kubernetes® are registered
-trademarks, and OpenTofu™ is a trademark, of the Linux Foundation. Turf is not affiliated with,
+Red Hat, Inc. in the United States and other countries. Helm®, Kubernetes® and Prometheus® are
+registered trademarks, and OpenTofu™ is a trademark, of the Linux Foundation. Turf is not affiliated with,
 endorsed by, or sponsored by HashiCorp, IBM, Red Hat, the Linux Foundation or the OpenTofu project.
 "Terraform" is used here only to describe compatibility.
