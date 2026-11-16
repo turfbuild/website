@@ -1,9 +1,11 @@
 ---
 // "A new Terraform, reimagined for AI." — the best-of-both grid (Eron's headline, 2026-11-07; it
-// replaced "Built to run the whole stack", the fan-out figure and the encryption HCL). Seven tiles,
+// replaced "Built to run the whole stack", the fan-out figure and the encryption HCL). Eight tiles,
 // each wearing a provenance chip row, Terraform · OpenTofu · Turf, so the band reads as a scorecard
-// the way /compatibility/ does in depth; the console is a double-wide tile with its still, the band's
-// one visual. Sources: /compatibility/'s strengths table and matrix notes, the 1.2–1.4 release notes,
+// the way /compatibility/ does in depth. Continuous drift detection is a double-wide tile whose
+// right half is three open notices as `status` lists them (illustrative; a console still of the
+// Drift tab takes that slot once one is taken from a real run, through Still.astro as the console
+// tile does); the console, with its still, is the full last row, so the grid has no orphan cell. Sources: /compatibility/'s strengths table and matrix notes, the 1.2–1.4 release notes,
 // and the Restate sentence in Restate's own words (D18, revised 2026-10-18). Rules kept: "HCP" never
 // appears (say "HashiCorp's hosted platform"); no benchmark figure; `coming soon` at the capability
 // level; the marks' symbols are the hero's, so none here; the headline uses "Terraform" as the
@@ -11,12 +13,13 @@
 import Still from './Still.astro';
 ---
 
-<section class="band alt" id="features">
+<section class="band" id="features">
   <div class="wrap">
     <div class="band-head">
       <h2>A new Terraform, reimagined for AI.</h2>
       <p>The best of Terraform and OpenTofu, run by one distributed engine that an agent can drive —
-        and the things neither has: an apply that can ask, and a console that shows every round.</p>
+        and the things neither has: an engine that watches between plans, an apply that can ask, and
+        a console that shows every round.</p>
       <p class="provenance prov-legend">Where each one comes from:
         <span class="chip tf"><span class="sw"></span>Terraform</span>
         <span class="chip otf"><span class="sw"></span>OpenTofu</span>
@@ -70,6 +73,28 @@ import Still from './Still.astro';
         <a class="runit" href="/docs/cluster/topology/">Turf in a cluster →</a>
       </div>
       <div class="sol wide">
+        <div class="sol-text">
+          <span class="prov"><span class="chip turf"><span class="sw"></span>Turf</span></span>
+          <h3>Continuous drift detection.</h3>
+          <p>Terraform and OpenTofu see drift when you plan. Turf’s engine watches between plans and
+            tells your agent what changed, where, and how it was seen. Every fix is still a plan.</p>
+          <a class="runit" href="/docs/concepts/drift/">drift, between plans →</a>
+        </div>
+        <div class="sol-still">
+          <div class="term" role="img" aria-label="Three open drift notices: a deployment's replica count, class configured; a DNS record, gone; another deployment's replica count, contended.">
+            <div class="term-head"><span>status · open drift notices</span></div>
+            <div class="term-body">
+<div class="t"><span class="b">kubernetes_deployment_v1.api</span></div>
+<div class="t"><span class="amber">  configured</span> <span class="dim">· spec[0].replicas</span></div>
+<div class="t"><span class="b">aws_route53_record.api</span></div>
+<div class="t"><span class="amber">  gone</span> <span class="dim">· seen by the sweep</span></div>
+<div class="t"><span class="b">kubernetes_deployment_v1.web</span></div>
+<div class="t"><span class="amber">  contended</span> <span class="dim">· spec[0].replicas</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="sol wide full">
         <div class="sol-text">
           <span class="prov"><span class="chip turf"><span class="sw"></span>Turf</span></span>
           <h3>A console.</h3>

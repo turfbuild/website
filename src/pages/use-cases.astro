@@ -107,9 +107,11 @@ const jsonLd = {
           <h3>One approved step at a time</h3>
           <p>The health checks find the fault. What happens next is the provider’s remediation runbook,
             and the agent follows it: cordon and drain, repair or replace, re-certify, uncordon and
-            return, each step a change plan the engine carries out. A recipe upgrade re-fires the
-            certification under the same approval, and a fleet is many stacks from a few golden
-            recipes.</p>
+            return, each step a change plan the engine carries out. Between runs the engine keeps
+            watching: a node pool resized by hand or a quota edited on the cluster reaches the agent
+            as a drift notice, and putting it back is one more approved change plan. A recipe upgrade
+            re-fires the certification under the same approval, and a fleet is many stacks from a few
+            golden recipes.</p>
         </div>
       </div>
       <div class="feature center">
@@ -187,9 +189,11 @@ const jsonLd = {
           <span class="k">Day 2 · the fleet</span>
           <h3>Upgrades, cluster by cluster, under one approval policy</h3>
           <p>Bump the recipe version and every cluster plans its own change; routine changes are approved
-            by policy, the rest by a person. Drift is found on every plan. Replacing a cluster plans the
-            orderly teardown of what it hosted instead of letting it vanish with the machine, and a
-            run that is interrupted picks up where it stopped.</p>
+            by policy, the rest by a person. Drift does not wait for the next upgrade: a feed in each
+            cluster reports a change to what Turf manages as it happens, a paced sweep covers the cloud
+            resources around it, and the notice names the cluster’s object and the field. Replacing a
+            cluster plans the orderly teardown of what it hosted instead of letting it vanish with the
+            machine, and a run that is interrupted picks up where it stopped.</p>
         </div>
       </div>
       <div class="proof">
@@ -236,8 +240,10 @@ const jsonLd = {
         <div class="beat">
           <span class="k">Day 2 · the same plan, again</span>
           <h3>Upgrades and drift, under the same approval</h3>
-          <p>A new version of the product is a new plan in the customer’s account. Drift is detected on
-            every plan and healed by the same loop. Nothing that holds the customer’s data is removed
+          <p>A new version of the product is a new plan in the customer’s account. Between plans the
+            engine keeps watching that account: a bucket opened by hand or a role edited in the console
+            reaches the product as a drift notice, and the product heals it with a plan, under the same
+            approval. Nothing that holds the customer’s data is removed
             without their word, because <code>consent</code> is bound before its destroy. The product
             drives Turf over MCP, the same interface Claude Code uses, and runs where the product runs:
             embedded, in a container, in the cluster, on a local model.</p>
@@ -342,8 +348,11 @@ const jsonLd = {
         </div>
         <div class="beat">
           <span class="k">Day 2 · the same agent operates</span>
-          <h3>Import, refresh, invoke, answer, check</h3>
-          <p>What was clicked together comes in through <code>import</code>. Drift shows on every plan. A declared action
+          <h3>Import, watch, invoke, answer, check</h3>
+          <p>What was clicked together comes in through <code>import</code>. Then the agent is on watch:
+            <code>watch</code> returns when something changes outside Turf, with a notice that says what
+            and where, and the agent plans only what drifted, approving an in-place revert itself and
+            bringing a replace to you. A declared action
             runs on demand with its own approval point. The guardrails example scans every provider
             before it runs, pins the workload to a commit and checks every plan against policy before it is
             approved. Local models and private GPU clouds: <b>intent never has to leave your network</b>.</p>

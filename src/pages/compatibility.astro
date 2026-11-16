@@ -10,9 +10,15 @@ import Layout from '../layouts/Layout.astro';
 // acceptance pass, and Restate's own docs for the engine rows. Baselines re-grounded 2026-10-18:
 // Terraform 1.16.x and OpenTofu 1.13.x. Turf column moved to 1.1 on 2026-10-26, to 1.2 for its
 // release, to 1.3 for its. See "Content provenance" in CLAUDE.md.
+// Continuous drift detection (2026-11-15): one strengths row and two workflow rows (the scoped
+// refresh, drift checks between plans). Sources: turf-engine's continuous-drift design as built,
+// the deployment skill's drift reference, the Terraform 1.17 changelog (-minimal-refresh), and
+// HashiCorp's health-assessment docs (developer.hashicorp.com/terraform/cloud-docs/workspaces/health:
+// a speculative plan per workspace on a schedule, notifications, nothing modified). The Turf
+// column's version moves with the release that carries it.
 const title = 'Turf — Terraform and OpenTofu compatibility, and beyond';
 const description =
-  'Turf 1.3 against Terraform 1.16 and OpenTofu 1.13: durable runs, encryption at rest, OpenTelemetry, actions, multi-round convergence, and an honest matrix.';
+  'Turf 1.3 against Terraform 1.16 and OpenTofu 1.13: durable runs, continuous drift detection, actions, multi-round convergence, and an honest matrix.';
 ---
 <Layout title={title} description={description}>
   <section class="subhero"><div class="wrap">
@@ -26,7 +32,7 @@ const description =
 
   <section class="section"><div class="wrap">
     <h2>Where Turf is ahead.</h2>
-    <p class="prose">Seven things the engine does that neither Terraform nor OpenTofu does in full.</p>
+    <p class="prose">Eight things the engine does that neither Terraform nor OpenTofu does in full.</p>
 
     <div class="matrix-wrap"><table class="matrix">
       <caption>Beyond Terraform and OpenTofu</caption>
@@ -39,6 +45,7 @@ const description =
         <tr><th>Terraform actions, with overlays</th><td class="c s-yes">✅</td><td class="c s-no">➖</td><td class="c s-yes">✅</td><td class="note-cell">The Terraform 1.16 action model: six lifecycle events, <code>on_failure</code> halt, continue or taint, a plan-time <code>condition</code>, <code>caller</code>, and <code>invoke</code> for an ad-hoc run. Then Turf’s overlays: a <code>*.turf.hcl</code> file adds an <code>action_trigger</code> with a <code>target</code> to any module, per environment or in memory for one run. OpenTofu has no action blocks. <span class="pill ok">ahead of OpenTofu</span></td></tr>
         <tr><th>Agent hooks</th><td class="c s-no">➖</td><td class="c s-no">➖</td><td class="c s-yes">✅</td><td class="note-cell">A <code>turf_action</code> is a step the configuration asks the agent to take during the apply: a check, a notification, a question for the user. The apply stops, the agent answers with its own tools, and the decision stays the user’s. Any MCP client, no provider to install. <span class="pill ok">ahead</span></td></tr>
         <tr><th>Multi-round convergence</th><td class="c s-part">◑</td><td class="c s-no">➖</td><td class="c s-yes">✅</td><td class="note-cell">One <code>up</code> plans what it can, defers what this round can’t know (an unknown count, a provider configured from an endpoint that doesn’t exist yet, a custom resource ahead of its CRD), applies, and plans again until nothing is deferred. A run that can’t progress ends <code>stalled</code> and says why. Terraform Stacks, on HashiCorp’s hosted platform, do this: a convergence check replans after every applied step until the plan is empty. Terraform itself has deferral only as an experiment in its alpha builds. OpenTofu has none. Turf converges any configuration, on a laptop or in the cluster. <a href="/demo/">Watch a stack converge →</a> <span class="pill ok">ahead</span></td></tr>
+        <tr><th>Continuous drift detection</th><td class="c s-part">◑</td><td class="c s-no">➖</td><td class="c s-yes">✅</td><td class="note-cell">The engine watches a workspace between plans: watch events from a feed in a Kubernetes® cluster, and a paced sweep of provider reads for everything else. One read confirms each signal and classifies it against the Terraform configuration; status churn, Turf’s own applies and ignored fields wake nobody, and what holds up reaches the agent as a drift notice, through <code>watch</code>, <code>status</code>, the console or a webhook. The engine detects and notifies; the fix is a plan, approved like any other. Terraform and OpenTofu see drift when someone runs a plan. Health assessments, on HashiCorp’s hosted platform, run a plan of each workspace on a schedule and notify. <a href="/docs/concepts/drift/">Drift, between plans →</a> <span class="pill ok">ahead</span></td></tr>
       </tbody>
     </table></div>
 
@@ -134,6 +141,8 @@ const description =
         <tr><th><code>-exclude</code></th><td class="c s-no">➖</td><td class="c s-yes">✅</td><td class="c s-no">⛔</td><td class="note-cell">Same as <code>-target</code>. (An OpenTofu-only flag; Terraform has no <code>-exclude</code>.)</td></tr>
         <tr><th><code>-refresh-only</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">The <code>refresh</code> command: a one-round refresh-only convergence, approved like any plan.</td></tr>
         <tr><th><code>-refresh=false</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell"><code>plan</code> with <code>refresh: false</code> skips refreshing managed objects for that round; data sources are read at every plan regardless.</td></tr>
+        <tr><th>refresh scoped to what drifted</th><td class="c s-no">➖</td><td class="c s-no">➖</td><td class="c s-yes">✅</td><td class="note-cell">Terraform and OpenTofu refresh inside every plan, one read per managed object. <code>plan</code> with <code>refresh_drift</code> reads the objects the workspace’s open drift notices name; every other row plans from its record, and one that then plans a change is read and planned again, so nothing is applied over a stale read. The result counts the rows left unread, and with no notice open the plan reads everything. (Terraform 1.17 adds <code>-minimal-refresh</code>, which plans from state and reads a row only when it plans a change; OpenTofu has no equivalent.) <span class="pill ok">ahead</span></td></tr>
+        <tr><th>drift checks between plans</th><td class="c s-part">◑</td><td class="c s-no">➖</td><td class="c s-yes">✅</td><td class="note-cell">Continuous, not scheduled: see <em>Where Turf is ahead</em>. On HashiCorp’s hosted platform a health assessment is a speculative plan of the whole workspace on a schedule; it reports, notifies and changes nothing. Terraform and OpenTofu themselves have no scheduler: a drift check is a plan someone runs. <span class="pill ok">ahead</span></td></tr>
         <tr><th><code>-var-file</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">Applied in the order listed and parsed once when the plan starts; a file that fails to parse refuses the call.</td></tr>
         <tr><th><code>-var</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell">The top of the ladder (see <code>variable</code>). <code>var</code> always wins over <code>var_file</code>: no interleaving.</td></tr>
         <tr><th><code>-replace</code></th><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="c s-yes">✅</td><td class="note-cell"><code>plan</code> with <code>replace</code>, for that round only, or <code>taint</code>.</td></tr>

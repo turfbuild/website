@@ -776,3 +776,17 @@ table.matrix td.c { text-align: center; white-space: nowrap; font-family: var(--
   * { transition: none !important; }
   .stackbuild, .stackbuild *, .stackbuild *::before { animation: none !important; }
 }
+
+/* ---------- continuous drift (2026-11-15): a second exchange under the first in the agent band; in the
+   grid, the drift tile's notices and the console as the full last row ---------- */
+.agentloop + .agentloop { margin-top: 16px; }
+.solutions .sol.wide.full { grid-column: 1 / -1; }
+.sol.wide .term { font-size: 11.5px; }
+.sol.wide .term-body { padding: 12px 14px 14px; }
+/* A figure drawn twice (figures/DriftFigure.astro): left to right, and top to bottom for a phone. */
+.fig.when-narrow { display: none; }
+@media (max-width: 560px) {
+  .fig.when-wide { display: none; }
+  .fig.when-narrow { display: block; }
+  .figwide .fig.when-narrow { min-width: 0; }
+}

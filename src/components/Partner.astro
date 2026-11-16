@@ -1,10 +1,15 @@
 ---
 // The pilot-program band at the foot of home. Its sentences are /licensing/'s, which draws them
-// from headquarters/marketing/licensing.md; change that document first. `alt` since 2026-11-07
-// (the papers band before it is plain); the .partner block paints its own background either way.
+// from headquarters/marketing/licensing.md; change that document first. `alt` by default, as
+// /use-cases/ needs it; home passes `alt={false}` since the drift band joined (the papers band
+// before it is `alt` there). The .partner block paints its own background either way.
+interface Props {
+  alt?: boolean;
+}
+const { alt = true } = Astro.props;
 ---
 
-<section class="band alt">
+<section class:list={['band', { alt }]}>
   <div class="wrap">
     <div class="partner">
       <div>

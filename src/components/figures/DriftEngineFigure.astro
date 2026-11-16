@@ -1,0 +1,89 @@
+---
+// Drift detection in the engine's own terms, for /engine/#drift: the in-cluster feed (read-only,
+// dials out, sends identities and change kinds, never an object body); the engine between runs
+// (settle, one confirming provider read per object, classify, the notice); the sweep as the
+// engine's own durable timer for everything no feed covers; and the read budget every background
+// read draws on, per provider. Drawn on its own, not inside EngineArchitectureFigure: that figure
+// is full, and an arrow back from the cluster would cross its fan-out. The read budget is drawn
+// solid (it bounds background reads, and is built); per-provider flow control for a run's own
+// calls is the dashed valve of the architecture figure. Tokens only.
+const stages = [
+  { y: 66, name: 'settle', what: 'a burst is one read · a durable timer' },
+  { y: 116, name: 'confirm', what: 'one provider read per object' },
+  { y: 166, name: 'classify', what: 'against your Terraform configuration' },
+];
+const targets = [
+  { y: 70, name: 'cloud APIs', what: 'resources' },
+  { y: 118, name: 'DNS', what: 'records' },
+  { y: 166, name: 'the cluster', what: 'objects, releases' },
+];
+---
+
+<svg class="fig" viewBox="0 0 720 304" role="img" aria-label="Drift detection in the engine. In a Kubernetes cluster, the feed watches the objects one workspace manages; it is read-only, with get, list and watch, and it dials out to the engine: nothing dials in, and what leaves the cluster is identities and change kinds, never an object body. In the engine, between runs, signals settle on a durable timer so a burst is one read; confirm makes one provider read per object; classify compares it against your Terraform configuration; what holds up is a drift notice with a class and the changed paths, never values, and noise is recorded and wakes nobody. The sweep, the engine's own durable timer, sends every managed object of any provider to the same confirming read over a cycle you set, and pauses while a run holds the workspace. Every background read draws on a read budget per provider, shared by all workspaces, before it reaches cloud APIs, DNS or the cluster. The notice reaches your agent over MCP through watch and status, and the console and a webhook carry it too.">
+  <rect x="0.5" y="0.5" width="719" height="303" rx="12" class="f-ground s-hair"/>
+
+  <!-- the cluster and its feed -->
+  <rect x="14.5" y="40.5" width="192" height="164" rx="10" class="f-none s-hair" stroke-dasharray="4 3"/>
+  <text x="26" y="56" class="t-cap">A KUBERNETES CLUSTER</text>
+  <rect x="26.5" y="64.5" width="168" height="34" rx="8" class="f-panel s-hair"/>
+  <text x="38" y="79" class="t-name">what Turf manages</text>
+  <text x="38" y="91" class="t-m7 f-muted">the objects of one workspace</text>
+  <line x1="110.5" y1="99" x2="110.5" y2="112" class="s-stroke" stroke-width="1.2" marker-end="url(#a-ink)"/>
+  <text x="118" y="109" class="t-m7 f-muted">watch</text>
+  <rect x="26.5" y="114.5" width="168" height="48" rx="8" class="f-okbg s-ok"/>
+  <text x="38" y="131" class="t-name f-okdeep">the feed</text>
+  <text x="38" y="143" class="t-m7 f-okdeep">read-only: get · list · watch</text>
+  <text x="38" y="153" class="t-m7 f-okdeep">dials out; nothing dials in</text>
+  <text x="26" y="180" class="t-m7 f-muted">leaves the cluster: identities and</text>
+  <text x="26" y="190" class="t-m7 f-muted">change kinds, never an object body</text>
+  <path d="M195,138.5 H248.5 V83.5 H300" class="f-none s-ok" stroke-width="1.3" marker-end="url(#a-ok)"/>
+  <text x="243" y="113" text-anchor="end" class="t-m7 f-ok">signals</text>
+
+  <!-- the sweep: the engine's own timer, for everything no feed covers -->
+  <rect x="14.5" y="230.5" width="192" height="58" rx="8" class="f-okbg s-ok"/>
+  <text x="26" y="247" class="t-name f-okdeep">the sweep</text>
+  <text x="26" y="259" class="t-m7 f-okdeep">every managed object, any provider</text>
+  <text x="26" y="269" class="t-m7 f-okdeep">a cycle you set · a durable timer</text>
+  <text x="26" y="279" class="t-m7 f-okdeep">pauses while a run holds the workspace</text>
+  <path d="M207,258.5 H268.5 V133.5 H300" class="f-none s-ok" stroke-width="1.3" marker-end="url(#a-ok)"/>
+
+  <!-- the engine, between runs -->
+  <rect x="290.5" y="40.5" width="216" height="248" rx="10" class="f-okbg s-ok"/>
+  <text x="302" y="56" class="t-cap f-okdeep">TURF-ENGINE, BETWEEN RUNS</text>
+  {stages.map((s) => (
+    <g>
+      <rect x="302.5" y={s.y + 0.5} width="192" height="34" rx="8" class="f-panel s-hair"/>
+      <text x="314" y={s.y + 15} class="t-name">{s.name}</text>
+      <text x="314" y={s.y + 27} class="t-m7 f-muted">{s.what}</text>
+      <line x1="398.5" y1={s.y + 35} x2="398.5" y2={s.y + 48} class="s-stroke" stroke-width="1.2" marker-end="url(#a-ink)"/>
+    </g>
+  ))}
+  <rect x="302.5" y="216.5" width="192" height="34" rx="8" class="f-partbg s-part"/>
+  <text x="314" y="231" class="t-name f-part">drift notice</text>
+  <text x="314" y="243" class="t-m7 f-part">a class · the paths, never values</text>
+  <text x="302" y="272" class="t-m7 f-okdeep">noise is recorded, and wakes nobody</text>
+
+  <!-- the confirming read, under the read budget -->
+  <line x1="495" y1="133.5" x2="530" y2="133.5" class="s-ok" stroke-width="1.3" marker-end="url(#a-ok)"/>
+  <rect x="532.5" y="115.5" width="62" height="36" rx="8" class="f-panel s-ok"/>
+  <polygon points="550,124.5 576,142.5 576,124.5 550,142.5" class="f-ok" opacity=".85"/>
+  <text x="532" y="166" class="t-cap f-okdeep">READ BUDGET</text>
+  <text x="532" y="177" class="t-m7 f-okdeep">per provider,</text>
+  <text x="532" y="187" class="t-m7 f-okdeep">all workspaces</text>
+  {targets.map((t) => (
+    <g>
+      <line x1="595" y1="133.5" x2="612" y2={t.y + 15} class="s-ok" stroke-width="1.1" marker-end="url(#a-ok)"/>
+      <rect x="614.5" y={t.y + 0.5} width="92" height="30" rx="8" class="f-panel s-hair"/>
+      <text x="624" y={t.y + 13} class="t-name" style="font-size:9.6px">{t.name}</text>
+      <text x="624" y={t.y + 24} class="t-m7 f-muted">{t.what}</text>
+    </g>
+  ))}
+
+  <!-- the notice reaches the agent -->
+  <line x1="495" y1="233.5" x2="612" y2="233.5" class="s-inh" stroke-width="1.3" marker-end="url(#a-inh)"/>
+  <text x="514" y="227" class="t-m7 f-inh">watch · status</text>
+  <text x="514" y="245" class="t-m7 f-inh">console · webhook</text>
+  <rect x="614.5" y="212.5" width="92" height="44" rx="8" class="f-inhbg s-inh"/>
+  <text x="660.5" y="231" text-anchor="middle" class="t-name f-inh">your agent</text>
+  <text x="660.5" y="244" text-anchor="middle" class="t-m7 f-inh">over MCP</text>
+</svg>

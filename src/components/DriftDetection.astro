@@ -1,0 +1,82 @@
+---
+// Continuous drift detection: the engine watches between plans. Placed right after WhyEngine on
+// purpose: that band says Turf is a service where the old tool is a process that exits, and this
+// is the first thing only a service can do. Its run timeline is "one run"; this figure is
+// "between runs". Rules kept: present tense; no number or speed claim ("as it happens",
+// "between plans"); "GitOps controllers" is the generic term and none is named; the engine
+// detects and notifies, and never applies on its own; Helm releases are caught by the sweep (the
+// provider's own read), so no watch is claimed for them. The exchange is illustrative, in the
+// shape of the MCP server's `watch` result (address, class, paths, source; never a value); a
+// feed's source is the name it was given.
+// A console still of the Drift tab belongs under the figure once one is taken from a real run;
+// the band reads complete without it.
+import DriftFigure from './figures/DriftFigure.astro';
+---
+
+<section class="band alt" id="drift">
+  <div class="wrap">
+    <div class="band-head">
+      <h2>Drift, caught as it happens.</h2>
+      <p>Terraform looks at the world only when someone runs a plan. Turf keeps watching between
+        plans: a change made outside it reaches your agent as a drift notice, and the fix is a plan
+        like any other.</p>
+    </div>
+
+    <div class="figwide">
+      <DriftFigure />
+      <p class="figcap"><b>Between runs.</b> A signal costs nothing, a notice costs one read, and a
+        change still takes a plan and an approval.</p>
+    </div>
+
+    <div class="feature">
+      <div>
+        <ul class="ticklist">
+          <li><span class="g">✓</span><div><b>As it happens</b> <span>— watch events where the platform has
+            them, in a Kubernetes® cluster today, and a paced sweep of provider reads everywhere
+            else.</span></div></li>
+          <li><span class="g">✓</span><div><b>Signal, not noise</b> <span>— one provider read confirms each
+            signal and classifies it against your Terraform configuration. Status churn, Turf’s own
+            applies and ignored fields wake nobody; a field another controller keeps setting is named
+            as contended.</span></div></li>
+          <li><span class="g">✓</span><div><b>The plan still governs</b> <span>— the agent decides which side
+            wins: remediate, adopt the change into the files, or suppress it with
+            <code>ignore_changes</code>. The plan reads only what drifted and stops at the same approval
+            points. Nothing runs off-plan.</span></div></li>
+          <li><span class="g">✓</span><div><b>Beyond the cluster</b> <span>— what GitOps controllers do for
+            Kubernetes manifests, for everything a Terraform provider manages: cloud resources, DNS,
+            Helm releases, the clusters themselves.</span></div></li>
+        </ul>
+        <div class="proof">
+          <span class="lab">More</span>
+          <a href="/docs/concepts/drift/">how drift is detected →</a>
+          <a href="/docs/using/drift/">watching a workspace →</a>
+          <a href="/engine/#drift">in the engine →</a>
+        </div>
+      </div>
+
+      <div class="agentloop" role="img" aria-label="A tool result: watch returns one drift notice, the replica count of a Kubernetes deployment, class configured, seen by the cluster's feed. The agent plans only what drifted, reads one object, finds one in-place change back to what the files say, approves it, and the notice clears.">
+<pre class="report"><span class="lab">TOOL RESULT · TURF MCP</span><b>watch</b> → <i>drift</i>
+<span class="k">notices</span> = [&#123;
+  address = <i>"kubernetes_deployment_v1.api"</i>
+  class   = <i>"configured"</i>
+  paths   = [<i>"spec[0].replicas"</i>]
+  source  = <i>"prod-feed"</i>
+&#125;]
+<span class="d">confirmed by one read · next: up</span></pre>
+        <div class="chat">
+          <div class="who"><span class="av">✦</span><span>Your agent</span><span class="tag">in Claude Code</span></div>
+          <div class="msg">
+            <p><strong>The replica count on api was changed outside Turf.</strong> The files say three,
+              so I planned only what drifted.</p>
+            <ul class="ck">
+              <li><code>plan</code> with <code>refresh_drift</code> <span>1 read</span></li>
+              <li>1 to change, in place <span>5 → 3 replicas</span></li>
+            </ul>
+            <p>An in-place revert to what the files say: approved.</p>
+          </div>
+          <p class="note">→ apply(plan_digest): converged · the notice clears</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
