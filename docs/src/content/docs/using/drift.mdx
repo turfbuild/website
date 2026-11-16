@@ -33,13 +33,13 @@ resource "kubernetes_deployment_v1" "web" {
 <Agent calls={['watch → unwatched']}>
 
 Nothing watches this workspace between runs yet. I can turn on a sweep: the engine would read every
-managed object once an hour, unattended, against the provider's API with its own credentials. Shall I?
+managed object once a day, unattended, against the provider's API with its own credentials. Shall I?
 
 </Agent>
-<User>Yes, hourly is fine.</User>
+<User>Yes, daily is fine.</User>
 <Agent calls={['drift → configured', 'watch → waiting']}>
 
-The sweep is on, one cycle an hour, and I am watching. I will tell you when something drifts.
+The sweep is on, one cycle a day, and I am watching. I will tell you when something drifts.
 
 </Agent>
 <Agent calls={['watch → drift', 'up (drift) → awaiting_plan', 'plan → awaiting_approval', 'apply → converged', 'watch → waiting']}>
@@ -64,7 +64,7 @@ drift:
   counts:   { configured: 1 }
   notices:  [ { address: "kubernetes_deployment_v1.web", class: "configured",
                 paths: ["spec[0].replicas"], source: "sweep", new: true } ]
-  coverage: "42 managed: 42 swept (each read within 58m); settle 30s, sweep cycle 60m"
+  coverage: "42 managed: 42 swept (each read within 23h); settle 30s, sweep cycle 24h"
 cursor: "w2.…"
 next:   { tool: "up", args: { workspace_alias: "default", drift: true } }
 ```
@@ -115,8 +115,8 @@ Then type "watch this workspace for drift". It calls the same tools.
 ## Turn it on
 
 ```text
-drift({ workspace_alias, sweep: 3600 })
-→ outcome: configured, settings: { settle: 30, sweep: 3600 }, next: watch
+drift({ workspace_alias, sweep: 86400 })
+→ outcome: configured, settings: { settle: 30, sweep: 86400 }, next: watch
 ```
 
 `drift` changes the settings it names and leaves the rest as they stand. Its first call turns drift on
@@ -151,12 +151,18 @@ The sweep paces itself across the cycle and draws on the engine's
 workspace, and an `up` that converges after reading every object starts its cycle over. An object a
 live feed watches is swept every fourth cycle.
 
-**Choosing a cycle.** A swept read takes only what the read budget holds above its reserve, so at the
-default budget the sweep reads about two objects a second, not five. A workspace of *n* objects
+**Choosing a cycle.** The agent offers one cycle a day, `sweep: 86400`, and goes shorter only when you
+ask. The sweep is the backstop for what no feed watches, its reads are unattended, and a day is the
+usual cadence for a scheduled drift check.
+
+A shorter cycle has a floor. A swept read takes only what the read budget holds above its reserve, so
+at the default budget the sweep reads about two objects a second, not five. A workspace of *n* objects
 therefore needs a cycle of at least about *n* ÷ 2 seconds: 1,000 objects, about 500 seconds; 7,200
-objects, about an hour. That is arithmetic to choose a setting by, not a measured rate: a slower
-provider needs longer. A cycle too short for the workspace cannot finish in time, and `status` says
-the sweep is [behind](/docs/using/troubleshooting/#drift).
+objects, about an hour. A day covers well over 100,000 objects. That is arithmetic to choose a setting
+by, not a measured rate: a slower provider needs longer. A larger read burst on the engine,
+`TURF_DRIFT_READ_BURST`, raises the sweep's rate, as far as the budget's own. A cycle too short for
+the workspace cannot finish in time, and `status` says the sweep is
+[behind](/docs/using/troubleshooting/#drift).
 
 ## See what drifted
 

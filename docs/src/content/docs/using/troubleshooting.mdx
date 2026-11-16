@@ -216,11 +216,16 @@ again. If nothing comes when you expect it, check in this order:
 says it when you change a setting. It means a cycle will not reach every object within its target.
 The line names one of two limits:
 
-- **The read budget.** One cycle needs more reads a second than the budget allows. A longer cycle
-  fixes it, or a higher [read budget](/docs/environment/engine-environment/#drift-detection).
-- **The engine's own cadence.** The budget would allow it, but a swept read takes only what is above
-  the budget's reserve, about two reads a second at the defaults. A longer cycle fixes it: `drift`
-  with a larger `sweep`. A workspace of *n* objects needs about *n* ÷ 2 seconds.
+- **The read budget.** One cycle needs more reads a second than the budget's rate allows. A longer
+  cycle fixes it, or a higher rate, `TURF_DRIFT_READ_RATE`.
+- **The engine's own cadence.** The rate would allow it, but a swept batch takes only what is above
+  the budget's reserve, half the burst, one batch at a time: about two reads a second at the
+  defaults. A longer cycle fixes it, or a larger burst, `TURF_DRIFT_READ_BURST`.
+
+A longer cycle is `drift` with a larger `sweep`. At the defaults a workspace of *n* objects needs
+about *n* ÷ 2 seconds. The rate and the burst are the engine's
+[read budget](/docs/environment/engine-environment/#drift-detection): its operator sets them, and no
+tool does.
 
 Nothing is lost while the sweep is behind. Every object is still read, later than the cycle says.
 
