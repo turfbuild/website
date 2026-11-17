@@ -1,11 +1,11 @@
 ---
 title: State encryption
-description: Turf honours OpenTofu's encryption block in the MCP server, where state is read and written. Give its passphrase to open once; TF_ENCRYPTION stays there.
+description: Turf honours the OpenTofu encryption block in the MCP server, where state is read and written. Give its passphrase to open once; TF_ENCRYPTION stays there.
 sidebar:
   order: 6
 ---
 
-Encrypt a workspace's state with the OpenTofu™ `encryption` block, as `tofu` does. Turf™ honours it
+Encrypt a workspace's state with the OpenTofu® `encryption` block, as `tofu` does. Turf™ honours it
 where the statefile is read and written: the MCP server, never the engine. Give the passphrase to
 `open` once, and every tool on the workspace can read the state.
 
@@ -90,4 +90,4 @@ The block protects the backend's store. In the words of Turf's own reference:
 3. Remove the fallback and add `enforced = true`.
 
 An encrypted statefile met by a configuration that no longer declares encryption, or by the wrong
-passphrase, is refused at `open` and `up` in OpenTofu's words, with the directory named.
+passphrase, is refused at `open` and `up` in the OpenTofu wording, with the directory named.
