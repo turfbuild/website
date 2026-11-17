@@ -59,7 +59,7 @@ A zero count is left out.
 
 | Field | Meaning |
 |---|---|
-| `uri` | The round's plan resource: OpenTofu™'s JSON plan, exactly as `tofu show -json` prints it, sensitive values redacted. `show` reads it. `?show_sensitive=true` reads the clear bytes that `digest` hashes. |
+| `uri` | The round's plan resource: the OpenTofu® JSON plan, exactly as `tofu show -json` prints it, sensitive values redacted. `show` reads it. `?show_sensitive=true` reads the clear bytes that `digest` hashes. |
 | `digest` | `sha256:` and the hex digest of the plan document. `apply` names it to approve this plan and no other. |
 | `add`, `change`, `destroy` | Instances created, updated in place, deleted. |
 | `replace` | Replacements, each also counted in `add` and `destroy`. |
@@ -67,7 +67,7 @@ A zero count is left out.
 | `forget` | Objects dropped from state and left running. |
 | `read` | Data-source reads moved to apply. |
 | `deferred` | Changes waiting for a later round, a module call deferred whole included. Above zero, another round follows. |
-| `drift` | Objects the refresh found changed outside Terraform®. |
+| `drift` | Objects the refresh found changed outside Turf. |
 | `outputs` | Root outputs the plan changes. |
 | `invocations` | Every action the round runs: `address`, `type`, `caller`, `event`, `on_failure`, per caller in run order. |
 | `errored` | The plan errored; nothing in it is applied. |
@@ -142,7 +142,7 @@ Each entry counts what the round did:
 | `planned` | Changes planned, no-ops and deferrals included. |
 | `deferred` | Changes left for a later round. |
 | `applied` | Changes applied. |
-| `drift` | Objects the refresh found changed outside Terraform: what a refresh writes into state. |
+| `drift` | Objects the refresh found changed outside Turf: what a refresh writes into state. |
 | `failed` | Changes that failed. |
 | `skipped` | Changes never started, because something they depend on failed or halted. |
 | `cancelled` | Changes a cancel abandoned. |
