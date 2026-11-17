@@ -39,14 +39,14 @@ export const papers: Paper[] = [
     alt: 'The cover of Pull Request to Production: the title over a commit graph, with the pipeline’s stops, open, plan, comment, review, merge, apply, verify, promote, drawn along a branch merging into main.',
   },
   {
-    id: 'agentic-infrastructure-control-plane',
-    tagline: 'For Kubernetes platform teams · 7 pages',
-    title: 'An Agentic Infrastructure Control Plane',
+    id: 'agentic-iac-for-platform-teams',
+    tagline: 'Infrastructure as code · 7 pages',
+    title: 'Agentic IaC for Platform Teams',
     abstract:
       'A reference architecture for Turf on kagent 1.0: ask for infrastructure in chat, approve the plan, and your cluster provisions it, whether cloud resources, clusters or anything with a Terraform provider. The agent plans, a person approves, and only the engine touches the cloud.',
-    page: '/reference-architectures/agentic-infrastructure-control-plane/',
-    pdf: 'https://get.turf.build/papers/turf-agentic-infrastructure-control-plane.pdf',
-    cover: '/papers/turf-agentic-infrastructure-control-plane-cover.jpg',
-    alt: 'The cover of An Agentic Infrastructure Control Plane: the title over a cluster, labelled kagent and Turf, with three arrows out of it to cloud resources, clusters, and anything with a provider.',
+    page: '/reference-architectures/agentic-iac-for-platform-teams/',
+    pdf: 'https://get.turf.build/papers/turf-agentic-iac-for-platform-teams.pdf',
+    cover: '/papers/turf-agentic-iac-for-platform-teams-cover.jpg',
+    alt: 'The cover of Agentic IaC for Platform Teams: the title over a cluster, labelled kagent and Turf, with three arrows out of it to cloud resources, clusters, and anything with a provider.',
   },
 ];

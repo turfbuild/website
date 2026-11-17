@@ -2,21 +2,21 @@
 import Layout from '../../layouts/Layout.astro';
 import FigureDefs from '../../components/FigureDefs.astro';
 import KagentFigure from '../../components/figures/KagentFigure.astro';
-// The page for *An Agentic Infrastructure Control Plane* (Turf on kagent 1.0). Its lede, the four
+// The page for *Agentic IaC for Platform Teams* (Turf on kagent 1.0). Its lede, the four
 // ideas, the page list, the Run it steps and the marks note are the paper's own words, from
-// headquarters/marketing/launch/refarch-kagent.md (v0.6): the cover, pages 2 to 6, "Run it" and the
+// headquarters/marketing/launch/refarch-kagent.md (v0.7): the cover, pages 2 to 6, "Run it" and the
 // marks paragraph. The figure is the paper's Figure 1. A new version of the paper means re-checking
 // this page against it. See "Papers" in CLAUDE.md.
-const title = 'Turf — An Agentic Infrastructure Control Plane on kagent 1.0';
+const title = 'Turf — Agentic IaC for Platform Teams on kagent 1.0';
 const description =
-  'An Agentic Infrastructure Control Plane, a Turf reference architecture for kagent 1.0: ask in chat, approve the plan, and your cluster provisions it.';
+  'Agentic IaC for Platform Teams, a Turf reference architecture: infrastructure as code on kagent 1.0. Ask in chat, approve the plan, the cluster provisions it.';
 
 const site = 'https://turf.build';
 // Shared through Scarf, which counts the click and redirects to the turf.build copy; the tag
 // tells this page's clicks apart from the paper's other links (CLAUDE.md, "Papers").
-const pdfShared = 'https://get.turf.build/papers/turf-agentic-infrastructure-control-plane.pdf?src=refarch-kagent-page';
-const pdfHosted = `${site}/papers/turf-agentic-infrastructure-control-plane.pdf`;
-const cover = `${site}/papers/turf-agentic-infrastructure-control-plane-cover.jpg`;
+const pdfShared = 'https://get.turf.build/papers/turf-agentic-iac-for-platform-teams.pdf?src=refarch-kagent-page';
+const pdfHosted = `${site}/papers/turf-agentic-iac-for-platform-teams.pdf`;
+const cover = `${site}/papers/turf-agentic-iac-for-platform-teams-cover.jpg`;
 const repoUrl = 'https://github.com/turfbuild/turf-kagent';
 
 // See demo.astro: inlined, not an `@id` reference to the home page's node.
@@ -25,15 +25,15 @@ const jsonLd = [
   {
     '@context': 'https://schema.org',
     '@type': 'TechArticle',
-    '@id': `${site}/reference-architectures/agentic-infrastructure-control-plane/#paper`,
-    name: 'An Agentic Infrastructure Control Plane',
-    headline: 'An Agentic Infrastructure Control Plane',
+    '@id': `${site}/reference-architectures/agentic-iac-for-platform-teams/#paper`,
+    name: 'Agentic IaC for Platform Teams',
+    headline: 'Agentic IaC for Platform Teams',
     alternativeHeadline: 'A reference architecture for Turf on kagent 1.0',
     description,
-    url: `${site}/reference-architectures/agentic-infrastructure-control-plane/`,
+    url: `${site}/reference-architectures/agentic-iac-for-platform-teams/`,
     datePublished: '2026-11-16',
-    dateModified: '2026-11-16',
-    version: '0.6',
+    dateModified: '2026-11-17',
+    version: '0.7',
     inLanguage: 'en-US',
     isAccessibleForFree: true,
     author: publisher,
@@ -41,7 +41,7 @@ const jsonLd = [
     image: cover,
     associatedMedia: {
       '@type': 'MediaObject',
-      name: 'An Agentic Infrastructure Control Plane (PDF)',
+      name: 'Agentic IaC for Platform Teams (PDF)',
       contentUrl: pdfHosted,
       encodingFormat: 'application/pdf',
     },
@@ -52,7 +52,7 @@ const jsonLd = [
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Turf', item: `${site}/` },
       { '@type': 'ListItem', position: 2, name: 'Reference architectures', item: `${site}/reference-architectures/` },
-      { '@type': 'ListItem', position: 3, name: 'An Agentic Infrastructure Control Plane' },
+      { '@type': 'ListItem', position: 3, name: 'Agentic IaC for Platform Teams' },
     ],
   },
 ];
@@ -88,16 +88,16 @@ const parts = [
   <FigureDefs />
   <section class="subhero">
     <div class="wrap">
-      <p class="eyebrow"><span class="dot"></span> Reference architecture · v0.6 · November 2026</p>
-      <h1>An Agentic Infrastructure Control Plane.</h1>
-      <p class="lede">Turf™ on kagent 1.0. Ask for infrastructure in chat, approve the plan, and your
+      <p class="eyebrow"><span class="dot"></span> Reference architecture · v0.7 · November 2026</p>
+      <h1>Agentic IaC for Platform Teams.</h1>
+      <p class="lede">Infrastructure as code with Turf™ on kagent 1.0. Ask in chat, approve the plan, and your
         cluster provisions it: cloud resources, clusters, anything with a Terraform® provider.
         <strong>The agent plans. A person approves. Only the engine touches the cloud.</strong></p>
       <div class="cta-row">
         <a class="btn primary" href={pdfShared}>Read the PDF</a>
         <a class="btn ghost" href={repoUrl}>The repo on GitHub</a>
       </div>
-      <p class="meta">7 pages · PDF · for platform engineers who run agents on Kubernetes®</p>
+      <p class="meta">7 pages · PDF · runs on kagent 1.0 and Kubernetes®</p>
     </div>
   </section>
 
@@ -107,8 +107,8 @@ const parts = [
         <figure class="cover">
           <a href={pdfShared}>
             <img
-              src="/papers/turf-agentic-infrastructure-control-plane-cover.jpg"
-              alt="The cover of An Agentic Infrastructure Control Plane: the title over a cluster, labelled kagent and Turf, with three arrows out of it to cloud resources, clusters, and anything with a provider."
+              src="/papers/turf-agentic-iac-for-platform-teams-cover.jpg"
+              alt="The cover of Agentic IaC for Platform Teams: the title over a cluster, labelled kagent and Turf, with three arrows out of it to cloud resources, clusters, and anything with a provider."
               width="741"
               height="960"
               loading="lazy"

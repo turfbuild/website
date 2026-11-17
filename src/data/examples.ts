@@ -46,7 +46,7 @@ export const examples: Example[] = [
     ],
     links: [
       { label: 'the repository on GitHub', href: 'https://github.com/turfbuild/turf-kagent' },
-      { label: 'An Agentic Infrastructure Control Plane, the paper', href: '/reference-architectures/agentic-infrastructure-control-plane/' },
+      { label: 'Agentic IaC for Platform Teams, the paper', href: '/reference-architectures/agentic-iac-for-platform-teams/' },
       { label: 'the walkthrough in the docs', href: '/docs/cluster/example-kagent/' },
     ],
   },
