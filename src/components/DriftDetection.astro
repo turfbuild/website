@@ -2,11 +2,11 @@
 // Continuous drift detection: the engine watches between plans. Placed right after WhyEngine on
 // purpose: that band says Turf is a service where the old tool is a process that exits, and this
 // is the first thing only a service can do. Its run timeline is "one run"; this figure is
-// "between runs". The headline is "Terraform, on watch." (Eron, 2026-11-16: keeping watch, and
-// `watch` is the tool's name): the second of the two deliberate exceptions to the nominative-use
-// rule, with the grid's "A new Terraform, reimagined for AI." (CLAUDE.md, "Trademark"); it carries
-// no ®. Don't "fix" it. Three protections go with the headline (2026-11-16; don't drop one): Turf
-// is the subject of the lede ("Turf brings continuous drift detection to …", then "Its engine …");
+// "between runs". The headline is "On watch, between plans." (2026-11-16: keeping watch, and
+// `watch` is the tool's name); it names no one's mark, and "Terraform" is only ever used
+// nominatively (the history is in CLAUDE.md, "Trademark"). The headline carries "between plans",
+// so the lede's second sentence does not repeat it. Three standing rules for this band
+// (2026-11-16; don't drop one): Turf is the subject of the lede ("Turf brings continuous drift detection to …", then "Its engine …");
 // the band head carries the non-affiliation sentence as fine print under the lede, word for word
 // as CompatibilityTeaser.astro has it; and the Terraform chip's swatch in the grid is the site's
 // own ink, never HashiCorp's brand purple. The lede still carries the phrase people search for, and says plainly that this
@@ -24,10 +24,10 @@ import DriftFigure from './figures/DriftFigure.astro';
 <section class="band alt" id="drift">
   <div class="wrap">
     <div class="band-head">
-      <h2>Terraform, on watch.</h2>
+      <h2>On watch, between plans.</h2>
       <p><strong>Turf brings continuous drift detection to everything a Terraform provider manages.</strong>
-        Its engine keeps watch between plans and wakes your agent only when something really
-        changed. Not a scheduled plan: a change made outside Turf arrives as a drift notice, and the
+        Its engine keeps watch and wakes your agent only when something really changed. Not a
+        scheduled plan: a change made outside Turf arrives as a drift notice, and the
         fix is a plan like any other.</p>
       <p class="fine">Turf is an independent product built on the OpenTofu framework, not affiliated
         with or endorsed by HashiCorp.</p>

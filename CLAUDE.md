@@ -75,16 +75,16 @@ Pages pass four props, all optional: `title`, `description`, `noindex`, `jsonLd`
 **Pages compose components; the home page composes them all.** `pages/index.astro` is nothing but an
 ordered list of section components (redesigned 2026-10-20, revised 10-21 and 11-07): FigureDefs, Hero (with
 StackBuild), WhyEngine (two figures: the engine map and a run timeline; it carries the legacy
-`#product` anchor), DriftDetection (since 2026-11-15, `#drift`: "Terraform, on watch.", Eron's
-headline of 2026-11-16, over a lede that opens "Continuous drift detection for everything a Terraform
-provider manages." and says it is not a scheduled plan; the
+`#product` anchor), DriftDetection (since 2026-11-15, `#drift`: "On watch, between plans.", the
+headline of 2026-11-16, over a lede that opens "Turf brings continuous drift detection to everything a
+Terraform provider manages." and says it is not a scheduled plan; the
 signal → read → notice → agent → plan figure, four supports as a ticklist and one illustrative
 exchange; it sits right after WhyEngine because watching between plans is the first thing only an
 engine that does not exit can do), ActionsInPlan,
 AgentInLoop, CompatibilityTeaser (three ecosystem cards), OpsEnvironment (the ops-environment band,
 moved from `/use-cases/` on 2026-10-21: the lane figure, the backend/registry/ephemeral HCL, a
-ticklist, proof links), Engine (since 2026-11-07 the best-of-both grid, "A new Terraform, reimagined
-for AI": eight tiles with a provenance chip row each, Terraform · OpenTofu · Turf; continuous drift
+ticklist, proof links), Engine (since 2026-11-07 the best-of-both grid, headed "Infrastructure as
+code, reimagined for AI." since 2026-11-16: eight tiles with a provenance chip row each, Terraform · OpenTofu · Turf; continuous drift
 detection is a double-wide tile whose right half is three notices drawn as a terminal, the slot a
 console still of the Drift tab takes once one exists from a real run, and the console with its still
 is the full last row (`.sol.wide.full`), so the grid has no orphan cell; it replaced the fan-out
@@ -212,21 +212,22 @@ code, and figures with their labels and captions stay clean (the engine architec
 version carries symbols; the web one has none); a mark is never possessive or plural ("Ansible
 playbooks", not "Ansible's"), nor hyphenated into a compound ("only in OpenTofu", not
 "OpenTofu-only"; "Terraform-compatible" stays); the `turf.build` wordmark itself is unmarked, as in
-the PDF. **Two deliberate exceptions, and only these
-two**, both Eron's lines, both on home: the feature grid is headed "A new Terraform, reimagined for
-AI." (2026-11-07), and the drift band "Terraform, on watch." (2026-11-16; "on watch" as in keeping
-watch, and `watch` is also the tool's name). In both, "Terraform" names the category Turf re-does,
-as "a new Terraform" and never as Turf's name; it still never appears in a product name, domain or
-logo, and neither headline carries a ®. Three protections are part of the two exceptions
-(2026-11-16), and a headline does not stand without them: Turf is the subject of each band's lede
+the PDF. **There are no exceptions**: "Terraform" is only ever used nominatively (compatibility,
+comparison), in a headline as anywhere else. History: the home feature grid was headed "A new
+Terraform, reimagined for AI." from 2026-11-07 (live), and the drift band was drafted as "Terraform,
+on watch." on 2026-11-16 (never published); both were Eron's lines, and both were retired on
+2026-11-16, on his decision to err on the side of caution, pending counsel's read. They may return
+only if counsel clears them: do not restore either on your own. The current headlines are
+"Infrastructure as code, reimagined for AI." (the grid) and "On watch, between plans." (the drift
+band; "on watch" as in keeping watch, and `watch` is also the tool's name). Three standing rules
+for those two bands (2026-11-16): Turf is the subject of each band's lede
 ("Turf runs the best of Terraform and OpenTofu on one distributed engine …"; "Turf brings continuous
 drift detection to everything a Terraform provider manages."); each band head carries the
 non-affiliation sentence as fine print (`.band-head .fine`: under the chip legend in the grid, under
 the lede in the drift band), word for word as `CompatibilityTeaser.astro` has it, "Turf is an
 independent product built on the OpenTofu framework, not affiliated with or endorsed by HashiCorp.";
 and the Terraform chip's swatch (`.chip.tf .sw`) is the site's own ink, never HashiCorp's brand
-purple. Don't "fix" either, and don't add a third. Each stands once, as its band's headline: neither is
-repeated as link text, in `llms.txt`, a `<title>` or a social card. The footer fineprint carries the
+purple. The footer fineprint carries the
 attribution and non-affiliation statement on every page, and `public/llms.txt` and the docs footer
 (`docs/src/components/Footer.astro`) the same block, byte for byte (as of 2026-11-16): "Turf™ is a
 trademark of Turf LLC. Terraform® is a trademark of HashiCorp. Ansible® is a trademark of Red Hat,
@@ -529,9 +530,10 @@ off-plan"), event feeds for cloud audit logs, object-level drift inside a Helm r
 Helm releases at all (the sweep reads a `helm_release` through its provider). No number or speed
 claim: "as it happens", "between plans", never "in seconds". "GitOps controllers" is the generic
 term; none is named. The band's lede must not read as a plan on a timer or a wrapper that runs
-Terraform: Turf's engine keeps watch and wakes the agent only when something really changed. With
-two "Terraform" headlines on home, the grid's lede says "drift caught between plans" and leaves
-"watch" to the band, and the band names "a Terraform provider" once, in the lede's opening line. The
+Terraform: Turf's engine keeps watch and wakes the agent only when something really changed. The
+grid's lede says "drift caught between plans" and leaves "watch" to the band; the band's headline,
+"On watch, between plans.", carries "between plans", so its lede does not repeat the phrase, and the
+band names "a Terraform provider" once, in the lede's opening line. The
 grid's lede lists drift among "what neither does in full", never "neither has": the matrix
 scores Terraform ◑ on that row. The surfaces: the home band and its grid tile, the day-2 exchange in the agent
 band (illustrative: the AWS provider plans an ElastiCache engine downgrade as a replacement, so a

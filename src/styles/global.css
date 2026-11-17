@@ -226,7 +226,7 @@ h2 {
 .band-head p { color: var(--muted); font-size: 16.5px; margin: 0; max-width: 62ch; }
 .band-head p strong { color: var(--ink); font-weight: 600; }
 .band-head .provenance { margin-top: 8px; font-size: 14px; color: var(--muted); }
-/* The non-affiliation sentence under the two "Terraform" headlines: the footer fineprint's size and colour. */
+/* The non-affiliation sentence in the feature grid's and the drift band's heads: the footer fineprint's size and colour. */
 .band-head .fine { margin-top: 12px; max-width: none; font-size: 12.5px; line-height: 1.5; color: var(--faint); text-wrap: balance; }
 
 /* fear strip */
