@@ -208,7 +208,15 @@ two**, both Eron's lines, both on home: the feature grid is headed "A new Terraf
 AI." (2026-11-07), and the drift band "Terraform, on watch." (2026-11-16; "on watch" as in keeping
 watch, and `watch` is also the tool's name). In both, "Terraform" names the category Turf re-does,
 as "a new Terraform" and never as Turf's name; it still never appears in a product name, domain or
-logo, and neither headline carries a ®. Don't "fix" either, and don't add a third. Each stands once, as its band's headline: neither is
+logo, and neither headline carries a ®. Three protections are part of the two exceptions
+(2026-11-16), and a headline does not stand without them: Turf is the subject of each band's lede
+("Turf runs the best of Terraform and OpenTofu on one distributed engine …"; "Turf brings continuous
+drift detection to everything a Terraform provider manages."); each band head carries the
+non-affiliation sentence as fine print (`.band-head .fine`: under the chip legend in the grid, under
+the lede in the drift band), word for word as `CompatibilityTeaser.astro` has it, "Turf is an
+independent product built on the OpenTofu framework, not affiliated with or endorsed by HashiCorp.";
+and the Terraform chip's swatch (`.chip.tf .sw`) is the site's own ink, never HashiCorp's brand
+purple. Don't "fix" either, and don't add a third. Each stands once, as its band's headline: neither is
 repeated as link text, in `llms.txt`, a `<title>` or a social card. The footer fineprint carries the
 attribution and non-affiliation statement on every page, and `public/llms.txt` and the docs footer
 (`docs/src/components/Footer.astro`) the same block, byte for byte (as of 2026-11-16): "Turf™ is a
@@ -513,7 +521,7 @@ term; none is named. The band's lede must not read as a plan on a timer or a wra
 Terraform: Turf's engine keeps watch and wakes the agent only when something really changed. With
 two "Terraform" headlines on home, the grid's lede says "drift caught between plans" and leaves
 "watch" to the band, and the band names "a Terraform provider" once, in the lede's opening line. The
-grid's lede lists drift among "the things neither does in full", never "neither has": the matrix
+grid's lede lists drift among "what neither does in full", never "neither has": the matrix
 scores Terraform ◑ on that row. The surfaces: the home band and its grid tile, the day-2 exchange in the agent
 band (illustrative: the AWS provider plans an ElastiCache engine downgrade as a replacement, so a
 revert goes to a person), the Day 2 beats of use cases 01 to 04, `/engine/#drift`, one strengths row

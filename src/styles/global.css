@@ -204,7 +204,8 @@ h1 {
   padding: 5px 12px; font-size: 12.5px; color: var(--muted); font-weight: 500;
 }
 .chip .sw { width: 8px; height: 8px; border-radius: 2px; background: var(--ok); flex: none; }
-.chip.tf .sw { background: #7b42bc; }
+/* Terraform's swatch is the site's own ink, a neutral: never HashiCorp's brand purple (2026-11-16). */
+.chip.tf .sw { background: var(--ink); }
 .chip.otf .sw { background: #d4ad00; }
 .chip.mcp .sw { background: var(--inh); }
 
@@ -225,6 +226,8 @@ h2 {
 .band-head p { color: var(--muted); font-size: 16.5px; margin: 0; max-width: 62ch; }
 .band-head p strong { color: var(--ink); font-weight: 600; }
 .band-head .provenance { margin-top: 8px; font-size: 14px; color: var(--muted); }
+/* The non-affiliation sentence under the two "Terraform" headlines: the footer fineprint's size and colour. */
+.band-head .fine { margin-top: 12px; max-width: none; font-size: 12.5px; line-height: 1.5; color: var(--faint); text-wrap: balance; }
 
 /* fear strip */
 .beats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }

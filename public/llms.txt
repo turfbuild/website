@@ -60,9 +60,9 @@ eight capabilities by where each comes from: modules as they are (Terraform and 
 encryption enforced (OpenTofu), Terraform actions by overlay (Terraform), stacks converged in rounds
 (what Terraform Stacks does on HashiCorp's hosted platform, with plain modules, on your own engine),
 turf actions (an apply that asks), a clusterable engine, continuous drift detection, and the console.
-The drift band (https://turf.build/#drift) is continuous drift detection for
-everything a Terraform provider manages: the engine keeps watch between plans and wakes the agent
-only when something really changed (not a scheduled plan), and its figure shows the loop: signal,
+In the drift band (https://turf.build/#drift), Turf brings continuous drift detection to
+everything a Terraform provider manages: its engine keeps watch between plans and wakes the agent
+only when something really changed (not a scheduled plan), and the figure shows the loop: signal,
 read, notice, agent, plan. Two reference architectures
 are at https://turf.build/#papers.
 

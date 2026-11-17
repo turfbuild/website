@@ -5,7 +5,11 @@
 // "between runs". The headline is "Terraform, on watch." (Eron, 2026-11-16: keeping watch, and
 // `watch` is the tool's name): the second of the two deliberate exceptions to the nominative-use
 // rule, with the grid's "A new Terraform, reimagined for AI." (CLAUDE.md, "Trademark"); it carries
-// no ®. Don't "fix" it. The lede opens on the phrase people search for, and says plainly that this
+// no ®. Don't "fix" it. Three protections go with the headline (2026-11-16; don't drop one): Turf
+// is the subject of the lede ("Turf brings continuous drift detection to …", then "Its engine …");
+// the band head carries the non-affiliation sentence as fine print under the lede, word for word
+// as CompatibilityTeaser.astro has it; and the Terraform chip's swatch in the grid is the site's
+// own ink, never HashiCorp's brand purple. The lede still carries the phrase people search for, and says plainly that this
 // is the engine keeping watch, not a plan on a schedule. Rules kept: present tense; no number or speed claim ("as it happens",
 // "between plans"); "GitOps controllers" is the generic term and none is named; the engine
 // detects and notifies, and never applies on its own; Helm releases are caught by the sweep (the
@@ -21,10 +25,12 @@ import DriftFigure from './figures/DriftFigure.astro';
   <div class="wrap">
     <div class="band-head">
       <h2>Terraform, on watch.</h2>
-      <p><strong>Continuous drift detection for everything a Terraform provider manages.</strong>
-        Turf’s engine keeps watch between plans and wakes your agent only when something really
+      <p><strong>Turf brings continuous drift detection to everything a Terraform provider manages.</strong>
+        Its engine keeps watch between plans and wakes your agent only when something really
         changed. Not a scheduled plan: a change made outside Turf arrives as a drift notice, and the
         fix is a plan like any other.</p>
+      <p class="fine">Turf is an independent product built on the OpenTofu framework, not affiliated
+        with or endorsed by HashiCorp.</p>
     </div>
 
     <div class="figwide">
