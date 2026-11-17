@@ -71,4 +71,4 @@ one conversation across several requests ([Sessions](/docs/cli/chat/#sessions)).
 
 `exec` still launches `turf-mcp-server`, so the server must be on `PATH`
 ([Overview](/docs/cli/overview/#install)). For repeatable runs with no cloud credentials or cost, point
-it at HCL that uses OpenTofu™ providers that need no credentials: `null`, `local`, `random`, `tls`.
+it at HCL that uses OpenTofu® providers that need no credentials: `null`, `local`, `random`, `tls`.

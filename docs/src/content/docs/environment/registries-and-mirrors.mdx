@@ -35,7 +35,7 @@ server's environment, plus `open`'s `backend_config`.
 
 ## Registry and `remote` backend tokens
 
-A private module or provider registry, and the `remote` backend (HashiCorp's hosted platform, Scalr, TFE),
+A private module or provider registry, and the `remote` backend (HashiCorp's hosted or self-managed platform, Scalr),
 authenticate with a token for their host. Two ways:
 
 - **`turf login <host>`**, the simplest. Like `tofu login`, it writes the token to
@@ -59,7 +59,7 @@ silently keeps winning over the file `turf login` writes, and credentials helper
 
 ## Provider mirrors
 
-A provider mirror, or an air-gapped network, is a `provider_installation` block in the OpenTofu™ CLI
+A provider mirror, or an air-gapped network, is a `provider_installation` block in the OpenTofu® CLI
 configuration, exactly as `tofu` reads it: `~/.tofurc` with `~/.terraform.d/*.tfrc`, or the one file
 `TF_CLI_CONFIG_FILE` names. It takes `filesystem_mirror`, `network_mirror` or `oci_mirror`, then
 `direct` for the rest. Mirrors belong here, never in the `.tf` files.

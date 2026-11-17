@@ -33,7 +33,7 @@ offers a backup, or the `removed` block.
 - **`replace_triggered_by`.** Replace this object whenever a referenced resource or attribute is
   replaced or changes.
 - **`prevent_destroy`**. A plan that would destroy the object fails, naming it, and
-  nothing is applied: a delete, a replace, a `destroy`. An expression is accepted, as in OpenTofu™
+  nothing is applied: a delete, a replace, a `destroy`. An expression is accepted, as in OpenTofu®
   (Terraform® takes only a literal), so `prevent_destroy = var.protect` guards while true. It must be
   known at plan and not null. `destroy = false` on the same block overrides it. Your agent never
   disables it, or removes its block, to get a plan through without your say-so.
