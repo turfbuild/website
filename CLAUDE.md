@@ -76,13 +76,20 @@ Pages pass four props, all optional: `title`, `description`, `noindex`, `jsonLd`
 **Pages compose components; the home page composes them all.** `pages/index.astro` is nothing but an
 ordered list of section components (redesigned 2026-10-20, revised 10-21 and 11-07): FigureDefs, Hero (with
 StackBuild), WhyEngine (two figures: the engine map and a run timeline; it carries the legacy
-`#product` anchor), ActionsInPlan,
+`#product` anchor), DriftDetection (since 2026-11-15, `#drift`: "On watch, between plans.", the
+headline of 2026-11-16, over a lede that opens "Turf brings continuous drift detection to everything a
+Terraform provider manages." and says it is not a scheduled plan; the
+signal → read → notice → agent → plan figure, four supports as a ticklist and one illustrative
+exchange; it sits right after WhyEngine because watching between plans is the first thing only an
+engine that does not exit can do), ActionsInPlan,
 AgentInLoop, CompatibilityTeaser (three ecosystem cards), OpsEnvironment (the ops-environment band,
 moved from `/use-cases/` on 2026-10-21: the lane figure, the backend/registry/ephemeral HCL, a
 ticklist, proof links), Engine (since 2026-11-07 the best-of-both grid, headed "Infrastructure as
-code, reimagined for AI." since 2026-11-16: seven tiles with a provenance chip row each, Terraform · OpenTofu · Turf, and the console as
-a double-wide tile with its still; it replaced the fan-out figure and the encryption HCL, and
-`figures/FanOutFigure.astro` is kept but rendered nowhere), UseCasesTeaser, ExamplesTeaser (the
+code, reimagined for AI." since 2026-11-16: eight tiles with a provenance chip row each, Terraform · OpenTofu · Turf; continuous drift
+detection is a double-wide tile whose right half is three notices drawn as a terminal, the slot a
+console still of the Drift tab takes once one exists from a real run, and the console with its still
+is the full last row (`.sol.wide.full`), so the grid has no orphan cell; it replaced the fan-out
+figure and the encryption HCL, and `figures/FanOutFigure.astro` is kept but rendered nowhere), UseCasesTeaser, ExamplesTeaser (the
 three marquee examples of `src/data/examples.ts`, the kagent figure, the home page's marks note),
 Papers (the three covers, the Scarf links tagged `?src=home-papers`), Partner. The Flexibility band
 (interfaces and models) was folded into the hero chips and the grid on 2026-11-07. Those components
@@ -98,7 +105,8 @@ stacks converge in rounds", the two-round HCL and the five-step strip) was remov
 (Eron: little value there): the loop now lives in WhyEngine's run timeline, the grid's "Stacks, in
 rounds" tile and `/docs/concepts/rounds/`. The home
 band striping alternates `band`/`band alt` in the order above (WhyEngine is plain, right under the
-hero; ActionsInPlan is the first `alt`) —
+hero; DriftDetection is the first `alt`; `Partner` takes `alt={false}` on home and stays `alt` on
+`/use-cases/`) —
 inserting or removing a section means re-checking the alternation. Subpages follow a fixed shape:
 `.subhero` → alternating `.section` / `.section alt` → `.prose` or a grid. `pages/use-cases.astro`
 is the five-use-case page (one section per job, each: who it's for, a figure, HCL, Day 1 / Day 2
@@ -148,7 +156,11 @@ RunTimelineFigure, whose lanes follow the console's grammar), PipelineFigure (Fi
 Request to Production*) and KagentFigure (Figure 1 of *An Agentic Infrastructure Control Plane*,
 `headquarters/marketing/launch/refarch-kagent.html`: what runs where, with the loop as five numbered
 steps; its text sizes are the paper's, set inline, and the two labels that named the paper's pages
-are reworded). Geometry is the paper's; every `fill`/`stroke` is a
+are reworded), and two for continuous drift detection: DriftFigure
+(home; drawn twice, left to right and, below 560px, top to bottom, switched by `.fig.when-wide` /
+`.fig.when-narrow`, which is safe because it defines no ids) and DriftEngineFigure (`/engine/#drift`:
+the feed, the confirming read, the sweep, the read budget, drawn solid because it is built, where the
+architecture figure's flow-control valve stays dashed). Geometry is the paper's; every `fill`/`stroke` is a
 class from the `.f-*`/`.s-*` utilities and every text a `.t-*` class, so the figures re-theme (never
 `fill="#…"` or `fill="var(--…)"` attributes). Marker defs live in `components/FigureDefs.astro`,
 rendered once per page at the top of the layout slot (`position:absolute`, not `display:none`:
@@ -204,14 +216,17 @@ playbooks", not "Ansible's"), nor hyphenated into a compound ("only in OpenTofu"
 "OpenTofu-only"; "Terraform-compatible" stays); the `turf.build` wordmark itself is unmarked, as in
 the PDF. **There are no exceptions**: "Terraform" is only ever used nominatively (compatibility,
 comparison), in a headline as anywhere else. History: the home feature grid was headed "A new
-Terraform, reimagined for AI." from 2026-11-07 (live); it was Eron's line, and was retired on
-2026-11-16, on his decision to err on the side of caution, pending counsel's read (a second such
-headline, drafted for an unreleased band, was retired the same day, unpublished). It may return
-only if counsel clears it: do not restore it on your own. The current headline is
-"Infrastructure as code, reimagined for AI." Three standing rules for that band (2026-11-16): Turf
-is the subject of the band's lede ("Turf runs the best of Terraform and OpenTofu on one distributed
-engine …"); the band head carries the non-affiliation sentence as fine print (`.band-head .fine`,
-under the chip legend), word for word as `CompatibilityTeaser.astro` has it, "Turf is an
+Terraform, reimagined for AI." from 2026-11-07 (live), and the drift band was drafted as "Terraform,
+on watch." on 2026-11-16 (never published); both were Eron's lines, and both were retired on
+2026-11-16, on his decision to err on the side of caution, pending counsel's read. They may return
+only if counsel clears them: do not restore either on your own. The current headlines are
+"Infrastructure as code, reimagined for AI." (the grid) and "On watch, between plans." (the drift
+band; "on watch" as in keeping watch, and `watch` is also the tool's name). Three standing rules
+for those two bands (2026-11-16): Turf is the subject of each band's lede
+("Turf runs the best of Terraform and OpenTofu on one distributed engine …"; "Turf brings continuous
+drift detection to everything a Terraform provider manages."); each band head carries the
+non-affiliation sentence as fine print (`.band-head .fine`: under the chip legend in the grid, under
+the lede in the drift band), word for word as `CompatibilityTeaser.astro` has it, "Turf is an
 independent product built on the OpenTofu framework, not affiliated with or endorsed by HashiCorp.";
 and the Terraform chip's swatch (`.chip.tf .sw`) is the site's own ink, never HashiCorp's brand
 purple. The footer fineprint carries the
@@ -515,6 +530,33 @@ with poster PNGs. Both demo pages' recordings are pre-1.0 takes (kind-crd 2026-0
 and `/demo/scalr/` dropped its backend still, which showed the retired plot flow. Re-record both on
 1.0 with `headquarters/recordings/render.sh` (the Scalr `setup` still pins OpenTofu 1.12.5 and must
 be unpinned first), then re-derive each `VideoObject`'s `uploadDate` and `duration`.
+
+**Continuous drift detection** (2026-11-15; the release that carries it was not decided when the copy
+was written, so no banner, no release page and no version on it). Sources: turf-engine's
+continuous-drift design as built, its feed README, and the deployment skill's drift reference
+(private repos: no internal name is carried over). What exists and may be said in the present
+tense: the in-cluster Kubernetes feed, the sweep for any provider, confirm and classify, notices,
+`watch`/`status`/`drift` over MCP, the console's Drift tab, the scoped plan (`refresh_drift`), a
+webhook. Never implied: the engine applying a fix on its own (it detects and notifies; "Nothing runs
+off-plan"), event feeds for cloud audit logs, object-level drift inside a Helm release, or a watch on
+Helm releases at all (the sweep reads a `helm_release` through its provider). No number or speed
+claim: "as it happens", "between plans", never "in seconds". "GitOps controllers" is the generic
+term; none is named. The band's lede must not read as a plan on a timer or a wrapper that runs
+Terraform: Turf's engine keeps watch and wakes the agent only when something really changed. The
+grid's lede says "drift caught between plans" and leaves "watch" to the band; the band's headline,
+"On watch, between plans.", carries "between plans", so its lede does not repeat the phrase, and the
+band names "a Terraform provider" once, in the lede's opening line. The
+grid's lede lists drift among "what neither does in full", never "neither has": the matrix
+scores Terraform ◑ on that row. The surfaces: the home band and its grid tile, the day-2 exchange in the agent
+band (illustrative: the AWS provider plans an ElastiCache engine downgrade as a replacement, so a
+revert goes to a person), the Day 2 beats of use cases 01 to 04, `/engine/#drift`, one strengths row
+and two workflow rows on `/compatibility/` (HashiCorp's health assessments described from
+developer.hashicorp.com/terraform/cloud-docs/workspaces/health: a speculative plan per workspace on a
+schedule, notifications, nothing modified; `-minimal-refresh` is Terraform 1.17), and `llms.txt`.
+The docs pages are `/docs/concepts/drift/`, `/docs/using/drift/` and `/docs/cluster/drift-feed/`.
+Still to come: a console still of the Drift tab from a real run (the grid tile's right half, and
+under the home figure), and a `/demo/` hub entry once a recording exists. The compatibility page's
+Turf column, with its description and eyebrow, moved from 1.3 to 1.5 on 2026-11-16.
 
 ## Working style the user expects
 

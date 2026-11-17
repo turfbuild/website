@@ -3,9 +3,13 @@
 // agent to carry out. Here a backup before the database changes and a word to the team after.
 // Illustrative, in the shape of the turf actions in turf-examples (installer.turf.hcl,
 // maintenance.turf.hcl); `caller` is the planned instance on a before-event, the applied one after.
+// The second exchange is day 2, between runs: a drift notice (components/DriftDetection.astro),
+// planned with only what drifted read, where the approval rules are the ones every plan meets: an
+// in-place revert the agent approves itself, a replace it brings to a person. Illustrative: the
+// AWS provider plans an ElastiCache engine downgrade as a replacement.
 ---
 
-<section class="band">
+<section class="band alt">
   <div class="wrap">
     <div class="band-head">
       <h2>The agent is in the loop, not in charge.</h2>
@@ -62,9 +66,13 @@
             plan and no other; <code>apply</code> with <code>decline</code> turns it down.</span></div></li>
           <li><span class="g">✓</span><div><b>Backups, checks, questions and notifications as actions</b> <span>— each
             a step of the apply, done by the agent with its own tools and recorded with the run.</span></div></li>
+          <li><span class="g">✓</span><div><b>Day 2, between runs</b> <span>— a drift notice reaches the same
+            agent and meets the same rules: an in-place revert it approves itself, a replace it brings
+            to you. <a href="/#drift">continuous drift detection →</a></span></div></li>
         </ul>
       </div>
 
+      <div>
       <div class="agentloop" role="img" aria-label="A tool result shows the apply paused at a turf action before the database changes; the agent takes a snapshot with its own tools and reports it; the apply resumes; after the update the agent tells the team.">
 <pre class="report"><span class="lab">TOOL RESULT · TURF MCP</span><b>apply</b> → <i>awaiting_actions</i>
 <span class="k">action_requests</span> = [&#123;
@@ -91,6 +99,28 @@
           </div>
           <p class="note">→ apply(action_results): succeeded · converged</p>
         </div>
+      </div>
+
+      <div class="agentloop day2" role="img" aria-label="Day 2, between runs. A tool result: watch returns a drift notice, the engine version of the sessions cache, found by the sweep. The agent plans only what drifted; reverting is a downgrade, which replaces the cache, so the agent brings the plan to a person and applies nothing.">
+<pre class="report"><span class="lab">DAY 2 · BETWEEN RUNS · TURF MCP</span><b>watch</b> → <i>drift</i>
+<span class="k">notices</span> = [&#123;
+  address = <i>"aws_elasticache_cluster.sessions"</i>
+  class   = <i>"configured"</i>
+  paths   = [<i>"engine_version"</i>]
+  source  = <i>"sweep"</i>
+&#125;]</pre>
+        <div class="chat">
+          <div class="who"><span class="av">✦</span><span>Your agent</span><span class="tag">in Claude Code</span></div>
+          <div class="msg">
+            <p><strong>The sessions cache was upgraded outside Turf.</strong> I planned only what
+              drifted: going back to the version in the files is a downgrade, and the plan replaces
+              the cache.</p>
+            <p>This morning’s replica revert was in place, so I approved it myself. A replace is
+              yours: replace the cache, or keep the upgrade and I change the files?</p>
+          </div>
+          <p class="note">→ awaiting approval · nothing applied</p>
+        </div>
+      </div>
       </div>
     </div>
   </div>
