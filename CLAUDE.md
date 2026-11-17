@@ -522,8 +522,8 @@ developer.hashicorp.com/terraform/cloud-docs/workspaces/health: a speculative pl
 schedule, notifications, nothing modified; `-minimal-refresh` is Terraform 1.17), and `llms.txt`.
 The docs pages are `/docs/concepts/drift/`, `/docs/using/drift/` and `/docs/cluster/drift-feed/`.
 Still to come: a console still of the Drift tab from a real run (the grid tile's right half, and
-under the home figure), a `/demo/` hub entry once a recording exists, and the compatibility page's
-"Turf 1.3" column heading, which must move to the release that carries drift before those rows publish.
+under the home figure), and a `/demo/` hub entry once a recording exists. The compatibility page's
+Turf column, with its description and eyebrow, moved from 1.3 to 1.5 on 2026-11-16.
 
 ## Working style the user expects
 
