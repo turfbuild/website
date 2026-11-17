@@ -164,6 +164,98 @@ call again: nothing needs reconnecting. `init`, the provider tools and the skill
 (`open` reports it), and pick it up or cancel it; never force-unlock it. Otherwise, the agent asks you
 before `force_unlock`. The full procedure is on [Workspaces and backends](/docs/using/workspaces/#the-state-lock).
 
+## Drift
+
+What `watch` and `status` say when drift detection is not doing what you expect. The words are in
+[Drift](/docs/concepts/drift/), the task in [Watching for drift](/docs/using/drift/).
+
+**`watch` returns `unwatched`.** Nothing watches the workspace: drift was never turned on for it, the
+workspace has no state yet, or the engine has no drift detection. The watch would never wake, so the
+agent stops calling it. Turn drift on with `drift`, which is [your choice](/docs/using/drift/#turn-it-on),
+or install a [drift feed](/docs/cluster/drift-feed/). Until then an `up`'s plan reads every object and
+is the drift report.
+
+**Every notice is `unconfirmed`.** Nothing reads an object after its signal. If the `coverage` line in
+`status` ends `confirm off`, the confirming read is turned off: turn it back on with `drift` and
+`confirm: true`. Otherwise no standing seal stands. The engine takes the seal from an `up` that
+converges, so run `up` once on this engine. One `unconfirmed` notice among confirmed ones is a read
+that failed three times.
+
+**Objects are `uncovered`.** Nothing reads them between runs. When the whole workspace is affected,
+the `coverage` line gives the reason in parentheses: the sweep is off, the confirming read is off, or
+no standing seal stands. Otherwise the cause is the object's own: its provider is configured from an
+ephemeral value or from a data source state holds no value for, the configuration directory is not on
+the engine's host, or the object is tainted. The console's Drift tab names the providers that cannot
+be configured; tainted objects are counted, not listed. A scoped plan does not read uncovered objects;
+`plan` with no `refresh_drift` and no `refresh_addresses` reads them all.
+
+**A field is `contended`.** The same paths drifted again after two runs put them back, so another
+controller writes them: an autoscaler, an operator, an admission webhook. Another `up` will not hold,
+and the notice carries no `next`. Either list the paths under
+[`ignore_changes`](/docs/authoring/lifecycle/#a-contended-field) or stop the other controller. The
+files are yours, so the agent asks first.
+
+**A watch never wakes.** `waiting` is not a failure: it is the server's deadline, and the agent calls
+again. If nothing comes when you expect it, check in this order:
+
+- **Is anything signalling?** A `coverage` line with `sweep off` and nothing watched live means no.
+- **Is the sweep running?** It needs a standing seal and the confirming read, and it pauses while a
+  run holds the workspace.
+- **Is the feed heard?** A lost feed shows in the console. A feed started with the wrong provider
+  spelling runs with an empty watch set and logs every item as `unknown`.
+- **Is the object covered?** See `uncovered`, above.
+- **Is the change noise?** A computed value nothing reads, a path under `ignore_changes`, or a field
+  the resource does not manage never becomes a notice.
+- **Was it already reported?** A watch wakes on what its cursor has not seen. `status` shows
+  everything open.
+- **Is `quiet_for` holding it?** It waits until the open notices have been still that long.
+- **Did the client give up first?** A `--watch-deadline` longer than the client's limit on a tool
+  call ends the call on the client's side. In Claude Code, raise `MCP_TOOL_TIMEOUT`.
+
+**The sweep is behind its cycle.** The `coverage` line in `status` ends by saying so, and `drift`
+says it when you change a setting. It means a cycle will not reach every object within its target.
+The line names one of two limits:
+
+- **The read budget.** One cycle needs more reads a second than the budget's rate allows. A longer
+  cycle fixes it, or a higher rate, `TURF_DRIFT_READ_RATE`.
+- **The engine's own cadence.** The rate would allow it, but a swept batch takes only what is above
+  the budget's reserve, half the burst, one batch at a time: about two reads a second at the
+  defaults. A longer cycle fixes it, or a larger burst, `TURF_DRIFT_READ_BURST`.
+
+A longer cycle is `drift` with a larger `sweep`. At the defaults a workspace of *n* objects needs
+about *n* ÷ 2 seconds. The rate and the burst are the engine's
+[read budget](/docs/environment/engine-environment/#drift-detection): its operator sets them, and no
+tool does.
+
+Nothing is lost while the sweep is behind. Every object is still read, later than the cycle says.
+
+**`watch` or `status` shows drift and no `next`.** Either a run holds the workspace (finish or cancel
+it first), or every open notice is `contended`, or the server runs at a tier that lists no `up`:
+`read` or `apply`. The note says which. A remediation starts from a server at the `plan` or `full`
+[tier](/docs/reference/server/#tiers).
+
+**A plan's `drift` is zero, and `resource_drift` lists rows.** Those rows differ from their records
+only in a null collection against an empty one. OpenTofu® lists them, so the document does. No plan
+changes them, so the count leaves them out, and the result's note says so. Between runs the same
+difference is noise and raises no notice.
+
+**A notice does not clear.** A notice clears when a run commits its address, or when a later read
+finds the object as recorded. If a plan shows no change for the address, the difference is one the
+provider does not plan, and the notice stays open while reads keep finding it. No tool acknowledges a
+notice by hand.
+
+**A remediation fails with a field manager conflict.** After a server-side apply by someone else, that
+manager owns the field, and a `kubernetes_manifest` cannot take it back without `force_conflicts`:
+
+```hcl
+resource "kubernetes_manifest" "web" {
+  # …
+  field_manager {
+    force_conflicts = true
+  }
+}
+```
+
 ## Outcomes
 
 | Outcome | Meaning | Next |
@@ -184,6 +276,7 @@ before `force_unlock`. The full procedure is on [Workspaces and backends](/docs/
 | `error` | The engine raised (`error`). | Read it, fix what it names, `up` again. |
 
 Each `rounds[]` entry counts `planned` (no-ops and deferrals included), `deferred`, `applied`, `drift`,
+`refresh_skipped` (rows a [scoped refresh](/docs/using/refresh/#a-scoped-refresh) left unread),
 `failed`, `skipped`, `cancelled` and `invoked`, and carries its `status`.
 
 ## Common plan errors
@@ -202,4 +295,5 @@ Each `rounds[]` entry counts `planned` (no-ops and deferrals included), `deferre
 - [Plan and apply by hand](/docs/using/plan-and-apply/)
 - [Workspaces and backends](/docs/using/workspaces/): locks.
 - [Rounds and deferrals](/docs/concepts/rounds/): `stalled` and `exhausted`.
+- [Watching for drift](/docs/using/drift/)
 - [Turf 1.4 release notes](/docs/releases/1-4/): upgrading.

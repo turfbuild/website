@@ -9,6 +9,9 @@ Every call that starts or continues a convergence returns the same result: `up`,
 stands, the call that continues it, the plan waiting for approval and what each round did. The
 [outcomes table](#outcomes) is at the end.
 
+`watch` and `drift` start no convergence and return results of their own, with the same `outcome`,
+`ended` and `next`: see [Watching for drift](/docs/using/drift/#wait-for-it).
+
 At an approval point, a result looks like this:
 
 ```text
@@ -39,10 +42,12 @@ The other top-level fields:
 | `convergence_id` | The convergence. `plan` and `apply` take it. |
 | `workspace_alias` | The workspace it holds. |
 | `kind` | What started it: `up`, `destroy`, `refresh`, `import` or `invoke`. |
+| `cause` | Why it was started, when it answers something: `{ kind: "drift", notices, addresses }` on every result of a run started with `up` and `drift: true`, counting the drift notices and addresses it answers. Absent on an ordinary run. See [The cause](#the-cause). |
 | `round` | The round at the stop the convergence waits at, or the one running. |
 | `expires_at` | When the server stops waiting at this stop. A pause lasts 24 hours, at a plan gate, an approval point or turf actions; past it the server detaches and the convergence waits in the engine. |
 | `plan` | The plan waiting at an approval point. See [The plan](#the-plan). |
 | `planfile` | On a `planned` ending, the plan the engine keeps for a later apply. See [The planfile](#the-planfile). |
+| `refresh_scope` | On the result of a `plan` call that scoped its round's refresh: the addresses read, and as `skipped` how many rows were planned unread. See [A scoped refresh](/docs/using/refresh/#a-scoped-refresh). |
 | `action_requests` | At `awaiting_actions`, every turf action waiting on the agent. See [Turf action requests](#turf-action-requests). |
 | `refused` | The action results an `apply` sent that were not taken, each with the reason. Those requests stay open. |
 | `rounds` | Every round so far. See [Rounds](#rounds). |
@@ -67,13 +72,39 @@ A zero count is left out.
 | `forget` | Objects dropped from state and left running. |
 | `read` | Data-source reads moved to apply. |
 | `deferred` | Changes waiting for a later round, a module call deferred whole included. Above zero, another round follows. |
-| `drift` | Objects the refresh found changed outside Turf. |
+| `drift` | Objects the refresh found changed outside Turf: the engine's count. It leaves out rows that differ only in a null collection against an empty one, which the document's `resource_drift` still lists, and the note says so when the two differ. |
 | `outputs` | Root outputs the plan changes. |
 | `invocations` | Every action the round runs: `address`, `type`, `caller`, `event`, `on_failure`, per caller in run order. |
 | `errored` | The plan errored; nothing in it is applied. |
 
 `apply({ convergence_id, plan_digest })` is the approval, of that plan only. The plan document's own
 fields and change symbols are in [Plans](/docs/reference/skills/deployment/plans/).
+
+## The cause
+
+A run started with `up` and `drift: true` is a drift remediation. It records the open
+[drift notices](/docs/concepts/drift/) it answers, and every result of the run carries the record:
+
+```text
+{ convergence_id, outcome: "awaiting_plan", round: 1,
+  cause: { kind: "drift", notices: 1, addresses: 1 },
+  next: { tool: "plan", args: { convergence_id, refresh_drift: true } } }
+```
+
+| Field | Meaning |
+|---|---|
+| `kind` | `drift`: the run answers drift notices. |
+| `notices` | How many notices it answers. |
+| `addresses` | How many addresses those notices name. |
+
+- The cause is on the result at each plan gate, at each approval point, at `awaiting_actions` and at
+  the end. `status` shows it on the run holding a workspace.
+- At each plan gate of such a run, `next` is `plan` with `refresh_drift: true`. `plan` called without
+  it reads every object.
+- With no notice open, `up` with `drift: true` starts an ordinary run, with no `cause`, and the note
+  says so.
+- The counts are of the notices open when the run began. The cause is fixed for the run and decides
+  nothing.
 
 ## The planfile
 
@@ -143,6 +174,7 @@ Each entry counts what the round did:
 | `deferred` | Changes left for a later round. |
 | `applied` | Changes applied. |
 | `drift` | Objects the refresh found changed outside Turf: what a refresh writes into state. |
+| `refresh_skipped` | Managed rows a scoped refresh planned from their records without reading them. Drift on them was not looked for. |
 | `failed` | Changes that failed. |
 | `skipped` | Changes never started, because something they depend on failed or halted. |
 | `cancelled` | Changes a cancel abandoned. |
@@ -162,7 +194,7 @@ verbatim, above all at an approval point, and never opens it itself. To set wher
 
 | Outcome | Meaning | Next |
 |---|---|---|
-| `awaiting_plan` | The round waits at its plan gate: nothing planned yet. | `plan` with `convergence_id`, and the round's `refresh` or `replace`. |
+| `awaiting_plan` | The round waits at its plan gate: nothing planned yet. | `plan` with `convergence_id`, and the round's `refresh` or `replace`. In a drift remediation, `next` carries `refresh_drift: true`. |
 | `awaiting_approval` | Paused at an approval point. | Review `plan`; `apply` with its digest, or `decline`; or edit and `up` again. |
 | `awaiting_actions` | The apply waits on turf actions (`action_requests`). | Perform them; `apply` with `action_results`. |
 | `planning` | Returned at the server's deadline; the convergence goes on in the engine. | `plan` with `convergence_id`, as `next` says; `cancel` stops it. |

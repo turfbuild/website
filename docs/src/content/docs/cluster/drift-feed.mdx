@@ -1,0 +1,266 @@
+---
+title: The drift feed
+description: "The drift feed is a read-only controller in a Kubernetes cluster. It tells the Turf engine when a managed object changes: identities and kinds, never bodies."
+sidebar:
+  order: 6.5
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+The drift feed is `turf-feed`, a small read-only controller that runs in a Kubernetes® cluster. It
+watches the objects one Turf™ workspace manages there and tells the engine when one changes. Each
+report is a **signal**: the engine reads the object itself, classifies what it finds, and raises a
+[drift notice](/docs/concepts/drift/) if it holds up. The feed sends identities and change kinds. It
+never sends an object's body.
+
+<Aside type="caution" title="What is tested today">
+The feed is verified end to end on a kind cluster, with objects the `hashicorp/kubernetes` provider
+manages, running outside the cluster against a kubeconfig. The in-cluster install on this page (the
+manifest and the pod's service account) runs the same code and is not yet covered by a test. No
+`turf-feed` image is published: the manifest names a placeholder for an image of your own.
+</Aside>
+
+## How it works
+
+- **One feed serves one provider configuration of one workspace.** A workspace that manages two
+  clusters runs two feeds, one in each.
+- **The engine tells it what to watch.** The watch set is the identity (`api_version`, `kind`,
+  `namespace`, `name`) of every object the workspace manages under that provider configuration. The
+  feed follows it, and opens one watch per kind and namespace.
+- **It dials out.** The feed posts to the engine's ingress on restate-server. Nothing dials in, and
+  it needs no Service.
+- **It never reads for the engine.** A signal says "look here". The engine's own provider read decides
+  whether anything drifted.
+
+A feed that reaches a workspace turns drift detection on for it. No `drift` call is needed, and the
+sweep stays off unless you [turn it on](/docs/using/drift/#turn-it-on).
+
+## Install it
+
+One Deployment per workspace and provider configuration, with a ServiceAccount that may only read.
+
+```yaml title="turf-feed.yaml"
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: turf-feed
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: turf-feed
+  namespace: turf-feed
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: turf-feed-reader
+rules:
+  # Everything, read-only. Narrow it to what the workspace manages: see "Read-only RBAC".
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: turf-feed-reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: turf-feed-reader
+subjects:
+  - kind: ServiceAccount
+    name: turf-feed
+    namespace: turf-feed
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: turf-feed
+  namespace: turf-feed
+  labels:
+    app.kubernetes.io/name: turf-feed
+spec:
+  replicas: 1          # two would send every signal twice; there is no leader election
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: turf-feed
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: turf-feed
+    spec:
+      serviceAccountName: turf-feed
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: feed
+          image: registry.example.com/turf-feed:dev   # EDIT: an image of your own
+          env:
+            - name: TURF_FEED_ENGINE_ADDRESS
+              value: "http://restate.turf.svc:8080"   # EDIT: restate-server's ingress
+            - name: TURF_FEED_WORKSPACE_LINEAGE
+              value: "00000000-0000-0000-0000-000000000000"   # EDIT: the workspace's lineage
+            - name: TURF_FEED_PROVIDER
+              value: 'provider["registry.opentofu.org/hashicorp/kubernetes"]'   # EDIT
+            - name: TURF_FEED_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 256Mi
+```
+
+Four values are yours to set.
+
+**The image.** `turf-feed` is one binary with no state.
+
+**The engine's address.** restate-server's ingress, port 8080: the address the MCP server reaches the
+engine at. In the engine's own cluster, also admit the feed's pods to that port in restate-server's
+[NetworkPolicy](/docs/cluster/manifests/#restate-server-and-the-engine). From another cluster, the
+feed needs a route to the ingress. restate-server has no authentication of its own, so whatever can
+reach the ingress can call the engine as the MCP server does: keep that route as private as the
+server's. For a proxy in front of the ingress that takes a bearer token, set `TURF_FEED_ENGINE_TOKEN`
+from a Secret.
+
+**The lineage.** The workspace's statefile lineage, which `open` and `status` report as `lineage`. It
+names the workspace to the engine.
+
+**The provider.** The provider configuration the feed serves, spelled as state records it:
+`provider["<host>/<namespace>/<name>"]`, with `.<alias>` when the configuration is aliased.
+
+```text
+provider["registry.opentofu.org/hashicorp/kubernetes"]
+provider["registry.opentofu.org/hashicorp/kubernetes"].west
+```
+
+Take the host from the state. For a provider whose source names no host, Turf records the OpenTofu®
+default, `registry.opentofu.org`. A state Terraform® wrote records `registry.terraform.io`.
+
+A wrong spelling does not fail. The watch set comes back empty, and the feed's log counts every
+signal and resync item as `unknown`. Check the log after the first start.
+
+## Read-only RBAC
+
+The feed needs `get`, `list` and `watch`, and nothing else. The manifest above grants them on every
+resource, Secrets included, which is the simplest install and the broadest.
+
+To narrow it, grant exactly what the workspace manages. The feed lists and watches per kind and
+namespace:
+
+- for each namespaced kind, a `Role` in each namespace the workspace manages that kind in, or one
+  `ClusterRole` that names the resources;
+- for each cluster-scoped kind, a `ClusterRole` that names the resource.
+
+A kind the feed may not list is reported `uncovered` at every resync, never as absent, and the feed
+keeps retrying. Nothing drifts silently into "deleted" because of a missing grant.
+
+## What leaves the cluster
+
+| Sent | Never sent |
+|---|---|
+| Each object's identity, as the engine gave it | An object's body |
+| What kind of change it was | A label's or an annotation's value |
+| The resource version | A digest of the content |
+| The names of the field managers that wrote | |
+| Timestamps, the feed's id, and why a resync could not see a kind | |
+
+A signal names one or more change kinds:
+
+| Kind | Means |
+|---|---|
+| `deleted` | The object is gone. |
+| `created` | An object the feed had seen absent exists again. |
+| `spec` | The spec moved (`metadata.generation`). |
+| `metadata` | Labels or annotations moved. |
+| `data` | The content moved on a kind that keeps no generation, such as a ConfigMap or a Secret. |
+| `moved` | A resync found a different resource version. What moved is not known. |
+
+A status-only update sends nothing. A write by the provider itself is marked as an echo, by its field
+manager (`Terraform` and `HashiCorp` for the `hashicorp/kubernetes` provider, checked against its
+version 3.5.0), and never becomes a notice on its own.
+
+**Kinds without a generation.** A ConfigMap, a Secret, a Service, a ServiceAccount, Endpoints, a
+PersistentVolume and its claim, and the RBAC kinds keep no `metadata.generation`, so nothing in their
+metadata shows that their content changed. For these kinds the API server sends the feed whole
+objects. Where the workspace manages more than one object of a kind in a namespace, that is every
+object of the kind there: for Secrets, every Secret in the namespace. The feed reduces each to a
+digest of everything but `metadata` and `status` and drops the object before it is cached. Bodies are
+never cached, logged or sent, and neither is the digest.
+
+## Heartbeats, gaps and resync
+
+**Heartbeats.** The feed sends one every 30 seconds. After 90 seconds of silence the engine counts the
+feed lost: its objects are no longer watched and live, and the console says so. With the sweep on,
+they are swept every cycle until the feed is back.
+
+**Resync.** A watch can miss events: a restart, a broken connection, an expired watch. So the feed
+reports the resource version of every object in its watch set, and the engine marks whatever moved or
+went missing. It does this:
+
+- at start, and after its watch set changes;
+- after any relist, a queue overflow, or an engine outage;
+- every 10 minutes.
+
+A change made while the feed was down is found by its resync at start.
+
+**One gap stands.** After a run commits an object, the engine holds no resource version for it until
+the feed's next resync. A change made in that window, while the feed is also down, is recorded as the
+new baseline and not reported. The sweep, or the next plan that reads the object, finds it.
+
+Delivery is bounded. The feed gathers an object's events for 2 seconds into one signal. If the engine
+cannot be reached for 2 minutes, it drops what it queued and resyncs when the engine is back.
+
+## What it does not cover
+
+- **Other providers.** The feed watches objects by the identity the `hashicorp/kubernetes` provider
+  stores for them. Objects another provider manages in the same cluster are the sweep's to cover.
+- **Helm® releases.** A `helm_release` is not watched, and neither are the objects it installed.
+- **Patch resources.** `kubernetes_labels`, `kubernetes_annotations` and their siblings store no
+  identity, so they cannot be watched. Their target is watched only if another resource manages it.
+- **Objects the workspace does not manage.** A signal for one is dropped.
+- **More than one cluster, or more than one workspace, per feed.** Each needs its own Deployment,
+  with its own watches.
+
+## Settings
+
+Every flag has an environment variable; the manifest sets them as `env`.
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `TURF_FEED_ENGINE_ADDRESS` | | The engine's ingress on restate-server: an `http(s)` URL, or `unix:<socket path>`. |
+| `TURF_FEED_ENGINE_TOKEN` | unset | A bearer token for a proxy in front of the ingress. |
+| `TURF_FEED_WORKSPACE_LINEAGE` | | The workspace's lineage. |
+| `TURF_FEED_WORKSPACE_NAME` | | The workspace's name, for the feed's logs. |
+| `TURF_FEED_PROVIDER` | | The provider configuration served, as state spells it. |
+| `TURF_FEED_ID` | the pod's name | The feed's name in signals, in `status` and in the console. |
+| `TURF_FEED_SCOPES_OFF` | `false` | `true` for an engine run with `--scopes=off`. |
+| `TURF_FEED_OWN_MANAGERS` | `Terraform,HashiCorp` | The field managers the provider writes as. A change by these alone is an echo. |
+| `TURF_FEED_CONTENT_KINDS` | the kinds above | Kinds tracked by a digest of their content. |
+| `TURF_FEED_HEARTBEAT` | `30s` | The heartbeat interval. |
+| `TURF_FEED_RESYNC` | `10m` | The periodic resync interval. |
+| `TURF_FEED_COALESCE` | `2s` | How long a signal waits for more events on the same object. |
+| `TURF_FEED_OUTAGE_RESYNC` | `2m` | Engine downtime after which queued signals are dropped for a resync. |
+| `TURF_FEED_LOG_LEVEL` | `info` | `debug` also logs each signal sent: identity, kinds, version, managers. Never content. |
+
+## Related
+
+- [Drift](/docs/concepts/drift/): what the engine does with a signal.
+- [Watching for drift](/docs/using/drift/): the agent's side.
+- [Topology](/docs/cluster/topology/): restate-server's ingress, and who reaches it.
+- [Credentials in a cluster](/docs/cluster/credentials/)

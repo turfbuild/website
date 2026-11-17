@@ -1,21 +1,23 @@
 ---
 title: Slash commands in Claude Code
-description: "Turf's three prompts in Claude Code: /turf:guide, /turf:up and /turf:destroy, their arguments in order, and how Claude Code fills them one word at a time."
+description: "Turf's four prompts in Claude Code: /turf:guide, /turf:up, /turf:destroy and /turf:watch, their arguments in order, and how Claude Code fills them."
 ---
 
-In Claude Code, the server's three [prompts](/docs/reference/prompts/) are slash commands:
-`/turf:guide`, `/turf:up` and `/turf:destroy`. This page shows what each one takes and how Claude Code
-fills its arguments. In other clients, ask in words.
+In Claude Code, the server's four [prompts](/docs/reference/prompts/) are slash commands:
+`/turf:guide`, `/turf:up`, `/turf:destroy` and `/turf:watch`. This page shows what each one takes and
+how Claude Code fills its arguments. In other clients, ask in words.
 
 ```text
 /turf:guide
 /turf:up path/to/config
 /turf:destroy path/to/config
+/turf:watch path/to/config
 ```
 
 The prefix is the name the server was registered under: `turf`, from `--name turf` or
 `claude mcp add turf` (see [Connect your agent](/docs/start/connect/)). Claude Code also runs them as
-`/mcp__turf__guide`, `/mcp__turf__up` and `/mcp__turf__destroy`, but does not list that form.
+`/mcp__turf__guide`, `/mcp__turf__up`, `/mcp__turf__destroy` and `/mcp__turf__watch`, but does not
+list that form.
 
 ## The commands
 
@@ -24,6 +26,7 @@ The prefix is the name the server was registered under: `turf`, from `--name tur
 | `/turf:guide` | `topic` | A hands-on walkthrough of Turf™ on real examples from [turf-examples](https://github.com/turfbuild/turf-examples). |
 | `/turf:up` | `config_path`, `instructions` | Deploys or updates the infrastructure a configuration directory declares. |
 | `/turf:destroy` | `config_path`, `instructions` | Destroys everything in a workspace. |
+| `/turf:watch` | `config_path`, `instructions` | Watches a workspace for drift and reconciles it as it appears. |
 
 Every argument is optional:
 
@@ -39,6 +42,11 @@ Every argument is optional:
 every round. The agent approves only a low-risk plan itself, asks you about any other, and always asks
 about a destroy plan. See [Approval](/docs/concepts/approval/).
 
+`/turf:watch` sets the agent on a loop: `watch`, and on drift an `up` with `drift: true`, whose plan
+reads only what drifted, then `watch` again. Every plan in the loop stops at its approval point as any other does.
+Where nothing watches the workspace yet, the agent offers to turn drift detection on and does so only
+if you agree. See [Watching for drift](/docs/using/drift/).
+
 ## One word per argument
 
 Claude Code fills a prompt's arguments one typed word each, in the order the server declares them. A
@@ -53,7 +61,7 @@ word past the last argument is dropped. So:
 
 ## Tiers
 
-`/turf:up` and `/turf:destroy` appear only when the server runs at the `plan` or `full`
+`/turf:up`, `/turf:destroy` and `/turf:watch` appear only when the server runs at the `plan` or `full`
 [tier](/docs/reference/server/#tiers). At `read` and `apply`, Claude Code lists `/turf:guide` alone.
 At `plan`, every run ends with a planfile instead of an apply.
 

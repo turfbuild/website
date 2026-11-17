@@ -50,6 +50,8 @@ the refresh found, and applies on your yes.
 To see drift without writing anything, ask for a plan instead: "plan kind-crd and tell me what drifted".
 A plan on an applied configuration reads every object first, so the plan is the drift report.
 
+To hear about drift between plans, without asking, see [Watching for drift](/docs/using/drift/).
+
 </TabItem>
 <TabItem label="Turf CLI">
 
@@ -69,11 +71,17 @@ the TUI; without `--yes` a plan that needs your yes is left waiting at its appro
 
 **What it runs.** `refresh` is `tofu apply -refresh-only`: one round, the same plan gate and approval
 point as `up`. `plan` reads every managed object and plans writing what it found into state; `apply`
-with the plan's digest writes it. There is no single-resource refresh: every object is read.
+with the plan's digest writes it. A `refresh` always reads every object. To read fewer, scope an `up`'s
+plan: [a scoped refresh](#a-scoped-refresh).
 
 **Where drift shows.** `plan.drift` counts the objects the refresh found changed outside Turf,
 and the plan document lists them under `resource_drift`. After the apply, `rounds[].drift` records how
 many the round wrote into state.
+
+**The count can be lower than the list.** The count is the engine's. A row whose read differs from
+its record only in a null collection against an empty one is still listed in `resource_drift`, as
+OpenTofu® lists it, and is not counted: a plan of the two plans nothing. The result's note says so
+when the count and the list differ. The count is never higher than the list.
 
 **`refresh: false` is something else.** It is an option of a round's `plan`
 (`tofu plan -refresh=false`): plan against the state as recorded, without reading the objects. It
@@ -91,14 +99,63 @@ drift report:
 | orphan `delete` | In state, no longer in the files | Asks: restore the block, forget it with a `removed` block, or let the delete proceed. |
 | `create` | In the files, not in state | Deleted out of band, or never applied: the apply creates it again. |
 
+## A scoped refresh
+
+An `up`'s plan can read fewer objects than all of them. Two arguments of `plan` say what the round
+reads:
+
+- **`refresh_addresses`**: the managed resource instances you list.
+- **`refresh_drift: true`**: what the workspace's open [drift notices](/docs/concepts/drift/) name.
+  The server fills the list in as the round plans. With both arguments, the round reads both sets.
+
+```text
+plan({ convergence_id, refresh_drift: true })
+→ outcome: awaiting_approval,
+  refresh_scope: { addresses: ["kubernetes_deployment_v1.web"],
+                   count: 1, from_drift: 1, skipped: 41 }
+```
+
+A run started with `up` and `drift: true` is offered this plan: at each of its plan gates, `next` is
+`plan` with `refresh_drift: true`. The default has not changed. `plan` without either argument reads
+everything, in that run as in any other.
+
+The plan is still a plan of the whole configuration. What changes is what it reads first:
+
+- **A row in the scope** is read before it is planned, as every row is by default.
+- **A row inside a module** is matched as a root row is, by its full instance address.
+- **A row outside it** is planned from its record. If that plan is a change, the row is read and
+  planned again, so nothing is applied over a record nobody checked. A deferral is not a change.
+- **Data sources** are read at every plan, scoped or not.
+- **An object no longer in the files** is read only when the scope names it.
+- **A moved resource** answers to its new address or the one it moved from.
+
+**What `skipped` means.** `refresh_scope.skipped` counts the managed rows the round planned from their
+records without reading them, and `rounds[].refresh_skipped` records the same count. For those rows
+the plan did not look for drift. An object that changed outside Turf, is not in the scope and plans no
+change of its own stays as it is, unnoticed by this plan. So a scoped plan answers a notice quickly;
+it is not a drift report. `plan` with neither argument reads everything.
+
+| `refresh_scope` | Meaning |
+|---|---|
+| `addresses` | The addresses the round was told to read, up to 20. `omitted` counts the rest. |
+| `count` | How many addresses the scope holds. |
+| `from_drift` | How many of them came from the open notices. |
+| `skipped` | Rows planned from their records, unread. |
+| `whole` | `true` when the round read every object instead: `refresh_drift` found nothing open, or the notices could not give a complete scope. |
+
+A scope belongs to an `up`'s plan and to that round alone: a later round reads everything unless its
+own `plan` says otherwise. It is refused with `refresh: false`, and in a `destroy`, `refresh`,
+`import` or `invoke` plan. A refused call sends nothing, and the round still waits at its plan gate.
+
 ## Arguments
 
 `refresh` takes the arguments every start verb takes: `workspace_alias`, `var`, `var_file`,
 `overlays` and `plan_only` (see [Deploy or update with up](/docs/using/up/#arguments)). Its `plan`
-takes `refresh`; `replace` is refused.
+takes `refresh`; `replace`, `refresh_addresses` and `refresh_drift` are refused.
 
 ## Related
 
+- [Watching for drift](/docs/using/drift/): drift between plans, and the plan that answers it.
 - [Reading state and outputs](/docs/using/state/)
 - [Deploy or update with up](/docs/using/up/)
 - [Plan and apply by hand](/docs/using/plan-and-apply/)
