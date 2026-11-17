@@ -1,27 +1,35 @@
 ---
-// "A new Terraform, reimagined for AI." — the best-of-both grid (Eron's headline, 2026-11-07; it
-// replaced "Built to run the whole stack", the fan-out figure and the encryption HCL). Seven tiles,
+// "Infrastructure as code, reimagined for AI." — the best-of-both grid (2026-11-07; it replaced
+// "Built to run the whole stack", the fan-out figure and the encryption HCL; the headline is the
+// one of 2026-11-16, and its predecessor's history is in CLAUDE.md, "Trademark"). Seven tiles,
 // each wearing a provenance chip row, Terraform · OpenTofu · Turf, so the band reads as a scorecard
 // the way /compatibility/ does in depth; the console is a double-wide tile with its still, the band's
 // one visual. Sources: /compatibility/'s strengths table and matrix notes, the 1.2–1.4 release notes,
 // and the Restate sentence in Restate's own words (D18, revised 2026-10-18). Rules kept: "HCP" never
 // appears (say "HashiCorp's hosted platform"); no benchmark figure; `coming soon` at the capability
 // level; the marks' symbols are the hero's, so none here but OpenTelemetry®, whose only use on
-// home is this band's "Also" line (2026-11-16); the headline uses "Terraform" as the
-// category Turf re-does, never as Turf's name (CLAUDE.md, "Trademark").
+// home is this band's "Also" line (2026-11-16); the headline names no one's mark, and
+// "Terraform" is only ever used nominatively (CLAUDE.md, "Trademark").
+// Three standing rules for this band (2026-11-16; don't drop one): Turf is the subject of the
+// lede ("Turf runs the best of Terraform and OpenTofu …"); the band head carries the
+// non-affiliation sentence as fine print under the chip legend, word for word as
+// CompatibilityTeaser.astro has it; and the Terraform chip's swatch is the site's own ink
+// (global.css, `.chip.tf .sw`), never HashiCorp's brand purple.
 import Still from './Still.astro';
 ---
 
 <section class="band alt" id="features">
   <div class="wrap">
     <div class="band-head">
-      <h2>A new Terraform, reimagined for AI.</h2>
-      <p>The best of Terraform and OpenTofu, run by one distributed engine that an agent can drive —
-        and the things neither has: an apply that can ask, and a console that shows every round.</p>
+      <h2>Infrastructure as code, reimagined for AI.</h2>
+      <p>Turf runs the best of Terraform and OpenTofu on one distributed engine that an agent can
+        drive, and adds what neither has: an apply that can ask, and a console that shows every round.</p>
       <p class="provenance prov-legend">Where each one comes from:
         <span class="chip tf"><span class="sw"></span>Terraform</span>
         <span class="chip otf"><span class="sw"></span>OpenTofu</span>
         <span class="chip turf"><span class="sw"></span>Turf</span></p>
+      <p class="fine">Turf is an independent product built on the OpenTofu framework, not affiliated
+        with or endorsed by HashiCorp.</p>
     </div>
 
     <div class="solutions grid4">

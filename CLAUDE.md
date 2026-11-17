@@ -79,8 +79,8 @@ StackBuild), WhyEngine (two figures: the engine map and a run timeline; it carri
 `#product` anchor), ActionsInPlan,
 AgentInLoop, CompatibilityTeaser (three ecosystem cards), OpsEnvironment (the ops-environment band,
 moved from `/use-cases/` on 2026-10-21: the lane figure, the backend/registry/ephemeral HCL, a
-ticklist, proof links), Engine (since 2026-11-07 the best-of-both grid, "A new Terraform, reimagined
-for AI": seven tiles with a provenance chip row each, Terraform · OpenTofu · Turf, and the console as
+ticklist, proof links), Engine (since 2026-11-07 the best-of-both grid, headed "Infrastructure as
+code, reimagined for AI." since 2026-11-16: seven tiles with a provenance chip row each, Terraform · OpenTofu · Turf, and the console as
 a double-wide tile with its still; it replaced the fan-out figure and the encryption HCL, and
 `figures/FanOutFigure.astro` is kept but rendered nowhere), UseCasesTeaser, ExamplesTeaser (the
 three marquee examples of `src/data/examples.ts`, the kagent figure, the home page's marks note),
@@ -175,24 +175,57 @@ The following were decided deliberately during authoring; re-deriving them from 
 not possible, and "improving" the wording usually breaks one of them.
 
 **Trademark.** Turf™ is Turf LLC's mark, unregistered: the filing is in flight, and `™` stays
-until registration issues. Terraform® is HashiCorp's. Ansible® is Red Hat's, whose guidelines
-(<https://docs.ansible.com/projects/ansible/latest/dev_guide/style_guide/trademarks.html>) ask for
-the symbol on the first reference. Helm® and Kubernetes® are registered marks, and OpenTofu™ a
-trademark, of the Linux Foundation (<https://www.linuxfoundation.org/legal/trademarks>, "immediately
-after the first usage"); Prometheus® joins that clause if the site ever names it (the PDF does).
+until registration issues. Terraform® is HashiCorp's: that is still how the site refers to it, and
+the statement's attribution follows the form HashiCorp's trademark policy prescribes ("… are
+trademarks of HashiCorp"), not "a registered trademark of HashiCorp, Inc.", because the
+registration's owner of record at the USPTO is now International Business Machines Corporation
+(Reg. No. 5954007; HashiCorp, Inc. is the original registrant) (2026-11-16). Ansible® is a mark of Red Hat, LLC,
+whose guidelines (<https://www.redhat.com/en/about/trademark-guidelines-and-policies>) are the
+source for its attribution line; the Ansible docs style guide
+(<https://docs.ansible.com/projects/ansible/latest/dev_guide/style_guide/trademarks.html>), which asks
+for the symbol on the first reference, still says "Red Hat, Inc." and is out of date. Helm® and
+Kubernetes® are registered marks of the Linux Foundation
+(<https://www.linuxfoundation.org/legal/trademarks>, "immediately
+after the first usage"); Prometheus® joined that clause on 2026-11-16, as in the PDF: `/engine/` and
+`/compatibility/` say "metrics in Prometheus® format". OpenTelemetry® (registered) and Jaeger™ (a
+mark in use) are on the same Linux Foundation list and carry their symbols since 2026-11-16.
+OpenTofu® is a registered mark of LF Projects,
+LLC (USPTO Reg. No. 7852825, registered 2025-07-01; listed at
+<https://lfprojects.org/policies/trademark-policy/>), and is not on the Linux Foundation's own list:
+corrected 2026-11-16, before which the site marked it as an unregistered mark of the Linux Foundation.
+Model Context Protocol® is a registered mark on the same LF Projects list and carries its symbol
+where it is spelled out (2026-11-16); the abbreviation "MCP" stays unmarked everywhere (the list
+shows "MCP™" as a mark in use: a question left for counsel).
 Rules: the symbol appears **once per page, at the first prominent body use** (the hero lede on
-home, "Turf™ plans, applies, …"; a subpage's lede) — headlines, `<title>`s, eyebrows, buttons and
-code stay clean; a mark is never possessive or plural ("Ansible playbooks", not "Ansible's"); the
-`turf.build` wordmark itself is unmarked, as in the PDF. **One deliberate exception** (Eron,
-2026-11-07): the home feature grid is headed "A new Terraform, reimagined for AI." — "Terraform" names
-the category Turf re-does, as "a new Terraform" and never as Turf's name; it still never appears in
-a product name, domain or logo, and the headline carries no ®. Don't "fix" it. The footer fineprint carries the attribution
-and non-affiliation statement on every page, and `public/llms.txt` the same block: "Turf™ is a
-trademark of Turf LLC. Terraform® is a registered trademark of HashiCorp, Inc. Ansible® is a
-registered trademark of Red Hat, Inc. in the United States and other countries. Helm® and
-Kubernetes® are registered trademarks, and OpenTofu™ is a trademark, of the Linux Foundation. Turf
-is not affiliated with, endorsed by, or sponsored by HashiCorp, IBM, Red Hat, the Linux Foundation
-or the OpenTofu project." "Terraform" is only ever used nominatively (compatibility, comparison),
+home, "Turf™ plans, applies, …"; a subpage's lede) — headlines, `<title>`s, eyebrows, buttons,
+code, and figures with their labels and captions stay clean (the engine architecture figure's print
+version carries symbols; the web one has none); a mark is never possessive or plural ("Ansible
+playbooks", not "Ansible's"), nor hyphenated into a compound ("only in OpenTofu", not
+"OpenTofu-only"; "Terraform-compatible" stays); the `turf.build` wordmark itself is unmarked, as in
+the PDF. **There are no exceptions**: "Terraform" is only ever used nominatively (compatibility,
+comparison), in a headline as anywhere else. History: the home feature grid was headed "A new
+Terraform, reimagined for AI." from 2026-11-07 (live); it was Eron's line, and was retired on
+2026-11-16, on his decision to err on the side of caution, pending counsel's read (a second such
+headline, drafted for an unreleased band, was retired the same day, unpublished). It may return
+only if counsel clears it: do not restore it on your own. The current headline is
+"Infrastructure as code, reimagined for AI." Three standing rules for that band (2026-11-16): Turf
+is the subject of the band's lede ("Turf runs the best of Terraform and OpenTofu on one distributed
+engine …"); the band head carries the non-affiliation sentence as fine print (`.band-head .fine`,
+under the chip legend), word for word as `CompatibilityTeaser.astro` has it, "Turf is an
+independent product built on the OpenTofu framework, not affiliated with or endorsed by HashiCorp.";
+and the Terraform chip's swatch (`.chip.tf .sw`) is the site's own ink, never HashiCorp's brand
+purple. The footer fineprint carries the
+attribution and non-affiliation statement on every page, and `public/llms.txt` and the docs footer
+(`docs/src/components/Footer.astro`) the same block, byte for byte (as of 2026-11-16): "Turf™ is a
+trademark of Turf LLC. Terraform® is a trademark of HashiCorp. Ansible® is a trademark of Red Hat,
+LLC, registered in the United States and other countries. Helm®, Kubernetes®, Prometheus® and
+OpenTelemetry® are registered trademarks, and Jaeger™ is a trademark, of the Linux Foundation.
+OpenTofu® and Model Context Protocol® are registered trademarks of LF Projects, LLC. All other
+trademarks are the property of their respective owners. Turf is not affiliated with, endorsed by, or
+sponsored by HashiCorp, IBM, Red Hat, the Linux Foundation, LF Projects or the OpenTofu project."
+The catch-all sentence ("All other trademarks …") is part of the statement. The published PDFs in
+`public/papers/` and their text-of-record Marks sections still carry the old OpenTofu and Red Hat
+wording until each paper's next version. "Terraform" is only ever used nominatively (compatibility, comparison),
 never in a product name, domain, or logo. Never write "the Terraform Registry" — its ToS restricts
 non-Terraform use; say "module registry", "modules", or "OpenTofu registry". (Decided 2026-10-03
 while the neocloud PDF was marked — source of truth: the Marks section of
