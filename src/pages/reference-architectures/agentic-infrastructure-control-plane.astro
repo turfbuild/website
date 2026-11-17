@@ -4,7 +4,7 @@ import FigureDefs from '../../components/FigureDefs.astro';
 import KagentFigure from '../../components/figures/KagentFigure.astro';
 // The page for *An Agentic Infrastructure Control Plane* (Turf on kagent 1.0). Its lede, the four
 // ideas, the page list, the Run it steps and the marks note are the paper's own words, from
-// headquarters/marketing/launch/refarch-kagent.md (v0.5): the cover, pages 2 to 6, "Run it" and the
+// headquarters/marketing/launch/refarch-kagent.md (v0.6): the cover, pages 2 to 6, "Run it" and the
 // marks paragraph. The figure is the paper's Figure 1. A new version of the paper means re-checking
 // this page against it. See "Papers" in CLAUDE.md.
 const title = 'Turf — An Agentic Infrastructure Control Plane on kagent 1.0';
@@ -32,7 +32,8 @@ const jsonLd = [
     description,
     url: `${site}/reference-architectures/agentic-infrastructure-control-plane/`,
     datePublished: '2026-11-16',
-    version: '0.5',
+    dateModified: '2026-11-16',
+    version: '0.6',
     inLanguage: 'en-US',
     isAccessibleForFree: true,
     author: publisher,
@@ -87,7 +88,7 @@ const parts = [
   <FigureDefs />
   <section class="subhero">
     <div class="wrap">
-      <p class="eyebrow"><span class="dot"></span> Reference architecture · v0.5 · November 2026</p>
+      <p class="eyebrow"><span class="dot"></span> Reference architecture · v0.6 · November 2026</p>
       <h1>An Agentic Infrastructure Control Plane.</h1>
       <p class="lede">Turf™ on kagent 1.0. Ask for infrastructure in chat, approve the plan, and your
         cluster provisions it: cloud resources, clusters, anything with a Terraform® provider.
@@ -145,9 +146,11 @@ const parts = [
           <span class="k">01 · What it is for</span>
           <h3>A management cluster that makes clusters.</h3>
           <p>Cluster API works this way: a management cluster makes workload clusters. Here the
-            workload cluster is a Terraform module. Turf plans the cluster first, then plans Argo CD in
-            a second round of the same run, and Argo CD syncs the addons and workloads from Git.
-            Making the cluster, and every change after, is a plan a person approves.</p>
+            workload cluster is a Terraform module, made in round 1 of a run. You choose who manages
+            what it runs: round 2 installs Argo CD, which syncs the addons and workloads from Git, or
+            Turf keeps direct control and plans them as Terraform resources in the rounds that follow.
+            Turf can also install itself into the new cluster, as it would Argo CD. A person approves
+            every round.</p>
         </div>
         <div class="beat">
           <span class="k">02 · A change, start to finish</span>

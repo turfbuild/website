@@ -7,7 +7,7 @@ const { caption } = Astro.props;
 ---
 
 <figure class="docfig">
-  <svg class="fig" viewBox="0 0 672 418" role="img" aria-label="What runs where. Inside your cluster, the control plane: kagent 1.0, with its UI (the chat, and Approve or Reject) and the agent, which runs in a sandbox and holds no credentials; and Turf, with its MCP server (plan, show and apply as the agent's tools; tfstate in a Secret per stack) and its engine, which runs the providers on pods that start from zero and holds the cloud key. A person asks in the kagent UI (1); the agent plans through Turf's MCP server (2); the person approves in the kagent UI (3); the engine applies, with the key (4), to what is outside the cluster: cloud resources (two AWS Lambda functions in the example), Kubernetes clusters (Amazon EKS, then Argo CD), and anything with a provider. The agent then fetches the public URLs of what it built, with no key (5).">
+  <svg class="fig" viewBox="0 0 672 418" role="img" aria-label="What runs where. Inside your cluster, the control plane: kagent 1.0, with its UI (the chat, and Approve or Reject) and the agent, which runs in a sandbox and holds no credentials; and Turf, with its MCP server (plan, show and apply as the agent's tools; tfstate in a Secret per stack) and its engine, which runs the providers on pods that start from zero and holds the cloud key. A person asks in the kagent UI (1); the agent plans through Turf's MCP server (2); the person approves in the kagent UI (3); the engine applies, with the key (4), to what is outside the cluster: cloud resources (two AWS Lambda functions in the example), Kubernetes clusters (Amazon EKS and its addons), and anything with a provider. The agent then fetches the public URLs of what it built, with no key (5).">
     <defs>
       <marker id="kg-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-stroke"/></marker>
       <marker id="kg-ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-ok"/></marker>
@@ -87,7 +87,7 @@ const { caption } = Astro.props;
     <text x="127" y="398" class="t-cap" style="fill:var(--panel); opacity:.72">THE EXAMPLE · A REAL RUN</text>
     <rect class="f-panel s-ok" x="324.5" y="324.5" width="178" height="88" rx="10"/>
     <text x="339" y="349" class="t-name" style="font-size:14px; fill:var(--ok-deep)">Kubernetes clusters</text>
-    <text x="339" y="367" class="t-mono" style="font-size:9.6px">Amazon EKS, then Argo CD</text>
+    <text x="339" y="367" class="t-mono" style="font-size:9.6px">Amazon EKS and its addons</text>
     <text x="339" y="398" class="t-cap">IN THE PAPER</text>
     <rect class="f-panel s-faint" x="514.5" y="324.5" width="157" height="88" rx="10" stroke-dasharray="4 3"/>
     <text x="529" y="349" class="t-name" style="font-size:14px">anything with</text>
