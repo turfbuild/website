@@ -1,0 +1,269 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import FigureDefs from '../../components/FigureDefs.astro';
+import KagentFigure from '../../components/figures/KagentFigure.astro';
+// The page for *An Agentic Infrastructure Control Plane* (Turf on kagent 1.0). Its lede, the four
+// ideas, the page list, the Run it steps and the marks note are the paper's own words, from
+// headquarters/marketing/launch/refarch-kagent.md (v0.5): the cover, pages 2 to 6, "Run it" and the
+// marks paragraph. The figure is the paper's Figure 1. A new version of the paper means re-checking
+// this page against it. See "Papers" in CLAUDE.md.
+const title = 'Turf — An Agentic Infrastructure Control Plane on kagent 1.0';
+const description =
+  'An Agentic Infrastructure Control Plane, a Turf reference architecture for kagent 1.0: ask in chat, approve the plan, and your cluster provisions it.';
+
+const site = 'https://turf.build';
+// Shared through Scarf, which counts the click and redirects to the turf.build copy; the tag
+// tells this page's clicks apart from the paper's other links (CLAUDE.md, "Papers").
+const pdfShared = 'https://get.turf.build/papers/turf-agentic-infrastructure-control-plane.pdf?src=refarch-kagent-page';
+const pdfHosted = `${site}/papers/turf-agentic-infrastructure-control-plane.pdf`;
+const cover = `${site}/papers/turf-agentic-infrastructure-control-plane-cover.jpg`;
+const repoUrl = 'https://github.com/turfbuild/turf-kagent';
+
+// See demo.astro: inlined, not an `@id` reference to the home page's node.
+const publisher = { '@type': 'Organization', '@id': `${site}/#organization`, name: 'Turf' };
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'TechArticle',
+    '@id': `${site}/reference-architectures/agentic-infrastructure-control-plane/#paper`,
+    name: 'An Agentic Infrastructure Control Plane',
+    headline: 'An Agentic Infrastructure Control Plane',
+    alternativeHeadline: 'A reference architecture for Turf on kagent 1.0',
+    description,
+    url: `${site}/reference-architectures/agentic-infrastructure-control-plane/`,
+    datePublished: '2026-11-16',
+    version: '0.5',
+    inLanguage: 'en-US',
+    isAccessibleForFree: true,
+    author: publisher,
+    publisher: publisher,
+    image: cover,
+    associatedMedia: {
+      '@type': 'MediaObject',
+      name: 'An Agentic Infrastructure Control Plane (PDF)',
+      contentUrl: pdfHosted,
+      encodingFormat: 'application/pdf',
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Turf', item: `${site}/` },
+      { '@type': 'ListItem', position: 2, name: 'Reference architectures', item: `${site}/reference-architectures/` },
+      { '@type': 'ListItem', position: 3, name: 'An Agentic Infrastructure Control Plane' },
+    ],
+  },
+];
+
+// The paper's pages, each under the reader's question it answers.
+const parts = [
+  {
+    k: 'The idea',
+    chapters: [
+      [2, 'The cluster is the control plane'],
+      [3, 'A management cluster that makes clusters'],
+    ],
+  },
+  {
+    k: 'Real runs',
+    chapters: [
+      [4, 'Ask, read the plan, approve'],
+      [5, 'The agent checks what it built'],
+      [6, 'The engine scales from zero, and back'],
+    ],
+  },
+  {
+    k: 'Your turn',
+    chapters: [
+      [7, 'Run it'],
+      ['', 'Get Turf'],
+    ],
+  },
+];
+---
+
+<Layout title={title} description={description} jsonLd={jsonLd}>
+  <FigureDefs />
+  <section class="subhero">
+    <div class="wrap">
+      <p class="eyebrow"><span class="dot"></span> Reference architecture · v0.5 · November 2026</p>
+      <h1>An Agentic Infrastructure Control Plane.</h1>
+      <p class="lede">Turf™ on kagent 1.0. Ask for infrastructure in chat, approve the plan, and your
+        cluster provisions it: cloud resources, clusters, anything with a Terraform® provider.
+        <strong>The agent plans. A person approves. Only the engine touches the cloud.</strong></p>
+      <div class="cta-row">
+        <a class="btn primary" href={pdfShared}>Read the PDF</a>
+        <a class="btn ghost" href={repoUrl}>The repo on GitHub</a>
+      </div>
+      <p class="meta">7 pages · PDF · for platform engineers who run agents on Kubernetes®</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="paper">
+        <figure class="cover">
+          <a href={pdfShared}>
+            <img
+              src="/papers/turf-agentic-infrastructure-control-plane-cover.jpg"
+              alt="The cover of An Agentic Infrastructure Control Plane: the title over a cluster, labelled kagent and Turf, with three arrows out of it to cloud resources, clusters, and anything with a provider."
+              width="741"
+              height="960"
+              loading="lazy"
+            />
+          </a>
+        </figure>
+        <div class="prose">
+          <p class="eyebrow"><span class="dot"></span> How it fits together</p>
+          <h2>The cluster is the control plane.</h2>
+          <p>kagent 1.0 runs an agent in your cluster. Turf, an infrastructure-as-code tool built on
+            OpenTofu®, gives that agent Terraform plan and apply as tools. Ask in the kagent chat for
+            infrastructure outside the cluster, and it comes back as a plan for you to approve.</p>
+          <p>The cloud key stays with Turf’s engine. The agent’s sandbox holds no credentials: it can
+            propose a plan, which waits for a person, and afterwards fetch a public URL to check the
+            result.</p>
+        </div>
+      </div>
+      <div class="figwide planefig">
+        <KagentFigure />
+        <p class="figcap"><b>What runs where.</b> A person asks and approves in the kagent UI. The agent
+          plans through Turf’s MCP server. The engine applies, with the key, to what is outside the
+          cluster, and the agent then fetches the public URLs of what it built.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section alt">
+    <div class="wrap">
+      <div class="band-head">
+        <h2>What the paper shows.</h2>
+        <p>Four of its pages, each the answer to one question. The quoted lines are from runs on 2026-11-16.</p>
+      </div>
+      <div class="beats two">
+        <div class="beat">
+          <span class="k">01 · What it is for</span>
+          <h3>A management cluster that makes clusters.</h3>
+          <p>Cluster API works this way: a management cluster makes workload clusters. Here the
+            workload cluster is a Terraform module. Turf plans the cluster first, then plans Argo CD in
+            a second round of the same run, and Argo CD syncs the addons and workloads from Git.
+            Making the cluster, and every change after, is a plan a person approves.</p>
+        </div>
+        <div class="beat">
+          <span class="k">02 · A change, start to finish</span>
+          <h3>Ask, read the plan, approve.</h3>
+          <p>You approve that exact plan: the agent’s <code>apply</code> carries the plan’s digest, and
+            kagent asks because that tool is bound with <code>requireApproval: true</code>. A rejection
+            applies nothing, and the agent says so: <code>You rejected the destroy, saying the team is still using the fleet,
+            so nothing was applied.</code></p>
+        </div>
+        <div class="beat">
+          <span class="k">03 · How you know it worked</span>
+          <h3>The agent checks what it built.</h3>
+          <p>A turf action is a step of the apply that the agent carries out. This one asks it to
+            fetch each function’s URL and compare what it answers.
+            <code>HTTP/1.1 200 OK · &#123;"message":"Hello from the cluster.","function":"turf-kagent-demo-1"&#125;</code></p>
+        </div>
+        <div class="beat">
+          <span class="k">04 · Several sessions at once</span>
+          <h3>The engine scales from zero, and back.</h3>
+          <p>Turf’s engine runs as a Knative service. Pods start when a plan or an apply needs them,
+            and go when it is done. Three sessions asked for a fleet each, a minute apart: a second pod
+            joined while the work overlapped, and about a minute after the last run ended, none were
+            left.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="band-head">
+        <h2>What’s inside.</h2>
+        <p>The idea, a run with its screenshots and transcript, the engine under three sessions, and the example to run.</p>
+      </div>
+      <div class="toc">
+        {parts.map((part) => (
+          <div class="part">
+            <span class="k">{part.k}</span>
+            <ol>
+              {part.chapters.map(([n, name]) => (
+                <li><span class="n">{n}</span><span>{name}</span></li>
+              ))}
+            </ol>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section alt">
+    <div class="wrap prose">
+      <h2>Run it.</h2>
+      <p>The example in the paper is public, at
+        <a href={repoUrl}>github.com/turfbuild/turf-kagent</a>. You need a kind cluster with Kubernetes
+        1.37, an AWS account, an Anthropic API key, Turf, and the kagent CLI (1.0.0).</p>
+      <div class="codeblock">
+<pre><span class="ps1">$</span> git clone https://github.com/turfbuild/turf-kagent && cd turf-kagent
+<span class="ps1">$</span> turf -C setup/aws up   <span class="cm"># once: the engine’s AWS key</span>
+<span class="ps1">$</span> export ANTHROPIC_API_KEY=...
+<span class="ps1">$</span> ./setup/up.sh          <span class="cm"># kagent, Turf and the agent</span></pre>
+      </div>
+      <p>Then open the kagent UI, pick the agent <code>turf</code>, and ask it for a fleet as a stack
+        called demo. Approve the plan, then the agent’s report of what each URL answered. Destroy the
+        stacks before you delete the cluster: the functions are outside it.
+        <a href="/docs/cluster/example-kagent/">The walkthrough in the docs</a> has each step.</p>
+      <p>Turf is available now, as a download. No form, no login. Free for noncommercial use;
+        commercial use, including a company’s internal use, requires a license, and companies evaluate
+        Turf under a free pilot.</p>
+      <p class="ctas">
+        <a class="btn primary" href={pdfShared}>Read the PDF</a>
+        <a class="btn ghost" href="/get-started/">Get started</a>
+        <a class="btn ghost" href="/licensing/">Licensing</a>
+      </p>
+      <p class="also">Also from Turf: <a href="/reference-architectures/metal-to-tokens/">Metal to Tokens</a>, a
+        reference architecture for managed GPU cloud infrastructure, for neocloud providers; and
+        <a href="/reference-architectures/pull-request-to-production/">Pull Request to Production</a>, a
+        reference architecture for Terraform delivery on GitHub Agentic Workflows.
+        <a href="/reference-architectures/">All papers →</a></p>
+
+      <p class="legal-note">Kubernetes® and Helm® are registered trademarks, and Knative and Argo
+        trademarks, of the Linux Foundation. OpenTofu® is a registered trademark of LF Projects, LLC. Amazon Web Services, AWS, AWS Lambda and Amazon EKS are
+        trademarks of Amazon.com, Inc. or its affiliates. kagent is a Cloud Native Computing Foundation
+        project. Turf is not affiliated with, endorsed by, or sponsored by HashiCorp, IBM, the Linux
+        Foundation, the OpenTofu project, Amazon, Solo.io or Restate; every mark is used only to describe
+        interoperability. All other marks belong to their owners.</p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .meta { font-family: var(--mono); font-size: 12.5px; color: var(--faint); margin: 0; }
+  /* The cover beside the abstract; the cover stacks above it on a phone. */
+  .paper { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: clamp(24px, 4vw, 52px); align-items: start; }
+  .paper .prose > h2 { margin-top: 8px; }
+  .cover { margin: 0; max-width: 280px; }
+  .cover img {
+    display: block; width: 100%; height: auto; border-radius: 12px;
+    box-shadow: var(--shadow); border: 1px solid var(--hair-strong); background: var(--term-bg);
+  }
+  @media (max-width: 760px) { .paper { grid-template-columns: 1fr; } }
+  .planefig { margin: clamp(32px, 5vw, 56px) auto 0; }
+  /* The page list: one card per part, framed like the use-case cards. */
+  .toc { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 860px) { .toc { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 520px) { .toc { grid-template-columns: 1fr; } }
+  .part { border: 1px solid var(--hair); border-radius: 13px; background: var(--panel); padding: 18px 20px; }
+  .part .k { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ok); display: block; margin-bottom: 10px; }
+  .part ol { list-style: none; margin: 0; padding: 0; }
+  .part li { display: flex; gap: 10px; font-size: 14px; color: var(--muted); margin: 6px 0; }
+  .part li .n { font-family: var(--mono); font-size: 12px; color: var(--faint); flex: none; width: 1.6em; }
+  .prose .codeblock { margin: 14px 0 16px; }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
+  .also { color: var(--muted); font-size: 14px; margin-top: 22px; }
+  /* Nominative-use note for the marks the footer fineprint doesn't cover; matches demo/scalr. */
+  .legal-note {
+    margin-top: clamp(28px, 4vw, 44px); padding-top: 18px; border-top: 1px solid var(--hair);
+    max-width: 92ch; color: var(--faint); font-size: 12.5px; line-height: 1.6;
+  }
+</style>

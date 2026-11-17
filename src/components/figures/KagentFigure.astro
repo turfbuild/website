@@ -1,91 +1,93 @@
 ---
-// Figure 1 of the kagent showcase (headquarters, branch kagent-paper, refarch-kagent.html), ported:
-// Turf and kagent 1.0 in one cluster. Left, kagent's namespace: the UI where a person approves, the
-// controller, and the Agent "turf". Middle, Agent Substrate: the agent's gVisor sandbox, which holds
-// no credential, and the egress gateway that adds the bearer token to every call. Right, everything
-// Turf: the MCP server, restate-server and the engine as a Knative RestateDeployment that scales from
-// zero, with the state as Secrets and Leases. Geometry is the paper's; fills and strokes are the
-// `.f-*`/`.s-*` utilities. Markers come from FigureDefs. Rendered once per page.
+// Figure 1 of *An Agentic Infrastructure Control Plane* (headquarters, marketing/launch/refarch-kagent.html;
+// drawn by scratch/kagent1/mkfig-v05.py), ported: what runs where when Turf runs on kagent 1.0. Inside the
+// cluster, kagent (the UI where a person asks and approves; the agent, a sandbox that holds no credentials)
+// and Turf (the MCP server, whose plan, show and apply are the agent's tools; the engine, which runs the
+// providers and holds the cloud key). Outside it, what gets built. The five numbered steps are the loop:
+// ask, plan, approve, apply, check. Geometry is the paper's; fills and strokes are the `.f-*`/`.s-*`
+// utilities, so it re-themes. The two labels that named the paper's pages are reworded for the web.
+// Markers come from FigureDefs. Rendered once per page.
 ---
 
-<svg class="fig kagent" viewBox="0 0 672 318" role="img" aria-label="Turf and kagent 1.0 in one cluster. kagent: the UI, the controller, and the Agent turf with its Harness, AgentTemplate, ModelConfig and RemoteMCPServers. Agent Substrate: the agent's gVisor sandbox on the WorkerPool in the kagent namespace, and the egress gateway in ate-system. turf: the MCP server, restate-server as a RestateCluster, and the engine as a RestateDeployment on Knative, from zero pods, with the state Secrets and Leases. Arrows: the person approves in the UI; the sandbox calls the MCP server through the gateway, which adds the bearer token; the server drives restate-server; restate-server calls the engine through Knative; the engine applies to the cluster.">
-  <text x="0" y="10" class="t-cap">TURF AND KAGENT 1.0, ONE CLUSTER</text>
-
-  <!-- ns kagent -->
-  <rect x="0.5" y="22.5" width="190" height="236" rx="12" class="f-panel2 s-hair"/>
-  <text x="14" y="40" class="t-cap">NS KAGENT</text>
-  <rect x="14.5" y="50.5" width="162" height="40" rx="7" class="f-panel s-hair"/>
-  <text x="26" y="67" class="t-name" style="font-size:10.5px">kagent UI</text>
-  <text x="26" y="81" class="t-mono">a person approves</text>
-  <circle cx="160" cy="70" r="9" class="f-inhbg s-inh"/>
-  <text x="160" y="73.5" text-anchor="middle" class="t-m9" style="fill:var(--inh)">✓</text>
-  <rect x="14.5" y="100.5" width="162" height="34" rx="7" class="f-panel s-hair"/>
-  <text x="26" y="116" class="t-name" style="font-size:10.5px">controller</text>
-  <text x="26" y="128" class="t-mono">A2A · MCP · discovery</text>
-  <rect x="14.5" y="144.5" width="162" height="102" rx="7" class="f-okbg s-ok"/>
-  <text x="26" y="161" class="t-name" style="font-size:10.5px; fill:var(--ok-deep)">Agent “turf”</text>
-  <text x="26" y="174" class="t-mono">Harness · AgentTemplate</text>
-  <text x="26" y="186" class="t-mono">ModelConfig · Sonnet 5.5</text>
-  <text x="26" y="200" class="t-mono" style="fill:var(--ok-deep)">RemoteMCPServer turf</text>
-  <text x="26" y="211" class="t-mono" style="fill:var(--ok-deep)">  headersFrom: turf-mcp-auth</text>
-  <text x="26" y="223" class="t-mono" style="fill:var(--ok-deep)">+ turf-k8s-reader (view)</text>
-  <text x="26" y="235" class="t-mono" style="fill:var(--ok-deep)">+ opentofu-registry</text>
-
-  <!-- Agent Substrate -->
-  <rect x="212.5" y="22.5" width="190" height="236" rx="12" class="f-panel2 s-hair"/>
-  <text x="226" y="40" class="t-cap">AGENT SUBSTRATE</text>
-  <rect x="226.5" y="50.5" width="162" height="84" rx="7" class="f-panel s-inh" stroke-dasharray="4 3"/>
-  <text x="238" y="67" class="t-name" style="font-size:10.5px">the agent’s sandbox</text>
-  <text x="238" y="81" class="t-mono">a Session · gVisor Actor</text>
-  <text x="238" y="94" class="t-mono">WorkerPool · ns kagent</text>
-  <rect x="238" y="104" width="138" height="20" rx="4" class="f-term"/>
-  <text x="245" y="117" class="t-m7" style="fill:var(--term-amber)">Authorization: (placeholder)</text>
-  <rect x="226.5" y="160.5" width="162" height="86" rx="7" class="f-panel s-hair"/>
-  <text x="238" y="177" class="t-name" style="font-size:10.5px">egress gateway</text>
-  <text x="238" y="191" class="t-mono">ns ate-system · default deny</text>
-  <text x="238" y="204" class="t-mono">the model · the MCP servers</text>
-  <rect x="238" y="214" width="138" height="20" rx="4" class="f-term"/>
-  <text x="245" y="227" class="t-m7" style="fill:var(--term-ok)">Authorization: Bearer ••••</text>
-
-  <!-- ns turf -->
-  <rect x="424.5" y="22.5" width="247" height="236" rx="12" class="f-panel2 s-hair"/>
-  <text x="438" y="40" class="t-cap">NS TURF · EVERYTHING TURF</text>
-  <rect x="438.5" y="50.5" width="219" height="34" rx="7" class="f-panel s-hair"/>
-  <text x="450" y="66" class="t-name" style="font-size:10.5px">turf-mcp-server</text>
-  <text x="450" y="78" class="t-mono">:3000/mcp · checks the bearer token</text>
-  <rect x="438.5" y="94.5" width="219" height="34" rx="7" class="f-panel s-hair"/>
-  <text x="450" y="110" class="t-name" style="font-size:10.5px">restate-server</text>
-  <text x="450" y="122" class="t-mono">RestateCluster “turf” · signs requests</text>
-  <rect x="438.5" y="138.5" width="219" height="58" rx="7" class="f-okbg s-ok"/>
-  <text x="450" y="154" class="t-name" style="font-size:10.5px; fill:var(--ok-deep)">turf-engine</text>
-  <text x="450" y="166" class="t-mono">RestateDeployment · Knative · providers here</text>
-  <g>
-    <rect x="450" y="174" width="12" height="12" rx="3" class="f-ok"/>
-    <rect x="466" y="174" width="12" height="12" rx="3" class="f-ok"/>
-    <rect x="482" y="174" width="12" height="12" rx="3" class="f-ok"/>
-    <rect x="498" y="174" width="12" height="12" rx="3" class="f-panel s-hair"/>
-    <rect x="514" y="174" width="12" height="12" rx="3" class="f-panel s-hair"/>
-  </g>
-  <text x="534" y="184" class="t-mono" style="fill:var(--ok-deep)">from zero, with the work</text>
-  <rect x="438.5" y="206.5" width="219" height="40" rx="7" class="f-panel s-hair"/>
-  <text x="450" y="222" class="t-name" style="font-size:10.5px">state</text>
-  <text x="450" y="236" class="t-mono">Secret tfstate-&lt;stack&gt;-turf · its Lease</text>
-
-  <!-- arrows -->
-  <path d="M177,70 H200 V92 H222" fill="none" class="s-inh" stroke-width="1.4" marker-end="url(#a-inh)"/>
-  <text x="182" y="62" class="t-mono" style="fill:var(--inh); font-size:7.2px">turns</text>
-  <line x1="307" y1="135" x2="307" y2="156" class="s-inh" stroke-width="1.4" marker-end="url(#a-inh)"/>
-  <text x="312" y="150" class="t-mono" style="fill:var(--inh); font-size:7.2px">every call</text>
-  <path d="M389,190 H410 V67 H434" fill="none" class="s-ok" stroke-width="1.6" marker-end="url(#a-ok)"/>
-  <line x1="548" y1="85" x2="548" y2="91" class="s-stroke" stroke-width="1.4" marker-end="url(#a-ink)"/>
-  <line x1="548" y1="129" x2="548" y2="135" class="s-stroke" stroke-width="1.4" marker-end="url(#a-ink)"/>
-  <path d="M658,67 H666 V226 H662" fill="none" class="s-stroke" stroke-width="1.2" marker-end="url(#a-ink)"/>
-  <line x1="307" y1="247" x2="307" y2="282" class="s-stroke" stroke-width="1.2" stroke-dasharray="3 3" marker-end="url(#a-ink)"/>
-  <rect x="252.5" y="284.5" width="110" height="28" rx="7" class="f-panel s-hair"/>
-  <text x="307" y="302" text-anchor="middle" class="t-mono">the model provider</text>
-  <line x1="548" y1="197" x2="548" y2="203" class="s-ok" stroke-width="1.4" marker-end="url(#a-ok)"/>
-  <path d="M600,247 V282" fill="none" class="s-ok" stroke-width="1.6" marker-end="url(#a-ok)"/>
-  <rect x="520.5" y="284.5" width="151" height="28" rx="7" class="f-ok"/>
-  <text x="596" y="302" text-anchor="middle" class="t-name" style="font-size:10px; fill:#fff">the cluster · any cloud API</text>
-  <text x="0" y="304" class="t-mono" style="fill:var(--faint); font-size:7.6px">No credential crosses into the sandbox.</text>
+<svg class="fig kagent" viewBox="0 0 672 418" role="img" aria-label="What runs where. Inside your cluster, the control plane: kagent 1.0, with its UI (the chat, and Approve or Reject) and the agent, which runs in a sandbox and holds no credentials; and Turf, with its MCP server (plan, show and apply as the agent's tools; tfstate in a Secret per stack) and its engine, which runs the providers on pods that start from zero and holds the cloud key. A person asks in the kagent UI (1); the agent plans through Turf's MCP server (2); the person approves in the kagent UI (3); the engine applies, with the key (4), to what is outside the cluster: cloud resources (two AWS Lambda functions in the example), Kubernetes clusters (Amazon EKS, then Argo CD), and anything with a provider. The agent then fetches the public URLs of what it built, with no key (5).">
+  <text x="124" y="10" class="t-cap">YOUR CLUSTER · THE CONTROL PLANE</text>
+  <circle cx="404" cy="7" r="6" class="f-ink" style="stroke:var(--panel)" stroke-width="1.5"/>
+  <text x="404" y="10.1" text-anchor="middle" class="t-m7" style="font-size:7.2px; font-weight:700; fill:var(--panel)">1</text>
+  <text x="414" y="10.5" class="t-mono" style="font-size:8.8px; fill:var(--ink)">ask</text>
+  <circle cx="450" cy="7" r="6" class="f-ink" style="stroke:var(--panel)" stroke-width="1.5"/>
+  <text x="450" y="10.1" text-anchor="middle" class="t-m7" style="font-size:7.2px; font-weight:700; fill:var(--panel)">2</text>
+  <text x="460" y="10.5" class="t-mono" style="font-size:8.8px; fill:var(--ink)">plan</text>
+  <circle cx="502" cy="7" r="6" class="f-ink" style="stroke:var(--panel)" stroke-width="1.5"/>
+  <text x="502" y="10.1" text-anchor="middle" class="t-m7" style="font-size:7.2px; font-weight:700; fill:var(--panel)">3</text>
+  <text x="512" y="10.5" class="t-mono" style="font-size:8.8px; fill:var(--ink)">approve</text>
+  <circle cx="572" cy="7" r="6" class="f-ink" style="stroke:var(--panel)" stroke-width="1.5"/>
+  <text x="572" y="10.1" text-anchor="middle" class="t-m7" style="font-size:7.2px; font-weight:700; fill:var(--panel)">4</text>
+  <text x="582" y="10.5" class="t-mono" style="font-size:8.8px; fill:var(--ink)">apply</text>
+  <circle cx="630" cy="7" r="6" class="f-ink" style="stroke:var(--panel)" stroke-width="1.5"/>
+  <text x="630" y="10.1" text-anchor="middle" class="t-m7" style="font-size:7.2px; font-weight:700; fill:var(--panel)">5</text>
+  <text x="640" y="10.5" class="t-mono" style="font-size:8.8px; fill:var(--ink)">check</text>
+  <rect class="f-none s-faint" x="112.5" y="20.5" width="559" height="262" rx="14" stroke-dasharray="2 3"/>
+  <rect class="f-panel2 s-hair" x="124.5" y="32.5" width="252" height="238" rx="12"/>
+  <text x="139" y="51" class="t-cap">KAGENT 1.0</text>
+  <rect class="f-panel s-hair" x="138.5" y="62.5" width="224" height="76" rx="8"/>
+  <text x="152" y="87" class="t-name" style="font-size:14px">kagent UI</text>
+  <text x="152" y="106" class="t-mono" style="font-size:9.6px">the chat · Approve or Reject</text>
+  <line x1="250" y1="139" x2="250" y2="163" style="stroke:var(--muted)" stroke-width="1.3"/>
+  <rect class="f-okbg s-ok" x="138.5" y="164.5" width="224" height="94" rx="8"/>
+  <text x="152" y="189" class="t-name" style="font-size:14px; fill:var(--ok-deep)">the agent</text>
+  <text x="152" y="207" class="t-mono" style="font-size:9.6px">a sandbox for each conversation</text>
+  <rect class="f-term" x="152" y="219" width="150" height="23" rx="4"/>
+  <text x="162" y="234.5" class="t-m9" style="font-size:9px; fill:var(--term-amber)">holds no credentials</text>
+  <rect class="f-panel s-inh" x="0.5" y="56.5" width="94" height="88" rx="9"/>
+  <text x="12" y="78" class="t-name" style="font-size:13px">a person</text>
+  <circle cx="20" cy="100" r="7" class="f-ink" style="stroke:var(--panel)" stroke-width="1.5"/>
+  <text x="20" y="103.1" text-anchor="middle" class="t-m7" style="font-size:8.2px; font-weight:700; fill:var(--panel)">1</text>
+  <text x="33" y="103.5" class="t-mono" style="font-size:9.6px; fill:var(--ink)">asks</text>
+  <circle cx="20" cy="124" r="7" class="f-ink" style="stroke:var(--panel)" stroke-width="1.5"/>
+  <text x="20" y="127.1" text-anchor="middle" class="t-m7" style="font-size:8.2px; font-weight:700; fill:var(--panel)">3</text>
+  <text x="33" y="127.5" class="t-mono" style="font-size:9.6px; fill:var(--ink)">approves</text>
+  <line class="s-inh" x1="95" y1="100" x2="135" y2="100" stroke-width="1.5" marker-end="url(#a-inh)"/>
+  <line class="s-inh" x1="95" y1="124" x2="135" y2="124" stroke-width="1.5" marker-end="url(#a-inh)"/>
+  <rect class="f-panel2 s-hair" x="388.5" y="32.5" width="271" height="238" rx="12"/>
+  <text x="403" y="51" class="t-cap">TURF</text>
+  <text x="645" y="51" text-anchor="end" class="t-cap">ON KNATIVE · RESTATE-SERVER</text>
+  <rect class="f-panel s-hair" x="402.5" y="62.5" width="243" height="76" rx="8"/>
+  <text x="416" y="87" class="t-name" style="font-size:14px">Turf MCP server</text>
+  <text x="416" y="106" class="t-mono" style="font-size:9.6px">plan, show, apply: the agent's tools</text>
+  <text x="416" y="121" class="t-mono" style="font-size:9.6px">tfstate: a Secret per stack</text>
+  <line x1="524" y1="139" x2="524" y2="161" style="stroke:var(--muted)" stroke-width="1.3" marker-end="url(#a-ink)"/>
+  <rect class="f-okbg s-ok" x="402.5" y="164.5" width="243" height="94" rx="8"/>
+  <text x="416" y="189" class="t-name" style="font-size:14px; fill:var(--ok-deep)">Turf engine</text>
+  <text x="416" y="207" class="t-mono" style="font-size:9.6px">runs the providers · pods from zero</text>
+  <rect class="f-term" x="416" y="219" width="150" height="23" rx="4"/>
+  <text x="426" y="234.5" class="t-m9 f-termok" style="font-size:9px">holds the cloud key</text>
+  <path class="f-none s-inh" d="M363,200 H382.5 V100 H399" stroke-width="1.5" marker-end="url(#a-inh)"/>
+  <circle cx="382.5" cy="150" r="7" class="f-ink" style="stroke:var(--panel)" stroke-width="1.5"/>
+  <text x="382.5" y="153.1" text-anchor="middle" class="t-m7" style="font-size:8.2px; font-weight:700; fill:var(--panel)">2</text>
+  <path class="f-none s-ok" d="M524,259 V306" stroke-width="1.8"/>
+  <path class="f-none s-ok" d="M280,306 H593" stroke-width="1.8"/>
+  <line class="s-ok" x1="280" y1="306" x2="280" y2="320" stroke-width="1.8" marker-end="url(#a-ok)"/>
+  <line class="s-ok" x1="413" y1="306" x2="413" y2="320" stroke-width="1.8" marker-end="url(#a-ok)"/>
+  <line class="s-ok" x1="593" y1="306" x2="593" y2="320" stroke-width="1.8" marker-end="url(#a-ok)"/>
+  <circle cx="524" cy="293" r="7" class="f-ink" style="stroke:var(--panel)" stroke-width="1.5"/>
+  <text x="524" y="296.1" text-anchor="middle" class="t-m7" style="font-size:8.2px; font-weight:700; fill:var(--panel)">4</text>
+  <text x="537" y="296.5" class="t-mono" style="font-size:9.6px; fill:var(--ok-deep)">applies, with the key</text>
+  <line class="s-inh" x1="180" y1="259" x2="180" y2="320" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#a-inh)"/>
+  <circle cx="180" cy="293" r="7" class="f-ink" style="stroke:var(--panel)" stroke-width="1.5"/>
+  <text x="180" y="296.1" text-anchor="middle" class="t-m7" style="font-size:8.2px; font-weight:700; fill:var(--panel)">5</text>
+  <text x="193" y="296.5" class="t-mono" style="font-size:9.6px; fill:var(--inh)">GETs its public URLs · no key</text>
+  <text x="0" y="342" class="t-cap">OUTSIDE IT</text>
+  <text x="0" y="358" class="t-mono" style="font-size:9.6px">what gets built</text>
+  <rect class="f-ok" x="112.5" y="324.5" width="200" height="88" rx="10"/>
+  <text x="127" y="349" class="t-name" style="font-size:14px; fill:var(--panel)">cloud resources</text>
+  <text x="127" y="367" class="t-mono" style="font-size:9.6px; fill:var(--panel); opacity:.86">two AWS Lambda functions</text>
+  <text x="127" y="398" class="t-cap" style="fill:var(--panel); opacity:.72">THE EXAMPLE · A REAL RUN</text>
+  <rect class="f-panel s-ok" x="324.5" y="324.5" width="178" height="88" rx="10"/>
+  <text x="339" y="349" class="t-name" style="font-size:14px; fill:var(--ok-deep)">Kubernetes clusters</text>
+  <text x="339" y="367" class="t-mono" style="font-size:9.6px">Amazon EKS, then Argo CD</text>
+  <text x="339" y="398" class="t-cap">IN THE PAPER</text>
+  <rect class="f-panel s-faint" x="514.5" y="324.5" width="157" height="88" rx="10" stroke-dasharray="4 3"/>
+  <text x="529" y="349" class="t-name" style="font-size:14px">anything with</text>
+  <text x="529" y="365" class="t-name" style="font-size:14px">a provider</text>
+  <text x="529" y="398" class="t-mono" style="font-size:9.6px">DNS, databases, metal</text>
 </svg>

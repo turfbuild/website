@@ -8,8 +8,9 @@ sidebar:
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 This is the smallest set that runs Turf™ in a cluster, everything in one namespace, `turf`. It is
-written from two examples: turf-kagent's Kustomize manifests and the plain-kubectl manifests in
-turf-examples' `integrations/kagent`. Six parts, applied in this order:
+written from two examples: turf-kagent's Kustomize manifests and the plain-kubectl manifests that
+turf-examples' `integrations/kagent` carried before that example moved to turf-kagent. Six parts,
+applied in this order:
 
 1. the namespace and three Secrets;
 2. the CLI configuration, one ConfigMap;
@@ -494,7 +495,9 @@ spec:
             name: turf-cli-config
 ```
 
-From turf-kagent's `engine.yaml`.
+Adapted from turf-kagent's `engine.yaml`. There the engine also holds an AWS key, mounts the examples
+image at `/turf/examples`, and runs fewer, larger pods for the AWS provider (`maxScale: 2`,
+`target: 20`).
 
 **NetworkPolicy** for the engine: Knative's data path alone. The operator's policy covers
 restate-server.
@@ -691,7 +694,8 @@ spec:
 ```
 
 Adapted from turf-kagent's `mcp-server.yaml` and `network-policies.yaml`, where the peers are kagent's
-controller and its egress gateway. (turf-examples runs the server as a kagent `MCPServer` resource
+controller and its egress gateway, and the Role and its binding are in a namespace that holds only
+state, `kagent-tfstate`. (turf-examples ran the server as a kagent `MCPServer` resource
 rather than a Deployment.) For a backend other than the Kubernetes one, leave out the Role and its
 binding and give the server that backend's credentials instead.
 

@@ -125,14 +125,14 @@ const jsonLd = {
             on GitHub.</p>
           <div class="proof">
             <span class="lab">Proof</span>
-            <a href="/reference-architectures/">Metal to Tokens →</a>
+            <a href="/reference-architectures/metal-to-tokens/">Metal to Tokens →</a>
             <a href={`${examples}/use-cases/datacenter/aicr-stack`}>aicr-stack →</a>
             <a href={`${examples}/terraform/kubernetes/node-maintenance`}>node-maintenance →</a>
             <a href={`${examples}/use-cases/datacenter/slinky-stack`}>slinky-stack →</a>
             <a href="/engine/">the engine →</a>
           </div>
           <div class="cta-row" style="margin-top:18px">
-            <a class="btn primary" href="/reference-architectures/">Read Metal to Tokens</a>
+            <a class="btn primary" href="/reference-architectures/metal-to-tokens/">Read Metal to Tokens</a>
             <a class="btn ghost" href="/get-started/">Get started</a>
           </div>
         </div>
@@ -194,9 +194,10 @@ const jsonLd = {
       </div>
       <div class="proof">
         <span class="lab">Proof</span>
-        <a href={`${examples}/integrations/kagent`}>Turf in the cluster, via kagent →</a>
+        <a href="https://github.com/turfbuild/turf-kagent">Turf in the cluster, via kagent →</a>
+        <a href="/reference-architectures/agentic-infrastructure-control-plane/">An Agentic Infrastructure Control Plane, the paper →</a>
         <a href={`${examples}/integrations/kubernetes-backend`}>state in a Kubernetes secret →</a>
-        <a href="/reference-architectures/">Metal to Tokens, chapter 12 →</a>
+        <a href="/reference-architectures/metal-to-tokens/">Metal to Tokens, chapter 12 →</a>
         <a href="/engine/">the engine →</a>
       </div>
       <div class="cta-row" style="margin-top:18px">
@@ -311,7 +312,7 @@ const jsonLd = {
           approval, of that plan and no other; <code>apply</code> with <code>decline</code> turns it down,
           and <code>cancel</code> ends the run. Nothing is approved in advance.</div>
         <div class="tool"><b>the plan, for integration</b><code>show</code> returns the plan as
-          OpenTofu's own document: <code>input.tfplan</code> for OPA, conftest or Checkov, or your
+          the OpenTofu® JSON document: <code>input.tfplan</code> for OPA, conftest or Checkov, or your
           platform's policy groups, before a non-trivial plan is approved. A plan-only run keeps its plan
           as a planfile, for another server, with its own credentials, to apply.</div>
         <div class="tool"><b>apply, with interaction points</b>The engine carries the plan out and stops at
@@ -320,8 +321,8 @@ const jsonLd = {
         <div class="tool"><b>invoke: action-only plans, for day 2</b>One declared action, or an ad-hoc one
           for this run alone, planned by itself with its own plan gate and approval point: reboot, backup, cordon,
           re-certify.</div>
-        <div class="tool"><b>state: list · show · output · taint</b>State, outputs and plans as OpenTofu's
-          own documents, sensitive values redacted unless asked; <code>taint</code> marks a replacement for
+        <div class="tool"><b>state: list · show · output · taint</b>State, outputs and plans as OpenTofu
+          JSON documents, sensitive values redacted unless asked; <code>taint</code> marks a replacement for
           the next plan; workspaces listed and deleted.</div>
         <div class="tool"><b>provider search · describe</b>Any provider on the registry, and the exact
           schema of a type: required, computed, write-only, identity. Provider-linked skills
@@ -376,8 +377,8 @@ const jsonLd = {
           and nobody reads the one that does. Put an agent in the pipeline, with Turf on the runner as
           its engine. It reads the plan, judges it by your policy in plain language, checks the providers
           against GitHub’s Advisory Database, applies the reviewed plan and no other, verifies from
-          inside the apply, and promotes by GitHub Environment. <strong>Turf™ is an autonomous
-          infrastructure-as-code tool for agentic workflows, built on OpenTofu™.</strong></p>
+          inside the apply, and promotes by GitHub Environment. <strong>Turf is an autonomous
+          infrastructure-as-code tool for agentic workflows, built on OpenTofu.</strong></p>
       </div>
       <div class="figwide">
         <PipelineFigure />
