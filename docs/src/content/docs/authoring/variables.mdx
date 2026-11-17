@@ -69,7 +69,7 @@ An `ephemeral = true` variable's value may flow into provider configuration, eph
 and outputs, and a resource's write-only arguments. It never flows into any other resource or data
 source attribute, a `count` or `for_each`, or a root output. Stored plan variables record it by name
 only. A run holds the values its plan command was given for every round's plan and apply, which is
-how Turf meets Terraform's rule that ephemeral values are supplied again at apply.
+how Turf meets the Terraform rule that ephemeral values are supplied again at apply.
 
 A child module's output may be `ephemeral = true`, so a module can hand its caller a
 secret without the value reaching state or the saved plan. A root output may not.

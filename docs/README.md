@@ -87,8 +87,11 @@ Pages are `.mdx` when they use a component, `.md` otherwise. Import components f
 
 The marketing site's rules (`../CLAUDE.md`, "Copy and voice rules") apply; the ones a docs page meets most:
 
-- Turf™, Terraform®, OpenTofu™, Kubernetes®, Helm® carry their mark **once per page**, at the first
+- Turf™, Terraform®, OpenTofu®, Kubernetes®, Helm®, OpenTelemetry®, Jaeger™ and Model Context
+  Protocol® (spelled out; "MCP" is never marked) carry their mark **once per page**, at the first
   prominent use in body text; never in headings, code or titles. The footer carries the attribution.
+  The generated reference is exempt, and release pages keep their published text: see "The generated
+  reference" below.
 - Say **round**, **plan gate**, **approval point**, **turf action**; never phase, gate (alone) or effect.
   Say "OpenTofu framework", never "OpenTofu engine". Say "module registry", never "the Terraform Registry".
 - `cd path/to/config && turf up`, never `turf up path`.
@@ -108,3 +111,10 @@ the one on PATH) over stdio and writes `reference/tools/*.md`, `reference/prompt
 `initialize` result. Each page carries a generated banner and the server version. Run it once per
 release; the diff is the release's reference change. The output is committed; the build never needs
 a turf binary.
+
+The pages the generator writes (`reference/tools/`, `reference/skills/`, `reference/instructions.md`
+and the rest of the list above) are the MCP server's own text, and are exempt from the mark rules: no
+symbol at first use, and a possessive stays as the server wrote it. The footer statement covers those
+pages. A wording fix belongs in turf-mcp-server, then a regeneration; never edit a generated file.
+
+Release pages (`releases/`) keep their published text, marks included.

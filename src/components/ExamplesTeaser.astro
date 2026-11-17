@@ -13,14 +13,14 @@ import KagentFigure from './figures/KagentFigure.astro';
   <div class="wrap">
     <div class="band-head">
       <h2>Three things you can run today.</h2>
-      <p>Each is a public repository and a README. The first two run on kind, on a laptop with Docker;
-        the third runs in your GitHub organization.</p>
+      <p>Each is a public repository and a README. The first two run on kind, on a laptop with Docker
+        (the second also needs an AWS account); the third runs in your GitHub organization.</p>
     </div>
     <div class="figwide">
       <KagentFigure />
-      <p class="figcap"><b>The agent in the cluster.</b> A person approves in the kagent UI; the agent
-        calls Turf through the egress gateway, which adds the token; the engine runs only while there
-        is work; the state never leaves the cluster.</p>
+      <p class="figcap"><b>What runs where.</b> A person asks and approves in the kagent UI; the agent
+        plans through Turf’s MCP server; the engine applies, with the key, to what is outside the
+        cluster; the agent then fetches the public URLs of what it built.</p>
     </div>
     <div class="solutions">
       {examples.map((ex) => (
@@ -37,9 +37,9 @@ import KagentFigure from './figures/KagentFigure.astro';
     <p class="legal-note">NVIDIA, AI Cluster Runtime, NVCRE, NVSentinel, KAI Scheduler and NIM are trademarks or
       product names of NVIDIA Corporation, referred to here only to describe interoperability. Amazon EKS,
       Google Kubernetes Engine and Azure Kubernetes Service are trademarks of their respective owners. MAAS
-      is a trademark of Canonical Ltd. Redfish is a trademark of DMTF. Amazon Web Services and AWS are
+      is a trademark of Canonical Ltd. Redfish is a trademark of DMTF. Amazon Web Services, AWS and AWS Lambda are
       trademarks of Amazon.com, Inc. or its affiliates. GitHub and GitHub Agentic Workflows are trademarks
-      of GitHub, Inc. kagent, gVisor and Knative are trademarks or project names of their respective owners.
+      of GitHub, Inc. kagent, gVisor, Knative and Argo CD are trademarks or project names of their respective owners.
       Restate is a product of Restate Software, Inc. and Restate GmbH, named here to describe what Turf is
       built on. Turf is not affiliated with, endorsed by, or sponsored by any of them. All other marks
       belong to their owners.</p>

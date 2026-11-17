@@ -73,8 +73,9 @@ system's secrets. Two server flags shape what such a client gets:
 - **`--deadline`** is how long a convergence call may run before it returns the stage
   the convergence has reached, with `ended: false` and `next` naming the call that follows, while the
   convergence goes on in the engine. The default, 55 seconds, sits under the MCP TypeScript SDK's
-  60-second request timeout. A client with a shorter call timeout needs a shorter deadline: kagent
-  gives a call 30 seconds, so the kagent example runs the server with `--deadline=25s`.
+  60-second request timeout. Keep the deadline under the client's call timeout. kagent gives a call
+  30 seconds by default. The kagent example raises that to five minutes and runs the server with
+  `--deadline=4m`, so an apply in AWS ends inside one call and kagent asks for approval once.
 
 ## The Turf CLI on a laptop
 

@@ -50,8 +50,10 @@ The Turf docs are at https://turf.build/docs/ (one current version; features tha
 - [Use cases](https://turf.build/use-cases/): five things people build with Turf, each with its day 1 and day 2: GPU clouds from metal to tokens, managed services on Kubernetes fleets, products that install themselves, the ultimate infrastructure agent, and pull request to production, Terraform CI/CD with an agent in the pipeline.
 - [Turf 1.0](https://turf.build/engine/): the announcement. A self-hosted, autonomous infrastructure-as-code tool built on OpenTofu: the operating model (every change a Terraform plan, reviewed and approved), the engine, built on Restate for durable execution, how it watches for drift between runs (https://turf.build/engine/#drift: the in-cluster feed that dials out and sends identities, never object bodies; the confirming read; the sweep and its per-provider read budget; durable timers), the three ecosystems it runs as they are, what is in 1.0, and what comes next.
 - [Get started](https://turf.build/get-started/): install, connect Turf to Claude Code, Cursor, Codex, Gemini CLI, VS Code or any MCP client, and deploy from your agent; or run the standalone CLI.
-- [Metal to Tokens](https://turf.build/reference-architectures/): a reference architecture for managed GPU cloud infrastructure, as code — a neocloud from pools of inventory to a cluster that has passed NVCRE certification, with day 2 on the provider's runbook. The PDF: https://get.turf.build/papers/turf-neocloud-reference-architecture.pdf
+- [Reference architectures](https://turf.build/reference-architectures/): the index of the three papers below.
+- [Metal to Tokens](https://turf.build/reference-architectures/metal-to-tokens/): a reference architecture for managed GPU cloud infrastructure, as code — a neocloud from pools of inventory to a cluster that has passed NVCRE certification, with day 2 on the provider's runbook. The PDF: https://get.turf.build/papers/turf-neocloud-reference-architecture.pdf
 - [Pull Request to Production](https://turf.build/reference-architectures/pull-request-to-production/): a reference architecture for Terraform delivery on GitHub Agentic Workflows, with an agent in the pipeline — the plan judged by a policy in plain language on every pull request, approved as that exact plan, verified from inside the apply through a turf action, promoted by GitHub Environment; the pipeline is public at https://github.com/turfbuild/turf-agentic-workflows. The PDF: https://get.turf.build/papers/turf-pull-request-to-production.pdf
+- [An Agentic Infrastructure Control Plane](https://turf.build/reference-architectures/agentic-infrastructure-control-plane/): a reference architecture for Turf on kagent 1.0 — ask for infrastructure in the kagent chat, read the plan and approve it, and the cluster provisions it: cloud resources, clusters, anything with a Terraform provider. The agent plans, a person approves, only Turf's engine holds the cloud key; the example is public at https://github.com/turfbuild/turf-kagent. The PDF: https://get.turf.build/papers/turf-agentic-infrastructure-control-plane.pdf
 - [Compatibility](https://turf.build/compatibility/): where Turf 1.5 is ahead of Terraform 1.16 and OpenTofu 1.13 — durable runs on Restate, encryption at rest, OpenTelemetry, provider calls that scale out, Terraform actions with overlays, turf actions, multi-round convergence, continuous drift detection — and an honest three-way matrix of every construct, with what is refused and what is coming soon.
 - [Demos](https://turf.build/demo/): three public examples to run yourself, with their walkthroughs, then two recordings from before 1.0.
 
@@ -63,15 +65,15 @@ turf actions (an apply that asks), a clusterable engine, continuous drift detect
 In the drift band (https://turf.build/#drift), Turf brings continuous drift detection to
 everything a Terraform provider manages: its engine keeps watch between plans and wakes the agent
 only when something really changed (not a scheduled plan), and the figure shows the loop: signal,
-read, notice, agent, plan. Two reference architectures
-are at https://turf.build/#papers.
+read, notice, agent, plan. Three reference architectures
+are at https://turf.build/reference-architectures/.
 
 ## Demos and examples
 
 [turf.build/demo/](https://turf.build/demo/) is the hub: three public examples to run, then two recordings.
 
 - [The AI Cluster Runtime stack on kind](https://github.com/turfbuild/turf-examples/tree/main/use-cases/datacenter/aicr-stack): seventeen Helm releases generated from one NVIDIA AI Cluster Runtime recipe, with the kind cluster in the graph; one up, two rounds, a certify turf action.
-- [Turf and kagent 1.0, one cluster](https://github.com/turfbuild/turf-kagent): the agent in a gVisor sandbox that holds no credential, Turf's engine scaling from zero on Knative, state in the cluster, every apply approved by a person in the kagent UI. The walkthrough: https://turf.build/docs/cluster/example-kagent/
+- [Turf and kagent 1.0, one cluster](https://github.com/turfbuild/turf-kagent): ask in the kagent chat for a fleet of AWS Lambda functions, approve the plan, and Turf's engine applies it with a key the agent never holds; the agent, in a gVisor sandbox with no credentials, fetches each URL to check what it built; the engine scales from zero on Knative, state stays in the cluster. The walkthrough: https://turf.build/docs/cluster/example-kagent/ and the paper: https://turf.build/reference-architectures/agentic-infrastructure-control-plane/
 - [Turf on GitHub Agentic Workflows](https://github.com/turfbuild/turf-agentic-workflows): an agent in the pipeline reviews the plan on every pull request, approves that exact plan under a per-environment policy after the merge, verifies from inside the apply and reports on the pull request.
 - Recordings, from before 1.0: a Kubernetes stack up and down in one turf up (https://turf.build/demo/#recordings), and the Scalr integration, Scalr as the control plane and Turf as the engine (https://turf.build/demo/scalr/).
 

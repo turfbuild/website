@@ -83,7 +83,7 @@ cd path/to/config && turf exec "what workspaces exist?"
 
 ## How it works
 
-**Alias and name.** The *workspace name* belongs to the backend: OpenTofu™'s workspace, a state slot,
+**Alias and name.** The *workspace name* belongs to the backend: the OpenTofu® workspace, a state slot,
 what `terraform.workspace` reads. The *alias* is the server's handle for an open workspace. Omit the
 alias (or use `"default"`) and every tool targets that workspace when a call passes no
 `workspace_alias`, however many others are open. Name one (`"staging"`, `"prod"`) to open several at
@@ -113,7 +113,7 @@ store. The providers are what the configuration requires: `open` takes none.
 **Backend credentials** are read by the MCP server, from its own environment, not the engine's. See
 [Where credentials are read](/docs/environment/where-credentials-are-read/).
 
-**The `remote` backend** (the protocol of Terraform® Cloud and Enterprise, and of Scalr) is supported for state
+**The `remote` backend** (the protocol of HashiCorp's hosted platform, of Terraform® Enterprise and of Scalr) is supported for state
 storage and locking only: point it at a workspace whose execution mode is `local`. Its token comes from
 `turf login <host>` or `TF_TOKEN_<host>`.
 
