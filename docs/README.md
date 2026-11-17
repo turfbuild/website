@@ -87,7 +87,7 @@ Pages are `.mdx` when they use a component, `.md` otherwise. Import components f
 
 The marketing site's rules (`../CLAUDE.md`, "Copy and voice rules") apply; the ones a docs page meets most:
 
-- Turf™, Terraform®, OpenTofu™, Kubernetes®, Helm® carry their mark **once per page**, at the first
+- Turf™, Terraform®, OpenTofu®, Kubernetes®, Helm® carry their mark **once per page**, at the first
   prominent use in body text; never in headings, code or titles. The footer carries the attribution.
 - Say **round**, **plan gate**, **approval point**, **turf action**; never phase, gate (alone) or effect.
   Say "OpenTofu framework", never "OpenTofu engine". Say "module registry", never "the Terraform Registry".
