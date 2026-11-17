@@ -185,7 +185,11 @@ The following were decided deliberately during authoring; re-deriving them from 
 not possible, and "improving" the wording usually breaks one of them.
 
 **Trademark.** Turf™ is Turf LLC's mark, unregistered: the filing is in flight, and `™` stays
-until registration issues. Terraform® is HashiCorp's. Ansible® is a mark of Red Hat, LLC,
+until registration issues. Terraform® is HashiCorp's: that is still how the site refers to it, and
+the statement's attribution follows the form HashiCorp's trademark policy prescribes ("… are
+trademarks of HashiCorp"), not "a registered trademark of HashiCorp, Inc.", because the
+registration's owner of record at the USPTO is now International Business Machines Corporation
+(Reg. No. 5954007; HashiCorp, Inc. is the original registrant) (2026-11-16). Ansible® is a mark of Red Hat, LLC,
 whose guidelines (<https://www.redhat.com/en/about/trademark-guidelines-and-policies>) are the
 source for its attribution line; the Ansible docs style guide
 (<https://docs.ansible.com/projects/ansible/latest/dev_guide/style_guide/trademarks.html>), which asks
@@ -193,10 +197,15 @@ for the symbol on the first reference, still says "Red Hat, Inc." and is out of 
 Kubernetes® are registered marks of the Linux Foundation
 (<https://www.linuxfoundation.org/legal/trademarks>, "immediately
 after the first usage"); Prometheus® joined that clause on 2026-11-16, as in the PDF: `/engine/` and
-`/compatibility/` say "metrics in Prometheus® format". OpenTofu® is a registered mark of LF Projects,
+`/compatibility/` say "metrics in Prometheus® format". OpenTelemetry® (registered) and Jaeger™ (a
+mark in use) are on the same Linux Foundation list and carry their symbols since 2026-11-16.
+OpenTofu® is a registered mark of LF Projects,
 LLC (USPTO Reg. No. 7852825, registered 2025-07-01; listed at
 <https://lfprojects.org/policies/trademark-policy/>), and is not on the Linux Foundation's own list:
 corrected 2026-11-16, before which the site marked it as an unregistered mark of the Linux Foundation.
+Model Context Protocol® is a registered mark on the same LF Projects list and carries its symbol
+where it is spelled out (2026-11-16); the abbreviation "MCP" stays unmarked everywhere (the list
+shows "MCP™" as a mark in use: a question left for counsel).
 Rules: the symbol appears **once per page, at the first prominent body use** (the hero lede on
 home, "Turf™ plans, applies, …"; a subpage's lede) — headlines, `<title>`s, eyebrows, buttons,
 code, and figures with their labels and captions stay clean (the engine architecture figure's print
@@ -220,11 +229,13 @@ purple. Don't "fix" either, and don't add a third. Each stands once, as its band
 repeated as link text, in `llms.txt`, a `<title>` or a social card. The footer fineprint carries the
 attribution and non-affiliation statement on every page, and `public/llms.txt` and the docs footer
 (`docs/src/components/Footer.astro`) the same block, byte for byte (as of 2026-11-16): "Turf™ is a
-trademark of Turf LLC. Terraform® is a registered trademark of HashiCorp, Inc. Ansible® is a
-trademark of Red Hat, LLC, registered in the United States and other countries. Helm®, Kubernetes®
-and Prometheus® are registered trademarks of the Linux Foundation. OpenTofu® is a registered
-trademark of LF Projects, LLC. Turf is not affiliated with, endorsed by, or sponsored by HashiCorp,
-IBM, Red Hat, the Linux Foundation, LF Projects or the OpenTofu project." The published PDFs in
+trademark of Turf LLC. Terraform® is a trademark of HashiCorp. Ansible® is a trademark of Red Hat,
+LLC, registered in the United States and other countries. Helm®, Kubernetes®, Prometheus® and
+OpenTelemetry® are registered trademarks, and Jaeger™ is a trademark, of the Linux Foundation.
+OpenTofu® and Model Context Protocol® are registered trademarks of LF Projects, LLC. All other
+trademarks are the property of their respective owners. Turf is not affiliated with, endorsed by, or
+sponsored by HashiCorp, IBM, Red Hat, the Linux Foundation, LF Projects or the OpenTofu project."
+The catch-all sentence ("All other trademarks …") is part of the statement. The published PDFs in
 `public/papers/` and their text-of-record Marks sections still carry the old OpenTofu and Red Hat
 wording until each paper's next version. "Terraform" is only ever used nominatively (compatibility, comparison),
 never in a product name, domain, or logo. Never write "the Terraform Registry" — its ToS restricts
