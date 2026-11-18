@@ -4,7 +4,7 @@ import FigureDefs from '../../components/FigureDefs.astro';
 import KagentFigure from '../../components/figures/KagentFigure.astro';
 // The page for *Agentic IaC for Platform Teams* (Turf on kagent 1.0). Its lede, the four
 // ideas, the page list, the Run it steps and the marks note are the paper's own words, from
-// headquarters/marketing/launch/refarch-kagent.md (v0.8): the cover, pages 2 to 6, "Run it" and the
+// headquarters/marketing/launch/refarch-kagent.md (v0.9): the cover, pages 2 to 6, "Run it" and the
 // marks paragraph. The figure is the paper's Figure 1. A new version of the paper means re-checking
 // this page against it. See "Papers" in CLAUDE.md.
 const title = 'Turf — Agentic IaC for Platform Teams on kagent 1.0';
@@ -33,7 +33,7 @@ const jsonLd = [
     url: `${site}/reference-architectures/agentic-iac-for-platform-teams/`,
     datePublished: '2026-11-16',
     dateModified: '2026-11-18',
-    version: '0.8',
+    version: '0.9',
     inLanguage: 'en-US',
     isAccessibleForFree: true,
     author: publisher,
@@ -63,7 +63,7 @@ const parts = [
     k: 'The idea',
     chapters: [
       [2, 'The cluster is the control plane'],
-      [3, 'A management cluster that makes clusters'],
+      [3, 'One management cluster, a whole fleet'],
     ],
   },
   {
@@ -88,7 +88,7 @@ const parts = [
   <FigureDefs />
   <section class="subhero">
     <div class="wrap">
-      <p class="eyebrow"><span class="dot"></span> Reference architecture · v0.8 · November 2026</p>
+      <p class="eyebrow"><span class="dot"></span> Reference architecture · v0.9 · November 2026</p>
       <h1>Agentic IaC for Platform Teams.</h1>
       <p class="lede">Infrastructure as code with Turf™ on kagent 1.0. Ask in chat, approve the plan, and your
         cluster provisions it: cloud resources, clusters, anything with a Terraform® provider.
@@ -144,13 +144,14 @@ const parts = [
       <div class="beats two">
         <div class="beat">
           <span class="k">01 · What it is for</span>
-          <h3>A management cluster that makes clusters.</h3>
-          <p>Cluster API works this way: a management cluster makes workload clusters. Here the
-            workload cluster is a Terraform module, made in round 1 of a run. You choose who manages
-            what it runs: round 2 installs Argo CD, which syncs the addons and workloads from Git, or
-            Turf keeps direct control and plans them as Terraform resources in the rounds that follow.
-            Turf can also install itself into the new cluster, as it would Argo CD. A person approves
-            every round.</p>
+          <h3>One management cluster, a whole fleet.</h3>
+          <p>One management cluster makes a fleet of workload clusters and keeps watch over it. The
+            layout is familiar from Cluster API; Turf builds it with Terraform modules and Terraform
+            providers instead. Each cluster is a stack made from a Terraform module, and the module
+            decides who manages what runs in it: Argo CD, syncing addons and workloads from Git;
+            Turf, with both as Terraform resources; or a Turf of the cluster’s own. With drift
+            detection on, Turf watches what it manages: when something drifts, a watching agent gets
+            a notice and proposes a plan, approved like any other.</p>
         </div>
         <div class="beat">
           <span class="k">02 · A change, start to finish</span>

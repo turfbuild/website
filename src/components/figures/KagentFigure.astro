@@ -9,7 +9,7 @@
 // Markers come from FigureDefs. Rendered once per page.
 ---
 
-<svg class="fig kagent" viewBox="0 0 672 418" role="img" aria-label="What runs where. Inside your cluster, the control plane: kagent 1.0, with its UI (the chat, and Approve or Reject) and the agent, which runs in a sandbox and holds no credentials; and Turf, with its MCP server (plan, show and apply as the agent's tools; tfstate in a Secret per stack) and its engine, which runs the providers on pods that start from zero and holds the cloud credentials. A person asks in the kagent UI (1); the agent plans through Turf's MCP server (2); the person approves in the kagent UI (3); the engine applies, with the credentials (4), to what is outside the cluster: cloud resources (two AWS Lambda functions in the example), Kubernetes clusters (EKS, GKE, AKS or bare metal, and their addons), and anything with a provider. The agent then fetches the public URLs of what it built, with no credentials (5).">
+<svg class="fig kagent" viewBox="0 0 672 418" role="img" aria-label="What runs where. Inside your cluster, the control plane: kagent 1.0, with its UI (the chat, and Approve or Reject) and the agent, which runs in a sandbox and holds no credentials; and Turf, with its MCP server (plan, show and apply as the agent's tools; tfstate in a Secret per stack) and its engine, which runs the providers on pods that start from zero and holds the cloud credentials. A person asks in the kagent UI (1); the agent plans through Turf's MCP server (2); the person approves in the kagent UI (3); the engine applies, with the credentials (4), to what is outside the cluster: cloud resources (compute, storage, networking; the example makes two AWS Lambda functions), Kubernetes clusters (EKS, GKE, AKS or bare metal, and their addons), and anything with a provider. The agent then fetches the public URLs of what it built, with no credentials (5).">
   <text x="124" y="10" class="t-cap">YOUR CLUSTER · THE CONTROL PLANE</text>
   <circle cx="404" cy="7" r="6" class="f-ink" style="stroke:var(--panel)" stroke-width="1.5"/>
   <text x="404" y="10.1" text-anchor="middle" class="t-m7" style="font-size:7.2px; font-weight:700; fill:var(--panel)">1</text>
@@ -80,7 +80,7 @@
   <text x="0" y="358" class="t-mono" style="font-size:9.6px">what gets built</text>
   <rect class="f-ok" x="112.5" y="324.5" width="200" height="88" rx="10"/>
   <text x="127" y="349" class="t-name" style="font-size:14px; fill:var(--panel)">cloud resources</text>
-  <text x="127" y="367" class="t-mono" style="font-size:9.6px; fill:var(--panel); opacity:.86">two AWS Lambda functions</text>
+  <text x="127" y="367" class="t-mono" style="font-size:9.6px; fill:var(--panel); opacity:.86">compute, storage, networking</text>
   <text x="127" y="398" class="t-cap" style="fill:var(--panel); opacity:.72">THE EXAMPLE · A REAL RUN</text>
   <rect class="f-panel s-ok" x="324.5" y="324.5" width="178" height="88" rx="10"/>
   <text x="339" y="349" class="t-name" style="font-size:14px; fill:var(--ok-deep)">Kubernetes clusters</text>
