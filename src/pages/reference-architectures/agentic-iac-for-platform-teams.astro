@@ -4,7 +4,7 @@ import FigureDefs from '../../components/FigureDefs.astro';
 import KagentFigure from '../../components/figures/KagentFigure.astro';
 // The page for *Agentic IaC for Platform Teams* (Turf on kagent 1.0). Its lede, the four
 // ideas, the page list, the Run it steps and the marks note are the paper's own words, from
-// headquarters/marketing/launch/refarch-kagent.md (v0.7): the cover, pages 2 to 6, "Run it" and the
+// headquarters/marketing/launch/refarch-kagent.md (v0.8): the cover, pages 2 to 6, "Run it" and the
 // marks paragraph. The figure is the paper's Figure 1. A new version of the paper means re-checking
 // this page against it. See "Papers" in CLAUDE.md.
 const title = 'Turf — Agentic IaC for Platform Teams on kagent 1.0';
@@ -32,8 +32,8 @@ const jsonLd = [
     description,
     url: `${site}/reference-architectures/agentic-iac-for-platform-teams/`,
     datePublished: '2026-11-16',
-    dateModified: '2026-11-17',
-    version: '0.7',
+    dateModified: '2026-11-18',
+    version: '0.8',
     inLanguage: 'en-US',
     isAccessibleForFree: true,
     author: publisher,
@@ -88,7 +88,7 @@ const parts = [
   <FigureDefs />
   <section class="subhero">
     <div class="wrap">
-      <p class="eyebrow"><span class="dot"></span> Reference architecture · v0.7 · November 2026</p>
+      <p class="eyebrow"><span class="dot"></span> Reference architecture · v0.8 · November 2026</p>
       <h1>Agentic IaC for Platform Teams.</h1>
       <p class="lede">Infrastructure as code with Turf™ on kagent 1.0. Ask in chat, approve the plan, and your
         cluster provisions it: cloud resources, clusters, anything with a Terraform® provider.
@@ -118,10 +118,10 @@ const parts = [
         <div class="prose">
           <p class="eyebrow"><span class="dot"></span> How it fits together</p>
           <h2>The cluster is the control plane.</h2>
-          <p>kagent 1.0 runs an agent in your cluster. Turf, an infrastructure-as-code tool built on
-            OpenTofu®, gives that agent Terraform plan and apply as tools. Ask in the kagent chat for
-            infrastructure outside the cluster, and it comes back as a plan for you to approve.</p>
-          <p>The cloud key stays with Turf’s engine. The agent’s sandbox holds no credentials: it can
+          <p>kagent 1.0 runs an agent in your cluster. Turf, an infrastructure-as-code toolset built on
+            OpenTofu®, gives that agent Terraform plan and apply as MCP tools. Ask in the kagent chat for
+            cloud infrastructure, and it comes back as a plan for you to approve.</p>
+          <p>The cloud credentials stay with Turf’s engine. The agent’s sandbox holds none: it can
             propose a plan, which waits for a person, and afterwards fetch a public URL to check the
             result.</p>
         </div>
@@ -129,7 +129,7 @@ const parts = [
       <div class="figwide planefig">
         <KagentFigure />
         <p class="figcap"><b>What runs where.</b> A person asks and approves in the kagent UI. The agent
-          plans through Turf’s MCP server. The engine applies, with the key, to what is outside the
+          plans through Turf’s MCP server. The engine applies, with the credentials, to what is outside the
           cluster, and the agent then fetches the public URLs of what it built.</p>
       </div>
     </div>
@@ -213,7 +213,7 @@ const parts = [
 <span class="ps1">$</span> ./setup/up.sh          <span class="cm"># kagent, Turf and the agent</span></pre>
       </div>
       <p>Then open the kagent UI, pick the agent <code>turf</code>, and ask it for a fleet as a stack
-        called demo. Approve the plan, then the agent’s report of what each URL answered. Destroy the
+        called demo. Approve the plan, and the request that follows the agent’s check. Destroy the
         stacks before you delete the cluster: the functions are outside it.
         <a href="/docs/cluster/example-kagent/">The walkthrough in the docs</a> has each step.</p>
       <p>Turf is available now, as a download. No form, no login. Free for noncommercial use;
@@ -232,9 +232,10 @@ const parts = [
 
       <p class="legal-note">Kubernetes® and Helm® are registered trademarks, and Knative and Argo
         trademarks, of the Linux Foundation. OpenTofu® is a registered trademark of LF Projects, LLC. Amazon Web Services, AWS, AWS Lambda and Amazon EKS are
-        trademarks of Amazon.com, Inc. or its affiliates. kagent is a Cloud Native Computing Foundation
+        trademarks of Amazon.com, Inc. or its affiliates. GKE is a trademark of Google LLC, and Azure, as in
+        Azure Kubernetes Service (AKS), of the Microsoft group of companies. kagent is a Cloud Native Computing Foundation
         project. Turf is not affiliated with, endorsed by, or sponsored by HashiCorp, IBM, the Linux
-        Foundation, the OpenTofu project, Amazon, Solo.io or Restate; every mark is used only to describe
+        Foundation, the OpenTofu project, Amazon, Google, Microsoft, Solo.io or Restate; every mark is used only to describe
         interoperability. All other marks belong to their owners.</p>
     </div>
   </section>
