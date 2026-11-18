@@ -145,7 +145,7 @@ carry Figure 1 (StackFigure), Figure 8 (ShellVsTurfFigure) and Figure 9 (FleetFi
 `headquarters/marketing/launch/refarch-neocloud.html`, plus five drawn in the same grammar
 (FanOutFigure, InstallerFigure, OpsEnvFigure, and WhyEngine's EngineMapFigure and
 RunTimelineFigure, whose lanes follow the console's grammar), PipelineFigure (Figure 1 of *Pull
-Request to Production*) and KagentFigure (Figure 1 of *An Agentic Infrastructure Control Plane*,
+Request to Production*) and KagentFigure (Figure 1 of *Agentic IaC for Platform Teams*,
 `headquarters/marketing/launch/refarch-kagent.html`: what runs where, with the loop as five numbered
 steps; its text sizes are the paper's, set inline, and the two labels that named the paper's pages
 are reworded). Geometry is the paper's; every `fill`/`stroke` is a
@@ -366,9 +366,12 @@ starts. Treat the headline as fixed unless the user reopens it.
   `pages/reference-architectures/pull-request-to-production.astro`, `public/papers/turf-pull-request-to-production.pdf`
   and `-cover.jpg`, text of record `headquarters/marketing/launch/refarch-cicd.md`, download tag
   `?src=refarch-cicd-page`; the paper pages cross-link in an "Also" line.
-  The third, *An Agentic Infrastructure Control Plane* (2026-11-16, Turf on kagent 1.0), is
-  `pages/reference-architectures/agentic-infrastructure-control-plane.astro`,
-  `public/papers/turf-agentic-infrastructure-control-plane.pdf` and `-cover.jpg`, text of record
+  The third, *Agentic IaC for Platform Teams* (2026-11-16, Turf on kagent 1.0; until v0.6 it was
+  *An Agentic Infrastructure Control Plane* at `/reference-architectures/agentic-infrastructure-control-plane/`,
+  which is now an entry in `REDIRECTS`, and `public/papers/turf-agentic-infrastructure-control-plane.pdf`
+  is a symlink to the renamed PDF: never delete either), is
+  `pages/reference-architectures/agentic-iac-for-platform-teams.astro`,
+  `public/papers/turf-agentic-iac-for-platform-teams.pdf` and `-cover.jpg`, text of record
   `headquarters/marketing/launch/refarch-kagent.md`, download tag `?src=refarch-kagent-page`; its page
   carries the paper's Figure 1 (KagentFigure) and the Run it commands, which must match the
   turf-kagent README.
