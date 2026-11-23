@@ -23,9 +23,15 @@
 #   --no-start       with Homebrew, don't start the engine service
 #   --no-telemetry   turn usage telemetry off before the engine starts;
 #                    TURF_TELEMETRY=off or DO_NOT_TRACK=1 in this shell do the same
-# TURF_INSTALL_DIR and TURF_VERSION stand for --dir and --version, and
-# TURF_DOWNLOAD_URL replaces https://github.com/turfbuild/turf/releases with a
-# mirror of it. Each of the three installs from the archive.
+#   --verify         verify the release's signed build provenance before
+#                    installing, and stop if it does not verify. Needs gh (the
+#                    GitHub CLI, signed in) or cosign. The checksum is always
+#                    checked; this checks who built what the checksum names.
+# TURF_INSTALL_DIR, TURF_VERSION and TURF_VERIFY=1 stand for --dir, --version
+# and --verify. TURF_DOWNLOAD_URL replaces
+# https://github.com/turfbuild/turf/releases with a mirror of it, and
+# TURF_RESTATE_DOWNLOAD_URL replaces https://github.com/restatedev/restate/releases
+# with a mirror of that. Each of the five installs from the archive.
 #
 # Fetching this script from get.turf.build is counted by Scarf, which estimates
 # the organization a download comes from (https://turf.build/privacy/);
@@ -47,7 +53,12 @@ TURF_OPTIONAL_BINARIES='turf-ui'
 # The restate-server the engine is tested on, and the sha256 of each of
 # Restate's archives of it (its release's .sha256 files).
 RESTATE_VERSION=1.8.1
-RESTATE_RELEASE=https://github.com/restatedev/restate/releases/download/v$RESTATE_VERSION
+RESTATE_RELEASES=https://github.com/restatedev/restate/releases
+# Who signs a release: the server binaries' provenance names this workflow
+# identity, issued by GitHub Actions (cosign); gh checks the archive against
+# the turfbuild/turf repository.
+SIGNER_IDENTITY='^https://github.com/turfbuild/turf-mcp-server/'
+SIGNER_ISSUER=https://token.actions.githubusercontent.com
 
 say() { printf '%s\n' "$*"; }
 warn() { printf '%s\n' "$*" >&2; }
@@ -63,10 +74,14 @@ Usage: curl -fsSL https://get.turf.build/install.sh | bash -s -- [OPTIONS]
   --version TAG    install release TAG from the archive
   --no-start       with Homebrew, don't start the engine service
   --no-telemetry   turn usage telemetry off before the engine starts
+  --verify         verify the release's signed build provenance first
+                   (needs gh, signed in, or cosign)
   -h, --help       show this help
 
-Environment: TURF_INSTALL_DIR, TURF_VERSION, TURF_TELEMETRY, DO_NOT_TRACK, and
-TURF_DOWNLOAD_URL (a mirror of https://github.com/turfbuild/turf/releases).
+Environment: TURF_INSTALL_DIR, TURF_VERSION, TURF_VERIFY, TURF_TELEMETRY,
+DO_NOT_TRACK, TURF_DOWNLOAD_URL (a mirror of
+https://github.com/turfbuild/turf/releases) and TURF_RESTATE_DOWNLOAD_URL (a
+mirror of https://github.com/restatedev/restate/releases).
 EOF
 }
 
@@ -116,6 +131,40 @@ check_sum() {
   _exp=$(printf '%s' "$2" | tr '[:upper:]' '[:lower:]')
   if [ -z "$_exp" ] || [ "$_got" != "$_exp" ]; then
     die "$(basename "$1") failed its checksum (expected ${_exp:-none}, got $_got). Nothing was installed."
+  fi
+}
+
+# verify_release checks the signed build provenance of what was downloaded,
+# after its checksum and before anything is installed. gh verifies the whole
+# archive against GitHub's attestations for turfbuild/turf. cosign verifies the
+# server binaries inside it against the provenance bundles the release carries
+# beside them; the turf CLI's own attestation is one only gh reads.
+verify_release() {
+  if has gh && gh auth status </dev/null >/dev/null 2>&1; then
+    say "Verifying $tarball (gh attestation verify)"
+    if ! gh attestation verify "$tmp/$tarball" --repo turfbuild/turf </dev/null >"$tmp/verify.out" 2>&1; then
+      warn "$(tail -n 5 "$tmp/verify.out")"
+      die "$tarball did not verify against turfbuild/turf's attestations. Nothing was installed."
+    fi
+    say "Verified: built by turfbuild/turf's release workflow."
+  elif has cosign; then
+    say "Verifying the server binaries in $tarball (cosign)"
+    for _b in $_installed; do
+      if [ "$_b" = turf ]; then continue; fi
+      get "$releases/download/$tag/$_b-${os}_${arch}.provenance.sigstore.json" "$tmp/$_b.bundle.json"
+      if ! cosign verify-blob-attestation --type slsaprovenance1 --bundle "$tmp/$_b.bundle.json" \
+        --certificate-identity-regexp "$SIGNER_IDENTITY" --certificate-oidc-issuer "$SIGNER_ISSUER" \
+        "$tmp/turf/$_b" </dev/null >"$tmp/verify.out" 2>&1; then
+        warn "$(tail -n 5 "$tmp/verify.out")"
+        die "$_b did not verify against its signed provenance. Nothing was installed."
+      fi
+    done
+    say "Verified: the server binaries were built by Turf's release workflow. cosign"
+    say "doesn't cover the turf CLI itself; \`gh attestation verify\` does."
+  elif has gh; then
+    die "--verify needs gh signed in (gh auth login), or cosign. Nothing was installed."
+  else
+    die "--verify needs gh (the GitHub CLI, signed in) or cosign on PATH. Nothing was installed."
   fi
 }
 
@@ -444,6 +493,7 @@ install_archive() {
   for _b in $TURF_OPTIONAL_BINARIES; do
     if [ -f "$tmp/turf/$_b" ]; then _installed="$_installed $_b"; fi
   done
+  if [ "$opt_verify" = 1 ]; then verify_release; fi
 
   _restate=fetch
   if [ -n "${TURF_RESTATE_SERVER:-}" ]; then
@@ -454,8 +504,14 @@ install_archive() {
   fi
   if [ "$_restate" = fetch ]; then
     _rf=restate-server-$restate_triple.tar.xz
-    say "Downloading restate-server $RESTATE_VERSION from github.com/restatedev/restate"
-    get "$RESTATE_RELEASE/$_rf" "$tmp/$_rf"
+    _rr=${TURF_RESTATE_DOWNLOAD_URL:-$RESTATE_RELEASES}
+    _rr=${_rr%/}/download/v$RESTATE_VERSION
+    if [ -n "${TURF_RESTATE_DOWNLOAD_URL:-}" ]; then
+      say "Downloading restate-server $RESTATE_VERSION from $(host_of "$_rr")"
+    else
+      say "Downloading restate-server $RESTATE_VERSION from github.com/restatedev/restate"
+    fi
+    get "$_rr/$_rf" "$tmp/$_rf"
     check_sum "$tmp/$_rf" "$restate_sha"
     mkdir "$tmp/restate"
     if ! tar -xJf "$tmp/$_rf" -C "$tmp/restate" 2>"$tmp/tar.err"; then
@@ -512,7 +568,7 @@ install_archive() {
   case $_restate in
     fetch | kept)
       say "Beside them is restate-server $RESTATE_VERSION, the engine's dependency: Restate's own"
-      say "build, from github.com/restatedev/restate, under the Business Source License 1.1"
+      say "build (github.com/restatedev/restate), under the Business Source License 1.1"
       say "($(pretty "$share/restate-server"))."
       ;;
     theirs) say "The engine uses the restate-server TURF_RESTATE_SERVER names: $TURF_RESTATE_SERVER" ;;
@@ -551,13 +607,15 @@ install_archive() {
 }
 
 main() {
-  opt_no_brew=0 opt_no_start=0 opt_no_telemetry=0
+  opt_no_brew=0 opt_no_start=0 opt_no_telemetry=0 opt_verify=0
+  case $(lower_trim "${TURF_VERIFY:-}") in '' | 0 | false | off | no) ;; *) opt_verify=1 ;; esac
   opt_dir=${TURF_INSTALL_DIR:-} opt_version=${TURF_VERSION:-}
   while [ $# -gt 0 ]; do
     case $1 in
       --no-brew) opt_no_brew=1 ;;
       --no-start) opt_no_start=1 ;;
       --no-telemetry) opt_no_telemetry=1 ;;
+      --verify) opt_verify=1 ;;
       --dir)
         if [ $# -lt 2 ]; then die "--dir needs a directory."; fi
         opt_dir=$2
@@ -597,7 +655,8 @@ main() {
   resolve_release
   header
   if [ "$opt_no_brew" = 0 ] && [ -z "$opt_dir" ] && [ -z "$opt_version" ] &&
-    [ -z "${TURF_DOWNLOAD_URL:-}" ] && [ "$(id -u)" != 0 ] && has brew; then
+    [ -z "${TURF_DOWNLOAD_URL:-}" ] && [ -z "${TURF_RESTATE_DOWNLOAD_URL:-}" ] &&
+    [ "$opt_verify" = 0 ] && [ "$(id -u)" != 0 ] && has brew; then
     install_brew
   else
     install_archive
