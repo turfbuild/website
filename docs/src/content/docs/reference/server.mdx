@@ -173,6 +173,8 @@ See [The engine and the console](/docs/concepts/engine-and-console/).
 | `--workdir` | `TURF_WORKDIR` | empty: no mapping | Maps this server's working directory to an engine's own `--workdir`. Needs `--restate-url`. |
 | `--deadline` | `TURF_DEADLINE` | `55s` | How long a convergence call runs before it returns the stage; `0` disables. |
 | `--console-url` | `TURF_CONSOLE_URL` | empty | Where a browser opens the console for an engine of your own. |
+| | `TURF_OFFLINE` | unset | The air-gap switch: `provider_search` makes no call to the public registry, and `engine run` starts the engine with telemetry off. See [Air-gapped installation](/docs/security/air-gapped/). |
+| | `TURF_REGISTRY_API_URL` | `https://api.opentofu.org` | The registry search service `provider_search` asks. Naming one keeps the search on under `TURF_OFFLINE`. |
 | `--plugin-cache-dir` | `TF_PLUGIN_CACHE_DIR` | `<user cache>/turf/plugins` | Shared provider plugin cache; `off` disables. |
 | `--tmp-dir` | | a system temp directory | Per-process scratch directory, removed on exit when defaulted. |
 | `--log-file` | `TF_LOG_PATH` | stderr | Where logs go. |

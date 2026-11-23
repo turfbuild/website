@@ -42,6 +42,7 @@ export default defineConfig({
         { label: 'Authoring configurations', items: [{ autogenerate: { directory: 'authoring' } }] },
         { label: 'The Turf CLI', items: [{ autogenerate: { directory: 'cli' } }] },
         { label: 'Running Turf in a cluster', items: [{ autogenerate: { directory: 'cluster' } }] },
+        { label: 'Security', items: [{ autogenerate: { directory: 'security' } }] },
         {
           label: 'MCP reference',
           items: [

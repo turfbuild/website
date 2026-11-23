@@ -77,7 +77,8 @@ provider_installation {
 ```
 
 A `filesystem_mirror` takes a `path`; make it absolute, since the service has no working directory of
-yours.
+yours. [Air-gapped installation](/docs/security/air-gapped/) covers the rest of a network with no
+route to the internet.
 
 **The server and the engine must read the same block.** The server reads it for `init` and
 `provider_describe`, the engine for a plan's installs, and the engine checks what `init` locked.

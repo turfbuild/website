@@ -54,6 +54,7 @@ const WEIGHTS = {
   '/community/': { priority: 0.6, changefreq: MONTHLY },
   '/privacy/': { priority: 0.3, changefreq: YEARLY },
   '/telemetry/': { priority: 0.3, changefreq: MONTHLY },
+  '/security/': { priority: 0.5, changefreq: MONTHLY },
 };
 
 // Stable off-site URLs, and pages that moved. READMEs, the papers and the turf CLI print the

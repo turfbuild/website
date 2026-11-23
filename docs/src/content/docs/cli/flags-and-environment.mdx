@@ -62,6 +62,7 @@ the same sink as the server's.
 |---|---|
 | `TURF_HOME` | turf's own home, `~/.turf` by default: the global `turf.yaml`, skills, themes and the debug log |
 | `TURF_DEADLINE` | Replaces the five minutes the CLI gives each convergence call; the CLI then passes no `--deadline` and the server reads the variable |
+| `TURF_OFFLINE` | The air-gap switch: the model catalog is never fetched from models.dev, and the server and engine started from this shell make no call of their own to the internet ([Air-gapped installation](/docs/security/air-gapped/)) |
 | `TF_LOG_PROVIDER` | Provider plugins' log level, into the server's log sink |
 | `TF_TOKEN_<hostname>` | An API token for a registry or backend host; wins over `credentials.tfrc.json` ([Log in to a host](/docs/cli/login/#precedence)) |
 | `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, … | The hosted model provider's key ([Model providers](/docs/cli/models/#hosted-providers)) |
