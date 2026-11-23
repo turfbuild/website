@@ -30,7 +30,7 @@ yourself:
 ```sh
 turf-mcp-server engine run
 ```
-Options: `--no-brew`, `--dir DIR`, `--no-start`, `--no-telemetry`.
+Options: `--no-brew`, `--dir DIR`, `--no-start`, `--no-telemetry`, `--verify`.
   </TabItem>
 </Tabs>
 
@@ -97,8 +97,9 @@ Every release artifact is signed and logged in the public Sigstore transparency 
 gh attestation verify "$(command -v turf)" --repo turfbuild/turf
 ```
 
-The container image and its SBOM are verified with cosign; the commands are in
-[Images](/docs/cluster/images/).
+The server binaries, the container image and the bills of materials are verified with cosign; every
+command is in [Verify a release](/docs/security/verify-releases/). For a network with no route to the
+internet, see [Air-gapped installation](/docs/security/air-gapped/).
 
 ## Next
 

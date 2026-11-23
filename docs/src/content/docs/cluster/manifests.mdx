@@ -121,6 +121,9 @@ spec:
           env:
             - name: RESTATE_BASE_DIR
               value: /restate-data
+            # restate-server's own telemetry, which Turf's local engine also turns off.
+            - name: RESTATE_DISABLE_TELEMETRY
+              value: "true"
             # One-way: this node's data cannot go back to a release before 1.8.1.
             - name: RESTATE_EXPERIMENTAL_ENABLE_PREFLIGHT_SIGNAL_RECORDING
               value: "true"
