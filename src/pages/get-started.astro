@@ -26,8 +26,7 @@ const description = 'Install Turf with Homebrew or one script, connect it to Cla
         <div class="cb-head"><span>Homebrew · macOS &amp; Linux</span></div>
 <pre><span class="ps1">$</span> brew install restatedev/tap/restate-server turfbuild/tap/turf
 <span class="ps1">$</span> brew services start turf
-<span class="cm"># the engine, now and at every login</span>
-<span class="ps1">$</span> turf-mcp-server engine status
+<span class="cm"># the engine service, at every login; it waits for step 2</span>
 <span class="cm"># later: brew upgrade turf &amp;&amp; brew services restart turf</span></pre>
       </div>
       <div class="codeblock">
@@ -37,9 +36,6 @@ const description = 'Install Turf with Homebrew or one script, connect it to Cla
       <p>With Homebrew on your PATH the script runs the same install and starts the service. Without it,
         the script unpacks the release into <code>~/.turf/bin</code>, and you run the engine yourself:
         <code>turf-mcp-server engine run</code>.</p>
-      <p>Turf is free for noncommercial use under PolyForm Noncommercial 1.0.0. Companies can evaluate
-        Turf free for 60 days and license it for production at
-        <a href="/licensing/">turf.build/licensing</a>.</p>
       <p>Turf sends anonymous usage telemetry to Turf LLC by default: the version, the platform,
         counts of resources, changes and runs, and an anonymous installation id. It never sends
         resource contents, credentials, state, variable values or names. Turn it off with
@@ -47,7 +43,26 @@ const description = 'Install Turf with Homebrew or one script, connect it to Cla
         <code>DO_NOT_TRACK=1</code> in the engine's environment; the full field list and the endpoint
         are at <a href="/telemetry/">turf.build/telemetry</a>.</p>
 
-      <h2 id="connect">2 · Connect your agent</h2>
+      <h2 id="accept">2 · Accept the license</h2>
+      <p>Turf is free for individuals, education and small businesses within the Community limits,
+        under the Turf Community Edition License 1.0. Government and larger organizations need a
+        commercial license, and any organization can evaluate Turf in non-production for 30 days:
+        <a href="/licensing/">turf.build/licensing</a>.</p>
+      <p>Read the terms at <a href="/license/v1/">turf.build/license/v1</a>, then accept them once.
+        The engine service waits for this, and starts within seconds of it.</p>
+      <div class="codeblock">
+        <div class="cb-head"><span>Accept the terms, once</span></div>
+<pre><span class="ps1">$</span> turf license accept
+<span class="cm"># the engine, now running</span>
+<span class="ps1">$</span> turf-mcp-server engine status</pre>
+      </div>
+      <p>The <code>turf</code> CLI also asks on its first run in a terminal. Where no one is there
+        to answer, such as a container or a CI job, setting <code>TURF_ACCEPT_EULA=yes</code> in the
+        environment accepts those terms instead.
+        <a href="/docs/start/install/#accept-the-license">Accept the license</a> in the docs has
+        each case.</p>
+
+      <h2 id="connect">3 · Connect your agent</h2>
       <p>One command registers Turf with every agent on this machine. It finds the ones you have
         installed, lets you pick from the list, and writes each config with the server's absolute path,
         so an app launched from the Dock finds it too. It needs Node 18+ and uses
@@ -93,7 +108,7 @@ const description = 'Install Turf with Homebrew or one script, connect it to Cla
         server plans and keeps each plan as a planfile; an apply-tier server, with its own credentials,
         applies one.</p>
 
-      <h2>3 · Deploy from your agent</h2>
+      <h2>4 · Deploy from your agent</h2>
       <p>Turf's prompts are slash commands in Claude Code. Start with the walkthrough: it runs a real
         example from <a href="https://github.com/turfbuild/turf-examples">turf-examples</a> and shows
         the plan gate and the approval point on the way.</p>
@@ -170,7 +185,7 @@ const description = 'Install Turf with Homebrew or one script, connect it to Cla
         <li>Browse runnable stacks in <a href="https://github.com/turfbuild/turf-examples">turf-examples</a>.</li>
         <li>Building a GPU cloud? Read <a href="/reference-architectures/metal-to-tokens/">Metal to Tokens</a>, the
           reference architecture.</li>
-        <li>Evaluating Turf at a company? <a href="/licensing/#pilot">Start a free 60-day pilot</a>.</li>
+        <li>Evaluating Turf at a larger organization? <a href="/licensing/#pilot">Start a free 60-day pilot</a>.</li>
         <li>Stuck? <a href="/discord/">Ask on Discord</a>.</li>
       </ul>
     </div>

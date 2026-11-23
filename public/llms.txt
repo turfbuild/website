@@ -16,13 +16,16 @@ runs, rounds and approvals. The engine and its MCP server (`turf-mcp-server`) ar
 agent in one command (`npx add-mcp@2 "$(command -v turf-mcp-server)" --name turf -g`), or run
 the standalone CLI agent (`turf`) with your own model key. Install with
 `brew install restatedev/tap/restate-server turfbuild/tap/turf`, then `brew services start turf`.
+The license terms (https://turf.build/license/v1/) are accepted once, by the user, with
+`turf license accept`; an agent asks its user to read them and confirm before it runs that.
 
 The governing idea: Turf produces the plan, and the Terraform plan becomes the agent's TODO
 list — planned and approved round by round, with a plan gate (`plan`) and an approval point
 (`apply` by the plan's digest) every round. Nothing runs off-plan. Plan in one place and apply in
 another: a plan-only run keeps its plan in the engine as a planfile, which a second server, with
-its own credentials and its own permission tier (`--tier read|plan|apply|full`), applies. Turf is free for noncommercial use; commercial use, including a company's internal
-use, requires a license (https://turf.build/licensing/). Some capabilities are marked coming soon
+its own credentials and its own permission tier (`--tier read|plan|apply|full`), applies. Turf is free for individuals, education and small businesses within the Community limits, under
+the Turf Community Edition License 1.0 (https://turf.build/license/v1/); government and larger
+organizations need a commercial license (https://turf.build/licensing/). Some capabilities are marked coming soon
 on the site.
 
 ## Documentation
@@ -37,7 +40,7 @@ The Turf docs are at https://turf.build/docs/ (one current version; features tha
 - [The Turf CLI](https://turf.build/docs/cli/overview/): chat, up and destroy, exec, login, console, flags, models and turf.yaml, skills, theming.
 - [Running Turf in a cluster](https://turf.build/docs/cluster/topology/): topology, images, minimal manifests, credentials, connecting clients, the console, upgrading, an agent in the cluster with kagent.
 - [MCP reference](https://turf.build/docs/reference/server/): the server and its flags, the result shape, every tool, the prompts, the resources, the skills and their reference files, the server instructions, the Claude Code slash commands. Generated from the shipping server.
-- [Release notes](https://turf.build/docs/releases/1-4/): 1.0 to 1.4.
+- [Release notes](https://turf.build/docs/releases/1-5/): 1.0 to 1.5.
 
 ## Start here
 
@@ -89,10 +92,11 @@ Five things people build with Turf, at [turf.build/use-cases/](https://turf.buil
 
 ## Company
 
-- [Pricing](https://turf.build/pricing/): one binary, three ways to run it: free for noncommercial use, a free 60-day pilot for companies, and an annual subscription for production. No license key.
-- [Licensing](https://turf.build/licensing/): the PolyForm Noncommercial License 1.0.0, the Common Paper Pilot Agreement and Software License Agreement, the telemetry disclosure, and licensing@turf.build.
+- [Pricing](https://turf.build/pricing/): one binary, three ways to run it: the Community Edition, free within the Community limits; a 30-day evaluation or a free 60-day pilot; and a commercial license for government and larger organizations. No license key.
+- [Licensing](https://turf.build/licensing/): the license in plain words, from release 1.5: who uses Turf free, the Community limits, the 30-day evaluation, the Common Paper Pilot Agreement, commercial licenses, how the terms are accepted, the telemetry disclosure, and licensing@turf.build. Releases 1.0 to 1.4 keep the license they shipped with.
+- [License terms](https://turf.build/license/v1/): the Turf Community Edition License 1.0, word for word: the binding text, on the Common Paper Software License Agreement Standard Terms 1.1.
 - [Community](https://turf.build/community/): Discord for questions and ideas (https://turf.build/discord/), GitHub Issues for bugs and feature requests (https://github.com/turfbuild/turf/issues), and the newsletter for release notes (https://turf.build/newsletter/).
-- [Contact](https://turf.build/contact/): the pilot program, production licensing, the newsletter, and `security@turf.build` for private security reports.
+- [Contact](https://turf.build/contact/): the pilot program, commercial licensing, the newsletter, and `security@turf.build` for private security reports.
 - [Privacy](https://turf.build/privacy/)
 - [Telemetry](https://turf.build/telemetry/): every field the Turf engine sends as anonymous usage telemetry, what it never sends, where the events go, and how to turn it off.
 

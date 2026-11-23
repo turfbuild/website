@@ -12,7 +12,7 @@ Each release on [GitHub](https://github.com/turfbuild/turf/releases) carries:
 
 | File | What it is |
 |---|---|
-| `turf_<tag>_<os>_<arch>.tar.gz` | The release archive: the five binaries, `LICENSE`, `NOTICE` |
+| `turf_<tag>_<os>_<arch>.tar.gz` | The release archive: the five binaries, `LICENSE`, `STANDARD-TERMS.md`, `NOTICE` |
 | `turf-mcp-server-<os>_<arch>` and the other server binaries | The same binaries as in the archive, one file each |
 | `<binary>.provenance.sigstore.json`, `.sbom.sigstore.json`, `.vex.sigstore.json` | Signed attestations for that binary |
 | `turf.cdx.json`, `turf-mcp-server.cdx.json` (and `.spdx.json`) | Software bills of materials, CycloneDX and SPDX |
@@ -100,7 +100,9 @@ cosign verify-blob-attestation --type cyclonedx \
   turf-mcp-server-linux_amd64
 ```
 
-`turf license` prints the license and the third-party notices of the installed release.
+`turf license` prints the license and the third-party notices of the installed release. In the
+archive, `LICENSE` is the Turf Community Edition License, `STANDARD-TERMS.md` is the Common Paper
+standard terms it builds on, and `NOTICE` lists the third-party components and their licenses.
 
 ## Vulnerability disposition
 

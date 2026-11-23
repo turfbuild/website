@@ -31,8 +31,8 @@ brew services restart turf
 A run paused at a plan gate or an approval point waits through the restart.
 
 `turf.env` holds the engine's other settings too: `TURF_MISE=off` turns off
-[mise](/docs/environment/mise/), and `TURF_CONSOLE_ADDR` and `DO_NOT_TRACK` are read there, not in
-your shell.
+[mise](/docs/environment/mise/), and `TURF_CONSOLE_ADDR`, `DO_NOT_TRACK` and `TURF_ACCEPT_EULA` are
+read there, not in your shell.
 
 <Aside type="caution" title="A PATH in turf.env replaces the service's">
 Follow your own directories with Homebrew's `bin` and the system directories, or the engine loses
@@ -55,6 +55,23 @@ It has that terminal's environment, and runs until you interrupt it.
 When `TURF_RESTATE_URL` points the server at an engine you run yourself, the engine has whatever its
 deployment gives it. In a Kubernetes® cluster that is the engine pod's environment: Secrets, through
 `env` or `envFrom`. See [Credentials in a cluster](/docs/cluster/credentials/).
+
+## License acceptance
+
+The engine starts once the license terms are accepted, and where it looks follows the same rule as
+everything else on this page: its own environment, never your shell's.
+
+- **The local service** reads the record `turf license accept` writes, `~/.turf/license.json`. It
+  waits for it, checking every 2 seconds, and starts the engine within seconds, with no restart.
+  `TURF_ACCEPT_EULA=yes` in `turf.env` accepts too, after a restart of the service. The same variable
+  in your shell, or in your MCP client's configuration, does not reach the service.
+- **An engine in a terminal** reads the same record, or `TURF_ACCEPT_EULA=yes` in that terminal.
+- **A remote engine** reads only its own environment, or its `--accept-eula` flag. In a pod that is
+  an `env` entry: see [Minimal manifests](/docs/cluster/manifests/#the-license).
+
+Setting `TURF_ACCEPT_EULA=yes` accepts the terms at `https://turf.build/license/v1/`. Until the terms
+are accepted, `turf-mcp-server engine status` says `awaiting license`. More in
+[Accept the license](/docs/start/install/#accept-the-license).
 
 ## Credential files
 

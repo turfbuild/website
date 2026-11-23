@@ -45,6 +45,7 @@ const WEIGHTS = {
   '/demo/scalr/': { priority: 0.7, changefreq: MONTHLY },
   '/pricing/': { priority: 0.6, changefreq: MONTHLY },
   '/licensing/': { priority: 0.7, changefreq: MONTHLY },
+  '/license/v1/': { priority: 0.5, changefreq: YEARLY }, // the Turf Community Edition License 1.0, word for word; a version never changes at its URL
   '/reference-architectures/': { priority: 0.8, changefreq: MONTHLY }, // the index of papers since 2026-11-16
   '/reference-architectures/metal-to-tokens/': { priority: 0.8, changefreq: MONTHLY },
   '/reference-architectures/agentic-iac-for-platform-teams/': { priority: 0.8, changefreq: MONTHLY },
@@ -68,6 +69,9 @@ const REDIRECTS = {
   '/newsletter': 'https://buttondown.com/turf',
   // The kagent paper's first URL (2026-11-16, as "An Agentic Infrastructure Control Plane").
   '/reference-architectures/agentic-infrastructure-control-plane': '/reference-architectures/agentic-iac-for-platform-teams/',
+  // The license terms: /license/ lands on the current version. Each version keeps its own URL
+  // (/license/v1/), which the binaries, the installer and the LICENSE file print.
+  '/license': '/license/v1/',
 };
 const isRedirect = (/** @type {string} */ page) =>
   Object.keys(REDIRECTS).some((route) => new URL(page).pathname === `${route}/`);
@@ -88,6 +92,12 @@ export default defineConfig({
   // together when the source wraps a <strong>/<a>/<code> onto its own line (e.g. "is<strong>planned").
   // Disable it so the browser's normal whitespace collapsing keeps a single space at those seams.
   compressHTML: false,
+  // The only Markdown the site renders is the license text (src/content/license/), which must
+  // come out character for character: no curly quotes, no dashes or ellipses swapped in.
+  // Astro 7 marks this option deprecated in favor of `markdown.processor`
+  // (`satteri({ features: { smartPunctuation: false } })` from @astrojs/markdown-satteri); move it
+  // when dependencies are next touched. pages/license/v1.astro fails the build if the text changes.
+  markdown: { smartypants: false },
   redirects: REDIRECTS,
   integrations: [
     sitemap({

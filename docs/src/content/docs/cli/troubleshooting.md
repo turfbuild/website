@@ -6,8 +6,8 @@ sidebar:
 ---
 
 Most Turf™ CLI problems are the model or the server: turf cannot reach a model, cannot find
-`turf-mcp-server`, or runs a local model that is too small for its prompt. Find the message you see
-below.
+`turf-mcp-server`, or runs a local model that is too small for its prompt. One is the license: turf
+exits with status 77 until its terms are accepted. Find the message you see below.
 
 ## turf won't start
 
@@ -32,6 +32,35 @@ export TURF_MCP_SERVER=/path/to/turf-mcp-server
 `turf` starts the server with its own release's flags (`--deadline`), which an older
 `turf-mcp-server` rejects. turf names the binary it ran; point `TURF_MCP_SERVER` at one from the same
 release.
+
+## turf exits with status 77
+
+```text
+Turf is proprietary software. To accept the Turf license terms (version 1.0,
+https://turf.build/license/v1/), run `turf license accept` or set TURF_ACCEPT_EULA=yes.
+Free for individuals, education and small businesses within the Community limits.
+Government and larger organizations need a commercial license.
+```
+
+The license terms have not been accepted, and turf had no terminal to ask on: stdin or stderr is not
+a terminal, or `CI` is set. Read the terms, then run `turf license accept` once on that machine. In a
+CI job or a container, set `TURF_ACCEPT_EULA=yes` instead; setting it accepts the terms at
+`https://turf.build/license/v1/`. Only `yes` accepts: `true`, `1` and `y` do not, and turf names the
+wrong value on a second line.
+
+In a container, `turf-engine` and `turf-ui` exit with the same status for the same reason. They read
+only their own environment and the `--accept-eula` flag
+([Minimal manifests](/docs/cluster/manifests/#the-license)).
+
+## The engine is awaiting the license
+
+`turf-mcp-server engine status` says `awaiting license`: the engine service is up and has started
+nothing, because the license terms are not accepted. Plans and applies fail until they are. Run
+`turf license accept`. The service checks every 2 seconds and starts the engine, with no restart.
+
+A `TURF_ACCEPT_EULA` set in your shell, or in your MCP client's configuration, does not reach the
+Homebrew service. The record `turf license accept` writes does, and so does
+`~/.homebrew/services/turf.env` ([Accept the license](/docs/start/install/#accept-the-license)).
 
 ## The model does not support tools
 

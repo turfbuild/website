@@ -48,6 +48,11 @@ definition. Put it in the `env` block:
 Restart your agent's MCP connection after editing it. From the Turf™ CLI, the server has the
 environment of the shell you started `turf` in.
 
+The same `env` block is where `TURF_ACCEPT_EULA` goes for a server that cannot read the record
+`turf license accept` writes, such as one your client starts from a container. Setting it to `yes`
+accepts the license terms at `https://turf.build/license/v1/` for that server only: see
+[Before the license is accepted](/docs/start/connect/#before-the-license-is-accepted).
+
 - `TF_VAR_` values load on their own, below `.tfvars` files and `var`.
 - They set declared variables only. A `TF_VAR_` for an undeclared variable is ignored.
 - A provider sees one only where its block references that variable.

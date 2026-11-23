@@ -23,6 +23,10 @@
 #   --no-start       with Homebrew, don't start the engine service
 #   --no-telemetry   turn usage telemetry off before the engine starts;
 #                    TURF_TELEMETRY=off or DO_NOT_TRACK=1 in this shell do the same
+#   --accept-eula    accept the Turf license terms (https://turf.build/license/v1/):
+#                    the installer then runs `turf license accept` for you;
+#                    TURF_ACCEPT_EULA=yes in this shell does the same. Without
+#                    either it asks on the terminal, or prints the step.
 #   --verify         verify the release's signed build provenance before
 #                    installing, and stop if it does not verify. Needs gh (the
 #                    GitHub CLI, signed in) or cosign. The checksum is always
@@ -38,9 +42,10 @@
 # https://turf.build/install.sh serves the same script without it. Turf and
 # restate-server download from github.com.
 #
-# Turf is free for noncommercial use under PolyForm Noncommercial 1.0.0.
-# Commercial use, including a company's internal use, requires a license:
-# https://turf.build/licensing
+# Turf is proprietary software. To accept the Turf license terms (version 1.0,
+# https://turf.build/license/v1/), run `turf license accept` or set TURF_ACCEPT_EULA=yes.
+# Free for individuals, education and small businesses within the Community limits.
+# Government and larger organizations need a commercial license.
 
 set -eu
 
@@ -74,12 +79,14 @@ Usage: curl -fsSL https://get.turf.build/install.sh | bash -s -- [OPTIONS]
   --version TAG    install release TAG from the archive
   --no-start       with Homebrew, don't start the engine service
   --no-telemetry   turn usage telemetry off before the engine starts
+  --accept-eula    accept the Turf license terms (https://turf.build/license/v1/)
+                   and record it with `turf license accept`
   --verify         verify the release's signed build provenance first
                    (needs gh, signed in, or cosign)
   -h, --help       show this help
 
 Environment: TURF_INSTALL_DIR, TURF_VERSION, TURF_VERIFY, TURF_TELEMETRY,
-DO_NOT_TRACK, TURF_DOWNLOAD_URL (a mirror of
+DO_NOT_TRACK, TURF_ACCEPT_EULA (yes: the same as --accept-eula), TURF_DOWNLOAD_URL (a mirror of
 https://github.com/turfbuild/turf/releases) and TURF_RESTATE_DOWNLOAD_URL (a
 mirror of https://github.com/restatedev/restate/releases).
 EOF
@@ -270,10 +277,66 @@ resolve_release() {
 }
 
 header() {
-  say "Turf is free for noncommercial use under PolyForm Noncommercial 1.0.0. Commercial"
-  say "use, including a company's internal use, requires a license:"
-  say "https://turf.build/licensing"
+  say "Turf is proprietary software. To accept the Turf license terms (version 1.0,"
+  say "https://turf.build/license/v1/), run \`turf license accept\` or set TURF_ACCEPT_EULA=yes."
+  say "Free for individuals, education and small businesses within the Community limits."
+  say "Government and larger organizations need a commercial license."
   say ""
+}
+
+# license_state TURF: accepted (`turf license accept` has recorded it in the
+# Turf home), needed, or none (a release before 1.5, which has no acceptance
+# step). TURF_ACCEPT_EULA is left out of the question: the engine service never
+# sees this shell, only the record.
+license_state() {
+  _ls=$( (unset TURF_ACCEPT_EULA; "$1" --version </dev/null 2>/dev/null) | sed -n 's/^Terms: //p')
+  case $_ls in
+    '') printf none ;;
+    accepted*) printf accepted ;;
+    *) printf needed ;;
+  esac
+}
+
+# ask_accept: stdin is the pipe this script arrived on, so ask on the terminal
+# itself, and never where there is none (CI, a provisioning script).
+ask_accept() {
+  if [ -n "${CI:-}" ]; then return 1; fi
+  if ! (exec </dev/tty) 2>/dev/null; then return 1; fi
+  printf 'Type yes to accept the Turf license terms (https://turf.build/license/v1/): ' >/dev/tty
+  read -r _ans </dev/tty || return 1
+  case $(lower_trim "$_ans") in yes) return 0 ;; esac
+  return 1
+}
+
+# accept_license TURF: record the acceptance when the user gave it (the option,
+# the variable, or a yes on the terminal), and say what is left to do when they
+# did not. Sets license_accepted for what the installer says about the engine.
+accept_license() {
+  license_accepted=1
+  case $(license_state "$1") in none | accepted) return 0 ;; esac
+  say ""
+  if [ -n "$accept_why" ]; then
+    say "You accepted the Turf license terms ($accept_why), so the installer ran"
+    say "\`turf license accept\`:"
+    if "$1" license accept </dev/null; then return 0; fi
+  elif ask_accept; then
+    if "$1" license accept </dev/null; then return 0; fi
+  fi
+  license_accepted=0
+  say "Turf does no work until you accept its license terms"
+  say "(https://turf.build/license/v1/). When you have read them:"
+  say "  turf license accept"
+  say "The engine waits for that, then starts within a few seconds."
+}
+
+# started_engine MCP: after the service started. Without the acceptance it is
+# up and waiting, so there is nothing to wait for here.
+started_engine() {
+  if [ "$license_accepted" = 1 ]; then
+    wait_engine "$1"
+  else
+    say "The engine service is set up and waiting for \`turf license accept\`."
+  fi
 }
 
 # telemetry_notice SETTING: the disclosure, before any engine starts. SETTING
@@ -394,6 +457,11 @@ install_brew() {
   say ""
   (unset TURF_HOME; "$_turf" --version </dev/null)
   telemetry_notice "$(unset TURF_HOME; telemetry_setting "$_turf")"
+  # The service reads ~/.turf, so that is where the acceptance is recorded.
+  _th=${TURF_HOME-} _th_set=${TURF_HOME+1}
+  unset TURF_HOME
+  accept_license "$_turf"
+  if [ -n "$_th_set" ]; then TURF_HOME=$_th; export TURF_HOME; fi
   say ""
   if [ "$opt_no_start" = 1 ]; then
     say "Start the engine when you're ready (and at every login from then on):"
@@ -413,9 +481,9 @@ install_brew() {
     say "(\`turf-mcp-server engine status\` says where). Stop it, then:"
     say "  brew services start turf"
   elif [ "$_loaded" = 1 ] && brew services restart turf </dev/null; then
-    (unset TURF_HOME; wait_engine "$_mcp")
+    (unset TURF_HOME; started_engine "$_mcp")
   elif [ "$_loaded" = 0 ] && brew services start turf </dev/null; then
-    (unset TURF_HOME; wait_engine "$_mcp")
+    (unset TURF_HOME; started_engine "$_mcp")
   else
     say "Turf is installed, but Homebrew couldn't start its service here. Start the"
     say "engine in a terminal instead, and leave it running:"
@@ -545,7 +613,7 @@ install_archive() {
   staged=''
   trap 'exit 1' HUP INT TERM
   mkdir -p "$share/turf"
-  for _f in LICENSE NOTICE README.md; do
+  for _f in LICENSE STANDARD-TERMS.md NOTICE README.md; do
     if [ -f "$tmp/turf/$_f" ]; then cp "$tmp/turf/$_f" "$share/turf/$_f"; fi
   done
   if [ "$_restate" = fetch ]; then
@@ -579,6 +647,7 @@ install_archive() {
   _setting=$(telemetry_setting "$dir/turf")
   if [ -z "$telemetry_off" ] && shell_telemetry_on; then _setting=on; fi
   telemetry_notice "$_setting"
+  accept_license "$dir/turf"
   say ""
   if [ "$_was_running" = 1 ] && [ "$_running_version" = "$tag" ]; then
     say "The engine is running. \`turf-mcp-server engine status\` says where."
@@ -608,6 +677,8 @@ install_archive() {
 
 main() {
   opt_no_brew=0 opt_no_start=0 opt_no_telemetry=0 opt_verify=0
+  accept_why='' license_accepted=1
+  case $(lower_trim "${TURF_ACCEPT_EULA:-}") in yes) accept_why='TURF_ACCEPT_EULA=yes is set' ;; esac
   case $(lower_trim "${TURF_VERIFY:-}") in '' | 0 | false | off | no) ;; *) opt_verify=1 ;; esac
   opt_dir=${TURF_INSTALL_DIR:-} opt_version=${TURF_VERSION:-}
   while [ $# -gt 0 ]; do
@@ -615,6 +686,7 @@ main() {
       --no-brew) opt_no_brew=1 ;;
       --no-start) opt_no_start=1 ;;
       --no-telemetry) opt_no_telemetry=1 ;;
+      --accept-eula) accept_why='you passed --accept-eula' ;;
       --verify) opt_verify=1 ;;
       --dir)
         if [ $# -lt 2 ]; then die "--dir needs a directory."; fi

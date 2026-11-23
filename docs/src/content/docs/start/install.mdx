@@ -1,6 +1,6 @@
 ---
 title: Install locally
-description: Install Turf with Homebrew or one script. The tap installs the MCP server, the engine and its built-in provider, the console and the CLI; the engine runs as a service.
+description: Install Turf with Homebrew or one script, then accept the license once. The tap installs the MCP server, the engine, the console and the CLI.
 sidebar:
   order: 2
 ---
@@ -30,9 +30,60 @@ yourself:
 ```sh
 turf-mcp-server engine run
 ```
-Options: `--no-brew`, `--dir DIR`, `--no-start`, `--no-telemetry`, `--verify`.
+Options: `--no-brew`, `--dir DIR`, `--no-start`, `--no-telemetry`, `--verify`, `--accept-eula`.
+
+The script asks you to accept the license terms on your terminal and records a yes with
+`turf license accept`. `--accept-eula` answers for you: passing it accepts the terms at
+`https://turf.build/license/v1/`, so pass it once you have read them. Where there is no terminal
+and no option, the script prints the step and the engine waits for it.
   </TabItem>
 </Tabs>
+
+## Accept the license
+
+Turf is proprietary software under the Turf Community Edition License 1.0. It is free for
+individuals, education and small businesses within the Community limits. Government and larger
+organizations need a commercial license, and any organization can evaluate Turf in non-production for
+30 days. [turf.build/licensing](https://turf.build/licensing/) says who that covers, in plain words.
+
+Read the terms at [turf.build/license/v1](https://turf.build/license/v1/), then accept them once:
+
+```sh
+turf license accept
+```
+
+The command records your acceptance in `~/.turf/license.json`: the terms version, the time and the
+method. The engine service waits for that record and starts within seconds of it, with nothing to
+restart. `turf license status` shows whether the terms are accepted.
+
+The `turf` CLI also asks on its first run in a terminal: type `yes` to accept.
+
+Where no one is there to answer, set `TURF_ACCEPT_EULA=yes` in the environment of the process that
+runs Turf. Setting it accepts the terms at `https://turf.build/license/v1/`, so set it once you have
+read them. Only `yes` accepts, in any letter case; `true`, `1` and `y` do not.
+
+| Where Turf runs | How to accept |
+|---|---|
+| The Homebrew service | `turf license accept`. The service waits and starts within seconds. Or put `TURF_ACCEPT_EULA=yes` in `~/.homebrew/services/turf.env` and restart the service. |
+| `turf-mcp-server engine run` in a terminal | `turf license accept`, before or after you start it: it checks every 2 seconds. Or `TURF_ACCEPT_EULA=yes` in that terminal. |
+| An MCP client | `turf license accept` on the same machine. The server checks again on the next call, so no restart is needed. For a server your client starts from a container or a registry entry, `TURF_ACCEPT_EULA=yes` in the server's `env`, in the client's configuration. |
+| A container or Kubernetes® | `TURF_ACCEPT_EULA=yes` in the environment of each Turf container (the engine, the server and the console), or the `--accept-eula` flag. |
+| CI | `TURF_ACCEPT_EULA=yes` in the job's environment. |
+
+A variable set in your shell or in an MCP client's configuration does not reach the Homebrew service.
+The record `turf license accept` writes does, and so does `turf.env`.
+
+Until the terms are accepted:
+
+- The MCP server starts and lists its tools. Every call returns the license notice instead of running.
+- The CLI asks on a terminal. Anywhere else it prints the notice and exits with status 77.
+- The engine service stays up and starts nothing, and `turf-mcp-server engine status` says
+  `awaiting license`. In a container the engine and the console print the notice and exit with
+  status 77.
+
+There is no license key, no license server and no update check. With telemetry on, the engine's start
+event carries the terms version and the method; nothing else about your acceptance leaves the
+machine. The `turf` CLI's source is open under MPL-2.0.
 
 ## What was installed
 
@@ -73,15 +124,13 @@ brew services restart turf
 ```
 
 Then restart your agent's MCP connection. The Turf CLI and `turf-mcp-server` must be the same release.
+The first upgrade from a release before 1.5 also needs the license accepted, once:
+`turf license accept` ([Accept the license](#accept-the-license)).
 A minor upgrade stops any rollout still running on the old engine: a run waiting for approval ends
 `cancelled` with the upgrade as the cause, and one in the middle of an apply finishes what is in flight
 and ends `partial`. Everything applied is kept; run `up` again and `plan` plans what remains.
 
-<Aside type="note" title="License and telemetry">
-Turf is free for noncommercial use under the PolyForm Noncommercial License 1.0.0. Commercial use,
-including a company's internal use, needs a license, and companies can evaluate Turf free for 60 days:
-[turf.build/licensing](https://turf.build/licensing/). The `turf` CLI is open source (MPL-2.0).
-
+<Aside type="note" title="Telemetry">
 Turf sends anonymous usage telemetry by default: the version, the platform, counts of resources,
 changes and runs, and an anonymous installation id. It never sends resource contents, credentials,
 state, variable values or names. `turf telemetry off && brew services restart turf` turns it off; so

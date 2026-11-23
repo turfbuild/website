@@ -7,12 +7,12 @@ import EngineArchitectureFigure from '../components/figures/EngineArchitectureFi
 // the two-layer frame (launch-plan.md §1, §3); the engine list and the three-ecosystems chapter
 // of Metal to Tokens (refarch-neocloud.md, "The Turf engine", chapter 9, whose counts are the
 // paper's, dated October 2026); the 1.0 acceptance pass (research/rc1-acceptance-2026-10-17.md)
-// for what is in 1.0; licensing.md's announcement line, byte for byte; Restate's own description
+// for what is in 1.0; the license line of /get-started/ (since release 1.5); Restate's own description
 // from docs.restate.dev (Eron, 2026-10-18: "be proud to be using Restate"). The headline is launch
 // plan D2's first candidate; see "Content provenance" in CLAUDE.md.
 const title = 'Turf — Turf 1.0 is available now: autonomous IaC on OpenTofu';
 const description =
-  'Turf 1.0 is out: a self-hosted, autonomous infrastructure-as-code tool built on OpenTofu, free for noncommercial use. What is in it, and how it works.';
+  'Turf 1.0 is out: a self-hosted, autonomous infrastructure-as-code tool built on OpenTofu, with an agent overseeing. What is in it, and how it works.';
 
 const site = 'https://turf.build';
 const publisher = { '@type': 'Organization', '@id': `${site}/#organization`, name: 'Turf' };
@@ -61,9 +61,10 @@ const engine = [
         <a class="btn ghost" href="/reference-architectures/metal-to-tokens/">Read Metal to Tokens</a>
         <a class="btn ghost" href="/licensing/#pilot">Pilot program</a>
       </div>
-      <p class="terms">Turf is free for noncommercial use under PolyForm Noncommercial 1.0.0. Companies
-        can evaluate Turf free for 60 days and license it for production at
-        <a href="/licensing/">turf.build/licensing</a>.</p>
+      <p class="terms">Turf is free for individuals, education and small businesses within the
+        Community limits, under the Turf Community Edition License 1.0. Government and larger
+        organizations need a commercial license, and any organization can evaluate Turf in
+        non-production for 30 days: <a href="/licensing/">turf.build/licensing</a>.</p>
     </div>
   </section>
 
@@ -252,9 +253,10 @@ const engine = [
       <div class="partner">
         <div>
           <h2>Get Turf 1.0.</h2>
-          <p class="mt">A download, no form, no login. <b>Free for noncommercial use.</b> Commercial use,
-            including a company’s internal use, requires a license, and companies evaluate Turf under
-            a <b>free 60-day pilot</b> on a standard contract.</p>
+          <p class="mt">A download, no form, no login. <b>Free for individuals, education and small
+            businesses</b> within the Community limits. Government and larger organizations need a
+            commercial license, and any organization can evaluate Turf in non-production for
+            <b>30 days</b>.</p>
         </div>
         <div class="side">
           <a class="btn primary" href="/get-started/">Get started</a>

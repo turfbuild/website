@@ -12,6 +12,13 @@ There is no license server and no update check. What Turf fetches is the softwar
 providers and modules your configurations name, and, unless you turn them off, usage telemetry and a
 few lookups. Each has an answer below.
 
+Accepting the license is local too. `turf license accept` writes a record under `~/.turf` and
+contacts nothing, and `TURF_ACCEPT_EULA` is read from the process's own environment. The archive
+carries the whole agreement, so you can read it on the inside: `LICENSE`, the Turf Community Edition
+License, and `STANDARD-TERMS.md`, the Common Paper standard terms it builds on. With usage telemetry
+on, the engine's start event carries the terms version and the method; under `TURF_OFFLINE`
+telemetry is off, so nothing about your acceptance leaves the network.
+
 ## The switch
 
 Set `TURF_OFFLINE=1` and Turf makes no call of its own to the internet:
@@ -44,6 +51,8 @@ tar -xzf turf_v1.4.0_linux_amd64.tar.gz -C ~/.turf/bin
 tar -xJf restate-server-x86_64-unknown-linux-musl.tar.xz --strip-components 1 \
   -C ~/.turf/bin restate-server-x86_64-unknown-linux-musl/restate-server
 export PATH="$HOME/.turf/bin:$PATH"
+# Read LICENSE and STANDARD-TERMS.md, unpacked beside the binaries, then accept the terms:
+turf license accept
 TURF_OFFLINE=1 turf-mcp-server engine run
 ```
 
@@ -67,7 +76,9 @@ cosign copy docker.io/restatedev/restate:1.8.1 registry.example.com/restate/rest
 ```
 
 A configuration image is copied the same way. In the manifests, set `TURF_OFFLINE=1` on the server
-and the engine, and `RESTATE_DISABLE_TELEMETRY=true` on restate-server.
+and the engine, and `RESTATE_DISABLE_TELEMETRY=true` on restate-server. License acceptance in a
+cluster is an `env` entry too, read in the pod: see
+[Minimal manifests](/docs/cluster/manifests/#the-license).
 
 ## Providers
 

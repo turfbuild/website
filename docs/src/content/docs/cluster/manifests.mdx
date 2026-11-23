@@ -24,6 +24,28 @@ The configuration is the configuration image `ghcr.io/turfbuild/turf-examples/ku
 (a namespace and a ConfigMap), mounted read-only at `/turf/config` in the server's pod and every
 engine pod. Substitute your own. State goes in the Kubernetes® state backend, in `turf`.
 
+## The license
+
+Each Turf container checks that the license terms are accepted before it does its work, and in a pod
+it reads only its own environment, or the `--accept-eula` flag. The manifests below carry the entry
+commented out in the `env:` of the engine, the server and the console:
+
+```yaml
+env:
+  # - name: TURF_ACCEPT_EULA
+  #   value: "yes"
+```
+
+Uncommenting it is your acceptance of the terms at
+[turf.build/license/v1](https://turf.build/license/v1/), so read them first. Without it:
+
+- the engine and the console print the license notice and exit with status 77, and their pods go to
+  `CrashLoopBackOff`;
+- the server starts and lists its tools, and every call returns the notice.
+
+Who uses Turf free, and who needs a commercial license, is at
+[turf.build/licensing](https://turf.build/licensing/).
+
 ## The namespace and Secrets
 
 Three Secrets: the engine's identity key pair, the server's bearer token and the console's token. The
@@ -217,6 +239,10 @@ spec:
             - --plugin-cache-dir=/turf/plugins
             - --data-dir=/turf/data
           env:
+            # Uncomment to accept the Turf license terms at https://turf.build/license/v1/.
+            # Setting it accepts them. Without it the engine exits with status 77.
+            # - name: TURF_ACCEPT_EULA
+            #   value: "yes"
             - name: TURF_ENGINE_IDENTITY_KEYS
               valueFrom:
                 secretKeyRef:
@@ -462,6 +488,10 @@ spec:
             - --plugin-cache-dir=/turf/plugins
             - --data-dir=/turf/data
           env:
+            # Uncomment to accept the Turf license terms at https://turf.build/license/v1/.
+            # Setting it accepts them. Without it the engine exits with status 77.
+            # - name: TURF_ACCEPT_EULA
+            #   value: "yes"
             - name: TURF_ENGINE_IDENTITY_KEYS
               valueFrom:
                 secretKeyRef:
@@ -619,6 +649,10 @@ spec:
             - --tmp-dir=/turf/tmp
             - --plugin-cache-dir=/turf/plugins
           env:
+            # Uncomment to accept the Turf license terms at https://turf.build/license/v1/.
+            # Setting it accepts them. Without it every call returns the license notice.
+            # - name: TURF_ACCEPT_EULA
+            #   value: "yes"
             # Every request must carry "Authorization: Bearer <token>"; anything else gets 401.
             - name: TURF_MCP_AUTH_TOKEN
               valueFrom:
@@ -746,6 +780,10 @@ spec:
             # Must match the engine's (on, its default).
             - --scopes=on
           env:
+            # Uncomment to accept the Turf license terms at https://turf.build/license/v1/.
+            # Setting it accepts them. Without it the console exits with status 77.
+            # - name: TURF_ACCEPT_EULA
+            #   value: "yes"
             - name: TURF_CONSOLE_AUTH_TOKEN
               valueFrom:
                 secretKeyRef:
@@ -790,6 +828,9 @@ kubectl rollout status statefulset/restate -n turf --timeout=300s
 kubectl wait --for=condition=Ready --timeout=300s restatecluster/turf
 kubectl rollout status statefulset/restate -n turf --timeout=300s
 ```
+
+A `turf-engine` or `turf-console` pod in `CrashLoopBackOff` with exit code 77 is waiting for
+[the license](#the-license): `kubectl logs` shows the notice.
 
 Then check that the server refuses a request without its token, through a port-forward:
 
