@@ -15,7 +15,8 @@
 // detects and notifies, and never applies on its own; Helm releases are caught by the sweep (the
 // provider's own read), so no watch is claimed for them. The exchange is illustrative, in the
 // shape of the MCP server's `watch` result (address, class, paths, source; never a value); a
-// feed's source is the name it was given.
+// change the sweep finds carries the source "sweep". The sweep is the signal that ships; the
+// sensor for Kubernetes clusters is coming soon (2026-11-26) and carries the pill in the ticklist.
 // A console still of the Drift tab belongs under the figure once one is taken from a real run;
 // the band reads complete without it.
 import DriftFigure from './figures/DriftFigure.astro';
@@ -42,9 +43,9 @@ import DriftFigure from './figures/DriftFigure.astro';
     <div class="feature">
       <div>
         <ul class="ticklist">
-          <li><span class="g">✓</span><div><b>As it happens</b> <span>— watch events where the platform has
-            them, in a Kubernetes® cluster today, and a paced sweep of provider reads everywhere
-            else.</span></div></li>
+          <li><span class="g">✓</span><div><b>A paced sweep</b> <span>— the engine reads every managed object,
+            of any provider, on a cycle you set. <span class="pill soon">coming soon</span> a sensor
+            that reports changes in a Kubernetes® cluster as they happen.</span></div></li>
           <li><span class="g">✓</span><div><b>Signal, not noise</b> <span>— one provider read confirms each
             signal and classifies it against your Terraform configuration. Status churn, Turf’s own
             applies and ignored fields wake nobody; a field another controller keeps setting is named
@@ -65,13 +66,13 @@ import DriftFigure from './figures/DriftFigure.astro';
         </div>
       </div>
 
-      <div class="agentloop" role="img" aria-label="A tool result: watch returns one drift notice, the replica count of a Kubernetes deployment, class configured, seen by the cluster's feed. The agent plans only what drifted, reads one object, finds one in-place change back to what the files say, approves it, and the notice clears.">
+      <div class="agentloop" role="img" aria-label="A tool result: watch returns one drift notice, the replica count of a Kubernetes deployment, class configured, found by the sweep. The agent plans only what drifted, reads one object, finds one in-place change back to what the files say, approves it, and the notice clears.">
 <pre class="report"><span class="lab">TOOL RESULT · TURF MCP</span><b>watch</b> → <i>drift</i>
 <span class="k">notices</span> = [&#123;
   address = <i>"kubernetes_deployment_v1.api"</i>
   class   = <i>"configured"</i>
   paths   = [<i>"spec[0].replicas"</i>]
-  source  = <i>"prod-feed"</i>
+  source  = <i>"sweep"</i>
 &#125;]
 <span class="d">confirmed by one read · next: up</span></pre>
         <div class="chat">
