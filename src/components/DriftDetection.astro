@@ -36,7 +36,7 @@ import DriftFigure from './figures/DriftFigure.astro';
 
     <div class="figwide">
       <DriftFigure />
-      <p class="figcap"><b>Between runs.</b> A signal costs nothing, a notice costs one read, and a
+      <p class="figcap"><b>Between runs.</b> The sweep only reads, a notice names what changed, and a
         change still takes a plan and an approval.</p>
     </div>
 
@@ -46,8 +46,8 @@ import DriftFigure from './figures/DriftFigure.astro';
           <li><span class="g">✓</span><div><b>A paced sweep</b> <span>— the engine reads every managed object,
             of any provider, on a cycle you set. <span class="pill soon">coming soon</span> a sensor
             that reports changes in a Kubernetes® cluster as they happen.</span></div></li>
-          <li><span class="g">✓</span><div><b>Signal, not noise</b> <span>— one provider read confirms each
-            signal and classifies it against your Terraform configuration. Status churn, Turf’s own
+          <li><span class="g">✓</span><div><b>Signal, not noise</b> <span>— each read is classified against your
+            Terraform configuration before anything reaches your agent. Status churn, Turf’s own
             applies and ignored fields wake nobody; a field another controller keeps setting is named
             as contended.</span></div></li>
           <li><span class="g">✓</span><div><b>The plan still governs</b> <span>— the agent decides which side
