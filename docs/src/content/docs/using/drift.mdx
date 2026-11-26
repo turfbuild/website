@@ -132,7 +132,7 @@ off, and the call changes the settings it names and leaves the rest as they stan
 | `enabled` | `true` turns detection on, with any settings named in the same call. `false` [turns it off](#turn-it-off). |
 | `settle` | Seconds an object must be quiet before its signal is read. `0` takes the engine's default, 30. |
 | `sweep` | Seconds for one cycle over every managed object. `0` turns the sweep off, which is where it starts. |
-| `confirm` | `false` turns the confirming read off: every notice then stays `unconfirmed`. |
+| `confirm` | `false` turns the confirming read off: every notice then stays `unconfirmed`, and the sweep, which is that read on a cycle, does not run. |
 
 The result's `outcome` says where detection stands:
 
@@ -197,7 +197,7 @@ up({ workspace_alias, drift: { sweep: 86400 } })
 | `enabled` | The run converged, and detection is on with the settings. |
 | `kept_off` | Detection was turned off after the run began. That later choice stands. |
 | `failed` | Turning detection on failed, and `error` says why. What the run applied is applied. |
-| `not_applied` | The run did not converge, so detection was not turned on. |
+| `not_applied` | The run did not converge, or a cancel was accepted on it before it did, so detection was not turned on. |
 
 The agent passes `drift` to an `up` only on your words, as it calls the tool. `status` shows the same
 block on the run holding the workspace. When a run ends `not_applied` and `next` is an `up` that takes
@@ -216,7 +216,8 @@ drift({ workspace_alias, enabled: false })
 ```
 
 Detection is off, and nothing watches the workspace. Its open notices are closed. The settings stand,
-and take effect when detection is turned on again.
+and take effect when detection is turned on again. The engine then reads again what it had reported, so
+a change that still stands opens its notice again.
 
 - **`enabled: false` stands alone.** A call that also names a setting is refused. Change a setting in
   a call of its own: with detection off, it is `stored`.
@@ -376,7 +377,7 @@ address leaves its notice open. Turning detection off closes every open notice.
 | `enabled` | `true` turns detection on; `false` turns it off, closes its open notices, and stands alone. |
 | `settle` | Seconds of quiet before a signal is read; `0` takes the engine's 30. |
 | `sweep` | Seconds for one sweep cycle; `0` turns the sweep off. |
-| `confirm` | `false`: no confirming read. `true`, the default: a settled object is read against the standing seal. |
+| `confirm` | `false`: no confirming read, and no sweep. `true`, the default: a settled object is read against the standing seal. |
 
 Name at least one of the four. `watch`:
 
