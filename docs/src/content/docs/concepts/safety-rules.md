@@ -32,7 +32,8 @@ those lines are rules. They are written for the agent; here is what each one mea
    second would be refused as "being followed by another call".
 
 6. **Never put a secret in the configuration.** Not in a `.tf` file, a `.tfvars` file or an overlay.
-   Secrets reach providers through the engine's environment and reach the backend through the server's;
+   Secrets reach providers through the engine's environment, or as variables the server is told to
+   send by name, and reach the backend through the server's;
    a variable value goes to `open` or a start verb, never into a committed file.
    [Where credentials are read](/docs/environment/where-credentials-are-read/).
 

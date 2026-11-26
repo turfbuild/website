@@ -2,7 +2,7 @@
 title: Per-configuration environment with mise
 description: With mise on the engine's host, each configuration's providers get its mise environment, from a committed mise.toml and a per-machine mise.local.toml.
 sidebar:
-  order: 3
+  order: 4
 ---
 
 Give one configuration its own environment: an AWS profile, a kubeconfig path, a pinned tool, a
@@ -14,15 +14,20 @@ shell with mise active there.
 
 - **mise on the engine's host.** The engine uses the mise on its own `PATH`. `turf-mcp-server engine
   status` shows which one, or `off`.
-- **Applied over the engine's environment.** The configuration's mise environment is laid over the
-  [engine's own](/docs/environment/engine-environment/), for that configuration's providers only.
-  Provider arguments in HCL still override both.
+- **Applied over the engine's environment and the variables the server sent.** The configuration's
+  mise environment is laid over the [engine's own](/docs/environment/engine-environment/) and the
+  [variables the server sends by name](/docs/environment/provider-environment/), for that
+  configuration's providers only. mise itself is evaluated over the engine's environment alone, so a
+  mise template cannot read a variable the server sent. Provider arguments in HCL still override all
+  of it.
 - **`mise.toml` is committed.** Tool versions, a Python venv, an `[env]` table: what every machine
   needs to plan this configuration.
-- **`mise.local.toml` is per machine.** Keep it out of git. It is the place for this machine's
-  credential *settings*.
-- **Settings, not secrets.** An `AWS_PROFILE` or a `KUBECONFIG` path belongs here. A secret's value
-  belongs in the profile or credential store it names, not in a committed file.
+- **`mise.local.toml` is per machine.** Keep it out of git. It is the place for this configuration's
+  credential *settings* on this machine.
+- **Settings, not secrets.** An `AWS_PROFILE` or a `KUBECONFIG` path that is this configuration's own
+  belongs here. One that is yours across configurations goes in your agent's entry for Turf: see
+  [Send a variable to providers](/docs/environment/provider-environment/). A secret's value belongs
+  in the profile or credential store it names, not in a committed file.
 - **Trust first.** A directory you have not run `mise trust` on fails the plan in mise's words.
 - **The engine installs nothing.** A tool `mise install` has not installed is missing, and the
   provider says so. Setup is yours.

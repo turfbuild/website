@@ -36,7 +36,7 @@ another, naming both. After a minor upgrade the engine still running is the old 
 one a server started, and the next call starts the new one; `brew services restart turf` restarts the
 service. A run that was waiting on the old one ends `cancelled`, what was applied is kept, and
 `up` again plans over it. Running the engine beside the agent, rather than inside the CLI, is also why
-providers read the engine's environment rather than your shell's:
+providers read the engine's environment and the variables you name for them, rather than your shell's:
 [Where credentials are read](/docs/environment/where-credentials-are-read/).
 
 **Scale-out.** Refresh, plan and apply fan out per resource inside the engine, so the cloud API, not

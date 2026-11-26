@@ -528,8 +528,12 @@ the same bytes wherever they appear. Keep `@2`, never show add-mcp's own `-y` (`
 and say "macOS or Linux" with no Windows claim either way. The server starts the engine when a tool
 first needs it: never write that the Homebrew service is required or that the server never starts
 the engine, and never imply provider credentials need no setup: point at
-`docs/…/environment/engine-environment.mdx` (an engine the server started has a small fixed
-environment; provider variables go in the configuration's `mise.local.toml`). An engine setting
+`docs/…/environment/provider-environment.mdx` (an engine the server started has a small fixed
+environment; credentials in their usual files need nothing set; a variable a provider needs goes in
+the `env` of Turf's entry with `TURF_PROVIDER_ENV` naming it, and the server sends it with each run;
+a configuration's own settings go in its `mise.local.toml`; `turf.env` is for what the engine
+itself needs). Never write that an entry's `env` does not reach providers, and never show a secret
+on the `--provider-env` flag. An engine setting
 passed through an agent's entry (`DO_NOT_TRACK=1`, `TURF_MISE=off`, …) takes three steps, and a page
 that gives the setting gives all three or links them: the `env` of Turf's entry in each agent that
 has one, reconnect the agent, then `engine stop`. On `/get-started/` the telemetry sentence stays

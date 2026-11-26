@@ -2,7 +2,7 @@
 title: Variables and TF_VAR_
 description: Variable values reach Turf through the MCP server, from open and each plan command, TF_VAR_ in its environment and auto-loaded tfvars files. Never from mise.
 sidebar:
-  order: 4
+  order: 5
 ---
 
 Variable values are read by the MCP server, never the engine. Your agent passes them to `open` or to
@@ -51,10 +51,9 @@ it, with no `args`. Restart your agent's MCP connection after editing the entry.
 the server has the environment of the shell you started `turf` in.
 
 The `env` block reaches the server. An engine the server started takes only Turf's own settings
-from it, never a provider's credentials. A variable a provider needs, such as
-`AWS_PROFILE`, goes in the configuration's `mise.local.toml` for an engine the server started, or in
-`turf.env` for the Homebrew service: see
-[The engine's environment](/docs/environment/engine-environment/).
+from it for its own environment. A variable a provider needs, such as `AWS_PROFILE`, goes in the same
+block with `TURF_PROVIDER_ENV` naming it, and the server sends it to the engine with each run: see
+[Send a variable to providers](/docs/environment/provider-environment/).
 
 The same `env` block can carry `TURF_ACCEPT_EULA`, where no one will run the accept command. Setting
 it to `yes` accepts the license terms at `https://turf.build/license/v1/` for that server and an

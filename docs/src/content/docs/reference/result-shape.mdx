@@ -50,6 +50,7 @@ The other top-level fields:
 | `cancelling` | A cancel was asked, and the convergence is finishing what is in flight before it ends. |
 | `error` | What the engine raised, at outcome `error`. |
 | `lineage` | The workspace's statefile lineage, empty before the first round writes one. The console addresses a workspace by it. |
+| `provider_env_names` | The names of the variables the server sent for this convergence's providers. Names only, never a value. See [provider\_env\_names](#provider_env_names). |
 | `console_url` | The convergence's page in the Turf™ console. See [console\_url](#console_url). |
 
 ## The plan
@@ -155,6 +156,17 @@ Each entry counts what the round did:
 knows a console; `open` and `status` carry the workspace's page. The agent gives the link to the user
 verbatim, above all at an approval point, and never opens it itself. To set where the links point, see
 [The console](/docs/reference/server/#the-console).
+
+## provider_env_names
+
+`provider_env_names` lists the variables of the provider environment, the ones the server sends by
+name, that went to the engine when the convergence started. Every result of a convergence that was
+sent any carries it, and the key is absent when nothing was sent. It holds names only: no tool, log or error shows a value.
+
+`status` reports the provider environment before a start, as `provider_env`: `names`, the variables a convergence
+started now would send, and `unset`, the declared ones the server's environment does not hold. The key
+is absent when the server declares no provider environment. To declare one, see
+[Send a variable to providers](/docs/environment/provider-environment/).
 
 ## Outcomes
 

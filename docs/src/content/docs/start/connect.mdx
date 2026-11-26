@@ -86,8 +86,10 @@ The server starts the engine when a tool first needs it, so there is nothing to 
 the npx install, the first start also downloads Turf, which takes about a minute. A client that waits
 30 seconds for a server may give up on that start: reconnect once. Later starts take several seconds.
 
-Providers run in that engine, not in your agent's session. Before a run that needs cloud credentials,
-read [Where credentials are read](/docs/environment/where-credentials-are-read/).
+Providers run in that engine, not in your agent's session: they get the engine's environment and the
+variables you name for them ([Give providers a variable](#give-providers-a-variable)). Before a run
+that needs cloud credentials, read
+[Where credentials are read](/docs/environment/where-credentials-are-read/).
 
 ## What the agent gets
 
@@ -171,6 +173,31 @@ A server in a container cannot read the record: it reads only the container's en
 `env` reaches the process your client starts, which for a container is `docker`, not the container,
 unless the entry's args pass the variable in with `-e`. Each case is in
 [Accept the license](/docs/start/install/#accept-the-license).
+
+## Give providers a variable
+
+Credentials in their usual files (the default AWS profile, `~/.kube/config`) work with nothing set.
+When a provider needs a variable, put it in the `env` of Turf's entry and name it in
+`TURF_PROVIDER_ENV`:
+
+```json
+"env": {
+  "AWS_PROFILE": "prod",
+  "TURF_PROVIDER_ENV": "AWS_PROFILE"
+}
+```
+
+Then restart the agent: the list is read when the server starts. The server sends the variables you
+named to the engine with each run, and `status` shows their names, never a value. `PATH` and the
+engine's own variables are never sent.
+
+add-mcp writes the same two lines:
+
+```sh
+npx add-mcp@2 @turfbuild/turf-mcp-server --name turf -g --env AWS_PROFILE=prod --env TURF_PROVIDER_ENV=AWS_PROFILE
+```
+
+More in [Send a variable to providers](/docs/environment/provider-environment/).
 
 ## HTTP instead of stdio
 

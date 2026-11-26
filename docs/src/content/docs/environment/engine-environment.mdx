@@ -1,15 +1,17 @@
 ---
 title: The engine's environment
-description: "Providers read the engine's environment: a small fixed one when the server started the engine, turf.env for the Homebrew service, the pod's for a remote one."
+description: "What the engine's own environment holds: a small fixed one when the server started it, turf.env for the Homebrew service, the pod's for a remote one. Providers read it, with the variables you name laid over it."
 sidebar:
-  order: 2
+  order: 3
 ---
 
 import { Aside } from '@astrojs/starlight/components';
 
-Providers run in the engine, so the environment they see is the engine's. Where a credential goes
-depends on how the engine runs: started by the server on demand, as the `turf` Homebrew service, in a
-terminal, or as a deployment of your own. `turf-mcp-server engine status` says which.
+Providers run in the engine, so the environment they see is the engine's, with the
+[variables the server sends by name](/docs/environment/provider-environment/) laid over it. What the
+engine's own environment holds depends on how the engine runs: started by the server on demand, as
+the `turf` Homebrew service, in a terminal, or as a deployment of your own.
+`turf-mcp-server engine status` says which.
 
 ## An engine the server started
 
@@ -17,34 +19,37 @@ By default the server starts the engine when a tool first needs it. That engine 
 environment, the same whichever agent or shell the server came from:
 
 - `HOME`, `USER`, `LOGNAME`, `SHELL` and `TMPDIR`;
-- the `TURF_*` settings (all but `TURF_MCP_AUTH_TOKEN`), `DO_NOT_TRACK` and `CI`, from the server's
-  environment;
+- the `TURF_*` settings (all but `TURF_MCP_AUTH_TOKEN` and `TURF_PROVIDER_ENV`), `DO_NOT_TRACK` and
+  `CI`, from the server's environment;
 - `TF_PLUGIN_CACHE_DIR` and `TF_CLI_CONFIG_FILE`, from the server's environment;
 - a `PATH` of Homebrew's and the system's directories.
 
-Nothing else of your session reaches it. An `AWS_PROFILE` in your shell, or in the `env` block of
-your MCP client's entry, reaches the server and the state backend, not the providers. Give providers
-what they need in one of these ways:
+Nothing else of your session is in it. Providers get what they need in one of these ways:
 
-- **Credential files.** The default profile in `~/.aws/config`, `~/.kube/config`, gcloud's
-  application-default credentials and the `az` login are read as anywhere.
-- **The configuration's mise environment.** Put a variable a provider needs, such as `AWS_PROFILE`,
-  in the configuration's `mise.local.toml`: see
+- **Credential files need nothing set.** The default profile in `~/.aws/config`, `~/.kube/config`,
+  gcloud's application-default credentials and the `az` login are read as anywhere. Most readers
+  need nothing more.
+- **A variable of yours.** Name it in your agent's entry for Turf: the variable in the `env` block,
+  such as `AWS_PROFILE`, and `TURF_PROVIDER_ENV` naming it. The server sends it with each run. See
+  [Send a variable to providers](/docs/environment/provider-environment/).
+- **A configuration's own settings.** A profile or a kubeconfig path that belongs to one directory,
+  or a tool version, goes in that directory's mise environment: see
   [Per-configuration environment with mise](/docs/environment/mise/).
 - **Provider arguments** in the configuration, [below](#provider-arguments-win).
 
-For anything more, such as a proxy, run the Homebrew service and use `turf.env`.
+The Homebrew service and `turf.env` are for what the engine itself needs: a proxy, a `PATH` with
+extra tools, a registry token for the engine's own installs.
 
 ## The Homebrew service
 
 `brew services start turf` runs the same engine from login, and takes over one a server started. The
 service runs the engine with launchd's environment on a Mac, Homebrew's `PATH`,
 and what `~/.homebrew/services/turf.env` sets. It does not see your shell's environment. Put what
-your providers need in `turf.env`, one `KEY=value` per line:
+the engine itself needs in `turf.env`, one `KEY=value` per line:
 
 ```sh title="~/.homebrew/services/turf.env"
-AWS_PROFILE=platform-admin
-ARM_SUBSCRIPTION_ID=00000000-0000-0000-0000-000000000000
+HTTPS_PROXY=http://proxy.example.com:3128
+NO_PROXY=.internal.example.com
 ```
 
 Then restart the service:
@@ -52,6 +57,11 @@ Then restart the service:
 ```sh
 brew services restart turf
 ```
+
+The server makes its own calls (`init`'s installs, the state backend), from its own environment: give
+it the proxy in the `env` of Turf's entry too. A provider's variable set in `turf.env` reaches
+providers as part of the engine's environment, and one you
+[name in your agent's entry](/docs/environment/provider-environment/) is laid over it.
 
 A run paused at a plan gate or an approval point waits through the restart.
 
@@ -128,8 +138,8 @@ provider "aws" {
 ```
 
 A secret in a provider block arrives through a variable, never a literal. With the credentials in
-the engine's environment, a default provider instance needs no block at all; aliased instances need
-their own blocks for what differs.
+the environment a provider gets, a default provider instance needs no block at all; aliased
+instances need their own blocks for what differs.
 
 ## Check what the engine runs with
 
