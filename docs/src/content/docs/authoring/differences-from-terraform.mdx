@@ -64,8 +64,8 @@ Turf actions and provider actions are in [Actions and overlays](/docs/authoring/
   with nothing deposed. Terraform deposes first and leaves nothing current.
 - **Deposed and tainted objects are not refreshed** before the plan replaces or destroys them.
 - **Drift is found between plans.** Terraform sees drift when a plan refreshes. Turf's engine can also
-  watch between runs: a feed or a paced sweep signals a change, one read confirms it, and your agent
-  gets a drift notice. Detection only reports. A change is still a plan at an approval point. See
+  watch between runs, once you turn it on: a feed or a paced sweep signals a change, one read
+  confirms it, and your agent gets a drift notice. Detection only reports. A change is still a plan at an approval point. See
   [Drift](/docs/concepts/drift/).
 - **A plan can read only what drifted.** `plan` with `refresh_drift` or `refresh_addresses` reads the
   named objects and plans every other row from its record, reading a row again when it plans a

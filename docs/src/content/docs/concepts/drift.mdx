@@ -7,10 +7,11 @@ sidebar:
 
 import DriftFigure from '../../../components/figures/DriftFigure.astro';
 
-Terraform® and OpenTofu® look at the world only when someone runs a plan. Turf™ also watches between
-runs. When an object it manages changes outside Turf, the engine reads that one object and tells your
-agent what changed. The agent decides what to do about it, and any change it makes is an ordinary run:
-a plan, an approval point, an apply. Nothing applies on its own.
+Terraform® and OpenTofu® look at the world only when someone runs a plan. Turf™ can also watch
+between runs, once you turn drift detection on. When an object it manages changes outside Turf, the
+engine reads that one object and tells your agent what changed. The agent decides what to do about
+it, and any change it makes is an ordinary run: a plan, an approval point, an apply. Nothing applies
+on its own.
 
 <DriftFigure caption="<b>From a change to a plan.</b> The engine spends one read on an object that changed. The agent gets a notice, and a run does the rest." />
 
@@ -118,8 +119,7 @@ A notice says an object differs from its record. It does not say what a run woul
 - A plan evaluates the whole configuration, as every Turf plan does. It may show more than the notice
   named, or nothing at all.
 
-So every notice continues the same way: `up` with `drift: true`, then `plan`. The plan is what you
-read and approve.
+So every notice continues the same way: `up`, then `plan`. The plan is what you read and approve.
 
 ## Drift at plan time, and between plans
 
@@ -131,21 +131,24 @@ read and approve.
 | What is written | `refresh` writes state, once you approve its plan. | Nothing. |
 
 The two meet at the plan. A round's `plan` reads every object by default; with `refresh_drift: true`
-it reads only what the open notices name. A run started to answer drift is offered that plan at each
-of its plan gates. See [Watching for drift](/docs/using/drift/).
+it reads only what the open notices name. Any `up` takes that plan at its plan gate. See
+[Watching for drift](/docs/using/drift/#plan-only-what-drifted).
 
 ## Who decides
 
 The engine detects and reports. Your agent, and you, decide which side wins:
 
-- **Remediate.** Run `up` with `drift: true` and bring the object back to what the files say.
+- **Remediate.** Run `up` and bring the object back to what the files say.
 - **Adopt.** Change the files to match, then `up`. The files are yours, so the agent asks first.
 - **Suppress.** Add `ignore_changes` for a field another controller owns.
 
-**A remediation carries its cause.** A run started with `drift: true` records the notices it answers.
-Every result of the run says so, at its approval points and at any turf action its apply asks, so
-whoever is asked knows the run exists to revert drift. The console marks the run, and a notice the run
-clears names the run and the round that cleared it. The cause is a record. It decides nothing.
+**Nothing marks the run.** The `up` that puts drift back is an ordinary run, with the plan, the
+digest and the approval point every run has. The engine records which run cleared each notice: in the
+console a cleared notice names that run, and the run shows how many notices it cleared.
+
+**On or off is yours too.** Detection is off until you turn it on, and a connected feed does not turn
+it on. The agent turns it on or off only on your words. Turned off, its open notices close and its
+settings stand. [Turn it on](/docs/using/drift/#turn-it-on).
 
 The approval rules are the ones every plan has. An in-place update back to what the files say is
 low-risk, and the agent may approve it. A replace or a delete comes to you.

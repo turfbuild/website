@@ -116,7 +116,8 @@ values.
 - The header is sent only over `https`, or to a loopback address. Redirects are not followed.
 - A delivery is tried up to five times. One that still fails is recorded, and the notice stays open
   to `status` and `watch`.
-- The `drift` tool sets `settle`, `sweep` and `confirm`, and leaves a webhook as it stands. A webhook
+- The `drift` tool turns detection on and off and sets `settle`, `sweep` and `confirm`. It leaves a
+  webhook as it stands. A webhook
   is set on the engine itself, through its drift service on restate-server's ingress.
 
 ## Check what the engine runs with

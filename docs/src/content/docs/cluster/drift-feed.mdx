@@ -32,8 +32,9 @@ manifest and the pod's service account) runs the same code and is not yet covere
 - **It never reads for the engine.** A signal says "look here". The engine's own provider read decides
   whether anything drifted.
 
-A feed that reaches a workspace turns drift detection on for it. No `drift` call is needed, and the
-sweep stays off unless you [turn it on](/docs/using/drift/#turn-it-on).
+A feed does not turn drift detection on. Until you [turn it on](/docs/using/drift/#turn-it-on), a
+connected feed reports nothing. With a feed in place, `drift` with `enabled: true` is enough: the
+sweep stays off unless you name one.
 
 ## Install it
 

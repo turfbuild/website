@@ -13,14 +13,14 @@ const engine = [
 ];
 const run = [
   { x: 14, w: 170, name: 'your agent', sub: ['status reads · watch waits', 'remediate · adopt · suppress'], cls: 'f-inhbg s-inh', ink: 'f-inh' },
-  { x: 206, w: 210, name: 'up, then plan', sub: ['drift: true · refresh_drift: true', 'reads only what drifted'], cls: 'f-panel s-hair', ink: '' },
+  { x: 206, w: 210, name: 'up, then plan', sub: ['plan with refresh_drift: true', 'reads only what drifted'], cls: 'f-panel s-hair', ink: '' },
   { x: 438, w: 120, name: 'approval point', sub: ['the plan is', 'the verdict'], cls: 'f-panel s-ok', ink: '' },
   { x: 580, w: 78, name: 'apply', sub: [], cls: 'f-ok', ink: 'f-panel' },
 ];
 ---
 
 <figure class="docfig">
-  <svg class="fig" viewBox="0 0 672 236" role="img" aria-label="Between runs the engine watches. A signal, a watch event from a feed or the sweep's turn to read an object, marks the object as possibly changed. After the object has been quiet for the settle window, the engine makes an observation: one provider read that reports and never touches state. It classifies the read against the configuration; noise is recorded and never becomes a notice. What holds up becomes a drift notice: an address, a class and the changed attribute paths, never values. The agent reads notices with status and waits for them with watch, and decides: remediate, adopt or suppress. A change is an ordinary run: up with drift true, which records the notices it answers, then plan with refresh_drift true, which reads only what drifted; the plan waits at its approval point, and apply applies it. Nothing applies on its own.">
+  <svg class="fig" viewBox="0 0 672 236" role="img" aria-label="Between runs the engine watches. A signal, a watch event from a feed or the sweep's turn to read an object, marks the object as possibly changed. After the object has been quiet for the settle window, the engine makes an observation: one provider read that reports and never touches state. It classifies the read against the configuration; noise is recorded and never becomes a notice. What holds up becomes a drift notice: an address, a class and the changed attribute paths, never values. The agent reads notices with status and waits for them with watch, and decides: remediate, adopt or suppress. A change is an ordinary run: up, then plan with refresh_drift true, which reads only what drifted; the plan waits at its approval point, and apply applies it. Nothing applies on its own.">
     <defs>
       <marker id="df-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-stroke"/></marker>
       <marker id="df-inh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-inh"/></marker>

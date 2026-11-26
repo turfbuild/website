@@ -51,8 +51,8 @@ cause and runs `up` again.
 **A plan goes to policy first.** Before a non-trivial plan, the agent hands the plan document to your
 policy tools, if you have them. A deny means do not apply.
 
-**Watching is the user's choice.** The agent turns drift detection on with `drift` only when you ask
-or agree, the sweep above all: it reads every managed object unattended, with the engine's
+**Watching is the user's choice.** The agent turns drift detection on, or off, only when you ask or
+agree, the sweep above all: it reads every managed object unattended, with the engine's
 credentials. A drift notice changes nothing by itself, and the plan that answers it is approved as
 any plan is. [Approval](/docs/concepts/approval/#drift).
 

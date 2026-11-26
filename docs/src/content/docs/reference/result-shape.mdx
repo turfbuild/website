@@ -42,7 +42,7 @@ The other top-level fields:
 | `convergence_id` | The convergence. `plan` and `apply` take it. |
 | `workspace_alias` | The workspace it holds. |
 | `kind` | What started it: `up`, `destroy`, `refresh`, `import` or `invoke`. |
-| `cause` | Why it was started, when it answers something: `{ kind: "drift", notices, addresses }` on every result of a run started with `up` and `drift: true`, counting the drift notices and addresses it answers. Absent on an ordinary run. See [The cause](#the-cause). |
+| `drift` | On every result of a run whose `up` passed `drift: { … }`: the settings it named, and a `state` saying where the ask to turn drift detection on stands. Absent on a run that asked nothing. See [The drift block](#the-drift-block). |
 | `round` | The round at the stop the convergence waits at, or the one running. |
 | `expires_at` | When the server stops waiting at this stop. A pause lasts 24 hours, at a plan gate, an approval point or turf actions; past it the server detaches and the convergence waits in the engine. |
 | `plan` | The plan waiting at an approval point. See [The plan](#the-plan). |
@@ -80,31 +80,36 @@ A zero count is left out.
 `apply({ convergence_id, plan_digest })` is the approval, of that plan only. The plan document's own
 fields and change symbols are in [Plans](/docs/reference/skills/deployment/plans/).
 
-## The cause
+## The drift block
 
-A run started with `up` and `drift: true` is a drift remediation. It records the open
-[drift notices](/docs/concepts/drift/) it answers, and every result of the run carries the record:
+An `up` called with `drift: { … }` asks for [drift detection](/docs/using/drift/#on-a-first-deploy)
+to be turned on when the run converges. Every result of that run carries the ask and where it stands:
 
 ```text
 { convergence_id, outcome: "awaiting_plan", round: 1,
-  cause: { kind: "drift", notices: 1, addresses: 1 },
-  next: { tool: "plan", args: { convergence_id, refresh_drift: true } } }
+  drift: { sweep: 86400, state: "pending" },
+  next: { tool: "plan", args: { convergence_id } } }
 ```
 
 | Field | Meaning |
 |---|---|
-| `kind` | `drift`: the run answers drift notices. |
-| `notices` | How many notices it answers. |
-| `addresses` | How many addresses those notices name. |
+| `settle`, `sweep`, `confirm` | The settings the `up` named, and only those: `settle` in seconds, `sweep` in seconds or `"off"`, `confirm` as `"on"` or `"off"`. |
+| `state` | `pending` while the run goes on, then what came of the ask. |
+| `error` | At `failed`, why turning detection on failed. |
 
-- The cause is on the result at each plan gate, at each approval point, at `awaiting_actions` and at
-  the end. `status` shows it on the run holding a workspace.
-- At each plan gate of such a run, `next` is `plan` with `refresh_drift: true`. `plan` called without
-  it reads every object.
-- With no notice open, `up` with `drift: true` starts an ordinary run, with no `cause`, and the note
-  says so.
-- The counts are of the notices open when the run began. The cause is fixed for the run and decides
-  nothing.
+| State | Meaning |
+|---|---|
+| `pending` | The run goes on. Detection turns on when it converges, unless it is turned off before then. |
+| `enabled` | The run converged, and detection is on with the settings. The note gives them as the engine holds them and says what detection still needs. |
+| `kept_off` | Detection was turned off after the run began. That later choice stands, and nothing was changed. |
+| `failed` | The change failed. What the run applied is applied, and the note gives the `drift` call that would turn detection on. |
+| `not_applied` | The run ended any other way, so detection was not turned on. |
+
+- `status` shows the block on the run holding a workspace.
+- At `not_applied`, an `up` in `next` that takes the work up again carries the same `drift`, unless
+  detection was turned off in the meantime. The note says when it does not.
+- A run that asked nothing has no block. Nothing on a result marks a run as answering drift: that run
+  is an ordinary `up`, and `plan` with `refresh_drift: true` at its plan gate reads only what drifted.
 
 ## The planfile
 
@@ -194,7 +199,7 @@ verbatim, above all at an approval point, and never opens it itself. To set wher
 
 | Outcome | Meaning | Next |
 |---|---|---|
-| `awaiting_plan` | The round waits at its plan gate: nothing planned yet. | `plan` with `convergence_id`, and the round's `refresh` or `replace`. In a drift remediation, `next` carries `refresh_drift: true`. |
+| `awaiting_plan` | The round waits at its plan gate: nothing planned yet. | `plan` with `convergence_id`, and the round's `refresh` or `replace`. With drift notices open, an `up`'s note at round 1 names `plan` with `refresh_drift: true`. |
 | `awaiting_approval` | Paused at an approval point. | Review `plan`; `apply` with its digest, or `decline`; or edit and `up` again. |
 | `awaiting_actions` | The apply waits on turf actions (`action_requests`). | Perform them; `apply` with `action_results`. |
 | `planning` | Returned at the server's deadline; the convergence goes on in the engine. | `plan` with `convergence_id`, as `next` says; `cancel` stops it. |

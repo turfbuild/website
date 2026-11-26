@@ -42,10 +42,11 @@ Every argument is optional:
 every round. The agent approves only a low-risk plan itself, asks you about any other, and always asks
 about a destroy plan. See [Approval](/docs/concepts/approval/).
 
-`/turf:watch` sets the agent on a loop: `watch`, and on drift an `up` with `drift: true`, whose plan
-reads only what drifted, then `watch` again. Every plan in the loop stops at its approval point as any other does.
-Where nothing watches the workspace yet, the agent offers to turn drift detection on and does so only
-if you agree. See [Watching for drift](/docs/using/drift/).
+`/turf:watch` sets the agent on a loop: `watch`, and on drift an ordinary `up`, planned with
+`refresh_drift: true` so the plan reads only what drifted, then `watch` again. Every plan in the loop
+stops at its approval point as any other does. Where detection is off or was never turned on, the
+agent says so, offers to turn it on, and does so only if you agree. At the `plan` tier, which lists no
+`drift` tool, it tells you a `full`-tier server can. See [Watching for drift](/docs/using/drift/).
 
 ## One word per argument
 

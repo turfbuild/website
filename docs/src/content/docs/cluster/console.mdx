@@ -76,11 +76,12 @@ A workspace's Drift tab shows it between runs: the open [drift notices](/docs/co
 many objects are watched and live, swept or uncovered, and each [drift feed](/docs/cluster/drift-feed/)
 with whether it is live or lost. A feed silent for 90 seconds raises a banner that names it and counts
 the objects nothing now reports on. A cleared notice names the run whose commit cleared it and links
-to that round, and the Runs tab marks a run started to answer drift with a `drift` chip.
+to that round, and the Runs tab shows on a run how many drift notices it cleared.
 
 The tab needs nothing set: the console reads drift from restate-server's ingress, as it reads
 everything else. It is read-only here too. A notice's continuation is text to copy, the console
-acknowledges nothing, and the drift settings are changed with the `drift` tool.
+acknowledges nothing, and detection is turned on or off, and its settings changed, with the `drift`
+tool.
 [What the tab shows](/docs/cli/console/#what-it-shows).
 
 ## At a glance

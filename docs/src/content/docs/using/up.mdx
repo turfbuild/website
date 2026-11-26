@@ -186,7 +186,7 @@ default. For a value that lasts, use `terraform.tfvars` or give it to `open`: se
 | `overlays` | `*.turf.hcl` (or `.turf.json`) files, name to content, laid over the configuration in memory for this run alone. A name that collides with a file in the directory is refused. |
 | `plan_only` | Plan one round and end `planned`, keeping the plan as a planfile. See [Plan now, apply later](/docs/using/planfiles/). |
 | `max_rounds` | The most rounds before the run ends `exhausted` with work still deferred (default 5). |
-| `drift` | `true` makes the run a drift remediation: it answers the workspace's open drift notices, every result carries its `cause`, and each plan gate's `next` is `plan` with `refresh_drift: true`. With nothing open it is an ordinary run. See [Watching for drift](/docs/using/drift/#plan-only-what-drifted). |
+| `drift` | `{ sweep, settle, confirm }`, at least one named: asks for drift detection to be turned on when this run converges, a first deploy included. Every result carries a `drift` block with the settings and a `state`. Passed only on your words, never with `plan_only`. See [Watching for drift](/docs/using/drift/#on-a-first-deploy). |
 
 `plan` takes the round's own options. They apply to that round alone; the next round plans with the
 defaults.

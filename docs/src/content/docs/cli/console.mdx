@@ -50,11 +50,11 @@ workspace anything watches. Its label carries the number of open addresses.
 - **Recent reads and cleared notices.** The reads that found only noise are here, and nowhere an agent
   sees them. A notice a run cleared names that run and links to the round.
 
-On the Runs tab, a run started to answer drift notices carries a `drift` chip.
+On the Runs tab, a run that cleared drift notices says how many: `cleared 2 drift notices`.
 
-Where nothing watches the workspace, the tab says so and names what is missing: a standing
-configuration (the console's words for the standing seal), a feed, the sweep. It shows paths, never
-values: a plan's diff has those. See [Drift](/docs/concepts/drift/).
+Where detection is off, or was never turned on, the tab says so and shows what is in place for when
+it is: a standing configuration (the console's words for the standing seal), a feed, the sweep. It
+shows paths, never values: a plan's diff has those. See [Drift](/docs/concepts/drift/).
 
 The console is read-only. It starts no run and acknowledges no notice. Approvals are given where they
 always were: by the agent, or by you in the CLI. In a terminal, [`turf up`](/docs/cli/up-and-destroy/#what-you-answer-in-the-terminal) shows the

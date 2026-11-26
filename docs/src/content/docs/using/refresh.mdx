@@ -115,9 +115,9 @@ plan({ convergence_id, refresh_drift: true })
                    count: 1, from_drift: 1, skipped: 41 }
 ```
 
-A run started with `up` and `drift: true` is offered this plan: at each of its plan gates, `next` is
-`plan` with `refresh_drift: true`. The default has not changed. `plan` without either argument reads
-everything, in that run as in any other.
+Any `up` takes this plan at its plan gate. When drift notices are open, the note at round 1's plan
+gate names it. The default has not changed: `next` is `plan` without either argument, which reads
+everything.
 
 The plan is still a plan of the whole configuration. What changes is what it reads first:
 

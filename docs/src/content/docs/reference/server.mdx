@@ -53,7 +53,7 @@ credential handed to a server buys its tier's calls and no other. The default is
 | `read` | `init`, `open`, `close`, `status`, `list`, `watch`, `show`, `output`, `state_list`, `provider_search`, `provider_describe`, `skill_deployment`, `skill_authoring`, `skill_guide`, `read_skill_file` | Read workspaces, states, plans, outputs and the provider registry, and wait for drift. Nothing runs: `init`, `open` and `close` only bind the workspace a read needs. |
 | `plan` | the `read` tools, plus `up`, `destroy`, `refresh`, `import`, `invoke`, `plan`, `cancel` | Start runs, every one `plan_only`: it ends `planned`, with a planfile for an applier. `cancel` stops a convergence before its apply begins. |
 | `apply` | the `read` tools, plus `apply`, `cancel` | Apply a planfile, or approve a plan waiting at its approval point. It starts no run of its own. |
-| `full` | every tool: the above, plus `taint`, `untaint`, `delete`, `drift` | Everything, `open`'s `force_unlock` included. `drift` changes what the engine reads unattended, so no other tier lists it. |
+| `full` | every tool: the above, plus `taint`, `untaint`, `delete`, `drift` | Everything, `open`'s `force_unlock` included. `drift` changes what the engine reads unattended, so no other tier lists it, and `up` takes `drift: { … }` only here. |
 
 The `read` tier lists 15 tools, `plan` 22, `apply` 17 and `full` 27. Each tool's page says which tiers
 list it: [Tools](/docs/reference/tools/init/).
@@ -67,7 +67,7 @@ The tier also shows in what the agent is offered:
 - The `up`, `destroy` and `watch` [prompts](/docs/reference/prompts/) are listed at the `plan` and
   `full` tiers only. `guide` is listed at every tier.
 - The `read` and `apply` tiers list no `up`. There, `watch` and `status` report drift and name no
-  next call, and their note says the remediation starts from a server at the `plan` or `full` tier.
+  next call, and their note says the `up` starts from a server at the `plan` or `full` tier.
 - At the `read`, `plan` and `apply` tiers the [server instructions](/docs/reference/instructions/) gain a
   section that names the tier and what it can do.
 

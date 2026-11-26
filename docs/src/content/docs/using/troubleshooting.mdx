@@ -169,11 +169,21 @@ before `force_unlock`. The full procedure is on [Workspaces and backends](/docs/
 What `watch` and `status` say when drift detection is not doing what you expect. The words are in
 [Drift](/docs/concepts/drift/), the task in [Watching for drift](/docs/using/drift/).
 
-**`watch` returns `unwatched`.** Nothing watches the workspace: drift was never turned on for it, the
-workspace has no state yet, or the engine has no drift detection. The watch would never wake, so the
-agent stops calling it. Turn drift on with `drift`, which is [your choice](/docs/using/drift/#turn-it-on),
-or install a [drift feed](/docs/cluster/drift-feed/). Until then an `up`'s plan reads every object and
-is the drift report.
+**`watch` returns `unwatched`.** Nothing watches the workspace, and the note says why: drift
+detection was never turned on for it, it was turned off (the note says when), the workspace has no
+state yet, or the engine has no drift detection. The watch would never wake, so the agent stops
+calling it. Turn detection on with `drift` and `enabled: true`, which is
+[your choice](/docs/using/drift/#turn-it-on). A [drift feed](/docs/cluster/drift-feed/) alone does not
+turn it on. Until then an `up`'s plan reads every object and is the drift report.
+
+**`drift` returns `stored`.** The settings were kept, and detection is off, so nothing watches the
+workspace yet. They take effect when `drift` with `enabled: true` turns it on.
+
+**An `up` that asked for detection did not turn it on.** Its last result's `drift.state` says why.
+`kept_off`: detection was turned off after the run began, and that later choice stands. `not_applied`:
+the run did not converge. `failed`: the change itself failed, `error` says why, and what the run
+applied is applied. Once the workspace has state, `drift` with `enabled: true` turns detection on, if
+you still want it.
 
 **Every notice is `unconfirmed`.** Nothing reads an object after its signal. If the `coverage` line in
 `status` ends `confirm off`, the confirming read is turned off: turn it back on with `drift` and
@@ -231,7 +241,7 @@ Nothing is lost while the sweep is behind. Every object is still read, later tha
 
 **`watch` or `status` shows drift and no `next`.** Either a run holds the workspace (finish or cancel
 it first), or every open notice is `contended`, or the server runs at a tier that lists no `up`:
-`read` or `apply`. The note says which. A remediation starts from a server at the `plan` or `full`
+`read` or `apply`. The note says which. The `up` starts from a server at the `plan` or `full`
 [tier](/docs/reference/server/#tiers).
 
 **A plan's `drift` is zero, and `resource_drift` lists rows.** Those rows differ from their records
@@ -244,8 +254,9 @@ finds the object as recorded. If a plan shows no change for the address, the dif
 provider does not plan, and the notice stays open while reads keep finding it. No tool acknowledges a
 notice by hand.
 
-**A remediation fails with a field manager conflict.** After a server-side apply by someone else, that
-manager owns the field, and a `kubernetes_manifest` cannot take it back without `force_conflicts`:
+**The `up` that puts a field back fails with a field manager conflict.** After a server-side apply
+by someone else, that manager owns the field, and a `kubernetes_manifest` cannot take it back without
+`force_conflicts`:
 
 ```hcl
 resource "kubernetes_manifest" "web" {
