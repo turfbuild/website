@@ -32,7 +32,7 @@ Deployment with as many replicas as you like, and any step lands on any replica:
 [Running Turf in a cluster](/docs/cluster/topology/).
 
 **One line.** A server drives an engine of its own line (the same major and minor version) and refuses
-another, naming both. After an upgrade the engine still running is the old line's: `turf-mcp-server engine stop` ends
+another, naming both. After a minor upgrade the engine still running is the old line's: `turf-mcp-server engine stop` ends
 one a server started, and the next call starts the new one; `brew services restart turf` restarts the
 service. A run that was waiting on the old one ends `cancelled`, what was applied is kept, and
 `up` again plans over it. Running the engine beside the agent, rather than inside the CLI, is also why
@@ -68,7 +68,8 @@ turf action the apply is asking, and how the round ended the run.
 | Graph | The round's configuration graph. |
 
 **Read-only, and yours.** Approvals are given where they always were, by the agent or the CLI; the
-console changes nothing. Only you can open it: `turf console` signs your browser in once, and every
+console changes nothing. Only you can open it: `turf console` signs your browser in once
+(`npx -y @turfbuild/turf-mcp-server engine console` with the npx install), and every
 link opens directly after that. `TURF_CONSOLE_ADDR` moves it to another loopback address or turns it
 off (`off`); the engine does not depend on it. In a cluster the console takes a token
 (`TURF_CONSOLE_AUTH_TOKEN`) and the server is told where it lives (`TURF_CONSOLE_URL`) so the links

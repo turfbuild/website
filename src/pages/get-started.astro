@@ -29,22 +29,21 @@ const description = 'Add Turf to Claude Code, Cursor, Codex or any MCP client wi
         open-source installer. It finds the agents you have installed, asks which ones to add Turf
         to, and writes each one's config; running it again replaces the entry. Restart Claude Desktop
         or Cursor after the config changes.</p>
-      <p>There is nothing else to install. npm brings the server and its engine the first time your
-        agent starts Turf, and the engine starts when your agent first needs it. If your client gives
-        up waiting on that first start, reconnect once; later starts take several seconds.</p>
+      <p>There is nothing else to install. npm brings the server and its engine the first time Turf
+        runs, and the engine starts when your agent first needs it. If your client gives up waiting
+        on that first start, reconnect once; later starts take several seconds.</p>
       <p>Providers run in the engine, not in your agent's session. Cloud credentials in their usual
         files are read there; a variable a provider needs goes in the configuration's
         <code>mise.local.toml</code>:
         <a href="/docs/environment/engine-environment/">The engine's environment</a>.</p>
-      <p>In Claude Code and Claude Desktop, Turf runs on your Claude subscription — no model API key.</p>
       <p>Turf sends anonymous usage telemetry to Turf LLC by default: the version, the platform,
         counts of resources, changes and runs, and an anonymous installation id. It never sends
-        resource contents, credentials, state, variable values or names. Turn it off with
-        <code>turf telemetry off</code>, or with <code>TURF_TELEMETRY=off</code> or
-        <code>DO_NOT_TRACK=1</code> in the engine's environment; the full field list and the endpoint
-        are at <a href="/telemetry/">turf.build/telemetry</a>. With this install, that is
-        <code>DO_NOT_TRACK=1</code> in the <code>env</code> of the server's entry in your agent's
-        config; <code>turf telemetry off</code> comes with the <code>turf</code> CLI.</p>
+        resource contents, credentials, state, variable values or names. To turn it off, put
+        <code>DO_NOT_TRACK=1</code> or <code>TURF_TELEMETRY=off</code> in the <code>env</code> of
+        Turf's entry in each of your agents, reconnect them, and stop the engine. With the
+        <code>turf</code> CLI, the switch is <code>turf telemetry off</code>. The steps for each
+        install, the full field list and the endpoint are at
+        <a href="/telemetry/">turf.build/telemetry</a>.</p>
 
       <h3>Your client's own command</h3>
       <p>Each client can also add the server itself:</p>
@@ -66,7 +65,9 @@ const description = 'Add Turf to Claude Code, Cursor, Codex or any MCP client wi
 <pre>&#123; "mcpServers": &#123; "turf": &#123; "command": "npx", "args": ["-y", "@turfbuild/turf-mcp-server"] &#125; &#125; &#125;</pre>
       </div>
       <p>The server speaks MCP over stdio by default, or over HTTP with
-        <code>turf-mcp-server --transport http</code> (binds loopback). To require a token, set
+        <code>npx -y @turfbuild/turf-mcp-server --transport http</code>
+        (<code>turf-mcp-server --transport http</code> with Homebrew or the script; it binds
+        loopback). To require a token, set
         <code>TURF_MCP_AUTH_TOKEN</code> in the server's environment; clients then send
         <code>Authorization: Bearer &lt;token&gt;</code>.</p>
       <p>A server can be given less than every tool: <code>--tier read</code>, <code>plan</code>,
@@ -84,8 +85,11 @@ const description = 'Add Turf to Claude Code, Cursor, Codex or any MCP client wi
         <div class="cb-head"><span>Accept the terms, once</span></div>
 <pre><span class="ps1">$</span> npx -y @turfbuild/turf-mcp-server license accept</pre>
       </div>
-      <p>Until then the server connects and lists its tools, and every call answers with the license
-        notice. Your acceptance is read at the next call, so there is nothing to restart.</p>
+      <p>Whichever npx command runs Turf first downloads it. If you accept before your agent has
+        started Turf, the download happens here, in your terminal, and your agent's first start is
+        then quick.</p>
+      <p>Until you accept, the server connects and lists its tools, and every call answers with the
+        license notice. Your acceptance is read at the next call, so there is nothing to restart.</p>
       <p>Where no one is there to answer, such as a container or a CI job, setting
         <code>TURF_ACCEPT_EULA=yes</code> in the environment accepts the terms at
         <a href="/license/v1/">turf.build/license/v1</a> instead.

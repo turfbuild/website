@@ -147,10 +147,10 @@ Both write the same record, `~/.turf/license.json`. The server reads it on the n
 nothing to restart; it starts no engine before that. A Homebrew engine service that was waiting starts
 within seconds.
 
-A server your client starts with npx, from Homebrew or from the script reads that record. A server in
-a container cannot: it reads only its own environment. `TURF_ACCEPT_EULA` in the server's `env`, in
-the client's configuration, accepts for that one server, whatever its `command` is. Setting it to
-`yes` accepts the terms at `https://turf.build/license/v1/`:
+A server your client starts with npx, from Homebrew or from the script reads that record, so its
+entry needs nothing more. Where no one will run the command, `TURF_ACCEPT_EULA` in the entry's `env`
+accepts instead, for that server and an engine it starts. Setting it to `yes` accepts the terms at
+`https://turf.build/license/v1/`:
 
 ```json
 {
@@ -164,9 +164,12 @@ the client's configuration, accepts for that one server, whatever its `command` 
 }
 ```
 
-Restart the client's MCP connection after editing its configuration. The variable reaches that server
-and an engine it starts. It does not reach the Homebrew engine service, which reads the record, or
-`~/.homebrew/services/turf.env`. Each case is in
+Restart the client's MCP connection after editing its configuration. The variable does not reach the
+Homebrew engine service, which reads the record, or `~/.homebrew/services/turf.env`.
+
+A server in a container cannot read the record: it reads only the container's environment. An entry's
+`env` reaches the process your client starts, which for a container is `docker`, not the container,
+unless the entry's args pass the variable in with `-e`. Each case is in
 [Accept the license](/docs/start/install/#accept-the-license).
 
 ## HTTP instead of stdio

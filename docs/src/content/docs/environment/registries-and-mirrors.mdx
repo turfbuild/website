@@ -34,7 +34,7 @@ server's environment, plus `open`'s `backend_config`.
 }
 ```
 
-With a Homebrew install the `command` is the server's path, as `command -v turf-mcp-server` prints
+With a Homebrew or script install the `command` is the server's path, as `command -v turf-mcp-server` prints
 it, with no `args`. This `AWS_PROFILE` is the backend's alone. A provider's own goes in the
 configuration's `mise.local.toml` for an engine the server started, or in `turf.env` for the Homebrew
 service.
@@ -46,11 +46,13 @@ authenticate with a token for their host. Two ways:
 
 - **`turf login <host>`**, the simplest. Like `tofu login`, it writes the token to
   `~/.terraform.d/credentials.tfrc.json`, which the server and the engine both read. A co-installed
-  `tofu` or `terraform` reads it too.
+  `tofu` or `terraform` reads it too. `turf login` is a command of the `turf` CLI, which comes with
+  Homebrew or the script; the npx install does not carry it.
 - **`TF_TOKEN_<host>`**, with the host's dots as underscores (`TF_TOKEN_app_terraform_io`). It works
   per process: the server's environment for the `remote` backend and `init`'s installs, the engine's
   for the installs a plan makes. Set it in both, or use the credentials file. An engine the server
-  started gets no `TF_TOKEN_` variable, so there it is the credentials file.
+  started gets no `TF_TOKEN_` variable, so for its installs the token must be in the credentials
+  file.
 
 ```sh
 turf login app.terraform.io

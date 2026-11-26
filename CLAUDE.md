@@ -529,8 +529,15 @@ and say "macOS or Linux" with no Windows claim either way. The server starts the
 first needs it: never write that the Homebrew service is required or that the server never starts
 the engine, and never imply provider credentials need no setup: point at
 `docs/…/environment/engine-environment.mdx` (an engine the server started has a small fixed
-environment; provider variables go in the configuration's `mise.local.toml`). The behaviour of
-record is turf-mcp-server's README. In the docs, the tabs that depend on the install share
+environment; provider variables go in the configuration's `mise.local.toml`). An engine setting
+passed through an agent's entry (`DO_NOT_TRACK=1`, `TURF_MISE=off`, …) takes three steps, and a page
+that gives the setting gives all three or links them: the `env` of Turf's entry in each agent that
+has one, reconnect the agent, then `engine stop`. On `/get-started/` the telemetry paragraph keeps
+its two disclosure sentences word for word and gives the npx reader's switch first, with the steps
+at `/telemetry/`; `/licensing/` keeps the whole sentence as `headquarters/marketing/licensing.md`
+has it. A command given to an npx reader is spelled `npx -y @turfbuild/turf-mcp-server …`;
+`turf console`, `turf login` and `turf telemetry off` come with the CLI (Homebrew or the script).
+The behaviour of record is turf-mcp-server's README. In the docs, the tabs that depend on the install share
 `syncKey="install"` and the labels `npx`, `Homebrew`, `One script`.
 
 `pages/engine.astro` is the Turf 1.0 announcement (launch plan §3, §8). Its sources, in order: the

@@ -122,7 +122,7 @@ at an approval point ends `cancelled`, with the upgrade as the cause; `apply` on
 One in the middle of an apply finishes what is in flight, and its round ends `partial`. Everything
 applied is kept: run `up` again, and `plan` plans what remains.
 
-After an upgrade, two messages say what to restart:
+After a minor upgrade, two messages say what to restart:
 
 - *"a Turf engine X is running for this user, and this server is Y"* with an older engine: restart
   the engine, as the message says. For one a server started, `turf-mcp-server engine stop`
@@ -172,8 +172,9 @@ The server starts the engine when a tool first needs it, so these messages say w
 Once it is fixed, call again: nothing needs reconnecting. `init`, the provider tools and the skills
 work without the engine.
 
-**The first start with npx.** The first time your client starts the server, npm downloads Turf, which
-takes about a minute. A client that waits 30 seconds for a server may give up: reconnect once.
+**The first start with npx.** Whichever npx command runs Turf first downloads it, which takes about
+a minute. When that is your client starting the server, a client that waits 30 seconds may give up:
+reconnect once.
 
 **See or stop the engine.**
 

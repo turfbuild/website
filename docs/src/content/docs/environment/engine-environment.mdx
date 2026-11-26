@@ -17,7 +17,8 @@ By default the server starts the engine when a tool first needs it. That engine 
 environment, the same whichever agent or shell the server came from:
 
 - `HOME`, `USER`, `LOGNAME`, `SHELL` and `TMPDIR`;
-- the `TURF_*` settings, `DO_NOT_TRACK` and `CI`, from the server's environment;
+- the `TURF_*` settings (all but `TURF_MCP_AUTH_TOKEN`), `DO_NOT_TRACK` and `CI`, from the server's
+  environment;
 - `TF_PLUGIN_CACHE_DIR` and `TF_CLI_CONFIG_FILE`, from the server's environment;
 - a `PATH` of Homebrew's and the system's directories.
 
@@ -56,8 +57,11 @@ A run paused at a plan gate or an approval point waits through the restart.
 
 `turf.env` holds the service's other settings too: `TURF_MISE=off` turns off
 [mise](/docs/environment/mise/), and `TURF_CONSOLE_ADDR`, `DO_NOT_TRACK` and `TURF_ACCEPT_EULA` are
-read there, not in your shell. An engine the server started takes the same settings from the server's
-environment, the `env` block of your MCP client's entry.
+read there, not in your shell.
+
+An engine the server started takes the same settings from the environment of the server that started
+it. To change one, put it in the `env` of Turf's entry in each agent that has one, reconnect the
+agent, then run `turf-mcp-server engine stop`: the next call starts the engine with the new setting.
 
 <Aside type="caution" title="A PATH in turf.env replaces the service's">
 Follow your own directories with Homebrew's `bin` and the system directories, or the engine loses

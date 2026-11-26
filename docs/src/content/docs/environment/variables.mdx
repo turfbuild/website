@@ -46,18 +46,19 @@ definition. Put it in the `env` block:
 }
 ```
 
-With a Homebrew install the `command` is the server's path, as `command -v turf-mcp-server` prints
+With a Homebrew or script install the `command` is the server's path, as `command -v turf-mcp-server` prints
 it, with no `args`. Restart your agent's MCP connection after editing the entry. From the Turf™ CLI,
 the server has the environment of the shell you started `turf` in.
 
-The `env` block reaches the server, not the providers. A variable a provider needs, such as
+The `env` block reaches the server. An engine the server started takes only Turf's own settings
+from it, never a provider's credentials. A variable a provider needs, such as
 `AWS_PROFILE`, goes in the configuration's `mise.local.toml` for an engine the server started, or in
 `turf.env` for the Homebrew service: see
 [The engine's environment](/docs/environment/engine-environment/).
 
-The same `env` block is where `TURF_ACCEPT_EULA` goes for a server that cannot read the record
-`turf license accept` writes, such as one your client starts from a container. Setting it to `yes`
-accepts the license terms at `https://turf.build/license/v1/` for that server only: see
+The same `env` block can carry `TURF_ACCEPT_EULA`, where no one will run the accept command. Setting
+it to `yes` accepts the license terms at `https://turf.build/license/v1/` for that server and an
+engine it starts: see
 [Before the license is accepted](/docs/start/connect/#before-the-license-is-accepted).
 
 - `TF_VAR_` values load on their own, below `.tfvars` files and `var`.

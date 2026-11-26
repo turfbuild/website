@@ -25,7 +25,7 @@ It finds the agents you have installed, asks which ones to add Turf to, and writ
 Running it again replaces the entry. Restart Claude Desktop or Cursor after the config changes.
 
 There is nothing else to install. npm brings the server, the engine and the console the first time
-your agent starts Turf, and the engine starts when a tool first needs it. A client that waits 30
+Turf runs, and the engine starts when a tool first needs it. A client that waits 30
 seconds for a server may give up on that first start: reconnect once. Later starts take several
 seconds.
 
@@ -76,6 +76,8 @@ Read the terms at [turf.build/license/v1](https://turf.build/license/v1/), then 
 ```sh
 npx -y @turfbuild/turf-mcp-server license accept
 ```
+Whichever npx command runs Turf first downloads it. If you accept before your agent has started Turf,
+the download happens here, in your terminal, and your agent's first start is then quick.
   </TabItem>
   <TabItem label="Homebrew">
 ```sh
@@ -103,7 +105,7 @@ read them. Only `yes` accepts, in any letter case; `true`, `1` and `y` do not.
 | Where Turf runs | How to accept |
 |---|---|
 | A server your agent starts with npx | `npx -y @turfbuild/turf-mcp-server license accept` on the same machine. The server checks again on the next call, so no restart is needed, and the engine it starts is accepted as the server is. |
-| An MCP client, with the CLI installed | `turf license accept` on the same machine. The server checks again on the next call, so no restart is needed. For a server your client starts from a container, `TURF_ACCEPT_EULA=yes` in the server's `env`, in the client's configuration. |
+| An MCP client, with the CLI installed | `turf license accept` on the same machine. The server checks again on the next call, so no restart is needed. A server in a container reads only the container's environment: `TURF_ACCEPT_EULA=yes` there, which an entry's args pass in with `-e`. |
 | The Homebrew service | `turf license accept`. The service waits and starts within seconds. Or put `TURF_ACCEPT_EULA=yes` in `~/.homebrew/services/turf.env` and restart the service. |
 | `turf-mcp-server engine run` in a terminal | `turf license accept`, before or after you start it: it checks every 2 seconds. Or `TURF_ACCEPT_EULA=yes` in that terminal. |
 | A container or Kubernetes® | `TURF_ACCEPT_EULA=yes` in the environment of each Turf container (the engine, the server and the console), or the `--accept-eula` flag. |
@@ -136,8 +138,8 @@ Two npm packages, which npm keeps in its own cache. Nothing is put on your `PATH
 | `@turfbuild/turf-mcp-server` | A small launcher, and one package for your platform with the server, the engine, its built-in provider and the console. |
 | `@restatedev/restate-server` | restate-server, the engine's dependency, from Restate's own package. |
 
-npm downloads about 180 MB and unpacks about 550 MB. No npm package carries the `turf` CLI: install
-with Homebrew for that.
+npm downloads about 180 MB and unpacks about 550 MB. No npm package carries the `turf` CLI: it comes
+with Homebrew or the script.
   </TabItem>
   <TabItem label="Homebrew">
 Five binaries from Turf's tap, and `restate-server`, the engine's dependency, from Restate's own tap.
@@ -204,11 +206,14 @@ the engine's environment turns it off; another loopback address moves it. More i
 There is nothing to run. An entry that names no version asks npm at every start, so a new release is
 installed the next time your client starts the server. That start is slow again, about half a minute.
 
-The engine that is running is still the old one, and the server says so. Stop it, and the next call
-starts the new one:
+The engine that is running stays the old one until it is stopped. Stop it, and the next call starts
+the new one:
 ```sh
 npx -y @turfbuild/turf-mcp-server engine stop
 ```
+After a patch release the server keeps using the running engine and says nothing. Only across a minor
+release, such as 1.5 to 1.6, does it refuse the older engine and name this remedy.
+
 To hold a version, pin it in the entry: `@turfbuild/turf-mcp-server@1.5.0`.
   </TabItem>
   <TabItem label="Homebrew">
@@ -237,15 +242,17 @@ Turf sends anonymous usage telemetry by default: the version, the platform, coun
 changes and runs, and an anonymous installation id. It never sends resource contents, credentials,
 state, variable values or names. To turn it off:
 
-- **npx**: put `DO_NOT_TRACK=1` in the `env` of the server's entry in your agent's configuration. An
-  engine the server starts takes it from there.
+- **npx**: put `DO_NOT_TRACK=1` in the `env` of Turf's entry in each agent that has one, reconnect
+  the agent, then run `npx -y @turfbuild/turf-mcp-server engine stop`. The next call starts the
+  engine with telemetry off.
 - **Homebrew, with the service**: `turf telemetry off && brew services restart turf`, or
   `TURF_TELEMETRY=off` or `DO_NOT_TRACK=1` in `turf.env`, not your shell.
 - **Homebrew or the script, without the service**: `turf telemetry off`, then
   `turf-mcp-server engine stop`; the next call starts the engine with it off.
 
-Restate's npm package reports anonymous install analytics through Scarf at install time;
-`DO_NOT_TRACK=1` or `SCARF_ANALYTICS=false` turns that off. The field list is at
+Restate's npm package reports anonymous install analytics through Scarf where npm installs it: in
+your agent, or in the shell that first runs Turf. `DO_NOT_TRACK=1` or `SCARF_ANALYTICS=false` there
+turns that off. The field list is at
 [turf.build/telemetry](https://turf.build/telemetry/).
 </Aside>
 
