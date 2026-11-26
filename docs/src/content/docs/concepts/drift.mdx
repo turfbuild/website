@@ -10,7 +10,7 @@ import Since from '../../../components/Since.astro';
 
 Terraform® and OpenTofu® look at the world only when someone runs a plan. Turf™ can also watch
 between runs, once you turn drift detection on. When an object it manages changes outside Turf, the
-engine reads that one object and tells your agent what changed. The agent decides what to do about
+engine's sweep finds it on its next pass and tells your agent what changed. The agent decides what to do about
 it, and any change it makes is an ordinary run: a plan, an approval point, an apply. Nothing applies
 on its own.
 
