@@ -150,10 +150,8 @@ only on your words, or on your yes to its offer, never on its own.
 
 Detection needs two things besides being on, and the result's `note` says which is still missing:
 
-- **Something to signal a change.** The sweep, or a [drift feed](/docs/cluster/drift-feed/) in the
-  cluster. A connected feed does not turn detection on, and reports nothing while it is off. Where a
-  feed already watches the cluster, `drift` with `enabled: true` alone turns detection on without a
-  sweep.
+- **Something to signal a change.** The sweep. It is off until a call names a cycle, so name one as
+  you turn detection on: `sweep: 86400` is one cycle a day.
 - **A standing seal** for the confirming read. The engine takes it from the last `up` that converged,
   so a workspace needs one converged run on this engine first. On a workspace with no state, `drift`
   is refused, except to turn detection off: a [first deploy](#on-a-first-deploy) asks through its
@@ -164,12 +162,10 @@ takes `drift` only there. `watch` and `status` are listed at every tier.
 
 The sweep paces itself across the cycle and draws on the engine's
 [read budget](/docs/environment/engine-environment/#drift-detection). It pauses while a run holds the
-workspace, and an `up` that converges after reading every object starts its cycle over. An object a
-live feed watches is swept every fourth cycle.
+workspace, and an `up` that converges after reading every object starts its cycle over.
 
 **Choosing a cycle.** The agent offers one cycle a day, `sweep: 86400`, and goes shorter only when you
-ask. The sweep is the backstop for what no feed watches, its reads are unattended, and a day is the
-usual cadence for a scheduled drift check.
+ask. The sweep's reads are unattended, and a day is the usual cadence for a scheduled drift check.
 
 A shorter cycle has a floor. A swept read takes only what the read budget holds above its reserve, so
 at the default budget the sweep reads about two objects a second, not five. A workspace of *n* objects
@@ -225,7 +221,7 @@ standing seal, nothing reads it, and the notice reopens `unconfirmed`.
 - **It wins over a run that asked.** An `up` still running with `drift: { … }` leaves detection off
   when it converges, and ends `kept_off`. This works even before the workspace has state.
 - **While it is off**, `watch` returns `unwatched` and its note says when detection was turned off,
-  `status` carries no drift block, and a connected feed reports nothing.
+  and `status` carries no drift block.
 
 ## See what drifted
 
@@ -240,7 +236,7 @@ drift: { counts: { configured: 1, gone: 1 },
 - `notices` has one entry per address, most severe class first: `gone`, `configured`, `referenced`,
   `contended`, `unconfirmed`, `uncovered`. It lists up to 20; `omitted` counts the rest.
 - `paths` are the attribute paths that changed. Values are never in a notice.
-- `coverage` is one line: how many objects are watched live, swept or uncovered, then the settings
+- `coverage` is one line: how many objects are swept or uncovered, then the settings
   that explain it, such as `settle 30s, sweep off`. When the sweep is behind its cycle, the line ends
   by saying so and what limits it: the read budget, or the engine's own cadence.
 - `next` is the `up` to call, and `note` says what each class present asks and names the plan that
@@ -396,7 +392,6 @@ Name at least one of the four. `watch`:
 ## Related
 
 - [Drift](/docs/concepts/drift/): signals, observations, classes and coverage.
-- [The drift feed](/docs/cluster/drift-feed/): signals from a Kubernetes® cluster.
 - [When something goes wrong](/docs/using/troubleshooting/#drift): unwatched, stored, unconfirmed,
   uncovered, contended, a watch that never wakes.
 - [`watch`](/docs/reference/tools/watch/) and [`drift`](/docs/reference/tools/drift/) in the reference.

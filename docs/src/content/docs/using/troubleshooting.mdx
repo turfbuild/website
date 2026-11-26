@@ -172,9 +172,9 @@ What `watch` and `status` say when drift detection is not doing what you expect.
 **`watch` returns `unwatched`.** Nothing watches the workspace, and the note says why: drift
 detection was never turned on for it, it was turned off (the note says when), the workspace has no
 state yet, or the engine has no drift detection. The watch would never wake, so the agent stops
-calling it. Turn detection on with `drift` and `enabled: true`, which is
-[your choice](/docs/using/drift/#turn-it-on). A [drift feed](/docs/cluster/drift-feed/) alone does not
-turn it on. Until then an `up`'s plan reads every object and is the drift report.
+calling it. Turn detection on with `drift`, `enabled: true` and a `sweep`, which is
+[your choice](/docs/using/drift/#turn-it-on). Until then an `up`'s plan reads every object and is the
+drift report.
 
 **`drift` returns `stored`.** The settings were kept, and detection is off, so nothing watches the
 workspace yet. They take effect when `drift` with `enabled: true` turns it on.
@@ -182,8 +182,8 @@ workspace yet. They take effect when `drift` with `enabled: true` turns it on.
 **An `up` that asked for detection did not turn it on.** Its last result's `drift.state` says why.
 `kept_off`: detection was turned off after the run began, and that later choice stands. `not_applied`:
 the run did not converge. `failed`: the change itself failed, `error` says why, and what the run
-applied is applied. Once the workspace has state, `drift` with `enabled: true` turns detection on, if
-you still want it.
+applied is applied. Once the workspace has state, `drift` with `enabled: true` and a `sweep` turns
+detection on, if you still want it.
 
 **Every notice is `unconfirmed`.** Nothing reads an object after its signal. If the `coverage` line in
 `status` ends `confirm off`, the confirming read is turned off: turn it back on with `drift` and
@@ -208,11 +208,10 @@ files are yours, so the agent asks first.
 **A watch never wakes.** `waiting` is not a failure: it is the server's deadline, and the agent calls
 again. If nothing comes when you expect it, check in this order:
 
-- **Is anything signalling?** A `coverage` line with `sweep off` and nothing watched live means no.
+- **Is anything signalling?** A `coverage` line with `sweep off` means no: the sweep is what signals
+  a change. Turn it on with `drift` and a `sweep`.
 - **Is the sweep running?** It needs a standing seal and the confirming read, and it pauses while a
   run holds the workspace.
-- **Is the feed heard?** A lost feed shows in the console. A feed started with the wrong provider
-  spelling runs with an empty watch set and logs every item as `unknown`.
 - **Is the object covered?** See `uncovered`, above.
 - **Is the change noise?** A computed value nothing reads, a path under `ignore_changes`, or a field
   the resource does not manage never becomes a notice.

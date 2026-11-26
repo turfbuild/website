@@ -6,6 +6,7 @@ sidebar:
 ---
 
 import DriftFigure from '../../../components/figures/DriftFigure.astro';
+import Since from '../../../components/Since.astro';
 
 Terraform® and OpenTofu® look at the world only when someone runs a plan. Turf™ can also watch
 between runs, once you turn drift detection on. When an object it manages changes outside Turf, the
@@ -17,9 +18,9 @@ on its own.
 
 ## Four words
 
-**Signal.** A hint that an object may have changed: a watch event from the
-[drift feed](/docs/cluster/drift-feed/) in a Kubernetes® cluster, or the sweep reaching the object on
-its paced pass over everything the workspace manages. A signal costs nothing and proves nothing.
+**Signal.** A hint that an object may have changed: the sweep reaching the object on its paced pass
+over everything the workspace manages. A signal costs nothing and proves nothing. A sensor that
+reports changes in a Kubernetes® cluster as they happen is coming soon <Since />.
 
 **Observation.** One provider read of that object, compared with what state records. The engine makes
 it once the object has been quiet for the settle window (30 seconds by default), so a burst of edits
@@ -32,8 +33,7 @@ resource to the next, so what an edit means for the configuration is known when 
 **Drift notice.** What reaches your agent: for each address a class, the attribute paths that changed,
 what saw the change and when. Paths, never values; a plan's diff shows the values.
 
-How soon a change becomes a notice depends on the settle window, and for an object only the sweep
-covers, on the sweep's cycle.
+How soon a change becomes a notice depends on the sweep's cycle.
 
 ## What the engine reads with
 
@@ -80,17 +80,16 @@ an element of a set), it counts the path as set, and the notice is `configured`.
 
 ## Coverage
 
-Between runs, every managed object is in one of three states. `status` and the console count them.
+Between runs, every managed object is in one of two states. `status` and the console count them.
 
 | State | Meaning |
 |---|---|
-| Watched and live | A live feed watches the object's provider configuration, so a change is signalled as it happens. |
 | Swept | The sweep reads it once a cycle. The sweep is off until you turn it on. |
 | Uncovered | Nothing reads it until the next run's plan. |
 
 An object is uncovered when:
 
-- no feed watches it and the sweep is off;
+- the sweep is off;
 - no standing seal stands, or the confirming read is turned off;
 - its provider is configured from an ephemeral value, or from a data source state holds no value for;
 - the configuration directory is not on the engine's host;
@@ -101,12 +100,11 @@ What drift detection does not see, whatever the coverage:
 - **Objects Turf does not manage.** A new object nobody declared is not drift.
 - **Data sources.** They are read at every plan, never between runs.
 - **Objects inside a Helm® release.** A `helm_release` is read as the release. A change to an object
-  the release installed is not seen, by the feed or by the sweep.
-- **Cloud audit logs.** The one feed is the Kubernetes feed. Everything else is the sweep's to cover.
+  the release installed is not seen.
+- **Cloud audit logs.** No signal comes from a cloud's audit log. The sweep covers what a cloud
+  provider manages.
 - **A change made while a run commits the same address.** It is taken for the run's own write. The
   sweep, or the next plan that reads the object, finds it.
-
-Watched and live is counted per provider configuration, not per object.
 
 A sweep whose cycle is too short for the workspace falls behind, and `status` says so. How long a
 cycle a workspace needs: [Choosing a cycle](/docs/using/drift/#turn-it-on).
@@ -128,8 +126,8 @@ So every notice continues the same way: `up`, then `plan`. The plan is what you 
 
 | | At plan time | Between plans |
 |---|---|---|
-| When | Someone runs `up` or `refresh`. | A signal arrives, or the sweep reaches the object. |
-| What is read | Every managed object. | The object that changed. With the sweep on, every covered object once a cycle. |
+| When | Someone runs `up` or `refresh`. | The sweep reaches the object. |
+| What is read | Every managed object. | Every swept object, once a cycle. |
 | What you get | The plan: `plan.drift` and the document's `resource_drift`, with values. | A notice: address, class, paths. |
 | What is written | `refresh` writes state, once you approve its plan. | Nothing. |
 
@@ -149,9 +147,8 @@ The engine detects and reports. Your agent, and you, decide which side wins:
 digest and the approval point every run has. The engine records which run cleared each notice: in the
 console a cleared notice names that run, and the run shows how many notices it cleared.
 
-**On or off is yours too.** Detection is off until you turn it on, and a connected feed does not turn
-it on. The agent turns it on or off only on your words. Turned off, its open notices close and its
-settings stand. [Turn it on](/docs/using/drift/#turn-it-on).
+**On or off is yours too.** Detection is off until you turn it on. The agent turns it on or off only
+on your words. Turned off, its open notices close and its settings stand. [Turn it on](/docs/using/drift/#turn-it-on).
 
 The approval rules are the ones every plan has. An in-place update back to what the files say is
 low-risk, and the agent may approve it. A replace or a delete comes to you.
@@ -160,6 +157,5 @@ low-risk, and the agent may approve it. A replace or a delete comes to you.
 ## Related
 
 - [Watching for drift](/docs/using/drift/): turn it on, wait for notices, plan only what drifted.
-- [The drift feed](/docs/cluster/drift-feed/): the in-cluster source of signals.
 - [Refresh state](/docs/using/refresh/): drift at plan time.
 - [Rounds and deferrals](/docs/concepts/rounds/)

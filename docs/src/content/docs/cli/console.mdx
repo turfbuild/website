@@ -38,22 +38,22 @@ The Timeline tab draws every resource's lane as the apply runs, live; Plan and G
 plan and configuration graph; State shows what the workspace holds.
 
 **The Drift tab** shows the workspace between runs: what changed outside Turf, and how much of the
-workspace anything watches. Its label carries the number of open addresses.
+workspace the sweep covers. Its label carries the number of open addresses.
 
 - **Open notices.** Each address with its class, the changed paths, what saw the change, when it was
   first seen and when it was read. A row opens the notice: what its class means, and the calls that
   continue it, as text to copy.
-- **Coverage.** How many managed objects are watched and live, swept or uncovered, and why. With the
+- **Coverage.** How many managed objects are swept or uncovered, and why. With the
   sweep on, its cycle and how far it has come.
-- **Pipeline.** Each feed, live or lost; what is settling and what is being read; the read budget; the
-  webhook's last delivery.
+- **Pipeline.** What is settling and what is being read; the read budget; the webhook's last
+  delivery.
 - **Recent reads and cleared notices.** The reads that found only noise are here, and nowhere an agent
   sees them. A notice a run cleared names that run and links to the round.
 
 On the Runs tab, a run that cleared drift notices says how many: `cleared 2 drift notices`.
 
 Where detection is off, or was never turned on, the tab says so and shows what is in place for when
-it is: a standing configuration (the console's words for the standing seal), a feed, the sweep. It
+it is: a standing configuration (the console's words for the standing seal) and the sweep. It
 shows paths, never values: a plan's diff has those. See [Drift](/docs/concepts/drift/).
 
 The console is read-only. It starts no run and acknowledges no notice. Approvals are given where they
