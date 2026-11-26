@@ -16,7 +16,8 @@ turf-mcp-server --version            # the version, then the license lines
 ```
 
 An agent's MCP configuration starts it with no arguments: see [Connect your agent](/docs/start/connect/).
-Where a flag has an environment variable, the variable sets the flag's default and a flag given on the
+With the npx install the binary is not on your `PATH`: `npx -y @turfbuild/turf-mcp-server` stands for
+`turf-mcp-server` in every command on this page. Where a flag has an environment variable, the variable sets the flag's default and a flag given on the
 command line wins.
 
 ## Transports
@@ -76,16 +77,31 @@ Plans and applies run in the **Turf engine**, a separate process the server driv
 `http://127.0.0.1:8080`, or `unix:<socket path>`.
 
 Left empty, the server uses this user's **local engine**: a restate-server, turf-engine and the console
-(turf-ui) in `$TURF_HOME/engine`, by default `~/.turf/engine`. The `turf` Homebrew service runs it
-(`brew services start turf`); without Homebrew, run `turf-mcp-server engine run` in a terminal. Every
-server on the machine shares it, and a convergence waits in it between sessions.
+(turf-ui) in `$TURF_HOME/engine`, by default `~/.turf/engine`. Every server on the machine shares it,
+and a convergence waits in it between sessions.
 
-- **The server never starts the engine.** It connects whenever it needs one, so an engine started after
-  the server is still found. Without one, plan and apply fail and say `brew services start turf`.
+- **The server starts the engine on demand.** The first tool call that needs the engine starts it when
+  none is running, and waits up to 90 seconds. A call that outlasts that is told the engine is still
+  starting, and to call again. The engine then runs in the background, outliving the server and the
+  client, until `engine stop`.
+- **The Homebrew service starts it at login instead.** `brew services start turf` runs the same engine
+  and takes over one a server started. `turf-mcp-server engine run` runs it in a terminal.
+- **The server starts none** when `TURF_ENGINE_AUTOSTART=off`, in a container
+  (`TURF_DEPLOYMENT=container`), when it cannot find `restate-server` or `turf-engine`, or until the
+  license terms are accepted. The error says which. A start that fails explains itself in
+  `$TURF_HOME/engine/supervisor.log`.
 - **`init`, the provider tools and the skills work without an engine.** At startup an engine that cannot
   be reached is only a warning in the log. An engine the server cannot drive stops it.
-- **Providers run in the engine**, with the engine's environment, not the server's. See
-  [Where credentials are read](/docs/environment/where-credentials-are-read/).
+- **Providers run in the engine**, with the engine's environment and, over it, the provider
+  environment: the variables this server sends by name. `--provider-env` and `TURF_PROVIDER_ENV`
+  name them when the server starts, and their values go to the engine when a run starts. Nothing
+  else of the server's environment reaches a provider. Never sent, even when named: `PATH`, the home
+  and shell variables (`HOME`, `USER`, `LOGNAME`, `SHELL`, `TMPDIR`, `PWD`), the dynamic loader's
+  (`LD_*`, `DYLD_*`), Turf's and Restate's own (`TURF_*`, `RESTATE_*`), CI markers, the plugin
+  handshake and `TF_LOG*`. An entry that names one, or a bare `*`, stops the server at start. An
+  engine the server started has a small fixed environment of its own. See
+  [Send a variable to providers](/docs/environment/provider-environment/) and
+  [The engine's environment](/docs/environment/engine-environment/).
 
 `--scopes` (`TURF_ENGINE_SCOPES`, `on` or `off`, default `on`) sets flow-control scopes. It must match
 the engine's own `--scopes`, which the server checks when it connects. The local engine runs with
@@ -97,9 +113,32 @@ scopes on, so `--scopes off` needs `--restate-url`.
 
 | Command | What it does |
 |---|---|
-| `engine run` | Runs the local engine in the foreground until interrupted. The Homebrew service runs this. |
-| `engine status` | Where the engine listens, whether it answers, its version, the console's address and its logs. After a minor upgrade it also shows the previous line's engine while that drains. |
+| `engine run` | Runs the local engine in the foreground until interrupted. The Homebrew service runs this. Until the license terms are accepted it starts nothing and waits. |
+| `engine stop` | Stops the local engine, and anything a killed one left running. The next tool call that needs it starts it again. |
+| `engine status` | The license terms, where the engine listens, how it was started, whether it answers, its version, the console's address and its logs. After a minor upgrade it also shows the previous line's engine while that drains. |
 | `engine console [--print] [url]` | Signs this browser in to the console, once, so only you can open it. `url` is a console link to land on. `--print` prints the sign-in link instead of opening it. `turf console` runs this. |
+
+With the npx install:
+
+```sh
+npx -y @turfbuild/turf-mcp-server engine status
+npx -y @turfbuild/turf-mcp-server engine stop
+```
+
+### license subcommands
+
+`turf-mcp-server license` accepts the license terms without the `turf` CLI:
+
+| Command | What it does |
+|---|---|
+| `license accept` | Accepts the terms at `https://turf.build/license/v1/` and records it in `$TURF_HOME/license.json`, as `turf license accept` does. Running it is the acceptance. A running server answers at its next call, with no restart. |
+| `license status` | Whether the terms are accepted, and how. |
+
+With the npx install:
+
+```sh
+npx -y @turfbuild/turf-mcp-server license accept
+```
 
 ## License acceptance
 
@@ -109,21 +148,22 @@ before it does its work. The server takes acceptance from three places, in this 
 1. the `--accept-eula` flag;
 2. `TURF_ACCEPT_EULA` set to `yes`, in any letter case. No other value accepts: `true`, `1` and `y`
    do not, and the server names a wrong value on stderr;
-3. the record `turf license accept` writes, `$TURF_HOME/license.json`.
+3. the record `turf license accept` or `turf-mcp-server license accept` writes,
+   `$TURF_HOME/license.json`.
 
-Giving the flag or setting the variable accepts the terms. `turf-engine` and `turf-ui` read the flag
-and the environment only, never the record.
+Giving the flag or setting the variable accepts the terms. An engine the server starts is accepted as
+the server is. `turf-engine` and `turf-ui` read the flag and the environment only, never the record.
 
 Without acceptance:
 
 | Process | What it does |
 |---|---|
-| `turf-mcp-server`, serving MCP over stdio or HTTP | Starts, completes the handshake, and lists its tools, prompts and resources. Every tool call, prompt and resource read returns the license notice as an error, and its instructions lead with a "License not accepted" section. It checks again on each call, so `turf license accept` needs no restart. |
+| `turf-mcp-server`, serving MCP over stdio or HTTP | Starts, completes the handshake, and lists its tools, prompts and resources. Every tool call, prompt and resource read returns the license notice as an error, and its instructions lead with a "License not accepted" section. It starts no engine. It checks again on each call, so `turf license accept` or `turf-mcp-server license accept` needs no restart. |
 | `turf-mcp-server engine run` | Outside a container it stays up and starts nothing. `engine status` says `awaiting license`. It checks for the record every 2 seconds and continues when it finds one. In a container it prints the notice and exits with status 77. |
 | `turf-mcp-server engine console` | Prints the notice and exits with status 77. |
 | `turf-engine`, `turf-ui` | Print the notice and exit with status 77. |
 
-`--version`, `--help` and `engine status` always run. `--version` prints the version, then:
+`--version`, `--help`, `engine status` and `license` always run. `--version` prints the version, then:
 
 ```text
 License: Turf Community Edition License 1.0 — proprietary; free within the Community limits
@@ -185,7 +225,7 @@ into it when the server knows a console. The server finds the local engine's con
 | Variable | Read by | Meaning |
 |---|---|---|
 | `TURF_CONSOLE_URL` (`--console-url`) | the server | Where a browser opens the console for the engine `--restate-url` names, such as `http://localhost:8873` through a port-forward. Empty: no links, except for the local engine. |
-| `TURF_CONSOLE_ADDR` | `engine run` | Where the local console listens: `http://127.0.0.1:8873` by default, another loopback address, or `off`. For the Homebrew service, set it in `turf.env`. |
+| `TURF_CONSOLE_ADDR` | `engine run` | Where the local console listens: `http://127.0.0.1:8873` by default, another loopback address, or `off`. An engine the server starts takes it from the server's environment; for the Homebrew service, set it in `turf.env`. |
 | `TURF_CONSOLE_AUTH_TOKEN` | the console | The console's token. Locally it is kept in `console.token` in the engine's directory, and this overrides it. Off loopback, as in a cluster, the console requires it: a browser signs in once at `/login?token=…` and keeps a cookie, and a program sends it as a bearer header. |
 
 See [The engine and the console](/docs/concepts/engine-and-console/).
@@ -200,7 +240,9 @@ See [The engine and the console](/docs/concepts/engine-and-console/).
 | `--tier` | `TURF_TIER` | `full` | `read`, `plan`, `apply` or `full`: which tools the server lists and what their arguments may do. |
 | `--restate-url` | `TURF_RESTATE_URL` | empty: the local engine | The engine's restate-server ingress: an `http(s)` URL or `unix:<socket path>`. |
 | | `TURF_HOME` | `~/.turf` | The local engine lives in `$TURF_HOME/engine`. |
+| | `TURF_ENGINE_AUTOSTART` | unset | `off` keeps the server from starting the local engine. |
 | `--accept-eula` | `TURF_ACCEPT_EULA` | unset | Accepts the license terms at `https://turf.build/license/v1/`: the flag, or the variable set to `yes`. See [License acceptance](#license-acceptance). |
+| `--provider-env` | `TURF_PROVIDER_ENV` | unset: nothing is sent | The provider environment: the variables the server sends to the engine by name, for providers. An entry is `NAME` (the server's own value), `NAME=VALUE` or `PREFIX_*`. Both are read: the variable's entries, comma-separated, then the flag's, which repeats, and a later entry for a name wins. At most 64 variables and 16 KiB. A secret goes in the server's environment by name: `NAME=VALUE` on the flag shows in the process list. See [Send a variable to providers](/docs/environment/provider-environment/). |
 | `--scopes` | `TURF_ENGINE_SCOPES` | `on` | Flow-control scopes, `on` or `off`; must match the engine's. |
 | `--workdir` | `TURF_WORKDIR` | empty: no mapping | Maps this server's working directory to an engine's own `--workdir`. Needs `--restate-url`. |
 | `--deadline` | `TURF_DEADLINE` | `55s` | How long a convergence call runs before it returns the stage; `0` disables. |

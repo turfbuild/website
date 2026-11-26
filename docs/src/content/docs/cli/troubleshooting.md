@@ -54,9 +54,9 @@ only their own environment and the `--accept-eula` flag
 
 ## The engine is awaiting the license
 
-`turf-mcp-server engine status` says `awaiting license`: the engine service is up and has started
-nothing, because the license terms are not accepted. Plans and applies fail until they are. Run
-`turf license accept`. The service checks every 2 seconds and starts the engine, with no restart.
+`turf-mcp-server engine status` says `awaiting license`: the Homebrew service, or an engine in a
+terminal, is up and has started nothing, because the license terms are not accepted. Plans and applies fail until they are. Run
+`turf license accept`. It checks every 2 seconds and starts the engine, with no restart.
 
 A `TURF_ACCEPT_EULA` set in your shell, or in your MCP client's configuration, does not reach the
 Homebrew service. The record `turf license accept` writes does, and so does

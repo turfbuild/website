@@ -106,8 +106,10 @@ const description =
       <p>Turf asks you to accept the terms once, by an act of your own. Read them at
         <a href="/license/v1/">turf.build/license/v1</a>, then do one of three things:</p>
       <ul>
-        <li>Run <code>turf license accept</code>. It records your acceptance in a file on your
-          machine. The engine service waits for it and starts within seconds.</li>
+        <li>Run <code>turf license accept</code>, or without the <code>turf</code> CLI,
+          <code>npx -y @turfbuild/turf-mcp-server license accept</code>. Either records your
+          acceptance in a file on your machine. Turf reads it at the next call, with nothing to
+          restart.</li>
         <li>Answer yes when the <code>turf</code> CLI asks, on its first run in a terminal.</li>
         <li>Set <code>TURF_ACCEPT_EULA=yes</code> where no one is there to answer: a container, a
           CI job, a Kubernetes® pod, an MCP client's configuration. Setting it accepts the terms.</li>

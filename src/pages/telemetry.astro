@@ -24,6 +24,15 @@ const description =
       <div class="matrix-wrap"><table class="matrix fields">
         <thead><tr><th>Where Turf runs</th><th>How</th></tr></thead>
         <tbody>
+          <tr><th>An engine the MCP server started, as with the npx install</th><td class="note-cell">Put <code>DO_NOT_TRACK=1</code>
+            (or <code>TURF_TELEMETRY=off</code>) in the <code>env</code> of Turf's entry in each agent
+            that has one: the engine is shared, and the first server to need it starts it. Reconnect
+            each agent, so its server restarts with the new environment. Then stop the engine,
+            <code>npx -y @turfbuild/turf-mcp-server engine stop</code>
+            (<code>turf-mcp-server engine stop</code> with Homebrew or the script); the next call
+            starts it with telemetry off. With the <code>turf</code> CLI, which comes with Homebrew or
+            the script, <code>turf telemetry off</code> and the same stop do it with no entry to
+            edit.</td></tr>
           <tr><th>The Homebrew service</th><td class="note-cell"><code>turf telemetry off</code>, then
             <code>brew services restart turf</code>. Or put <code>TURF_TELEMETRY=off</code> or
             <code>DO_NOT_TRACK=1</code> in <code>~/.homebrew/services/turf.env</code> and restart the
@@ -46,13 +55,14 @@ const description =
           service too.</p>
         <p><code>turf telemetry off</code> writes the setting to <code>$TURF_HOME/telemetry.json</code>
           (<code>~/.turf</code> by default). <code>turf-mcp-server engine run</code>, which the Homebrew
-          service runs, reads it each time it starts the engine, so a change takes effect at the next
+          service runs and a server starts on demand, reads it each time it starts the engine, so a change takes effect at the next
           start. A setting that is not valid JSON, or whose <code>enabled</code> is not
           <code>true</code> or <code>false</code>, starts the engine with telemetry off until
           <code>turf telemetry on</code> or <code>off</code> rewrites it. A <code>turf-engine</code> you
           run yourself, in a container or CI, reads no file: use the variables or the flag.</p>
         <p><code>TURF_TELEMETRY</code> takes precedence over <code>DO_NOT_TRACK</code>, and both take
-          precedence over the setting. Setting either in your shell does not reach the Homebrew
+          precedence over the setting. An engine a server started takes both from the environment of
+          the server process that started it. Setting either in your shell does not reach the Homebrew
           service, whose environment is <code>turf.env</code>. That file is
           <code>$XDG_CONFIG_HOME/homebrew/services/turf.env</code> if you set
           <code>XDG_CONFIG_HOME</code>, and Homebrew skips it if it is group- or world-writable.</p>
@@ -75,10 +85,15 @@ const description =
     <div class="wrap">
       <h2>What it sends</h2>
       <div class="prose">
-        <p>The Turf engine sends it: <code>turf-engine</code>, which the <code>turf</code> Homebrew
-          service runs. The <code>turf</code> CLI and <code>turf-mcp-server</code> send none of their
+        <p>The Turf engine sends it: <code>turf-engine</code>, which the MCP server starts on demand
+          or the <code>turf</code> Homebrew service runs. The <code>turf</code> CLI and
+          <code>turf-mcp-server</code> send none of their
           own. The components Turf is built on send nothing either: restate-server's telemetry and the
-          embedded agent runtime's are always off.</p>
+          embedded agent runtime's are always off. Installed through npm, Restate's package,
+          <code>@restatedev/restate-server</code>, reports anonymous install analytics through Scarf
+          where npm installs it: in your agent, or in the shell that first runs Turf, such as the one
+          where you accept the license. <code>DO_NOT_TRACK=1</code> or
+          <code>SCARF_ANALYTICS=false</code> there turns that off.</p>
         <p>There are three events. Each one is a single JSON <code>POST</code> to
           <code>https://telemetry.turf.build/v1/events</code>, whose only headers beyond the HTTP basics
           are <code>Content-Type: application/json</code> and

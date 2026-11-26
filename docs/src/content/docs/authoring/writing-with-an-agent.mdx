@@ -92,7 +92,8 @@ agent passes values to `open` and to each plan command; see
 ## Secrets never go in a file
 
 - **Provider credentials** go in the [engine's environment](/docs/environment/engine-environment/),
-  or a `sensitive` variable passed as `var` on each plan command.
+  in [a variable the server sends by name](/docs/environment/provider-environment/), or in a
+  `sensitive` variable passed as `var` on each plan command.
 - **Backend credentials** stay out of the `backend` block, in `open`'s `backend_config`.
 - **A secret a resource needs** goes only to a write-only argument, fed by an ephemeral variable or
   an `ephemeral` resource. Anything else keeps the secret in state forever.

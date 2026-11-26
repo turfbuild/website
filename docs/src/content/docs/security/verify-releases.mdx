@@ -64,6 +64,13 @@ curl -fsSL https://get.turf.build/install.sh | bash -s -- --verify
 
 It uses `gh` when you are signed in, and cosign otherwise.
 
+## The npm packages
+
+`@turfbuild/turf-mcp-server` and its platform packages are published with npm provenance from the
+`turfbuild/turf` repository's publish workflow. They carry the release's own binaries: the workflow
+checks each one by checksum and signature before it packs them. restate-server is not in Turf's
+packages; it comes from Restate's own, `@restatedev/restate-server`.
+
 ## The container image
 
 The image is signed by digest, and carries its provenance, bill of materials and disposition as

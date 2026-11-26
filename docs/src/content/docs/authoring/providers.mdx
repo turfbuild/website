@@ -110,7 +110,8 @@ provider "azurerm" {
 
 - **No settings, no block.** A required provider without a block is configured empty, as in
   Terraform®. Providers that read credentials from the environment work that way, and the
-  environment is the [engine's](/docs/environment/engine-environment/).
+  environment is the [engine's](/docs/environment/engine-environment/), with
+  [the variables you name](/docs/environment/provider-environment/) over it.
 - **Every aliased instance needs its own block.**
 - **A sensitive attribute arrives as an expression** (`var.token`), never a literal.
 - **Only the root module declares provider blocks.** A module that declares its own is refused. The

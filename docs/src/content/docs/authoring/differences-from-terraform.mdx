@@ -66,6 +66,10 @@ Turf actions and provider actions are in [Actions and overlays](/docs/authoring/
 - **Data-source reads are committed with an apply,** never at a plan that was declined, cancelled or
   stale. See [Data sources](/docs/authoring/data-sources/#what-is-stored).
 - **Provider plugins start afresh every round,** so a round sees what the previous one applied.
+- **A provider does not inherit your shell's environment.** Under Terraform a provider gets the whole
+  environment of the shell that ran it. Under Turf it gets the engine's environment, the variables
+  you name for the server to send, and the configuration directory's mise environment. See
+  [Send a variable to providers](/docs/environment/provider-environment/).
 - **An import whose `id`, `to` key or `for_each` is unknown defers** its resource to a later round
   instead of failing.
 - **`list` is refused** when the backend body reads `terraform.workspace`.

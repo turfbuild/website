@@ -71,8 +71,8 @@ Each place Turf runs, with how to accept there: [Accept the license](/docs/start
 
 The three `--log-*` flags pass through to the `turf-mcp-server` subprocess. When they are unset, the
 `TF_LOG_*` variables, as OpenTofu® names them, reach the server through the environment it inherits.
-Provider plugins inherit them too, so `TF_LOG_PROVIDER=DEBUG` turns on plugin-side debug logging into
-the same sink as the server's.
+Provider plugins run in the engine and do not inherit them: a provider sees `TF_LOG_PROVIDER`
+only when the engine's own environment holds it, and it is never sent from the shell.
 
 ## Environment only
 
@@ -81,7 +81,7 @@ the same sink as the server's.
 | `TURF_HOME` | turf's own home, `~/.turf` by default: the global `turf.yaml`, skills, themes and the debug log |
 | `TURF_DEADLINE` | Replaces the five minutes the CLI gives each convergence call; the CLI then passes no `--deadline` and the server reads the variable |
 | `TURF_OFFLINE` | The air-gap switch: the model catalog is never fetched from models.dev, and the server and engine started from this shell make no call of their own to the internet ([Air-gapped installation](/docs/security/air-gapped/)) |
-| `TF_LOG_PROVIDER` | Provider plugins' log level, into the server's log sink |
+| `TURF_PROVIDER_ENV` | The variables the server sends to the engine by name, for providers. The CLI starts the server with your shell's environment, so `TURF_PROVIDER_ENV=AWS_PROFILE turf up`, or an `export` in your shell profile, sends the shell's `AWS_PROFILE` ([Send a variable to providers](/docs/environment/provider-environment/)) |
 | `TF_TOKEN_<hostname>` | An API token for a registry or backend host; wins over `credentials.tfrc.json` ([Log in to a host](/docs/cli/login/#precedence)) |
 | `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, … | The hosted model provider's key ([Model providers](/docs/cli/models/#hosted-providers)) |
 | `MODEL_RUNNER_HOST` | A remote Docker Model Runner, in place of the local one turf finds itself |

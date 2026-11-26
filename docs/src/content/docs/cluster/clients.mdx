@@ -88,7 +88,7 @@ kept in the CI system's variables.
 ## The Turf CLI on a laptop
 
 `TURF_RESTATE_URL` points the Turf CLI (or a server on your laptop) at an engine running elsewhere,
-such as in a cluster, instead of the local service. The server then runs on your laptop and the engine
+such as in a cluster, instead of the local engine. The server then runs on your laptop and the engine
 in the cluster, which settles three things:
 
 - **The configuration.** The engine reads each configuration itself, so it must find it: at the same
@@ -96,6 +96,9 @@ in the cluster, which settles three things:
   directory holding the same layout.
 - **Credentials.** The state backend's credentials and `TF_VAR_` come from your laptop's environment,
   where the server runs. Providers still run in the engine, with the engine pod's credentials.
+  Variables your server names in `TURF_PROVIDER_ENV` are sent there too, and a path among them names
+  a file on the engine pod: see
+  [Variables the server sends](/docs/cluster/credentials/#variables-the-server-sends).
 - **Versions.** The Turf CLI and `turf-mcp-server` must be the same release.
 
 <Aside type="caution">

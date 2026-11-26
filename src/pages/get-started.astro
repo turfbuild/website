@@ -1,106 +1,75 @@
 ---
 import Layout from '../layouts/Layout.astro';
 const title = 'Turf — Get started: add the Turf MCP server to your agent';
-const description = 'Install Turf with Homebrew or one script, connect it to Claude Code, Cursor, Codex or any MCP client in one command, and deploy a first stack from your agent.';
+const description = 'Add Turf to Claude Code, Cursor, Codex or any MCP client with one npx command, accept the license once, and deploy a first stack from your agent.';
 ---
 
 <Layout title={title} description={description}>
   <section class="subhero">
     <div class="wrap">
-      <p class="eyebrow"><span class="dot"></span> Get started · Turf 1.0</p>
+      <p class="eyebrow"><span class="dot"></span> Get started · Turf 1.5</p>
       <h1>Install Turf and connect it to your agent.</h1>
-      <p class="lede">Homebrew installs the Turf™ MCP server and its engine. One command registers it with
-        Claude Code, Claude Desktop, Cursor, Codex, Gemini CLI or VS Code. In Claude Code and Claude
-        Desktop, Turf runs on your Claude subscription — no model API key.</p>
+      <p class="lede">One command adds the Turf™ MCP server to Claude Code, Claude Desktop, Cursor,
+        Codex, Gemini CLI or VS Code, and npm brings the server and its engine. In Claude Code and
+        Claude Desktop, Turf runs on your Claude subscription — no model API key.</p>
     </div>
   </section>
 
   <section class="section">
     <div class="wrap prose">
-      <h2>1 · Install</h2>
-      <p>The tap installs four binaries: <code>turf-mcp-server</code>, the MCP server your agent talks
-        to; the engine behind it, <code>turf-engine</code> and <code>turf-builtin-provider</code>, which
-        runs as a service so a rollout keeps going when the conversation that started it ends; and the
-        <code>turf</code> CLI.</p>
+      <h2 id="connect">1 · Connect your agent</h2>
+      <p>One command adds Turf to the agents on this machine.</p>
       <div class="codeblock">
-        <div class="cb-head"><span>Homebrew · macOS &amp; Linux</span></div>
-<pre><span class="ps1">$</span> brew install restatedev/tap/restate-server turfbuild/tap/turf
-<span class="ps1">$</span> brew services start turf
-<span class="cm"># the engine service, at every login; it waits for step 2</span>
-<span class="cm"># later: brew upgrade turf &amp;&amp; brew services restart turf</span></pre>
+        <div class="cb-head"><span>Add Turf to your agents</span></div>
+<pre><span class="ps1">$</span> npx add-mcp@2 @turfbuild/turf-mcp-server --name turf -g
+<span class="cm"># the first start downloads Turf: about a minute</span></pre>
       </div>
-      <div class="codeblock">
-        <div class="cb-head"><span>One script · with or without Homebrew</span></div>
-<pre><span class="ps1">$</span> curl -fsSL https://get.turf.build/install.sh | bash</pre>
-      </div>
-      <p>With Homebrew on your PATH the script runs the same install and starts the service. Without it,
-        the script unpacks the release into <code>~/.turf/bin</code>, and you run the engine yourself:
-        <code>turf-mcp-server engine run</code>.</p>
+      <p>It needs Node 18 or later, on macOS or Linux, arm64 or x64.</p>
+      <p>The command runs <a href="https://github.com/neon-solutions/add-mcp">add-mcp</a>, Neon's
+        open-source installer. It finds the agents you have installed, asks which ones to add Turf
+        to, and writes each one's config; running it again replaces the entry. Restart Claude Desktop
+        or Cursor after the config changes.</p>
+      <p>There is nothing else to install. npm brings the server and its engine the first time Turf
+        runs, and the engine starts when your agent first needs it. If your client gives up waiting
+        on that first start, reconnect once; later starts take several seconds.</p>
+      <p>Providers run in the engine, not in your agent's session. Cloud credentials in their usual
+        files are read there with nothing set. A variable a provider needs goes in the
+        <code>env</code> of Turf's entry, with <code>TURF_PROVIDER_ENV</code> naming it:
+        <a href="/docs/environment/provider-environment/">Send a variable to providers</a>.</p>
       <p>Turf sends anonymous usage telemetry to Turf LLC by default: the version, the platform,
         counts of resources, changes and runs, and an anonymous installation id. It never sends
         resource contents, credentials, state, variable values or names. Turn it off with
         <code>turf telemetry off</code>, or with <code>TURF_TELEMETRY=off</code> or
         <code>DO_NOT_TRACK=1</code> in the engine's environment; the full field list and the endpoint
         are at <a href="/telemetry/">turf.build/telemetry</a>.</p>
+      <p>With this install, the engine's environment is the <code>env</code> of Turf's entry in each
+        of your agents: set it there, reconnect them, and stop the engine. The steps are on
+        <a href="/telemetry/">that page</a>; <code>turf telemetry off</code> comes with the
+        <code>turf</code> CLI.</p>
 
-      <h2 id="accept">2 · Accept the license</h2>
-      <p>Turf is free for individuals, education and small businesses within the Community limits,
-        under the Turf Community Edition License 1.0. Government and larger organizations need a
-        commercial license, and any organization can evaluate Turf in non-production for 30 days:
-        <a href="/licensing/">turf.build/licensing</a>.</p>
-      <p>Read the terms at <a href="/license/v1/">turf.build/license/v1</a>, then accept them once.
-        The engine service waits for this, and starts within seconds of it.</p>
+      <h3>Your client's own command</h3>
+      <p>Each client can also add the server itself:</p>
       <div class="codeblock">
-        <div class="cb-head"><span>Accept the terms, once</span></div>
-<pre><span class="ps1">$</span> turf license accept
-<span class="cm"># the engine, now running</span>
-<span class="ps1">$</span> turf-mcp-server engine status</pre>
-      </div>
-      <p>The <code>turf</code> CLI also asks on its first run in a terminal. Where no one is there
-        to answer, such as a container or a CI job, setting <code>TURF_ACCEPT_EULA=yes</code> in the
-        environment accepts those terms instead.
-        <a href="/docs/start/install/#accept-the-license">Accept the license</a> in the docs has
-        each case.</p>
-
-      <h2 id="connect">3 · Connect your agent</h2>
-      <p>One command registers Turf with every agent on this machine. It finds the ones you have
-        installed, lets you pick from the list, and writes each config with the server's absolute path,
-        so an app launched from the Dock finds it too. It needs Node 18+ and uses
-        <a href="https://github.com/neon-solutions/add-mcp">add-mcp</a>, Neon's open-source installer;
-        running it again replaces the entry.</p>
-      <div class="codeblock">
-        <div class="cb-head"><span>Register the server</span></div>
-<pre><span class="ps1">$</span> npx add-mcp@2 <span class="str">"$(command -v turf-mcp-server)"</span> --name turf -g</pre>
-      </div>
-      <p>In Claude Code and Claude Desktop, Turf runs on your Claude subscription — no model API key.
-        Restart Claude Desktop or Cursor after the config changes.</p>
-
-      <h3>Without Node: your client's own command</h3>
-      <div class="codeblock">
-        <div class="cb-head"><span>Register the server</span></div>
+        <div class="cb-head"><span>Add the server</span></div>
 <pre><span class="cm"># Claude Code</span>
-<span class="ps1">$</span> claude mcp add turf --scope user -- turf-mcp-server
+<span class="ps1">$</span> claude mcp add turf --scope user -- npx -y @turfbuild/turf-mcp-server
 <span class="cm"># Codex CLI</span>
-<span class="ps1">$</span> codex mcp add turf -- turf-mcp-server
+<span class="ps1">$</span> codex mcp add turf -- npx -y @turfbuild/turf-mcp-server
 <span class="cm"># Gemini CLI</span>
-<span class="ps1">$</span> gemini mcp add -s user turf turf-mcp-server
+<span class="ps1">$</span> gemini mcp add -s user turf npx -y @turfbuild/turf-mcp-server
 <span class="cm"># VS Code</span>
-<span class="ps1">$</span> code --add-mcp <span class="str">'&#123;"name":"turf","command":"turf-mcp-server"&#125;'</span></pre>
+<span class="ps1">$</span> code --add-mcp <span class="str">'&#123;"name":"turf","command":"npx","args":["-y","@turfbuild/turf-mcp-server"]&#125;'</span></pre>
       </div>
-      <p>Claude Desktop and Cursor read the same block from their config file. Use the path
-        <code>command -v turf-mcp-server</code> prints, then restart the app:</p>
+      <p>Claude Desktop and Cursor read the same entry from their config file. Add it, then restart
+        the app:</p>
       <div class="codeblock">
         <div class="cb-head"><span>claude_desktop_config.json · ~/.cursor/mcp.json</span></div>
-<pre>&#123;
-  <span class="str">"mcpServers"</span>: &#123;
-    <span class="str">"turf"</span>: &#123;
-      <span class="str">"command"</span>: <span class="str">"/path/to/turf-mcp-server"</span>
-    &#125;
-  &#125;
-&#125;</pre>
+<pre>&#123; "mcpServers": &#123; "turf": &#123; "command": "npx", "args": ["-y", "@turfbuild/turf-mcp-server"] &#125; &#125; &#125;</pre>
       </div>
       <p>The server speaks MCP over stdio by default, or over HTTP with
-        <code>turf-mcp-server --transport http</code> (binds loopback). To require a token, set
+        <code>npx -y @turfbuild/turf-mcp-server --transport http</code>
+        (<code>turf-mcp-server --transport http</code> with Homebrew or the script; it binds
+        loopback). To require a token, set
         <code>TURF_MCP_AUTH_TOKEN</code> in the server's environment; clients then send
         <code>Authorization: Bearer &lt;token&gt;</code>.</p>
       <p>A server can be given less than every tool: <code>--tier read</code>, <code>plan</code>,
@@ -108,7 +77,28 @@ const description = 'Install Turf with Homebrew or one script, connect it to Cla
         server plans and keeps each plan as a planfile; an apply-tier server, with its own credentials,
         applies one.</p>
 
-      <h2>4 · Deploy from your agent</h2>
+      <h2 id="accept">2 · Accept the license</h2>
+      <p>Turf is free for individuals, education and small businesses within the Community limits,
+        under the Turf Community Edition License 1.0. Government and larger organizations need a
+        commercial license, and any organization can evaluate Turf in non-production for 30 days:
+        <a href="/licensing/">turf.build/licensing</a>.</p>
+      <p>Read the terms at <a href="/license/v1/">turf.build/license/v1</a>, then accept them once.</p>
+      <div class="codeblock">
+        <div class="cb-head"><span>Accept the terms, once</span></div>
+<pre><span class="ps1">$</span> npx -y @turfbuild/turf-mcp-server license accept</pre>
+      </div>
+      <p>Whichever npx command runs Turf first downloads it. If you accept before your agent has
+        started Turf, the download happens here, in your terminal, and your agent's first start is
+        then quick.</p>
+      <p>Until you accept, the server connects and lists its tools, and every call answers with the
+        license notice. Your acceptance is read at the next call, so there is nothing to restart.</p>
+      <p>Where no one is there to answer, such as a container or a CI job, setting
+        <code>TURF_ACCEPT_EULA=yes</code> in the environment accepts the terms at
+        <a href="/license/v1/">turf.build/license/v1</a> instead.
+        <a href="/docs/start/install/#accept-the-license">Accept the license</a> in the docs has
+        each case.</p>
+
+      <h2>3 · Deploy from your agent</h2>
       <p>Turf's prompts are slash commands in Claude Code. Start with the walkthrough: it runs a real
         example from <a href="https://github.com/turfbuild/turf-examples">turf-examples</a> and shows
         the plan gate and the approval point on the way.</p>
@@ -130,9 +120,53 @@ const description = 'Install Turf with Homebrew or one script, connect it to Cla
 
   <section class="section alt">
     <div class="wrap prose">
+      <h2 id="other-ways">Other ways to install</h2>
+      <h3>Homebrew</h3>
+      <p>Homebrew adds the <code>turf</code> CLI and an engine that starts at login. The tap installs
+        five binaries: <code>turf-mcp-server</code>, the MCP server your agent talks to; the engine
+        behind it, <code>turf-engine</code> and <code>turf-builtin-provider</code>; the console,
+        <code>turf-ui</code>; and the <code>turf</code> CLI.</p>
+      <div class="codeblock">
+        <div class="cb-head"><span>Homebrew · macOS &amp; Linux</span></div>
+<pre><span class="ps1">$</span> brew install restatedev/tap/restate-server turfbuild/tap/turf
+<span class="ps1">$</span> turf license accept
+<span class="ps1">$</span> npx add-mcp@2 <span class="str">"$(command -v turf-mcp-server)"</span> --name turf -g
+<span class="ps1">$</span> brew services start turf        <span class="cm"># optional: the engine at every login</span></pre>
+      </div>
+      <p>The second line accepts the license terms at
+        <a href="/license/v1/">turf.build/license/v1</a>: read them first. The third writes each
+        agent's config with the server's absolute path, so an app launched from the Dock finds it
+        too; in your client's own command, <code>turf-mcp-server</code> takes the place of
+        <code>npx -y @turfbuild/turf-mcp-server</code>.</p>
+      <p>The last line is optional. Without it, the server starts the engine when a tool first needs
+        it; the service starts the same engine at every login.
+        <a href="/docs/start/install/#upgrading">Upgrading</a> is in the docs.</p>
+
+      <h3>One script</h3>
+      <div class="codeblock">
+        <div class="cb-head"><span>One script · with or without Homebrew</span></div>
+<pre><span class="ps1">$</span> curl -fsSL https://get.turf.build/install.sh | bash</pre>
+      </div>
+      <p>With Homebrew on your PATH the script runs the same install and starts the service. Without
+        it, the script unpacks the release into <code>~/.turf/bin</code>, and the server starts the
+        engine when a tool first needs it. Then connect your agent with the Homebrew line above.</p>
+
+      <h3>Container image</h3>
+      <p>A multi-arch image is published to GHCR, for a cluster:
+        <a href="/docs/cluster/topology/">Running Turf in a cluster</a>.</p>
+      <div class="codeblock">
+        <div class="cb-head"><span>Pull</span></div>
+<pre><span class="ps1">$</span> docker pull ghcr.io/turfbuild/turf-mcp-server:latest</pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap prose">
       <h2>Prefer a standalone agent? The Turf CLI</h2>
       <p>Turf's own agent, <code>turf chat</code>, drives the same server and engine with a model you
-        bring. Set a key for a hosted model, or run fully local with no key and no cost.</p>
+        bring. The <code>turf</code> CLI comes with the Homebrew install or the script. Set a key for
+        a hosted model, or run fully local with no key and no cost.</p>
       <div class="codeblock">
         <div class="cb-head"><span>Choose a model</span></div>
 <pre><span class="cm"># hosted frontier model</span>
@@ -154,15 +188,13 @@ const description = 'Install Turf with Homebrew or one script, connect it to Cla
     </div>
   </section>
 
-  <section class="section">
+  <section class="section alt">
     <div class="wrap prose">
-      <h2>Container image &amp; supply-chain verification</h2>
-      <p>A multi-arch image is published to GHCR and signed with cosign (keyless, via GitHub OIDC).</p>
+      <h2 id="verify">Supply-chain verification</h2>
+      <p>The container image is signed with cosign (keyless, via GitHub OIDC).</p>
       <div class="codeblock">
-        <div class="cb-head"><span>Pull &amp; verify</span></div>
-<pre><span class="ps1">$</span> docker pull ghcr.io/turfbuild/turf-mcp-server:latest
-
-<span class="cm"># verify the signature</span>
+        <div class="cb-head"><span>Verify the image</span></div>
+<pre><span class="cm"># verify the signature</span>
 <span class="ps1">$</span> cosign verify ghcr.io/turfbuild/turf-mcp-server:latest \
     --certificate-identity-regexp <span class="str">'^https://github.com/turfbuild/turf-mcp-server/'</span> \
     --certificate-oidc-issuer <span class="str">https://token.actions.githubusercontent.com</span>
@@ -173,11 +205,14 @@ const description = 'Install Turf with Homebrew or one script, connect it to Cla
     --certificate-oidc-issuer <span class="str">https://token.actions.githubusercontent.com</span></pre>
       </div>
       <p>Installed with Homebrew? Verify the binary's provenance with
-        <code>gh attestation verify turf --repo turfbuild/turf</code>.</p>
+        <code>gh attestation verify turf --repo turfbuild/turf</code>. The npm packages are published
+        with npm provenance from the <code>turfbuild/turf</code> repository's publish workflow, and
+        carry the release's own binaries.
+        <a href="/docs/security/verify-releases/">Verify a release</a> has every command.</p>
     </div>
   </section>
 
-  <section class="section alt">
+  <section class="section">
     <div class="wrap prose">
       <h2>Next</h2>
       <ul>
