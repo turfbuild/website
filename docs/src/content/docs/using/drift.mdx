@@ -130,7 +130,7 @@ off, and the call changes the settings it names and leaves the rest as they stan
 | Setting | Meaning |
 |---|---|
 | `enabled` | `true` turns detection on, with any settings named in the same call. `false` [turns it off](#turn-it-off). |
-| `settle` | Seconds an object must be quiet before its signal is read. `0` takes the engine's default, 30. |
+| `settle` | Seconds an object marked as changed must be quiet before the engine reads it. The sweep's own reads do not wait for it. `0` takes the engine's default, 30. |
 | `sweep` | Seconds for one cycle over every managed object. `0` turns the sweep off, which is where it starts. |
 | `confirm` | `false` turns the confirming read off: every notice then stays `unconfirmed`, and the sweep, which is that read on a cycle, does not run. |
 
@@ -262,7 +262,7 @@ watch({ workspace_alias, cursor })   → waits for what is new since
 - **`cursor: "now"`** takes what is open as reported and waits only for what opens after. Use it right
   after reading `status`.
 - **`quiet_for`** holds new drift back until the open notices have been still that many seconds: no
-  new signal, no new read. Use it when someone may be mid-change, or when a rollout touches many
+  new mark, no new read. Use it when someone may be mid-change, or when a rollout touches many
   objects and you want one plan for all of it.
 - **`wake_on`** picks the classes. `confirmed`, the default, wakes on every class but `unconfirmed`,
   which the engine's own read will settle. Where nothing will read it (no standing seal, or `confirm`
@@ -372,7 +372,7 @@ address leaves its notice open. Turning detection off closes every open notice.
 |---|---|
 | `workspace_alias` | The workspace. Omit it for the default. |
 | `enabled` | `true` turns detection on; `false` turns it off, closes its open notices, and stands alone. |
-| `settle` | Seconds of quiet before a signal is read; `0` takes the engine's 30. |
+| `settle` | Seconds of quiet before an object marked as changed is read; `0` takes the engine's 30. |
 | `sweep` | Seconds for one sweep cycle; `0` turns the sweep off. |
 | `confirm` | `false`: no confirming read, and no sweep. `true`, the default: a settled object is read against the standing seal. |
 
@@ -391,7 +391,7 @@ Name at least one of the four. `watch`:
 
 ## Related
 
-- [Drift](/docs/concepts/drift/): signals, observations, classes and coverage.
+- [Drift](/docs/concepts/drift/): the sweep, observations, classes and coverage.
 - [When something goes wrong](/docs/using/troubleshooting/#drift): unwatched, stored, unconfirmed,
   uncovered, contended, a watch that never wakes.
 - [`watch`](/docs/reference/tools/watch/) and [`drift`](/docs/reference/tools/drift/) in the reference.

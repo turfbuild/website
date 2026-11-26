@@ -84,7 +84,7 @@ their own blocks for what differs.
 
 ## Drift detection
 
-Between runs the engine reads objects by itself: the confirming read after a signal, and the sweep
+Between runs the engine reads objects by itself: the confirming read of an object marked as changed, and the sweep
 ([Drift](/docs/concepts/drift/)). Those reads run providers with this same environment, and three
 settings here bound them. Set them where the engine's other settings go: `turf.env` for the local
 service, the engine's pods in a cluster, the same on every replica. The engine reads them at start.
@@ -97,7 +97,7 @@ service, the engine's pods in a cluster, the same on every replica. The engine r
 
 **The read budget.** There is one budget for each provider, by its source address such as
 `registry.opentofu.org/hashicorp/kubernetes`, shared by every workspace on the engine. Two clusters
-behind one provider share it. A signal's confirming read is served first, and the sweep takes only
+behind one provider share it. A marked object's confirming read is served first, and the sweep takes only
 from the upper half of the budget, so a sweep cannot starve it. A run's own plan and apply never draw
 on the budget.
 

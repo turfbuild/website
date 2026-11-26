@@ -185,7 +185,7 @@ the run did not converge. `failed`: the change itself failed, `error` says why, 
 applied is applied. Once the workspace has state, `drift` with `enabled: true` and a `sweep` turns
 detection on, if you still want it.
 
-**Every notice is `unconfirmed`.** Nothing reads an object after its signal. If the `coverage` line in
+**Every notice is `unconfirmed`.** Nothing reads an object that is marked as changed. If the `coverage` line in
 `status` ends `confirm off`, the confirming read is turned off: turn it back on with `drift` and
 `confirm: true`. Otherwise no standing seal stands. The engine takes the seal from an `up` that
 converges, so run `up` once on this engine. One `unconfirmed` notice among confirmed ones is a read

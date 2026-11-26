@@ -1,15 +1,14 @@
 ---
-// Drift between runs, in one line: a signal → the settle window → an observation (one provider read)
+// Drift between runs, in one line: the sweep's turn → an observation (one provider read)
 // → classify → a drift notice; then the agent, and an ordinary run whose plan is the verdict.
 // Tokens only (docs.css, "figures"); markers are local to this svg.
 interface Props { caption?: string }
 const { caption } = Astro.props;
 const engine = [
-  { x: 14, w: 110, name: 'signal', sub: ["the sweep's turn", 'to read an object'] },
-  { x: 146, w: 100, name: 'settle', sub: ['quiet for the', 'settle window'] },
-  { x: 268, w: 110, name: 'observation', sub: ['one provider read,', 'report-only'] },
-  { x: 400, w: 120, name: 'classify', sub: ['against the', 'configuration'] },
-  { x: 542, w: 116, name: 'drift notice', sub: ['address, class,', 'paths, never values'] },
+  { x: 14, w: 146, name: 'the sweep', sub: ['a paced pass over', 'every managed object'] },
+  { x: 180, w: 146, name: 'observation', sub: ['one provider read,', 'report-only'] },
+  { x: 346, w: 146, name: 'classify', sub: ['against the', 'configuration'] },
+  { x: 512, w: 146, name: 'drift notice', sub: ['address, class,', 'paths, never values'] },
 ];
 const run = [
   { x: 14, w: 170, name: 'your agent', sub: ['status reads · watch waits', 'remediate · adopt · suppress'], cls: 'f-inhbg s-inh', ink: 'f-inh' },
@@ -20,7 +19,7 @@ const run = [
 ---
 
 <figure class="docfig">
-  <svg class="fig" viewBox="0 0 672 236" role="img" aria-label="Between runs the engine watches. A signal, the sweep's turn to read an object, marks the object as possibly changed. After the object has been quiet for the settle window, the engine makes an observation: one provider read that reports and never touches state. It classifies the read against the configuration; noise is recorded and never becomes a notice. What holds up becomes a drift notice: an address, a class and the changed attribute paths, never values. The agent reads notices with status and waits for them with watch, and decides: remediate, adopt or suppress. A change is an ordinary run: up, then plan with refresh_drift true, which reads only what drifted; the plan waits at its approval point, and apply applies it. Nothing applies on its own.">
+  <svg class="fig" viewBox="0 0 672 236" role="img" aria-label="Between runs the engine watches. The sweep, a paced pass over every managed object, gives each object its turn, and the engine makes an observation: one provider read that reports and never touches state. It classifies the read against the configuration; noise is recorded and never becomes a notice. What holds up becomes a drift notice: an address, a class and the changed attribute paths, never values. The agent reads notices with status and waits for them with watch, and decides: remediate, adopt or suppress. A change is an ordinary run: up, then plan with refresh_drift true, which reads only what drifted; the plan waits at its approval point, and apply applies it. Nothing applies on its own.">
     <defs>
       <marker id="df-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-stroke"/></marker>
       <marker id="df-inh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-inh"/></marker>
@@ -40,7 +39,7 @@ const run = [
         )}
       </g>
     ))}
-    <text x="400" y="100" class="t-mono">noise is recorded, never a notice</text>
+    <text x="346" y="100" class="t-mono">noise is recorded, never a notice</text>
 
     <!-- the notice reaches the agent -->
     <path d="M600.5,83 V130.5 H99.5 V154" class="s-inh f-none" stroke-width="1.4" marker-end="url(#df-inh)"/>

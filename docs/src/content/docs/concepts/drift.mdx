@@ -1,6 +1,6 @@
 ---
 title: Drift
-description: "How Turf finds drift between plans: a signal marks an object, one provider read observes it, the engine classifies it, and a drift notice reaches your agent."
+description: "How Turf finds drift between plans: the sweep reaches an object, one provider read observes it, the engine classifies it, and a drift notice reaches your agent."
 sidebar:
   order: 5.5
 ---
@@ -14,18 +14,17 @@ engine reads that one object and tells your agent what changed. The agent decide
 it, and any change it makes is an ordinary run: a plan, an approval point, an apply. Nothing applies
 on its own.
 
-<DriftFigure caption="<b>From a change to a plan.</b> The engine spends one read on an object that changed. The agent gets a notice, and a run does the rest." />
+<DriftFigure caption="<b>From a change to a plan.</b> The sweep reads each object in its turn. What changed reaches the agent as a notice, and a run does the rest." />
 
 ## Four words
 
-**Signal.** A hint that an object may have changed: the sweep reaching the object on its paced pass
-over everything the workspace manages. A signal costs nothing and proves nothing. A sensor that
-reports changes in a Kubernetes® cluster as they happen is coming soon <Since />.
+**Sweep.** The engine's paced pass over everything the workspace manages. Each object gets its turn
+once a cycle, on a cycle you set. A sensor that reports changes in a Kubernetes® cluster as they
+happen is coming soon <Since />.
 
-**Observation.** One provider read of that object, compared with what state records. The engine makes
-it once the object has been quiet for the settle window (30 seconds by default), so a burst of edits
-costs one read. An observation reports and nothing more: it never writes state, and it changes nothing
-in the world.
+**Observation.** One provider read of an object, compared with what state records. The sweep makes it
+when the object's turn comes. An observation reports and nothing more: it never writes state, and it
+changes nothing in the world.
 
 **Drift.** The verdict that a plan would change something. Only a plan gives it. Values flow from one
 resource to the next, so what an edit means for the configuration is known when a round plans it.
@@ -53,7 +52,7 @@ seal**.
   attached uses the last converged `up`'s values. After you rotate a credential, the next converged
   `up` hands those reads the new one.
 
-With no standing seal nothing can be read, and a signal becomes an `unconfirmed` notice.
+With no standing seal nothing can be read between runs, and the sweep waits for one.
 
 ## Classes
 
@@ -65,8 +64,8 @@ The engine compares the read with the record, path by path, and gives each addre
 | `configured` | A setting the configuration makes was changed. | Remediate: `up` plans it back. Or adopt: change the files to keep the change, then `up`. |
 | `referenced` | A computed value that some expression reads has changed. | `up` plans what depends on it. The change shows on the dependents, not on this address. |
 | `contended` | The same paths drifted again after two runs put them back. | Another controller owns those paths, and another `up` will not hold. Suppress them with [`ignore_changes`](/docs/authoring/lifecycle/#a-contended-field), or stop the other controller. |
-| `unconfirmed` | A signal said the object changed, and nothing has read it. | `up` reads it and plans. |
-| `uncovered` | A signal said the object changed, and the engine cannot read it between runs. The console shows why. | `up` reads it and plans. |
+| `unconfirmed` | The object is marked as changed, and nothing has read it. | `up` reads it and plans. |
+| `uncovered` | The object is marked as changed, and the engine cannot read it between runs. The console shows why. | `up` reads it and plans. |
 
 A notice is `unconfirmed` when no standing seal stands, when the confirming read is turned off, or
 when the read failed three times.
@@ -101,7 +100,7 @@ What drift detection does not see, whatever the coverage:
 - **Data sources.** They are read at every plan, never between runs.
 - **Objects inside a Helm® release.** A `helm_release` is read as the release. A change to an object
   the release installed is not seen.
-- **Cloud audit logs.** No signal comes from a cloud's audit log. The sweep covers what a cloud
+- **Cloud audit logs.** The engine does not read a cloud's audit log. The sweep covers what a cloud
   provider manages.
 - **A change made while a run commits the same address.** It is taken for the run's own write. The
   sweep, or the next plan that reads the object, finds it.
