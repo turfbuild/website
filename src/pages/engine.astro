@@ -11,8 +11,9 @@ import DriftEngineFigure from '../components/figures/DriftEngineFigure.astro';
 // for what is in 1.0; licensing.md's announcement line, byte for byte; Restate's own description
 // from docs.restate.dev (Eron, 2026-10-18: "be proud to be using Restate"). The headline is launch
 // plan D2's first candidate; see "Content provenance" in CLAUDE.md.
-// #drift (2026-11-15) is continuous drift detection in the engine's own terms: the in-cluster feed,
-// the confirming read, the sweep and its read budget, durable timers. Its source is turf-engine's
+// #drift (2026-11-15) is continuous drift detection in the engine's own terms: the sweep and its
+// read budget, the confirming read, durable timers, and the in-cluster sensor, which is coming soon
+// (2026-11-26: tagged in the figure, a pill on its beat, no docs link until its page exists). Its source is turf-engine's
 // continuous-drift design as built; no internal name is carried over, and no number.
 const title = 'Turf — Turf 1.0 is available now: autonomous IaC on OpenTofu';
 const description =
@@ -190,37 +191,29 @@ const engine = [
       </div>
       <div class="figwide">
         <DriftEngineFigure />
-        <p class="figcap"><b>Signals in, one read out.</b> The feed sends identities, the engine reads
-          through the provider and classifies what it finds, and the sweep covers what no feed does.
-          The read budget bounds these background reads; flow control for a run’s own calls is the
-          dashed valve in the figure above.</p>
+        <p class="figcap"><b>Signals in, one read out.</b> The sweep is shipped: it sends every
+          managed object to the confirming read over a cycle you set, and the engine reads through
+          the provider and classifies what it finds. The sensor in a cluster, drawn dashed, is
+          coming soon. The read budget bounds these background reads; flow control for a run’s own
+          calls is the dashed valve in the figure above.</p>
       </div>
       <div class="pillars4">
         <div class="beat">
-          <span class="k">The feed</span>
-          <h3>Dials out, and sends identities</h3>
-          <p>A small read-only controller in the cluster: get, list and watch, nothing else. The
-            engine tells it which objects a workspace manages, and it reports that one changed and
-            how. Nothing dials in, and an object’s body never leaves the cluster.</p>
-          <a class="runit" href="/docs/cluster/drift-feed/">the feed in a cluster →</a>
+          <span class="k">The sweep</span>
+          <h3>A paced read of every managed object</h3>
+          <p>The sweep reads every managed object of any provider over a cycle you set, and steps
+            aside while a run holds the workspace. Its reads and the confirming ones draw on one
+            read budget per provider, shared by every workspace on the engine, with a reserve the
+            sweep cannot spend.</p>
+          <a class="runit" href="/docs/using/drift/">turning it on, and watching →</a>
         </div>
         <div class="beat">
           <span class="k">The confirming read</span>
           <h3>One provider read per signal</h3>
-          <p>A watch event is a hint: only the provider’s own read yields the values a plan compares.
-            The engine lets a burst settle, reads each object once, and classifies the difference
-            against the Terraform configuration the last converged run applied. Noise is recorded
-            and wakes nobody.</p>
+          <p>A signal is a hint: only the provider’s own read yields the values a plan compares.
+            The engine reads each object once, and classifies the difference against the Terraform
+            configuration the last converged run applied. Noise is recorded and wakes nobody.</p>
           <a class="runit" href="/docs/concepts/drift/">signals, notices and classes →</a>
-        </div>
-        <div class="beat">
-          <span class="k">The sweep</span>
-          <h3>A paced read of everything else</h3>
-          <p>For what no feed covers, the sweep reads every managed object of any provider over a
-            cycle you set, and steps aside while a run holds the workspace. Its reads and the
-            confirming ones draw on one read budget per provider, shared by every workspace on the
-            engine, with a reserve the sweep cannot spend.</p>
-          <a class="runit" href="/docs/using/drift/">turning it on, and watching →</a>
         </div>
         <div class="beat">
           <span class="k">Durable timers</span>
@@ -229,6 +222,14 @@ const engine = [
             in a process. Restart the engine and the cycle resumes where it stood; with replicas,
             the next read lands on any of them.</p>
           <a class="runit" href="/#drift">what the agent does with a notice →</a>
+        </div>
+        <div class="beat">
+          <span class="k">The sensor</span>
+          <h3>In a cluster, as it happens</h3>
+          <p><span class="pill soon">coming soon</span> The Turf sensor for Kubernetes: a small
+            read-only controller in the cluster, with get, list and watch and nothing else. It
+            reports that an object a workspace manages changed, as it happens. Nothing dials in,
+            and an object’s body never leaves the cluster.</p>
         </div>
       </div>
     </div>

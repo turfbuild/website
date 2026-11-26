@@ -1,11 +1,13 @@
 ---
-// Drift detection in the engine's own terms, for /engine/#drift: the in-cluster feed (read-only,
-// dials out, sends identities and change kinds, never an object body); the engine between runs
-// (settle, one confirming provider read per object, classify, the notice); the sweep as the
-// engine's own durable timer for everything no feed covers; and the read budget every background
-// read draws on, per provider. Drawn on its own, not inside EngineArchitectureFigure: that figure
-// is full, and an arrow back from the cluster would cross its fan-out. The read budget is drawn
-// solid (it bounds background reads, and is built); per-provider flow control for a run's own
+// Drift detection in the engine's own terms, for /engine/#drift: the sweep as the engine's own
+// durable timer over every managed object; the engine between runs (settle, one confirming
+// provider read per object, classify, the notice); the read budget every background read draws
+// on, per provider; and the in-cluster sensor (read-only, dials out, sends identities and change
+// kinds, never an object body). The sensor is not shipped (2026-11-26): its box and its signals
+// arrow are dashed and it carries the COMING SOON tag, and the caption beside the figure says what
+// is shipped and what is coming. Drawn on its own, not inside EngineArchitectureFigure: that figure
+// is full, and an arrow back from the cluster would cross its fan-out. The sweep and the read
+// budget are drawn solid (they are built); per-provider flow control for a run's own
 // calls is the dashed valve of the architecture figure. Tokens only.
 const stages = [
   { y: 66, name: 'settle', what: 'a burst is one read · a durable timer' },
@@ -19,27 +21,29 @@ const targets = [
 ];
 ---
 
-<svg class="fig" viewBox="0 0 720 304" role="img" aria-label="Drift detection in the engine. In a Kubernetes cluster, the feed watches the objects one workspace manages; it is read-only, with get, list and watch, and it dials out to the engine: nothing dials in, and what leaves the cluster is identities and change kinds, never an object body. In the engine, between runs, signals settle on a durable timer so a burst is one read; confirm makes one provider read per object; classify compares it against your Terraform configuration; what holds up is a drift notice with a class and the changed paths, never values, and noise is recorded and wakes nobody. The sweep, the engine's own durable timer, sends every managed object of any provider to the same confirming read over a cycle you set, and pauses while a run holds the workspace. Every background read draws on a read budget per provider, shared by all workspaces, before it reaches cloud APIs, DNS or the cluster. The notice reaches your agent over MCP through watch and status, and the console and a webhook carry it too.">
+<svg class="fig" viewBox="0 0 720 304" role="img" aria-label="Drift detection in the engine. The sweep, the engine's own durable timer, sends every managed object of any provider to the confirming read over a cycle you set, and pauses while a run holds the workspace. In the engine, between runs, confirm makes one provider read per object; classify compares it against your Terraform configuration; what holds up is a drift notice with a class and the changed paths, never values, and noise is recorded and wakes nobody. Every background read draws on a read budget per provider, shared by all workspaces, before it reaches cloud APIs, DNS or the cluster. The notice reaches your agent over MCP through watch and status, and the console and a webhook carry it too. Marked coming soon and drawn dashed: in a Kubernetes cluster, the sensor watches the objects one workspace manages; it is read-only, with get, list and watch, and it dials out to the engine: nothing dials in, and what leaves the cluster is identities and change kinds, never an object body; its signals settle on a durable timer, so a burst is one read.">
   <rect x="0.5" y="0.5" width="719" height="303" rx="12" class="f-ground s-hair"/>
 
-  <!-- the cluster and its feed -->
+  <!-- the cluster and its sensor: coming soon, so dashed and tagged -->
   <rect x="14.5" y="40.5" width="192" height="164" rx="10" class="f-none s-hair" stroke-dasharray="4 3"/>
   <text x="26" y="56" class="t-cap">A KUBERNETES CLUSTER</text>
   <rect x="26.5" y="64.5" width="168" height="34" rx="8" class="f-panel s-hair"/>
   <text x="38" y="79" class="t-name">what Turf manages</text>
   <text x="38" y="91" class="t-m7 f-muted">the objects of one workspace</text>
-  <line x1="110.5" y1="99" x2="110.5" y2="112" class="s-stroke" stroke-width="1.2" marker-end="url(#a-ink)"/>
+  <line x1="110.5" y1="99" x2="110.5" y2="112" class="s-part" stroke-width="1.2" stroke-dasharray="3 3" marker-end="url(#a-part)"/>
   <text x="118" y="109" class="t-m7 f-muted">watch</text>
-  <rect x="26.5" y="114.5" width="168" height="48" rx="8" class="f-okbg s-ok"/>
-  <text x="38" y="131" class="t-name f-okdeep">the feed</text>
-  <text x="38" y="143" class="t-m7 f-okdeep">read-only: get · list · watch</text>
-  <text x="38" y="153" class="t-m7 f-okdeep">dials out; nothing dials in</text>
+  <rect x="26.5" y="114.5" width="168" height="48" rx="8" class="f-panel s-part" stroke-dasharray="4 3"/>
+  <text x="38" y="131" class="t-name f-part">the sensor</text>
+  <rect x="118" y="120" width="70" height="14" rx="7" class="f-partbg"/>
+  <text x="153" y="130" text-anchor="middle" class="t-m7 f-part">COMING SOON</text>
+  <text x="38" y="143" class="t-m7 f-muted">read-only: get · list · watch</text>
+  <text x="38" y="153" class="t-m7 f-muted">dials out; nothing dials in</text>
   <text x="26" y="180" class="t-m7 f-muted">leaves the cluster: identities and</text>
   <text x="26" y="190" class="t-m7 f-muted">change kinds, never an object body</text>
-  <path d="M195,138.5 H248.5 V83.5 H300" class="f-none s-ok" stroke-width="1.3" marker-end="url(#a-ok)"/>
-  <text x="243" y="113" text-anchor="end" class="t-m7 f-ok">signals</text>
+  <path d="M195,138.5 H248.5 V83.5 H300" class="f-none s-part" stroke-width="1.3" stroke-dasharray="3 3" marker-end="url(#a-part)"/>
+  <text x="243" y="113" text-anchor="end" class="t-m7 f-part">signals</text>
 
-  <!-- the sweep: the engine's own timer, for everything no feed covers -->
+  <!-- the sweep: the engine's own timer over every managed object; shipped, so solid -->
   <rect x="14.5" y="230.5" width="192" height="58" rx="8" class="f-okbg s-ok"/>
   <text x="26" y="247" class="t-name f-okdeep">the sweep</text>
   <text x="26" y="259" class="t-m7 f-okdeep">every managed object, any provider</text>

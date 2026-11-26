@@ -13,9 +13,10 @@ actions with overlays, turf actions (a check, a question or a notification as a 
 durable runs on Restate, provider calls that scale out until the cloud API is the ceiling, state
 encrypted at rest, OpenTelemetry® built in, and since 1.4 a read-only console of every workspace's
 runs, rounds and approvals. The engine also watches between plans (continuous drift detection):
-watch events from a feed in a Kubernetes® cluster and a paced sweep of provider reads everywhere
-else, each signal confirmed by one read and classified, noise dropped, and what holds up sent to
-the agent as a drift notice (`watch`, `status`, the console, a webhook). The agent remediates,
+a paced sweep of provider reads over every object a workspace manages, on a cycle you set, each
+signal confirmed by one read and classified, noise dropped, and what holds up sent to
+the agent as a drift notice (`watch`, `status`, the console, a webhook). A sensor that reports
+changes in a Kubernetes® cluster as they happen is coming soon. The agent remediates,
 adopts or suppresses; the fix is a plan that reads only what drifted and is approved like any
 other. The engine detects and notifies, and never applies on its own. The engine and its MCP server (`turf-mcp-server`) are the product. Connect it to your
 agent in one command (`npx add-mcp@2 "$(command -v turf-mcp-server)" --name turf -g`), or run
@@ -36,7 +37,7 @@ The Turf docs are at https://turf.build/docs/ (one current version; features tha
 
 - [Start here](https://turf.build/docs/start/what-turf-is/): what Turf is, install locally, connect your agent, your first run, install in a cluster.
 - [Concepts](https://turf.build/docs/concepts/overview/): the vocabulary (configuration, workspace, convergence, round, plan gate, approval point, turf action, planfile, overlay, backend), rounds and deferrals, approval, turf actions, the engine and the console, the safety rules.
-- [Drift, between plans](https://turf.build/docs/concepts/drift/): signals, the confirming read, notices and their classes; [watching a workspace](https://turf.build/docs/using/drift/) and remediating, adopting or suppressing; [the feed in a cluster](https://turf.build/docs/cluster/drift-feed/).
+- [Drift, between plans](https://turf.build/docs/concepts/drift/): signals, the confirming read, notices and their classes; [watching a workspace](https://turf.build/docs/using/drift/) and remediating, adopting or suppressing.
 - [Using Turf](https://turf.build/docs/using/up/): one page per task: up, destroy, plan and apply by hand, refresh, import, invoke, workspaces, variables, planfiles, turf actions, state, troubleshooting, policy checks.
 - [Provider environment and credentials](https://turf.build/docs/environment/where-credentials-are-read/): providers read the engine's environment, variables and the backend read the server's; the engine's environment, mise, registries and mirrors, state encryption, workload identity (coming soon).
 - [Authoring configurations](https://turf.build/docs/authoring/writing-with-an-agent/): writing .tf files with an agent, providers, variables, data sources, lifecycle, actions and overlays, differences from Terraform.
@@ -48,7 +49,7 @@ The Turf docs are at https://turf.build/docs/ (one current version; features tha
 ## Start here
 
 - [Use cases](https://turf.build/use-cases/): five things people build with Turf, each with its day 1 and day 2: GPU clouds from metal to tokens, managed services on Kubernetes fleets, products that install themselves, the ultimate infrastructure agent, and pull request to production, Terraform CI/CD with an agent in the pipeline.
-- [Turf 1.0](https://turf.build/engine/): the announcement. A self-hosted, autonomous infrastructure-as-code tool built on OpenTofu: the operating model (every change a Terraform plan, reviewed and approved), the engine, built on Restate for durable execution, how it watches for drift between runs (https://turf.build/engine/#drift: the in-cluster feed that dials out and sends identities, never object bodies; the confirming read; the sweep and its per-provider read budget; durable timers), the three ecosystems it runs as they are, what is in 1.0, and what comes next.
+- [Turf 1.0](https://turf.build/engine/): the announcement. A self-hosted, autonomous infrastructure-as-code tool built on OpenTofu: the operating model (every change a Terraform plan, reviewed and approved), the engine, built on Restate for durable execution, how it watches for drift between runs (https://turf.build/engine/#drift: the sweep and its per-provider read budget; the confirming read; durable timers; a sensor for Kubernetes clusters, coming soon), the three ecosystems it runs as they are, what is in 1.0, and what comes next.
 - [Get started](https://turf.build/get-started/): install, connect Turf to Claude Code, Cursor, Codex, Gemini CLI, VS Code or any MCP client, and deploy from your agent; or run the standalone CLI.
 - [Reference architectures](https://turf.build/reference-architectures/): the index of the three papers below.
 - [Metal to Tokens](https://turf.build/reference-architectures/metal-to-tokens/): a reference architecture for managed GPU cloud infrastructure, as code — a neocloud from pools of inventory to a cluster that has passed NVCRE certification, with day 2 on the provider's runbook. The PDF: https://get.turf.build/papers/turf-neocloud-reference-architecture.pdf
