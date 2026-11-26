@@ -159,8 +159,11 @@ steps; its text sizes are the paper's, set inline, and the two labels that named
 are reworded), and two for continuous drift detection: DriftFigure
 (home; drawn twice, left to right and, below 560px, top to bottom, switched by `.fig.when-wide` /
 `.fig.when-narrow`, which is safe because it defines no ids) and DriftEngineFigure (`/engine/#drift`:
-the feed, the confirming read, the sweep, the read budget, drawn solid because it is built, where the
-architecture figure's flow-control valve stays dashed). Geometry is the paper's; every `fill`/`stroke` is a
+the sweep, the confirming read and the read budget, drawn solid because they are built, where the
+architecture figure's flow-control valve stays dashed; the in-cluster sensor is not shipped, so since
+2026-11-26 its box and its signals arrow are dashed and tagged `COMING SOON`, and the `.figcap` says
+the sweep is shipped and the sensor is coming; the home DriftFigure draws the sweep as its one
+signal source and no sensor). Geometry is the paper's; every `fill`/`stroke` is a
 class from the `.f-*`/`.s-*` utilities and every text a `.t-*` class, so the figures re-theme (never
 `fill="#…"` or `fill="var(--…)"` attributes). Marker defs live in `components/FigureDefs.astro`,
 rendered once per page at the top of the layout slot (`position:absolute`, not `display:none`:
@@ -533,11 +536,18 @@ be unpinned first), then re-derive each `VideoObject`'s `uploadDate` and `durati
 
 **Continuous drift detection** (2026-11-15; the release that carries it was not decided when the copy
 was written, so no banner, no release page and no version on it). Sources: turf-engine's
-continuous-drift design as built, its feed README, and the deployment skill's drift reference
+continuous-drift design as built and the deployment skill's drift reference
 (private repos: no internal name is carried over). What exists and may be said in the present
-tense: the in-cluster Kubernetes feed, the sweep for any provider, confirm and classify, notices,
+tense: the sweep for any provider, confirm and classify, notices,
 `watch`/`status`/`drift` over MCP, the console's Drift tab, the scoped plan (`refresh_drift`), a
-webhook. Never implied: the engine applying a fix on its own (it detects and notifies; "Nothing runs
+webhook. **The in-cluster sensor is coming soon** (Eron, 2026-11-26): the sweep is the one signal
+that ships, and the component that reports changes in a Kubernetes cluster as they happen lands
+later. It is a "sensor", by name the "Turf sensor for Kubernetes" (never "Turf Kubernetes sensor";
+"feed" was its earlier name); any sender of signals is a "source". At the capability level it carries the site's
+coming-soon markers (the pill in the home band's ticklist and on its `/engine/#drift` beat, the tag
+in DriftEngineFigure, "coming soon" in the compatibility note and `llms.txt`), with no version and
+no date; the fleet use case's Day 2 beat names "a sensor in each cluster" in the present tense, as
+use-case narratives do. An example notice's `source` is `"sweep"`. Never implied: the engine applying a fix on its own (it detects and notifies; "Nothing runs
 off-plan"), event feeds for cloud audit logs, object-level drift inside a Helm release, or a watch on
 Helm releases at all (the sweep reads a `helm_release` through its provider). No number or speed
 claim: "as it happens", "between plans", never "in seconds". "GitOps controllers" is the generic
@@ -553,7 +563,8 @@ revert goes to a person), the Day 2 beats of use cases 01 to 04, `/engine/#drift
 and two workflow rows on `/compatibility/` (HashiCorp's health assessments described from
 developer.hashicorp.com/terraform/cloud-docs/workspaces/health: a speculative plan per workspace on a
 schedule, notifications, nothing modified; `-minimal-refresh` is Terraform 1.17), and `llms.txt`.
-The docs pages are `/docs/concepts/drift/`, `/docs/using/drift/` and `/docs/cluster/drift-feed/`.
+The docs pages are `/docs/concepts/drift/` and `/docs/using/drift/`; the sensor has no docs page
+until it ships, so nothing links one.
 Still to come: a console still of the Drift tab from a real run (the grid tile's right half, and
 under the home figure), and a `/demo/` hub entry once a recording exists. The compatibility page's
 Turf column, with its description and eyebrow, moved from 1.3 to 1.5 on 2026-11-16.
