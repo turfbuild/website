@@ -33,9 +33,9 @@ const description = 'Add Turf to Claude Code, Cursor, Codex or any MCP client wi
         runs, and the engine starts when your agent first needs it. If your client gives up waiting
         on that first start, reconnect once; later starts take several seconds.</p>
       <p>Providers run in the engine, not in your agent's session. Cloud credentials in their usual
-        files are read there; a variable a provider needs goes in the configuration's
-        <code>mise.local.toml</code>:
-        <a href="/docs/environment/engine-environment/">The engine's environment</a>.</p>
+        files are read there with nothing set. A variable a provider needs goes in the
+        <code>env</code> of Turf's entry, with <code>TURF_PROVIDER_ENV</code> naming it:
+        <a href="/docs/environment/provider-environment/">Send a variable to providers</a>.</p>
       <p>Turf sends anonymous usage telemetry to Turf LLC by default: the version, the platform,
         counts of resources, changes and runs, and an anonymous installation id. It never sends
         resource contents, credentials, state, variable values or names. Turn it off with

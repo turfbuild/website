@@ -1,13 +1,14 @@
 ---
 // Where credentials are read: your shell starts the agent; the MCP server reads its own environment
-// for variables, the backend and encryption; the engine reads its own for the providers. Tokens only
-// (docs.css, "figures"); markers are local to this svg.
+// for variables, the backend and encryption; the engine reads its own for the providers, with the
+// variables the server names for them laid over it. Tokens only (docs.css, "figures"); markers are
+// local to this svg.
 interface Props { caption?: string }
 const { caption } = Astro.props;
 ---
 
 <figure class="docfig">
-  <svg class="fig" viewBox="0 0 672 312" role="img" aria-label="Three processes. Your shell starts your agent, or the Turf CLI. The agent starts the MCP server, turf-mcp-server, whose environment is what the agent was started with plus the env block of its MCP config; it reads TF_VAR values, backend credentials, TF_TOKEN values, TF_ENCRYPTION and the tofurc there, and handles variables, the state backend, state encryption and init's installs. The server sends plans and applies to the engine, turf-engine: variable values travel, the server's environment stays. The engine's environment is its own, a small fixed one when the server started it, or the turf service's launchd environment, Homebrew's PATH and turf.env, then the configuration's mise environment; the providers run there and read it, along with files such as the AWS config and the kubeconfig.">
+  <svg class="fig" viewBox="0 0 672 312" role="img" aria-label="Three processes. Your shell starts your agent, or the Turf CLI. The agent starts the MCP server, turf-mcp-server, whose environment is what the agent was started with plus the env block of its MCP config; it reads TF_VAR values, backend credentials, TF_TOKEN values, TF_ENCRYPTION and the tofurc there, and handles variables, the state backend, state encryption and init's installs. The server sends plans and applies to the engine, turf-engine: variable values travel, and so do the variables it names for providers; the rest of the server's environment stays. The engine's environment is its own, a small fixed one when the server started it, or the turf service's launchd environment, Homebrew's PATH and turf.env; then the variables the server named for providers; then the configuration's mise environment. The providers run there and read it, along with files such as the AWS config and the kubeconfig.">
     <defs>
       <marker id="en-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-stroke"/></marker>
     </defs>
@@ -37,8 +38,8 @@ const { caption } = Astro.props;
       <text x="340" y="175">init's installs</text>
     </g>
     <line x1="40.5" y1="181" x2="40.5" y2="208" class="s-stroke" stroke-width="1.4" marker-end="url(#en-ink)"/>
-    <text x="50" y="193" class="t-mono">plans and applies: variable values travel;</text>
-    <text x="50" y="204" class="t-mono">the server's environment stays</text>
+    <text x="50" y="193" class="t-mono">plans and applies: variable values travel, and the variables it names for providers;</text>
+    <text x="50" y="204" class="t-mono">the rest of the server's environment stays</text>
 
     <!-- the engine -->
     <rect x="0.5" y="210.5" width="671" height="101" rx="8" class="f-okbg s-ok" stroke-width="1.2"/>
@@ -50,8 +51,9 @@ const { caption } = Astro.props;
     </g>
     <g class="t-mono f-ink">
       <text x="14" y="266">its own: a small fixed one, or the turf</text>
-      <text x="14" y="277">service's (launchd, turf.env), then the</text>
-      <text x="14" y="288">configuration's mise environment</text>
+      <text x="14" y="277">service's (launchd, turf.env); then the</text>
+      <text x="14" y="288">variables the server named for providers;</text>
+      <text x="14" y="299">then the configuration's mise environment</text>
       <text x="340" y="266">the providers, which read it,</text>
       <text x="340" y="277">and ~/.aws/config, ~/.kube/config</text>
     </g>

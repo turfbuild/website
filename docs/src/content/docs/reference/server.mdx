@@ -92,8 +92,15 @@ and a convergence waits in it between sessions.
   `$TURF_HOME/engine/supervisor.log`.
 - **`init`, the provider tools and the skills work without an engine.** At startup an engine that cannot
   be reached is only a warning in the log. An engine the server cannot drive stops it.
-- **Providers run in the engine**, with the engine's environment, not the server's. An engine the
-  server started has a small fixed one. See
+- **Providers run in the engine**, with the engine's environment and, over it, the provider
+  environment: the variables this server sends by name. `--provider-env` and `TURF_PROVIDER_ENV`
+  name them when the server starts, and their values go to the engine when a run starts. Nothing
+  else of the server's environment reaches a provider. Never sent, even when named: `PATH`, the home
+  and shell variables (`HOME`, `USER`, `LOGNAME`, `SHELL`, `TMPDIR`, `PWD`), the dynamic loader's
+  (`LD_*`, `DYLD_*`), Turf's and Restate's own (`TURF_*`, `RESTATE_*`), CI markers, the plugin
+  handshake and `TF_LOG*`. An entry that names one, or a bare `*`, stops the server at start. An
+  engine the server started has a small fixed environment of its own. See
+  [Send a variable to providers](/docs/environment/provider-environment/) and
   [The engine's environment](/docs/environment/engine-environment/).
 
 `--scopes` (`TURF_ENGINE_SCOPES`, `on` or `off`, default `on`) sets flow-control scopes. It must match
@@ -235,6 +242,7 @@ See [The engine and the console](/docs/concepts/engine-and-console/).
 | | `TURF_HOME` | `~/.turf` | The local engine lives in `$TURF_HOME/engine`. |
 | | `TURF_ENGINE_AUTOSTART` | unset | `off` keeps the server from starting the local engine. |
 | `--accept-eula` | `TURF_ACCEPT_EULA` | unset | Accepts the license terms at `https://turf.build/license/v1/`: the flag, or the variable set to `yes`. See [License acceptance](#license-acceptance). |
+| `--provider-env` | `TURF_PROVIDER_ENV` | unset: nothing is sent | The provider environment: the variables the server sends to the engine by name, for providers. An entry is `NAME` (the server's own value), `NAME=VALUE` or `PREFIX_*`. Both are read: the variable's entries, comma-separated, then the flag's, which repeats, and a later entry for a name wins. At most 64 variables and 16 KiB. A secret goes in the server's environment by name: `NAME=VALUE` on the flag shows in the process list. See [Send a variable to providers](/docs/environment/provider-environment/). |
 | `--scopes` | `TURF_ENGINE_SCOPES` | `on` | Flow-control scopes, `on` or `off`; must match the engine's. |
 | `--workdir` | `TURF_WORKDIR` | empty: no mapping | Maps this server's working directory to an engine's own `--workdir`. Needs `--restate-url`. |
 | `--deadline` | `TURF_DEADLINE` | `55s` | How long a convergence call runs before it returns the stage; `0` disables. |

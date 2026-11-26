@@ -1,0 +1,167 @@
+---
+title: Send a variable to providers
+description: Name a variable in TURF_PROVIDER_ENV, in your agent's entry for Turf, and the MCP server sends it with each run to the engine, where the providers read it.
+sidebar:
+  order: 2
+---
+
+Credentials in their usual files need nothing set: the default AWS profile, `~/.kube/config`,
+gcloud's application-default credentials and the `az` login are read as anywhere. This page is for a
+provider that needs an environment variable of yours, such as `AWS_PROFILE`, `KUBECONFIG` or
+`GOOGLE_APPLICATION_CREDENTIALS`.
+
+Put the variable in the `env` block of your agent's entry for Turf™, and name it in
+`TURF_PROVIDER_ENV`:
+
+```json title="Claude Desktop, Cursor and others"
+{
+  "mcpServers": {
+    "turf": {
+      "command": "npx",
+      "args": ["-y", "@turfbuild/turf-mcp-server"],
+      "env": {
+        "AWS_PROFILE": "prod",
+        "TURF_PROVIDER_ENV": "AWS_PROFILE"
+      }
+    }
+  }
+}
+```
+
+With add-mcp or your agent's own command, see
+[Give providers a variable](/docs/start/connect/#give-providers-a-variable). With the `turf` CLI, see
+[With the turf CLI](#with-the-turf-cli).
+
+Restart your agent, so that it starts the server again: the list is read when the server starts. Then
+run again. The server sends `AWS_PROFILE` to the engine with the run, and that run's providers launch
+with it.
+
+The variables the server sends by name are the **provider environment**. Nothing is sent unless you
+name it.
+
+## Name the variables
+
+`TURF_PROVIDER_ENV` is a comma-separated list of entries, in the server's environment:
+
+| Entry | What is sent |
+|---|---|
+| `NAME` | The server's own value of that variable. Nothing when it is unset. |
+| `NAME=VALUE` | That fixed value, whatever the server holds. |
+| `PREFIX_*` | Every variable of the server's under the prefix, as `AWS_*`. |
+
+```json
+"env": { "TURF_PROVIDER_ENV": "AWS_PROFILE=prod,KUBECONFIG,GOOGLE_*" }
+```
+
+`--provider-env` on the server's command line adds entries after the variable's, and is repeatable.
+A later entry for a name wins. In the variable a value ends at the next comma, so a value that holds
+a comma goes on the flag: an occurrence holding `=` is one entry, commas and all.
+
+## Check what is sent
+
+Ask your agent what Turf sends to providers. It reads it from `status`:
+
+```json
+"provider_env": { "names": ["AWS_PROFILE"], "unset": ["KUBECONFIG"] }
+```
+
+- `names`: the variables a run started now would send.
+- `unset`: the ones you named that the server's environment does not hold. Set them in the `env`
+  block.
+- No `provider_env` key: nothing is named.
+
+Every result of a run that was sent variables carries `provider_env_names`, the names it was
+started with. Both show names only. No tool, log or error shows a value.
+
+## What is never sent
+
+These stay the engine's own, even when named:
+
+- `PATH`;
+- the home and shell variables: `HOME`, `USER`, `LOGNAME`, `SHELL`, `TMPDIR`, `PWD`, `OLDPWD`;
+- the dynamic loader's: `LD_*`, `DYLD_*`;
+- Turf's and Restate's own: `TURF_*`, `RESTATE_*`;
+- CI markers, such as `CI` and `GITHUB_ACTIONS`, and mise's own trust and shell variables;
+- the plugin handshake's (`PLUGIN_*`, `TF_PLUGIN_MAGIC_COOKIE`, `TF_REATTACH_PROVIDERS`), `TF_LOG`
+  and `TF_LOG_*`.
+
+An entry that names one of these, or a pattern wholly inside one of these families (`TURF_*`), stops
+the server at start. So does a bare `*`, and an entry that is malformed. The error names the entry's
+position, never a value. A wider pattern that merely matches one of them leaves that one out and
+sends the rest.
+
+A command that is not found is not fixed here, since `PATH` is never sent: see
+[The engine's environment](/docs/environment/engine-environment/) or
+[mise](/docs/environment/mise/).
+
+## When the values are read
+
+The server reads the values when a run starts: `up`, `destroy`, `refresh`, `import`, `invoke`, and
+`apply` of a planfile. They hold for every round of that run. `plan`, approving a plan and answering
+a turf action send nothing new.
+
+A [planfile](/docs/using/planfiles/) applied later runs with the applying server's values, not the
+planner's.
+
+The engine keeps the values in its store, with the run. After an `up` that converges they stay with
+the workspace. When drift detection is on, the engine checks a workspace between runs, with nobody
+attached, and those checks read with the values of the last `up` that converged. After you rotate a
+credential, the next `up` that converges hands them the new value.
+
+## Which engine
+
+Any engine takes them: the local one, however it was started (on demand, the Homebrew service, a
+terminal), and a remote one that `TURF_RESTATE_URL` names.
+
+A value that is a file's path, such as `KUBECONFIG` or `GOOGLE_APPLICATION_CREDENTIALS`, names a file
+where the engine runs. For a remote engine that is another machine.
+
+An engine too old to take the variables is refused: the start fails and says so.
+
+## How it layers
+
+A provider's environment is three layers, each over the one before:
+
+1. [The engine's own environment](/docs/environment/engine-environment/).
+2. The variables you named.
+3. The configuration directory's [mise environment](/docs/environment/mise/), when mise is installed
+   and on.
+
+[Provider arguments](/docs/environment/engine-environment/#provider-arguments-win) in the
+configuration win over all three.
+
+mise is evaluated over the engine's environment only, so a mise template cannot read a variable the
+server sent.
+
+## Secrets
+
+A secret is best left in the profile or credential store a variable names: send `AWS_PROFILE`, and
+the keys stay in `~/.aws`.
+
+- One that must be sent goes in the entry's `env` block, named in `TURF_PROVIDER_ENV`. A value given
+  as `--provider-env NAME=VALUE` shows in the process list.
+- Over `--transport http`, every client of one server gets that server process's values.
+
+## Limits
+
+64 variables, and 16 KiB in total. Over either, the server stops at start, or the run fails to start,
+with an error that names no value.
+
+## Not reached
+
+- **The engine's own installs** of modules and providers: a `TF_TOKEN_*`, a proxy. See
+  [State backend, registries and mirrors](/docs/environment/registries-and-mirrors/).
+- **A launch that only reads a provider's schema.**
+
+Both use [the engine's own environment](/docs/environment/engine-environment/).
+
+## With the turf CLI
+
+The `turf` CLI starts the server with your shell's environment, so name the variable there:
+
+```sh
+cd infra/staging && TURF_PROVIDER_ENV=AWS_PROFILE turf up
+```
+
+That sends the shell's `AWS_PROFILE`. An `export TURF_PROVIDER_ENV=AWS_PROFILE` in your shell profile
+does the same for every run.

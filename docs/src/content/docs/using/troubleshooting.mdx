@@ -95,6 +95,38 @@ applied. Fix the cause (the configuration, a missing `var`, a provider's credent
 again. There is no `-target`: to go ahead while one resource stays broken, the configuration has to stop
 declaring it, and the agent asks before editing your files that way.
 
+## A provider finds no credentials
+
+*"No valid credential sources found"*, *"failed to get shared config profile"* and messages like them
+usually mean the provider wants a variable (`AWS_PROFILE`, `KUBECONFIG`,
+`GOOGLE_APPLICATION_CREDENTIALS`) that your shell or agent holds and nothing has named for providers.
+Providers run in the engine. They get its environment and the provider environment, the variables the
+server sends by name, not your whole session.
+
+Ask the agent for `status` and look at `provider_env`. It shows names only, never a value.
+
+- **The variable is not in `names`**, or there is no `provider_env`: add two lines to the `env` of
+  Turf's entry in your agent, restart the agent, and run `up` again.
+
+  ```json
+  "env": {
+    "AWS_PROFILE": "prod",
+    "TURF_PROVIDER_ENV": "AWS_PROFILE"
+  }
+  ```
+
+- **The variable is under `unset`**: it is named, but the server's environment does not hold it. Set
+  it in the entry's `env` too.
+- **The variable is in `names`**, and in the failed run's `provider_env_names`: the provider got it. Look at what the value names where the engine
+  runs (a profile, a file's path), and at the configuration's mise environment and the provider's
+  arguments in HCL, which win over it.
+
+A command that is not found (*"executable file not found in $PATH"*) is never fixed this way: `PATH`
+is not sent. That is the engine's own environment, or mise:
+[The engine's environment](/docs/environment/engine-environment/).
+
+More in [Send a variable to providers](/docs/environment/provider-environment/).
+
 ## `stale`, `stalled` and `exhausted`
 
 - **`stale`**: the configuration changed, or no longer loads, between the plan and the apply. Nothing

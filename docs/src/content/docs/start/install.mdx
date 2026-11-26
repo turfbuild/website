@@ -182,12 +182,23 @@ and `turf-mcp-server engine stop`.
 engine, and it takes over one a server started. `TURF_ENGINE_AUTOSTART=off` in a server's environment
 keeps that server from starting one.
 
-**Provider credentials.** Providers run inside the engine, so they read the engine's environment, not
-your shell's or your agent's. An engine the server started has a small fixed environment: a variable
-in your MCP client's `env` block reaches the server and the state backend, not the providers.
-Credentials in their usual files (`~/.aws`, `~/.kube/config`) are read as anywhere, and a variable a
-provider needs goes in the configuration's `mise.local.toml`. For more than that, run the Homebrew
-service and put it in `~/.homebrew/services/turf.env`. All of it is in
+**Provider credentials.** Providers run inside the engine, not in your shell or your agent.
+Credentials in their usual files (the default AWS profile, `~/.kube/config`, gcloud's
+application-default credentials, the `az` login) are read there with nothing set. A variable a
+provider needs goes in the `env` of Turf's entry in your agent, with `TURF_PROVIDER_ENV` naming it:
+
+```json
+"env": {
+  "AWS_PROFILE": "prod",
+  "TURF_PROVIDER_ENV": "AWS_PROFILE"
+}
+```
+
+Restart the agent, and the server sends the variables you named to the engine with each run:
+[Send a variable to providers](/docs/environment/provider-environment/). A configuration's own
+settings, such as a profile or a kubeconfig path that belongs to that directory, go in its
+`mise.local.toml` ([mise](/docs/environment/mise/)). The Homebrew service and
+`~/.homebrew/services/turf.env` are only for what the engine itself needs, such as a proxy:
 [The engine's environment](/docs/environment/engine-environment/).
 
 ## The console
