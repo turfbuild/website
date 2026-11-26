@@ -216,8 +216,9 @@ drift({ workspace_alias, enabled: false })
 ```
 
 Detection is off, and nothing watches the workspace. Its open notices are closed. The settings stand,
-and take effect when detection is turned on again. The engine then reads again what it had reported, so
-a change that still stands opens its notice again.
+and take effect when detection is turned on again. The engine then takes up what it had reported: each
+object is read again, and its notice reopens if the change still stands. With `confirm` off, or no
+standing seal, nothing reads it, and the notice reopens `unconfirmed`.
 
 - **`enabled: false` stands alone.** A call that also names a setting is refused. Change a setting in
   a call of its own: with detection off, it is `stored`.
