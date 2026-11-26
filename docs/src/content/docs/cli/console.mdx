@@ -20,8 +20,8 @@ The browser keeps a cookie, so links open directly from then on.
 
 ## Where it runs
 
-The Homebrew service runs the console beside the engine, at `http://127.0.0.1:8873`, from the
-`turf-ui` binary. After an upgrade to 1.4, `brew services restart turf` starts it.
+The console runs beside the engine, at `http://127.0.0.1:8873`, from the `turf-ui` binary. It starts
+with the engine, whether a server started it on demand or the Homebrew service runs it.
 
 - `TURF_CONSOLE_ADDR=127.0.0.1:<port>` moves it to another port; `TURF_CONSOLE_ADDR=off` leaves it out.
 - `TURF_CONSOLE_URL` on a server whose console lives elsewhere, such as in a cluster, points the links

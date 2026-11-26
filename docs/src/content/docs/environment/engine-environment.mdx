@@ -1,19 +1,43 @@
 ---
 title: The engine's environment
-description: Providers read the engine's environment. Set credentials for the turf service in turf.env, for a terminal engine in its shell, for a remote one in its pod.
+description: "Providers read the engine's environment: a small fixed one when the server started the engine, turf.env for the Homebrew service, the pod's for a remote one."
 sidebar:
   order: 2
 ---
 
 import { Aside } from '@astrojs/starlight/components';
 
-Providers run in the engine, so the environment they see is the engine's. Set a credential there
-once and every configuration's providers can use it. Where "there" is depends on how the engine runs:
-the `turf` Homebrew service, a terminal, or a deployment of your own.
+Providers run in the engine, so the environment they see is the engine's. Where a credential goes
+depends on how the engine runs: started by the server on demand, as the `turf` Homebrew service, in a
+terminal, or as a deployment of your own. `turf-mcp-server engine status` says which.
 
-## The local service
+## An engine the server started
 
-The `turf` Homebrew service runs the engine with launchd's environment on a Mac, Homebrew's `PATH`,
+By default the server starts the engine when a tool first needs it. That engine has a small fixed
+environment, the same whichever agent or shell the server came from:
+
+- `HOME`, `USER`, `LOGNAME`, `SHELL` and `TMPDIR`;
+- the `TURF_*` settings, `DO_NOT_TRACK` and `CI`, from the server's environment;
+- `TF_PLUGIN_CACHE_DIR` and `TF_CLI_CONFIG_FILE`, from the server's environment;
+- a `PATH` of Homebrew's and the system's directories.
+
+Nothing else of your session reaches it. An `AWS_PROFILE` in your shell, or in the `env` block of
+your MCP client's entry, reaches the server and the state backend, not the providers. Give providers
+what they need in one of these ways:
+
+- **Credential files.** The default profile in `~/.aws/config`, `~/.kube/config`, gcloud's
+  application-default credentials and the `az` login are read as anywhere.
+- **The configuration's mise environment.** Put a variable a provider needs, such as `AWS_PROFILE`,
+  in the configuration's `mise.local.toml`: see
+  [Per-configuration environment with mise](/docs/environment/mise/).
+- **Provider arguments** in the configuration, [below](#provider-arguments-win).
+
+For anything more, such as a proxy, run the Homebrew service and use `turf.env`.
+
+## The Homebrew service
+
+`brew services start turf` runs the same engine from login, and takes over one a server started. The
+service runs the engine with launchd's environment on a Mac, Homebrew's `PATH`,
 and what `~/.homebrew/services/turf.env` sets. It does not see your shell's environment. Put what
 your providers need in `turf.env`, one `KEY=value` per line:
 
@@ -30,9 +54,10 @@ brew services restart turf
 
 A run paused at a plan gate or an approval point waits through the restart.
 
-`turf.env` holds the engine's other settings too: `TURF_MISE=off` turns off
+`turf.env` holds the service's other settings too: `TURF_MISE=off` turns off
 [mise](/docs/environment/mise/), and `TURF_CONSOLE_ADDR`, `DO_NOT_TRACK` and `TURF_ACCEPT_EULA` are
-read there, not in your shell.
+read there, not in your shell. An engine the server started takes the same settings from the server's
+environment, the `env` block of your MCP client's entry.
 
 <Aside type="caution" title="A PATH in turf.env replaces the service's">
 Follow your own directories with Homebrew's `bin` and the system directories, or the engine loses
@@ -41,7 +66,7 @@ the tools Homebrew's `PATH` gave it.
 
 ## An engine in a terminal
 
-Without Homebrew, or to watch the engine work, run it in the foreground:
+To watch the engine work, run it in the foreground:
 
 ```sh
 export AWS_PROFILE=platform-admin
@@ -61,7 +86,10 @@ deployment gives it. In a Kubernetes® cluster that is the engine pod's environm
 The engine starts once the license terms are accepted, and where it looks follows the same rule as
 everything else on this page: its own environment, never your shell's.
 
-- **The local service** reads the record `turf license accept` writes, `~/.turf/license.json`. It
+- **An engine the server started** is accepted as the server is: by the record
+  `turf license accept` or `turf-mcp-server license accept` writes, `~/.turf/license.json`, or by
+  `TURF_ACCEPT_EULA=yes` in the server's environment. The server starts no engine before that.
+- **The Homebrew service** reads the same record. It
   waits for it, checking every 2 seconds, and starts the engine within seconds, with no restart.
   `TURF_ACCEPT_EULA=yes` in `turf.env` accepts too, after a restart of the service. The same variable
   in your shell, or in your MCP client's configuration, does not reach the service.
@@ -76,7 +104,7 @@ are accepted, `turf-mcp-server engine status` says `awaiting license`. More in
 ## Credential files
 
 Credentials in their usual files are read in the engine as anywhere: the default profile in
-`~/.aws/config`, `~/.kube/config`. The local service is this user's engine, so it reads your files.
+`~/.aws/config`, `~/.kube/config`. The local engine is this user's, so it reads your files.
 A remote engine reads its own.
 
 Provider plugins run with the configuration directory as their working directory. A relative path a
@@ -105,8 +133,9 @@ their own blocks for what differs.
 turf-mcp-server engine status
 ```
 
-It says where the engine runs and whether it answers, the mise it found on its `PATH` (or `off`),
-and where its logs are:
+With the npx install, `npx -y @turfbuild/turf-mcp-server engine status`. It says where the engine
+runs, how it was started and whether it answers, the mise it found (or `off`), and where its logs
+are:
 
 ```text
 directory       /Users/you/.turf/engine
@@ -116,7 +145,8 @@ logs            /Users/you/.turf/engine/restate.log
                 /Users/you/.turf/engine/engine.log
 ```
 
-If `brew services restart turf` does not bring the engine up, the reason is in `engine.log`.
+If the engine does not come up, the reason is in `engine.log`, or in `supervisor.log` beside it for
+an engine the server started.
 
 ## Common variable names
 

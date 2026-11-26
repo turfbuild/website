@@ -12,12 +12,16 @@ Terraform and OpenTofu don't have: multi-round convergence of layered stacks, Te
 actions with overlays, turf actions (a check, a question or a notification as a step of the apply),
 durable runs on Restate, provider calls that scale out until the cloud API is the ceiling, state
 encrypted at rest, OpenTelemetry® built in, and since 1.4 a read-only console of every workspace's
-runs, rounds and approvals. The engine and its MCP server (`turf-mcp-server`) are the product. Connect it to your
-agent in one command (`npx add-mcp@2 "$(command -v turf-mcp-server)" --name turf -g`), or run
-the standalone CLI agent (`turf`) with your own model key. Install with
-`brew install restatedev/tap/restate-server turfbuild/tap/turf`, then `brew services start turf`.
+runs, rounds and approvals. The engine and its MCP server (`turf-mcp-server`) are the product. Install it and connect
+it to your agent in one command: `npx add-mcp@2 @turfbuild/turf-mcp-server --name turf -g` (Node 18
+or later; macOS or Linux, arm64 or x64). npm brings the server and its engine, and the engine starts
+when a tool first needs it; the first start downloads Turf, about a minute. Homebrew adds the
+standalone CLI agent (`turf`), run with your own model key, and an engine that starts at login:
+`brew install restatedev/tap/restate-server turfbuild/tap/turf`, then
+`npx add-mcp@2 "$(command -v turf-mcp-server)" --name turf -g`.
 The license terms (https://turf.build/license/v1/) are accepted once, by the user, with
-`turf license accept`; an agent asks its user to read them and confirm before it runs that.
+`npx -y @turfbuild/turf-mcp-server license accept` or, with the CLI, `turf license accept`; an agent
+asks its user to read them and confirm before it runs either.
 
 The governing idea: Turf produces the plan, and the Terraform plan becomes the agent's TODO
 list — planned and approved round by round, with a plan gate (`plan`) and an approval point

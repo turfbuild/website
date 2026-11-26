@@ -122,10 +122,12 @@ at an approval point ends `cancelled`, with the upgrade as the cause; `apply` on
 One in the middle of an apply finishes what is in flight, and its round ends `partial`. Everything
 applied is kept: run `up` again, and `plan` plans what remains.
 
-After upgrading the binaries, two messages say what to restart:
+After an upgrade, two messages say what to restart:
 
-- *"a Turf engine X is running for this user, and this server is Y"* with an older engine: restart it,
-  `brew services restart turf`.
+- *"a Turf engine X is running for this user, and this server is Y"* with an older engine: restart
+  the engine, as the message says. For one a server started, `turf-mcp-server engine stop`
+  (`npx -y @turfbuild/turf-mcp-server engine stop` with the npx install), and the next call starts
+  the new one. For the Homebrew service, `brew services restart turf`.
 - The same message with a newer engine: the MCP server is the old one. Start the client again; in Claude
   Code, reconnect turf with `/mcp`.
 
@@ -154,9 +156,35 @@ its `convergence_id` takes it up: at `awaiting_plan`, `plan`; otherwise `apply`.
 
 ## The engine
 
-*"the local Turf engine is not running"*: start it with `brew services start turf`, or
-`turf-mcp-server engine run` in a terminal. The agent asks before running either itself. Once it runs,
-call again: nothing needs reconnecting. `init`, the provider tools and the skills work without it.
+The server starts the engine when a tool first needs it, so these messages say why it has not:
+
+- *"the local Turf engine is still starting"*: the server started it for this call, and it did not
+  answer within 90 seconds. It goes on starting: call again in a moment.
+- *"the local Turf engine is not running, and …"*, or *"the local Turf engine did not start"*: the
+  message names the reason. `TURF_ENGINE_AUTOSTART=off` leaves the start to you:
+  `brew services start turf`, or `turf-mcp-server engine run` in a terminal; the agent asks before
+  running either itself. A server in a container needs an engine named by `TURF_RESTATE_URL`. A
+  missing `restate-server` or `turf-engine` is named with where the server looked. A start that
+  failed shows the end of `~/.turf/engine/supervisor.log`.
+- *"the local Turf engine is waiting for Turf's license terms to be accepted"*: accept them
+  ([Accept the license](/docs/start/install/#accept-the-license)); it starts within seconds.
+
+Once it is fixed, call again: nothing needs reconnecting. `init`, the provider tools and the skills
+work without the engine.
+
+**The first start with npx.** The first time your client starts the server, npm downloads Turf, which
+takes about a minute. A client that waits 30 seconds for a server may give up: reconnect once.
+
+**See or stop the engine.**
+
+```sh
+npx -y @turfbuild/turf-mcp-server engine status
+npx -y @turfbuild/turf-mcp-server engine stop
+```
+
+With Homebrew or the script, the same commands are `turf-mcp-server engine status` and
+`turf-mcp-server engine stop`. After `engine stop`, the next call that needs the engine starts it
+again.
 
 ## Locks
 

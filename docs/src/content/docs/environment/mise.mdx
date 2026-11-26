@@ -29,8 +29,10 @@ shell with mise active there.
 - **Providers only.** mise never supplies [variables](/docs/environment/variables/), the state
   backend or state encryption: the MCP server reads those, not the engine.
 
-To turn it off, set `TURF_MISE=off` in the engine's environment (`~/.homebrew/services/turf.env` for
-the `turf` service), then `brew services restart turf`.
+To turn it off, set `TURF_MISE=off` in the engine's environment, then restart the engine. For an
+engine the server started, that is the `env` block of your MCP client's entry, then
+`turf-mcp-server engine stop`. For the `turf` service it is `~/.homebrew/services/turf.env`, then
+`brew services restart turf`.
 
 ## A worked example
 

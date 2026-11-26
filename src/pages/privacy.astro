@@ -57,6 +57,10 @@ const description =
         pixel, then redirects to the file on turf.build. A request that sends <code>DNT: 1</code> or
         <code>Sec-GPC: 1</code> is not counted, and <code>https://turf.build/install.sh</code> serves the
         same script directly. The script downloads Turf™ and the engine's dependency from GitHub.</p>
+      <p>The npx install downloads Turf from the npm registry. The engine's dependency comes from
+        Restate's own npm package, which reports anonymous install analytics through Scarf at install
+        time; <code>DO_NOT_TRACK=1</code> or <code>SCARF_ANALYTICS=false</code> in the environment
+        turns that off.</p>
 
       <h3>Hosting</h3>
       <p>The site is served by GitHub Pages, which records standard request logs including IP

@@ -517,6 +517,22 @@ first-run prompt, or `TURF_ACCEPT_EULA=yes`).
 route, and posts and listings link `/get-started/`), so its install flow carries the telemetry
 sentence in step 1 and the acceptance step as step 2, with the license line.
 
+**The install copy is npx-first** (since release 1.5, 2026-11-26). The lead line on every surface
+(the hero and the footer band, `/get-started/` step 1, the docs install and connect pages,
+`public/llms.txt`, release 1.5's notes) is `npx add-mcp@2 @turfbuild/turf-mcp-server --name turf -g`,
+with its note, "the first start downloads Turf: about a minute"; accepting without the CLI is
+`npx -y @turfbuild/turf-mcp-server license accept`. Homebrew comes second, described by what it adds
+(the `turf` CLI and an engine that starts at login), with `brew services start turf` as an optional
+last line; the install script is third. Those lines, the four client commands and the JSON entry are
+the same bytes wherever they appear. Keep `@2`, never show add-mcp's own `-y` (`npx -y` is npm's),
+and say "macOS or Linux" with no Windows claim either way. The server starts the engine when a tool
+first needs it: never write that the Homebrew service is required or that the server never starts
+the engine, and never imply provider credentials need no setup: point at
+`docs/…/environment/engine-environment.mdx` (an engine the server started has a small fixed
+environment; provider variables go in the configuration's `mise.local.toml`). The behaviour of
+record is turf-mcp-server's README. In the docs, the tabs that depend on the install share
+`syncKey="install"` and the labels `npx`, `Homebrew`, `One script`.
+
 `pages/engine.astro` is the Turf 1.0 announcement (launch plan §3, §8). Its sources, in order: the
 launch paragraph and the two-layer frame from `headquarters/marketing/launch-plan.md` §1 and §3;
 the ten engine points and the three-ecosystems chapter of *Metal to Tokens* (`refarch-neocloud.md`,
