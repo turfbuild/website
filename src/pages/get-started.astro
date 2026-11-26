@@ -38,12 +38,14 @@ const description = 'Add Turf to Claude Code, Cursor, Codex or any MCP client wi
         <a href="/docs/environment/engine-environment/">The engine's environment</a>.</p>
       <p>Turf sends anonymous usage telemetry to Turf LLC by default: the version, the platform,
         counts of resources, changes and runs, and an anonymous installation id. It never sends
-        resource contents, credentials, state, variable values or names. To turn it off, put
-        <code>DO_NOT_TRACK=1</code> or <code>TURF_TELEMETRY=off</code> in the <code>env</code> of
-        Turf's entry in each of your agents, reconnect them, and stop the engine. With the
-        <code>turf</code> CLI, the switch is <code>turf telemetry off</code>. The steps for each
-        install, the full field list and the endpoint are at
-        <a href="/telemetry/">turf.build/telemetry</a>.</p>
+        resource contents, credentials, state, variable values or names. Turn it off with
+        <code>turf telemetry off</code>, or with <code>TURF_TELEMETRY=off</code> or
+        <code>DO_NOT_TRACK=1</code> in the engine's environment; the full field list and the endpoint
+        are at <a href="/telemetry/">turf.build/telemetry</a>.</p>
+      <p>With this install, the engine's environment is the <code>env</code> of Turf's entry in each
+        of your agents: set it there, reconnect them, and stop the engine. The steps are on
+        <a href="/telemetry/">that page</a>; <code>turf telemetry off</code> comes with the
+        <code>turf</code> CLI.</p>
 
       <h3>Your client's own command</h3>
       <p>Each client can also add the server itself:</p>
