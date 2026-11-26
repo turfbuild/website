@@ -49,6 +49,9 @@ seal**.
 - A provider configured from an ephemeral value cannot be configured from the seal, so its objects are
   not read between runs. Credentials the provider takes from
   [the engine's environment](/docs/environment/engine-environment/) work as in any run.
+- Variables the server sent by name (`TURF_PROVIDER_ENV`) are kept with it too, so a read with nobody
+  attached uses the last converged `up`'s values. After you rotate a credential, the next converged
+  `up` hands those reads the new one.
 
 With no standing seal nothing can be read, and a signal becomes an `unconfirmed` notice.
 
