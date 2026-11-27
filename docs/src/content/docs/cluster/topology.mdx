@@ -11,7 +11,7 @@ import ClusterTopologyFigure from '../../../components/figures/ClusterTopologyFi
 In a cluster, Turf™ runs as the same pieces it runs on a laptop, deployed as workloads: the MCP
 server, restate-server with the engine behind it, and the console. Any MCP client talks to the server
 over HTTP: an agent running in the cluster, Claude Code through a port-forward, a CI job. On a laptop
-the Homebrew service runs restate-server, the engine and the console for you; in a cluster each one is
+the server starts restate-server, the engine and the console for you; in a cluster each one is
 a workload you deploy.
 
 <ClusterTopologyFigure caption="<b>The pieces.</b> Only the server faces clients; the engine faces the cloud; the configuration is mounted in both." />
@@ -25,7 +25,7 @@ anything else gets `401`. The server reads the token only from its environment. 
 over TLS, so keep the network path private, or serve the server over TLS or behind a mesh.
 
 The server parses the configuration, opens state and drives the engine through restate-server's
-ingress, which `TURF_RESTATE_URL` names. Without that variable it looks for a local engine. It never
+ingress, which `TURF_RESTATE_URL` names. Without that variable it uses a local engine, which it does not start in a container. It never
 runs a provider: the credentials it needs are the state backend's, and the variables it reads are
 `TF_VAR_` ones. See [Credentials in a cluster](/docs/cluster/credentials/).
 

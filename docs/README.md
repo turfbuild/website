@@ -94,6 +94,10 @@ The marketing site's rules (`../CLAUDE.md`, "Copy and voice rules") apply; the o
   reference" below.
 - Say **round**, **plan gate**, **approval point**, **turf action**; never phase, gate (alone) or effect.
   Say "OpenTofu framework", never "OpenTofu engine". Say "module registry", never "the Terraform Registry".
+- Say **provider environment** for the variables the server sends by name (`TURF_PROVIDER_ENV`):
+  define it once per page, then use plain words ("the variables you named", "name it in the entry").
+  Examples put a secret in the entry's `env`, never on the `--provider-env` flag, which shows in the
+  process list.
 - `cd path/to/config && turf up`, never `turf up path`.
 - No rollback or undo promises. Unshipped capabilities are "coming soon", with the badge.
 - Short sentences, concrete nouns, one idea each. Lead a page with what the reader can do, then how it

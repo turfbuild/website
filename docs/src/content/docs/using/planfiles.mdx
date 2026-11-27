@@ -100,6 +100,10 @@ new one-round run on the workspace, which must be free (nothing is superseded fo
 follows it as any apply: to `awaiting_actions` for turf actions, or to its end. Never with
 `convergence_id`, `decline` or `action_results`.
 
+The apply's providers run with the applying server's provider environment, the variables that server
+sends by name, not the planner's. A CI apply job names its own:
+[Send a variable to providers](/docs/environment/provider-environment/).
+
 **What makes it stale.** The engine holds the run to the plan, and ends it `stale`
 (`rounds[].stale_reason` says which pin failed) when anything moved since the plan was made:
 

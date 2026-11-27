@@ -1,0 +1,70 @@
+---
+import Layout from '../../layouts/Layout.astro';
+// The terms are src/content/license/v1.md: byte for byte the LICENSE file every release archive
+// ships from 1.5. This page renders that file inside <article id="terms"> and adds nothing there.
+// Never retype or reword the terms here; a new version of the terms is a new file and a new page
+// (/license/v2/), and this one stays at its URL. See "Content provenance" in CLAUDE.md.
+import { Content, rawContent, compiledContent } from '../../content/license/v1.md';
+
+// The build fails if the rendered words are not the file's words: Markdown's marks removed from
+// one side, HTML's tags from the other, whitespace aside. It catches a processor that curls a
+// quote or swaps a dash, and any edit that slips between the file and the page.
+const words = (text: string) => text.replace(/\s+/g, ' ').trim();
+const fromFile = words(
+  rawContent()
+    .replace(/^#{1,6} /gm, '')
+    .replace(/^\s*\d+\. /gm, '')
+    .replace(/\*\*|`/g, ''),
+);
+const fromPage = words(
+  (await compiledContent())
+    .replace(/<[^>]+>/g, '')
+    .replace(/&#x26;|&amp;/g, '&')
+    .replace(/&#x3C;|&lt;/g, '<')
+    .replace(/&#x3E;|&gt;/g, '>')
+    .replace(/&#x22;|&quot;/g, '"')
+    .replace(/&#x27;|&#39;/g, "'"),
+);
+if (fromFile !== fromPage) {
+  throw new Error('/license/v1/ does not render src/content/license/v1.md word for word');
+}
+const title = 'Turf — Turf Community Edition License 1.0: the terms';
+const description =
+  'The Turf Community Edition License 1.0 in full: who uses Turf free, the Community limits, the 30-day evaluation and how the terms are accepted. From Turf 1.5.';
+---
+
+<Layout title={title} description={description}>
+  <section class="section">
+    <div class="wrap">
+      <div class="prose about">
+        <p class="eyebrow"><span class="dot"></span> License terms · version 1.0</p>
+        <p>These are the terms that govern Turf™ from release 1.5, word for word as every release
+          archive carries them in its <code>LICENSE</code> file. Each release names the version of
+          the terms that governs it: <code>turf --version</code> prints it.</p>
+        <p>The terms build on the Common Paper Software License Agreement Standard Terms, Version
+          1.1, posted at
+          <a href="https://commonpaper.com/standards/software-license-agreement/1.1">commonpaper.com/standards/software-license-agreement/1.1</a>.
+          A copy ships in every release archive as <code>STANDARD-TERMS.md</code>.</p>
+        <p>For the same terms in plain words, read <a href="/licensing/">turf.build/licensing</a>.
+          This page is the binding text.</p>
+      </div>
+
+      <article class="prose terms" id="terms">
+        <Content />
+      </article>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  /* The note above the terms: set apart, so it never reads as part of them. */
+  .about { padding: 18px 20px 6px; margin-bottom: 34px; border: 1px solid var(--hair);
+    border-radius: 12px; background: var(--panel); }
+  .about .eyebrow { margin: 0 0 12px; }
+  /* The terms come from Markdown, so their elements carry no scope attribute. */
+  .terms :global(h1) { font-size: clamp(30px, 4.2vw, 44px); margin: 0 0 14px; }
+  .terms :global(h2) { margin: 38px 0 14px; }
+  .terms :global(ol) { color: var(--muted); padding-left: 24px; margin: 0 0 14px; }
+  .terms :global(strong) { color: var(--ink); }
+  .terms :global(a) { overflow-wrap: anywhere; }
+</style>

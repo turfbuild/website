@@ -1,25 +1,55 @@
 ---
 title: The engine's environment
-description: Providers read the engine's environment. Set credentials for the turf service in turf.env, for a terminal engine in its shell, for a remote one in its pod.
+description: "What the engine's own environment holds: a small fixed one when the server started it, turf.env for the Homebrew service, the pod's for a remote one. Providers read it, with the variables you name laid over it."
 sidebar:
-  order: 2
+  order: 3
 ---
 
 import { Aside } from '@astrojs/starlight/components';
 
-Providers run in the engine, so the environment they see is the engine's. Set a credential there
-once and every configuration's providers can use it. Where "there" is depends on how the engine runs:
-the `turf` Homebrew service, a terminal, or a deployment of your own.
+Providers run in the engine, so the environment they see is the engine's, with the
+[variables the server sends by name](/docs/environment/provider-environment/) laid over it. What the
+engine's own environment holds depends on how the engine runs: started by the server on demand, as
+the `turf` Homebrew service, in a terminal, or as a deployment of your own.
+`turf-mcp-server engine status` says which.
 
-## The local service
+## An engine the server started
 
-The `turf` Homebrew service runs the engine with launchd's environment on a Mac, Homebrew's `PATH`,
+By default the server starts the engine when a tool first needs it. That engine has a small fixed
+environment, the same whichever agent or shell the server came from:
+
+- `HOME`, `USER`, `LOGNAME`, `SHELL` and `TMPDIR`;
+- the `TURF_*` settings (all but `TURF_MCP_AUTH_TOKEN` and `TURF_PROVIDER_ENV`), `DO_NOT_TRACK` and
+  `CI`, from the server's environment;
+- `TF_PLUGIN_CACHE_DIR` and `TF_CLI_CONFIG_FILE`, from the server's environment;
+- a `PATH` of Homebrew's and the system's directories.
+
+Nothing else of your session is in it. Providers get what they need in one of these ways:
+
+- **Credential files need nothing set.** The default profile in `~/.aws/config`, `~/.kube/config`,
+  gcloud's application-default credentials and the `az` login are read as anywhere. Most readers
+  need nothing more.
+- **A variable of yours.** Name it in your agent's entry for Turf: the variable in the `env` block,
+  such as `AWS_PROFILE`, and `TURF_PROVIDER_ENV` naming it. The server sends it with each run. See
+  [Send a variable to providers](/docs/environment/provider-environment/).
+- **A configuration's own settings.** A profile or a kubeconfig path that belongs to one directory,
+  or a tool version, goes in that directory's mise environment: see
+  [Per-configuration environment with mise](/docs/environment/mise/).
+- **Provider arguments** in the configuration, [below](#provider-arguments-win).
+
+The Homebrew service and `turf.env` are for what the engine itself needs: a proxy, a `PATH` with
+extra tools, a registry token for the engine's own installs.
+
+## The Homebrew service
+
+`brew services start turf` runs the same engine from login, and takes over one a server started. The
+service runs the engine with launchd's environment on a Mac, Homebrew's `PATH`,
 and what `~/.homebrew/services/turf.env` sets. It does not see your shell's environment. Put what
-your providers need in `turf.env`, one `KEY=value` per line:
+the engine itself needs in `turf.env`, one `KEY=value` per line:
 
 ```sh title="~/.homebrew/services/turf.env"
-AWS_PROFILE=platform-admin
-ARM_SUBSCRIPTION_ID=00000000-0000-0000-0000-000000000000
+HTTPS_PROXY=http://proxy.example.com:3128
+NO_PROXY=.internal.example.com
 ```
 
 Then restart the service:
@@ -28,11 +58,20 @@ Then restart the service:
 brew services restart turf
 ```
 
+The server makes its own calls (`init`'s installs, the state backend), from its own environment: give
+it the proxy in the `env` of Turf's entry too. A provider's variable set in `turf.env` reaches
+providers as part of the engine's environment, and one you
+[name in your agent's entry](/docs/environment/provider-environment/) is laid over it.
+
 A run paused at a plan gate or an approval point waits through the restart.
 
-`turf.env` holds the engine's other settings too: `TURF_MISE=off` turns off
-[mise](/docs/environment/mise/), and `TURF_CONSOLE_ADDR` and `DO_NOT_TRACK` are read there, not in
-your shell.
+`turf.env` holds the service's other settings too: `TURF_MISE=off` turns off
+[mise](/docs/environment/mise/), and `TURF_CONSOLE_ADDR`, `DO_NOT_TRACK` and `TURF_ACCEPT_EULA` are
+read there, not in your shell.
+
+An engine the server started takes the same settings from the environment of the server that started
+it. To change one, put it in the `env` of Turf's entry in each agent that has one, reconnect the
+agent, then run `turf-mcp-server engine stop`: the next call starts the engine with the new setting.
 
 <Aside type="caution" title="A PATH in turf.env replaces the service's">
 Follow your own directories with Homebrew's `bin` and the system directories, or the engine loses
@@ -41,7 +80,7 @@ the tools Homebrew's `PATH` gave it.
 
 ## An engine in a terminal
 
-Without Homebrew, or to watch the engine work, run it in the foreground:
+To watch the engine work, run it in the foreground:
 
 ```sh
 export AWS_PROFILE=platform-admin
@@ -56,10 +95,30 @@ When `TURF_RESTATE_URL` points the server at an engine you run yourself, the eng
 deployment gives it. In a Kubernetes® cluster that is the engine pod's environment: Secrets, through
 `env` or `envFrom`. See [Credentials in a cluster](/docs/cluster/credentials/).
 
+## License acceptance
+
+The engine starts once the license terms are accepted, and where it looks follows the same rule as
+everything else on this page: its own environment, never your shell's.
+
+- **An engine the server started** is accepted as the server is: by the record
+  `turf license accept` or `turf-mcp-server license accept` writes, `~/.turf/license.json`, or by
+  `TURF_ACCEPT_EULA=yes` in the server's environment. The server starts no engine before that.
+- **The Homebrew service** reads the same record. It
+  waits for it, checking every 2 seconds, and starts the engine within seconds, with no restart.
+  `TURF_ACCEPT_EULA=yes` in `turf.env` accepts too, after a restart of the service. The same variable
+  in your shell, or in your MCP client's configuration, does not reach the service.
+- **An engine in a terminal** reads the same record, or `TURF_ACCEPT_EULA=yes` in that terminal.
+- **A remote engine** reads only its own environment, or its `--accept-eula` flag. In a pod that is
+  an `env` entry: see [Minimal manifests](/docs/cluster/manifests/#the-license).
+
+Setting `TURF_ACCEPT_EULA=yes` accepts the terms at `https://turf.build/license/v1/`. Until the terms
+are accepted, `turf-mcp-server engine status` says `awaiting license`. More in
+[Accept the license](/docs/start/install/#accept-the-license).
+
 ## Credential files
 
 Credentials in their usual files are read in the engine as anywhere: the default profile in
-`~/.aws/config`, `~/.kube/config`. The local service is this user's engine, so it reads your files.
+`~/.aws/config`, `~/.kube/config`. The local engine is this user's, so it reads your files.
 A remote engine reads its own.
 
 Provider plugins run with the configuration directory as their working directory. A relative path a
@@ -79,8 +138,8 @@ provider "aws" {
 ```
 
 A secret in a provider block arrives through a variable, never a literal. With the credentials in
-the engine's environment, a default provider instance needs no block at all; aliased instances need
-their own blocks for what differs.
+the environment a provider gets, a default provider instance needs no block at all; aliased
+instances need their own blocks for what differs.
 
 ## Drift detection
 
@@ -126,8 +185,9 @@ values.
 turf-mcp-server engine status
 ```
 
-It says where the engine runs and whether it answers, the mise it found on its `PATH` (or `off`),
-and where its logs are:
+With the npx install, `npx -y @turfbuild/turf-mcp-server engine status`. It says where the engine
+runs, how it was started and whether it answers, the mise it found (or `off`), and where its logs
+are:
 
 ```text
 directory       /Users/you/.turf/engine
@@ -137,7 +197,8 @@ logs            /Users/you/.turf/engine/restate.log
                 /Users/you/.turf/engine/engine.log
 ```
 
-If `brew services restart turf` does not bring the engine up, the reason is in `engine.log`.
+If the engine does not come up, the reason is in `engine.log`, or in `supervisor.log` beside it for
+an engine the server started.
 
 ## Common variable names
 

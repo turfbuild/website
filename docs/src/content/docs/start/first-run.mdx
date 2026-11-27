@@ -17,7 +17,9 @@ cluster with kind, registers a CustomResourceDefinition on it, and creates one c
 kind. With plain Terraform® this takes targeted applies, because the provider cannot connect until the
 cluster exists. Turf™ deploys it in one run, and asks you before each apply.
 
-You need Docker running and `kind` on your PATH, and the example checked out:
+You need Docker running and `kind` on your PATH, and the example checked out. The provider runs
+`docker` from inside the engine, and an engine the server started looks for it in Homebrew's and the
+system's directories (`/opt/homebrew/bin`, `/usr/local/bin`, `/usr/bin`), not on your shell's `PATH`.
 
 ```sh
 git clone https://github.com/turfbuild/turf-examples
@@ -137,8 +139,9 @@ console_url: http://127.0.0.1:8873/w/…?round=…
 
 ## 3. Look at the run
 
-Open the console link. The first time, run `turf console` in a terminal to sign your browser in; after
-that every link opens directly. The round's page tells its story: the plan gate, the plan with its counts,
+Open the console link. The first time, run `turf console` in a terminal to sign your browser in
+(`npx -y @turfbuild/turf-mcp-server engine console` with the npx install); after that every link
+opens directly. The round's page tells its story: the plan gate, the plan with its counts,
 the approval point with who approved and the plan's digest, the apply, and how the round ended the run.
 The Timeline tab draws every resource's lane. The console is read-only: approvals are given by the agent
 or the CLI, as above.

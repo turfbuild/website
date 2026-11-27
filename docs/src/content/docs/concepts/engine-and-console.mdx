@@ -21,19 +21,22 @@ turf action; past that the server detaches and the run keeps waiting in the engi
 on Restate for this durability. Turf™ names it plainly: every step of a run is journaled, and a step
 that was in flight when something died is resumed, not repeated.
 
-**Where it runs.** On your machine, the engine is the `turf` Homebrew service (`brew services start
-turf`), or `turf-mcp-server engine run` in a terminal. The server connects to it and never starts it.
-`turf-mcp-server engine status` reports where it listens, its processes and versions, the console's
-address and its logs. It listens only where your account can reach it. `init`, the provider tools and
+**Where it runs.** On your machine, the server starts the engine when a tool first needs it and none
+is running. The engine then runs in the background, outliving the server and the client, and every
+server on the machine shares it. The `turf` Homebrew service (`brew services start turf`) starts the
+same engine at login instead and takes over one a server started; `turf-mcp-server engine run` runs
+it in a terminal. `turf-mcp-server engine status` reports where it listens, how it was started, its
+processes and versions, the console's address and its logs, and `engine stop` stops it. It listens only where your account can reach it. `init`, the provider tools and
 the skills work without an engine; everything that plans needs one. In a cluster the engine is a
 Deployment with as many replicas as you like, and any step lands on any replica:
 [Running Turf in a cluster](/docs/cluster/topology/).
 
 **One line.** A server drives an engine of its own line (the same major and minor version) and refuses
-another, naming both. After a Homebrew upgrade, `brew services restart turf` brings the engine up to
-the new line; a run that was waiting on the old one ends `cancelled`, what was applied is kept, and
+another, naming both. After a minor upgrade the engine still running is the old line's: `turf-mcp-server engine stop` ends
+one a server started, and the next call starts the new one; `brew services restart turf` restarts the
+service. A run that was waiting on the old one ends `cancelled`, what was applied is kept, and
 `up` again plans over it. Running the engine beside the agent, rather than inside the CLI, is also why
-providers read the engine's environment rather than your shell's:
+providers read the engine's environment and the variables you name for them, rather than your shell's:
 [Where credentials are read](/docs/environment/where-credentials-are-read/).
 
 **Scale-out.** Refresh, plan and apply fan out per resource inside the engine, so the cloud API, not
@@ -66,7 +69,8 @@ turf action the apply is asking, and how the round ended the run.
 | Graph | The round's configuration graph. |
 
 **Read-only, and yours.** Approvals are given where they always were, by the agent or the CLI; the
-console changes nothing. Only you can open it: `turf console` signs your browser in once, and every
+console changes nothing. Only you can open it: `turf console` signs your browser in once
+(`npx -y @turfbuild/turf-mcp-server engine console` with the npx install), and every
 link opens directly after that. `TURF_CONSOLE_ADDR` moves it to another loopback address or turns it
 off (`off`); the engine does not depend on it. In a cluster the console takes a token
 (`TURF_CONSOLE_AUTH_TOKEN`) and the server is told where it lives (`TURF_CONSOLE_URL`) so the links
@@ -74,6 +78,6 @@ point there: [The console in a cluster](/docs/cluster/console/).
 
 ## Related
 
-- [Install locally](/docs/start/install/): the service, `engine status`, upgrading.
+- [Install locally](/docs/start/install/): how the engine starts, `engine status`, upgrading.
 - [The engine's environment](/docs/environment/engine-environment/)
 - [When something goes wrong](/docs/using/troubleshooting/): picking up a run the engine is holding.

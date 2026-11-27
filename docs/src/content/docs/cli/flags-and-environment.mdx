@@ -32,10 +32,28 @@ default. A flag given on the command line wins over its variable.
 | `--debug` | `TURF_DEBUG` | `false` | Log turf's own debug lines to `<TURF_HOME>/turf.debug.log` (warnings and errors always go there) |
 | `--theme` | `TURF_THEME` | `stadium` | TUI theme name; overrides the saved choice for this run ([Theming](/docs/cli/theming/)) |
 | `--lean` | `TURF_LEAN` | `false` | Run `chat` in the lean TUI; `up` and `destroy` on a terminal always use it |
-| `--version`, `-v` | | | Print the version, the license line and the telemetry setting |
+| `--accept-eula` | `TURF_ACCEPT_EULA` | unset | Accept the license terms at `https://turf.build/license/v1/`: the flag, or the variable set to `yes` ([License acceptance](#license-acceptance)) |
+| `--version`, `-v` | | | Print the version, the license lines and the telemetry setting |
 
 `TURF_DEBUG` and `TURF_LEAN` turn on with any non-empty value. `TURF_ALLOW_PATH` separates its
 directories as `PATH` does.
+
+## License acceptance
+
+The CLI runs once the license terms at `https://turf.build/license/v1/` are accepted. It takes
+acceptance from three places, in this order: the `--accept-eula` flag, `TURF_ACCEPT_EULA`, and the
+record in `<TURF_HOME>/license.json`. Giving the flag or setting the variable accepts the terms.
+
+- `TURF_ACCEPT_EULA` accepts only when it is `yes`, in any letter case. `true`, `1` and `y` do not
+  accept, and turf names a wrong value on a second line of stderr.
+- `turf license accept` writes the record. So does answering `yes` when turf asks, on its first run
+  in a terminal.
+- With no acceptance and no terminal to ask on (stdin or stderr is not a terminal, or `CI` is set),
+  turf prints the license notice on stderr and exits with status 77.
+- `turf version`, `turf license`, `turf telemetry`, `turf help`, `turf completion`, `--version` and
+  `--help` run without acceptance.
+
+Each place Turf runs, with how to accept there: [Accept the license](/docs/start/install/#accept-the-license).
 
 ## Per-command flags
 
@@ -53,8 +71,8 @@ directories as `PATH` does.
 
 The three `--log-*` flags pass through to the `turf-mcp-server` subprocess. When they are unset, the
 `TF_LOG_*` variables, as OpenTofu® names them, reach the server through the environment it inherits.
-Provider plugins inherit them too, so `TF_LOG_PROVIDER=DEBUG` turns on plugin-side debug logging into
-the same sink as the server's.
+Provider plugins run in the engine and do not inherit them: a provider sees `TF_LOG_PROVIDER`
+only when the engine's own environment holds it, and it is never sent from the shell.
 
 ## Environment only
 
@@ -62,7 +80,8 @@ the same sink as the server's.
 |---|---|
 | `TURF_HOME` | turf's own home, `~/.turf` by default: the global `turf.yaml`, skills, themes and the debug log |
 | `TURF_DEADLINE` | Replaces the five minutes the CLI gives each convergence call; the CLI then passes no `--deadline` and the server reads the variable |
-| `TF_LOG_PROVIDER` | Provider plugins' log level, into the server's log sink |
+| `TURF_OFFLINE` | The air-gap switch: the model catalog is never fetched from models.dev, and the server and engine started from this shell make no call of their own to the internet ([Air-gapped installation](/docs/security/air-gapped/)) |
+| `TURF_PROVIDER_ENV` | The variables the server sends to the engine by name, for providers. The CLI starts the server with your shell's environment, so `TURF_PROVIDER_ENV=AWS_PROFILE turf up`, or an `export` in your shell profile, sends the shell's `AWS_PROFILE` ([Send a variable to providers](/docs/environment/provider-environment/)) |
 | `TF_TOKEN_<hostname>` | An API token for a registry or backend host; wins over `credentials.tfrc.json` ([Log in to a host](/docs/cli/login/#precedence)) |
 | `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, … | The hosted model provider's key ([Model providers](/docs/cli/models/#hosted-providers)) |
 | `MODEL_RUNNER_HOST` | A remote Docker Model Runner, in place of the local one turf finds itself |
@@ -85,5 +104,6 @@ engine's environment, not the CLI's ([telemetry](https://turf.build/telemetry/))
 | `~/.turf/themes/<name>.yaml` | Custom themes ([Theming](/docs/cli/theming/)) |
 | `<TURF_HOME>/turf.debug.log` | turf's own warnings and errors, and debug lines with `--debug` |
 | `<TURF_HOME>/telemetry.json` | The telemetry setting the engine starts with (`turf telemetry on\|off`) |
+| `<TURF_HOME>/license.json` | The record of your acceptance of the license terms: the terms version, the time and the method (`turf license accept`) |
 | `~/.terraform.d/credentials.tfrc.json` | Tokens from `turf login`, shared with `tofu` and `terraform` |
 | `<user cache>/turf/plugins` | The shared provider plugin cache |

@@ -37,13 +37,14 @@ over stdio or HTTP, so it plugs into Claude Code, Claude Desktop, Cursor, Codex,
 an agent running in a cluster, or your own. It exposes the Terraform commands as tools, three prompts
 that show up as slash commands, and the skills that teach an agent how to use them.
 
-**The engine** is where plans are made and applied. It is a separate process, running as a service on
-your machine or as workloads in a cluster. It holds the state lock, runs the OpenTofu® providers, and
+**The engine** is where plans are made and applied. It is a separate process, which the server starts
+on your machine when a tool first needs it, or which runs as workloads in a cluster. It holds the state lock, runs the OpenTofu® providers, and
 carries every run durably: a rollout survives a server restart, a dropped client and the end of the
 conversation. The engine is built on Restate for that durability.
 
 **The Turf CLI** is a convenience: Turf's own agent, which drives the same server and engine with a
-model you bring. `turf up` and `turf destroy` run a configuration from a terminal. It is not required.
+model you bring. `turf up` and `turf destroy` run a configuration from a terminal. It is not required,
+and it comes with the Homebrew install or the script.
 
 <PipelineFigure />
 
@@ -90,6 +91,6 @@ the matrix at [turf.build/compatibility](https://turf.build/compatibility/).
 
 ## Next
 
-- [Install locally](/docs/start/install/): Homebrew or one script.
+- [Install locally](/docs/start/install/): one npx command, Homebrew or one script.
 - [Connect your agent](/docs/start/connect/): one command.
 - [Your first run](/docs/start/first-run/): a kind cluster, a CRD and a custom resource in one run.

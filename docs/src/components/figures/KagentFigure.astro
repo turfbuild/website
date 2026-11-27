@@ -1,5 +1,5 @@
 ---
-// What runs where in the turf-kagent example: Figure 1 of *An Agentic Infrastructure Control Plane*,
+// What runs where in the turf-kagent example: Figure 1 of *Agentic IaC for Platform Teams*,
 // as the website's components/figures/KagentFigure.astro carries it (same geometry; change both).
 // Tokens only (docs.css, "figures"); markers are local to this svg.
 interface Props { caption?: string }
@@ -7,7 +7,7 @@ const { caption } = Astro.props;
 ---
 
 <figure class="docfig">
-  <svg class="fig" viewBox="0 0 672 418" role="img" aria-label="What runs where. Inside your cluster, the control plane: kagent 1.0, with its UI (the chat, and Approve or Reject) and the agent, which runs in a sandbox and holds no credentials; and Turf, with its MCP server (plan, show and apply as the agent's tools; tfstate in a Secret per stack) and its engine, which runs the providers on pods that start from zero and holds the cloud key. A person asks in the kagent UI (1); the agent plans through Turf's MCP server (2); the person approves in the kagent UI (3); the engine applies, with the key (4), to what is outside the cluster: cloud resources (two AWS Lambda functions in the example), Kubernetes clusters (Amazon EKS, then Argo CD), and anything with a provider. The agent then fetches the public URLs of what it built, with no key (5).">
+  <svg class="fig" viewBox="0 0 672 418" role="img" aria-label="What runs where. Inside your cluster, the control plane: kagent 1.0, with its UI (the chat, and Approve or Reject) and the agent, which runs in a sandbox and holds no credentials; and Turf, with its MCP server (plan, show and apply as the agent's tools; tfstate in a Secret per stack) and its engine, which runs the providers on pods that start from zero and holds the cloud credentials. A person asks in the kagent UI (1); the agent plans through Turf's MCP server (2); the person approves in the kagent UI (3); the engine applies, with the credentials (4), to what is outside the cluster: cloud resources (compute, storage, networking; the example makes two AWS Lambda functions), Kubernetes clusters (EKS, GKE, AKS or bare metal, and their addons), and anything with a provider. The agent then fetches the public URLs of what it built, with no credentials (5).">
     <defs>
       <marker id="kg-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-stroke"/></marker>
       <marker id="kg-ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-ok"/></marker>
@@ -62,8 +62,8 @@ const { caption } = Astro.props;
     <rect class="f-okbg s-ok" x="402.5" y="164.5" width="243" height="94" rx="8"/>
     <text x="416" y="189" class="t-name" style="font-size:14px; fill:var(--ok-deep)">Turf engine</text>
     <text x="416" y="207" class="t-mono" style="font-size:9.6px">runs the providers · pods from zero</text>
-    <rect class="f-term" x="416" y="219" width="150" height="23" rx="4"/>
-    <text x="426" y="234.5" class="t-m9 f-termok" style="font-size:9px">holds the cloud key</text>
+    <rect class="f-term" x="416" y="219" width="168" height="23" rx="4"/>
+    <text x="426" y="234.5" class="t-m9 f-termok" style="font-size:9px">holds the cloud credentials</text>
     <path class="f-none s-inh" d="M363,200 H382.5 V100 H399" stroke-width="1.5" marker-end="url(#kg-inh)"/>
     <circle cx="382.5" cy="150" r="7" class="f-ink" style="stroke:var(--panel)" stroke-width="1.5"/>
     <text x="382.5" y="153.1" text-anchor="middle" class="t-m7" style="font-size:8.2px; font-weight:700; fill:var(--panel)">2</text>
@@ -74,20 +74,21 @@ const { caption } = Astro.props;
     <line class="s-ok" x1="593" y1="306" x2="593" y2="320" stroke-width="1.8" marker-end="url(#kg-ok)"/>
     <circle cx="524" cy="293" r="7" class="f-ink" style="stroke:var(--panel)" stroke-width="1.5"/>
     <text x="524" y="296.1" text-anchor="middle" class="t-m7" style="font-size:8.2px; font-weight:700; fill:var(--panel)">4</text>
-    <text x="537" y="296.5" class="t-mono" style="font-size:9.6px; fill:var(--ok-deep)">applies, with the key</text>
+    <text x="537" y="296.5" class="t-mono" style="font-size:9.6px; fill:var(--ok-deep)">with the credentials</text>
     <line class="s-inh" x1="180" y1="259" x2="180" y2="320" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#kg-inh)"/>
     <circle cx="180" cy="293" r="7" class="f-ink" style="stroke:var(--panel)" stroke-width="1.5"/>
     <text x="180" y="296.1" text-anchor="middle" class="t-m7" style="font-size:8.2px; font-weight:700; fill:var(--panel)">5</text>
-    <text x="193" y="296.5" class="t-mono" style="font-size:9.6px; fill:var(--inh)">GETs its public URLs · no key</text>
+    <text x="193" y="296.5" class="t-mono" style="font-size:9.6px; fill:var(--inh)">GETs its public URLs · no credentials</text>
     <text x="0" y="342" class="t-cap">OUTSIDE IT</text>
     <text x="0" y="358" class="t-mono" style="font-size:9.6px">what gets built</text>
     <rect class="f-ok" x="112.5" y="324.5" width="200" height="88" rx="10"/>
     <text x="127" y="349" class="t-name" style="font-size:14px; fill:var(--panel)">cloud resources</text>
-    <text x="127" y="367" class="t-mono" style="font-size:9.6px; fill:var(--panel); opacity:.86">two AWS Lambda functions</text>
+    <text x="127" y="367" class="t-mono" style="font-size:9.6px; fill:var(--panel); opacity:.86">compute, storage, networking</text>
     <text x="127" y="398" class="t-cap" style="fill:var(--panel); opacity:.72">THE EXAMPLE · A REAL RUN</text>
     <rect class="f-panel s-ok" x="324.5" y="324.5" width="178" height="88" rx="10"/>
     <text x="339" y="349" class="t-name" style="font-size:14px; fill:var(--ok-deep)">Kubernetes clusters</text>
-    <text x="339" y="367" class="t-mono" style="font-size:9.6px">Amazon EKS, then Argo CD</text>
+    <text x="339" y="367" class="t-mono" style="font-size:9.6px">EKS, GKE, AKS, bare metal</text>
+    <text x="339" y="381" class="t-mono" style="font-size:9.6px">and their addons</text>
     <text x="339" y="398" class="t-cap">IN THE PAPER</text>
     <rect class="f-panel s-faint" x="514.5" y="324.5" width="157" height="88" rx="10" stroke-dasharray="4 3"/>
     <text x="529" y="349" class="t-name" style="font-size:14px">anything with</text>

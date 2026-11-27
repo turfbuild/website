@@ -12,17 +12,24 @@ Terraform and OpenTofu don't have: multi-round convergence of layered stacks, Te
 actions with overlays, turf actions (a check, a question or a notification as a step of the apply),
 durable runs on Restate, provider calls that scale out until the cloud API is the ceiling, state
 encrypted at rest, OpenTelemetry® built in, and since 1.4 a read-only console of every workspace's
-runs, rounds and approvals. The engine and its MCP server (`turf-mcp-server`) are the product. Connect it to your
-agent in one command (`npx add-mcp@2 "$(command -v turf-mcp-server)" --name turf -g`), or run
-the standalone CLI agent (`turf`) with your own model key. Install with
-`brew install restatedev/tap/restate-server turfbuild/tap/turf`, then `brew services start turf`.
+runs, rounds and approvals. The engine and its MCP server (`turf-mcp-server`) are the product. Install it and connect
+it to your agent in one command: `npx add-mcp@2 @turfbuild/turf-mcp-server --name turf -g` (Node 18
+or later; macOS or Linux, arm64 or x64). npm brings the server and its engine, and the engine starts
+when a tool first needs it; the first start downloads Turf, about a minute. Homebrew adds the
+standalone CLI agent (`turf`), run with your own model key, and an engine that starts at login:
+`brew install restatedev/tap/restate-server turfbuild/tap/turf`, then
+`npx add-mcp@2 "$(command -v turf-mcp-server)" --name turf -g`.
+The license terms (https://turf.build/license/v1/) are accepted once, by the user, with
+`npx -y @turfbuild/turf-mcp-server license accept` or, with the CLI, `turf license accept`; an agent
+asks its user to read them and confirm before it runs either.
 
 The governing idea: Turf produces the plan, and the Terraform plan becomes the agent's TODO
 list — planned and approved round by round, with a plan gate (`plan`) and an approval point
 (`apply` by the plan's digest) every round. Nothing runs off-plan. Plan in one place and apply in
 another: a plan-only run keeps its plan in the engine as a planfile, which a second server, with
-its own credentials and its own permission tier (`--tier read|plan|apply|full`), applies. Turf is free for noncommercial use; commercial use, including a company's internal
-use, requires a license (https://turf.build/licensing/). Some capabilities are marked coming soon
+its own credentials and its own permission tier (`--tier read|plan|apply|full`), applies. Turf is free for individuals, education and small businesses within the Community limits, under
+the Turf Community Edition License 1.0 (https://turf.build/license/v1/); government and larger
+organizations need a commercial license (https://turf.build/licensing/). Some capabilities are marked coming soon
 on the site.
 
 ## Documentation
@@ -32,12 +39,12 @@ The Turf docs are at https://turf.build/docs/ (one current version; features tha
 - [Start here](https://turf.build/docs/start/what-turf-is/): what Turf is, install locally, connect your agent, your first run, install in a cluster.
 - [Concepts](https://turf.build/docs/concepts/overview/): the vocabulary (configuration, workspace, convergence, round, plan gate, approval point, turf action, planfile, overlay, backend), rounds and deferrals, approval, turf actions, the engine and the console, the safety rules.
 - [Using Turf](https://turf.build/docs/using/up/): one page per task: up, destroy, plan and apply by hand, refresh, import, invoke, workspaces, variables, planfiles, turf actions, state, troubleshooting, policy checks.
-- [Provider environment and credentials](https://turf.build/docs/environment/where-credentials-are-read/): providers read the engine's environment, variables and the backend read the server's; the engine's environment, mise, registries and mirrors, state encryption, workload identity (coming soon).
+- [Provider environment and credentials](https://turf.build/docs/environment/where-credentials-are-read/): providers read the engine's environment and the variables the server sends by name (`TURF_PROVIDER_ENV` in the entry's `env`), variables and the backend read the server's; sending a variable to providers, the engine's environment, mise, registries and mirrors, state encryption, workload identity (coming soon).
 - [Authoring configurations](https://turf.build/docs/authoring/writing-with-an-agent/): writing .tf files with an agent, providers, variables, data sources, lifecycle, actions and overlays, differences from Terraform.
 - [The Turf CLI](https://turf.build/docs/cli/overview/): chat, up and destroy, exec, login, console, flags, models and turf.yaml, skills, theming.
 - [Running Turf in a cluster](https://turf.build/docs/cluster/topology/): topology, images, minimal manifests, credentials, connecting clients, the console, upgrading, an agent in the cluster with kagent.
 - [MCP reference](https://turf.build/docs/reference/server/): the server and its flags, the result shape, every tool, the prompts, the resources, the skills and their reference files, the server instructions, the Claude Code slash commands. Generated from the shipping server.
-- [Release notes](https://turf.build/docs/releases/1-4/): 1.0 to 1.4.
+- [Release notes](https://turf.build/docs/releases/1-5/): 1.0 to 1.5.
 
 ## Start here
 
@@ -47,7 +54,7 @@ The Turf docs are at https://turf.build/docs/ (one current version; features tha
 - [Reference architectures](https://turf.build/reference-architectures/): the index of the three papers below.
 - [Metal to Tokens](https://turf.build/reference-architectures/metal-to-tokens/): a reference architecture for managed GPU cloud infrastructure, as code — a neocloud from pools of inventory to a cluster that has passed NVCRE certification, with day 2 on the provider's runbook. The PDF: https://get.turf.build/papers/turf-neocloud-reference-architecture.pdf
 - [Pull Request to Production](https://turf.build/reference-architectures/pull-request-to-production/): a reference architecture for Terraform delivery on GitHub Agentic Workflows, with an agent in the pipeline — the plan judged by a policy in plain language on every pull request, approved as that exact plan, verified from inside the apply through a turf action, promoted by GitHub Environment; the pipeline is public at https://github.com/turfbuild/turf-agentic-workflows. The PDF: https://get.turf.build/papers/turf-pull-request-to-production.pdf
-- [An Agentic Infrastructure Control Plane](https://turf.build/reference-architectures/agentic-infrastructure-control-plane/): a reference architecture for Turf on kagent 1.0 — ask for infrastructure in the kagent chat, read the plan and approve it, and the cluster provisions it: cloud resources, clusters, anything with a Terraform provider. The agent plans, a person approves, only Turf's engine holds the cloud key; the example is public at https://github.com/turfbuild/turf-kagent. The PDF: https://get.turf.build/papers/turf-agentic-infrastructure-control-plane.pdf
+- [Agentic IaC for Platform Teams](https://turf.build/reference-architectures/agentic-iac-for-platform-teams/): a reference architecture for Turf on kagent 1.0 — ask for infrastructure in the kagent chat, read the plan and approve it, and the cluster provisions it: cloud resources, clusters, anything with a Terraform provider. The agent plans, a person approves, only Turf's engine holds the cloud key; the example is public at https://github.com/turfbuild/turf-kagent. The PDF: https://get.turf.build/papers/turf-agentic-iac-for-platform-teams.pdf
 - [Compatibility](https://turf.build/compatibility/): where Turf 1.3 is ahead of Terraform 1.16 and OpenTofu 1.13 — durable runs on Restate, encryption at rest, OpenTelemetry, provider calls that scale out, Terraform actions with overlays, turf actions, multi-round convergence — and an honest three-way matrix of every construct, with what is refused and what is coming soon.
 - [Demos](https://turf.build/demo/): three public examples to run yourself, with their walkthroughs, then two recordings from before 1.0.
 
@@ -63,7 +70,7 @@ are at https://turf.build/reference-architectures/.
 [turf.build/demo/](https://turf.build/demo/) is the hub: three public examples to run, then two recordings.
 
 - [The AI Cluster Runtime stack on kind](https://github.com/turfbuild/turf-examples/tree/main/use-cases/datacenter/aicr-stack): seventeen Helm releases generated from one NVIDIA AI Cluster Runtime recipe, with the kind cluster in the graph; one up, two rounds, a certify turf action.
-- [Turf and kagent 1.0, one cluster](https://github.com/turfbuild/turf-kagent): ask in the kagent chat for a fleet of AWS Lambda functions, approve the plan, and Turf's engine applies it with a key the agent never holds; the agent, in a gVisor sandbox with no credentials, fetches each URL to check what it built; the engine scales from zero on Knative, state stays in the cluster. The walkthrough: https://turf.build/docs/cluster/example-kagent/ and the paper: https://turf.build/reference-architectures/agentic-infrastructure-control-plane/
+- [Turf and kagent 1.0, one cluster](https://github.com/turfbuild/turf-kagent): ask in the kagent chat for a fleet of AWS Lambda functions, approve the plan, and Turf's engine applies it with a key the agent never holds; the agent, in a gVisor sandbox with no credentials, fetches each URL to check what it built; the engine scales from zero on Knative, state stays in the cluster. The walkthrough: https://turf.build/docs/cluster/example-kagent/ and the paper: https://turf.build/reference-architectures/agentic-iac-for-platform-teams/
 - [Turf on GitHub Agentic Workflows](https://github.com/turfbuild/turf-agentic-workflows): an agent in the pipeline reviews the plan on every pull request, approves that exact plan under a per-environment policy after the merge, verifies from inside the apply and reports on the pull request.
 - Recordings, from before 1.0: a Kubernetes stack up and down in one turf up (https://turf.build/demo/#recordings), and the Scalr integration, Scalr as the control plane and Turf as the engine (https://turf.build/demo/scalr/).
 
@@ -89,10 +96,11 @@ Five things people build with Turf, at [turf.build/use-cases/](https://turf.buil
 
 ## Company
 
-- [Pricing](https://turf.build/pricing/): one binary, three ways to run it: free for noncommercial use, a free 60-day pilot for companies, and an annual subscription for production. No license key.
-- [Licensing](https://turf.build/licensing/): the PolyForm Noncommercial License 1.0.0, the Common Paper Pilot Agreement and Software License Agreement, the telemetry disclosure, and licensing@turf.build.
+- [Pricing](https://turf.build/pricing/): one binary, three ways to run it: the Community Edition, free within the Community limits; a 30-day evaluation or a free 60-day pilot; and a commercial license for government and larger organizations. No license key.
+- [Licensing](https://turf.build/licensing/): the license in plain words, from release 1.5: who uses Turf free, the Community limits, the 30-day evaluation, the Common Paper Pilot Agreement, commercial licenses, how the terms are accepted, the telemetry disclosure, and licensing@turf.build. Releases 1.0 to 1.4 keep the license they shipped with.
+- [License terms](https://turf.build/license/v1/): the Turf Community Edition License 1.0, word for word: the binding text, on the Common Paper Software License Agreement Standard Terms 1.1.
 - [Community](https://turf.build/community/): Discord for questions and ideas (https://turf.build/discord/), GitHub Issues for bugs and feature requests (https://github.com/turfbuild/turf/issues), and the newsletter for release notes (https://turf.build/newsletter/).
-- [Contact](https://turf.build/contact/): the pilot program, production licensing, the newsletter, and `security@turf.build` for private security reports.
+- [Contact](https://turf.build/contact/): the pilot program, commercial licensing, the newsletter, and `security@turf.build` for private security reports.
 - [Privacy](https://turf.build/privacy/)
 - [Telemetry](https://turf.build/telemetry/): every field the Turf engine sends as anonymous usage telemetry, what it never sends, where the events go, and how to turn it off.
 

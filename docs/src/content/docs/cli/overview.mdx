@@ -31,8 +31,9 @@ The CLI needs a model: a hosted provider's API key, or a local model with no key
 
 ## Install
 
-The Homebrew install puts `turf` beside the server and the engine: see
-[Install locally](/docs/start/install/).
+The Homebrew install puts `turf` beside the server and the engine, and so does the install script:
+see [Install locally](/docs/start/install/). The npx install carries the server and the engine
+without the CLI.
 
 To build just the CLI from source (it is MPL-2.0):
 
@@ -75,6 +76,8 @@ never imports the server's code: the only contract is the MCP protocol, spoken o
 | `turf console [link]` | Sign this browser in to the local console, once ([The console](/docs/cli/console/)) |
 | `turf telemetry [status\|on\|off]` | Show or change whether the engine sends anonymous usage telemetry ([details](https://turf.build/telemetry/)) |
 | `turf license` | Print the license and the third-party notices |
+| `turf license accept` | Accept the license terms, once ([Accept the license](/docs/start/install/#accept-the-license)) |
+| `turf license status` | Show whether the license terms are accepted |
 | `turf version` | Print the version, the license in one line and the telemetry setting (as `turf --version` does) |
 | `turf completion` | Generate the autocompletion script for your shell |
 
@@ -109,8 +112,16 @@ Runnable examples live in [turfbuild/turf-examples](https://github.com/turfbuild
 
 ## License
 
-The CLI's source is licensed under the Mozilla Public License 2.0. Turf as a whole, the CLI with
-`turf-mcp-server`, `turf-engine` and `turf-builtin-provider` as every release ships them, is licensed
-under the PolyForm Noncommercial License 1.0.0: free for noncommercial use, and commercial use,
-including a company's internal use, needs a license ([licensing](https://turf.build/licensing/)).
+The CLI's source is licensed under the Mozilla Public License 2.0, which governs the source and
+anything you build from it. Turf as every release ships it, the `turf`, `turf-mcp-server`,
+`turf-engine`, `turf-builtin-provider` and `turf-ui` programs and the container images that hold
+them, is proprietary software under the
+[Turf Community Edition License 1.0](https://turf.build/license/v1/). It is free for individuals,
+education and small businesses within the Community limits; government and larger organizations need
+a commercial license ([licensing](https://turf.build/licensing/)).
+
+The terms are accepted once. On its first run in a terminal, `turf` asks: type `yes`. Or run
+`turf license accept` beforehand. Where there is no terminal, such as a CI job, `turf` prints the
+license notice and exits with status 77 unless `TURF_ACCEPT_EULA=yes` or `--accept-eula` is given,
+and giving either accepts the terms. `turf license status` shows whether they are accepted, and
 `turf license` prints the license and the third-party notices.
