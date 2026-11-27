@@ -1,92 +1,270 @@
 ---
 title: Install locally
-description: Install Turf with Homebrew or one script. The tap installs the MCP server, the engine and its built-in provider, the console and the CLI; the engine runs as a service.
+description: Install Turf with one npx command, with Homebrew or with one script, then accept the license once. The engine starts when your agent first needs it.
 sidebar:
   order: 2
 ---
 
 import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 
-One install puts Turf™ on your machine: the MCP server your agent talks to, the engine that plans and
-applies, and the CLI. The engine runs as a service, so a rollout keeps going after the conversation
-that started it ends.
+One command puts Turf™ on your machine and adds it to your agent: the MCP server your agent talks to
+and the engine that plans and applies. The engine starts when a tool first needs it and keeps running,
+so a rollout keeps going after the conversation that started it ends. Homebrew adds the `turf` CLI and
+an engine that starts at login.
 
-<Tabs>
-  <TabItem label="Homebrew (macOS and Linux)">
+<Tabs syncKey="install">
+  <TabItem label="npx">
+```sh
+npx add-mcp@2 @turfbuild/turf-mcp-server --name turf -g
+# the first start downloads Turf: about a minute
+```
+It needs Node 18 or later, on macOS or Linux, arm64 or x64.
+
+The command runs [add-mcp](https://github.com/neon-solutions/add-mcp), Neon's open-source installer.
+It finds the agents you have installed, asks which ones to add Turf to, and writes each one's config.
+Running it again replaces the entry. Restart Claude Desktop or Cursor after the config changes.
+
+There is nothing else to install. npm brings the server, the engine and the console the first time
+Turf runs, and the engine starts when a tool first needs it. A client that waits 30
+seconds for a server may give up on that first start: reconnect once. Later starts take several
+seconds.
+
+This install has no `turf` CLI. Where these pages run `turf-mcp-server`, run
+`npx -y @turfbuild/turf-mcp-server` in its place.
+  </TabItem>
+  <TabItem label="Homebrew">
 ```sh
 brew install restatedev/tap/restate-server turfbuild/tap/turf
-brew services start turf
-# the engine, now and at every login
-turf-mcp-server engine status
+```
+Homebrew adds the `turf` CLI and an engine that starts at login. After you
+[accept the license](#accept-the-license) and [connect your agent](/docs/start/connect/), the server
+starts the engine when a tool first needs it. To start it at every login instead:
+```sh
+brew services start turf        # optional: the engine at every login
 ```
   </TabItem>
   <TabItem label="One script">
 ```sh
 curl -fsSL https://get.turf.build/install.sh | bash
 ```
-With Homebrew on your PATH the script runs the same install and starts the service. Without it, the
-script unpacks the release into `~/.turf/bin`, with restate-server beside it, and you run the engine
-yourself:
+With Homebrew on your PATH the script runs the Homebrew install and starts the service. Without it,
+the script unpacks the release into `~/.turf/bin`, with restate-server beside it, and the server
+starts the engine when a tool first needs it. To run the engine in a terminal instead:
 ```sh
 turf-mcp-server engine run
 ```
-Options: `--no-brew`, `--dir DIR`, `--no-start`, `--no-telemetry`, `--verify`.
+Options: `--no-brew`, `--dir DIR`, `--no-start`, `--no-telemetry`, `--verify`, `--accept-eula`.
+
+The script asks you to accept the license terms on your terminal and records a yes with
+`turf license accept`. `--accept-eula` answers for you: passing it accepts the terms at
+`https://turf.build/license/v1/`, so pass it once you have read them. Where there is no terminal
+and no option, the script prints the step and the engine waits for it.
   </TabItem>
 </Tabs>
 
+## Accept the license
+
+Turf is proprietary software under the Turf Community Edition License 1.0. It is free for
+individuals, education and small businesses within the Community limits. Government and larger
+organizations need a commercial license, and any organization can evaluate Turf in non-production for
+30 days. [turf.build/licensing](https://turf.build/licensing/) says who that covers, in plain words.
+
+Read the terms at [turf.build/license/v1](https://turf.build/license/v1/), then accept them once:
+
+<Tabs syncKey="install">
+  <TabItem label="npx">
+```sh
+npx -y @turfbuild/turf-mcp-server license accept
+```
+Whichever npx command runs Turf first downloads it. If you accept before your agent has started Turf,
+the download happens here, in your terminal, and your agent's first start is then quick.
+  </TabItem>
+  <TabItem label="Homebrew">
+```sh
+turf license accept
+```
+  </TabItem>
+  <TabItem label="One script">
+```sh
+turf license accept
+```
+  </TabItem>
+</Tabs>
+
+Either command records your acceptance in `~/.turf/license.json`: the terms version, the time and the
+method. The server reads that record at the next call, and an engine waiting for it starts within
+seconds, with nothing to restart. `turf license status` shows whether the terms are accepted; without
+the CLI, `npx -y @turfbuild/turf-mcp-server license status` does.
+
+The `turf` CLI also asks on its first run in a terminal: type `yes` to accept.
+
+Where no one is there to answer, set `TURF_ACCEPT_EULA=yes` in the environment of the process that
+runs Turf. Setting it accepts the terms at `https://turf.build/license/v1/`, so set it once you have
+read them. Only `yes` accepts, in any letter case; `true`, `1` and `y` do not.
+
+| Where Turf runs | How to accept |
+|---|---|
+| A server your agent starts with npx | `npx -y @turfbuild/turf-mcp-server license accept` on the same machine. The server checks again on the next call, so no restart is needed, and the engine it starts is accepted as the server is. |
+| An MCP client, with the CLI installed | `turf license accept` on the same machine. The server checks again on the next call, so no restart is needed. A server in a container reads only the container's environment: `TURF_ACCEPT_EULA=yes` there, which an entry's args pass in with `-e`. |
+| The Homebrew service | `turf license accept`. The service waits and starts within seconds. Or put `TURF_ACCEPT_EULA=yes` in `~/.homebrew/services/turf.env` and restart the service. |
+| `turf-mcp-server engine run` in a terminal | `turf license accept`, before or after you start it: it checks every 2 seconds. Or `TURF_ACCEPT_EULA=yes` in that terminal. |
+| A container or Kubernetes® | `TURF_ACCEPT_EULA=yes` in the environment of each Turf container (the engine, the server and the console), or the `--accept-eula` flag. |
+| CI | `TURF_ACCEPT_EULA=yes` in the job's environment. |
+
+An engine the server starts is accepted as the server is. A variable set in your shell or in an MCP
+client's configuration does not reach the Homebrew service. The record does, and so does `turf.env`.
+
+Until the terms are accepted:
+
+- The MCP server starts and lists its tools. Every call returns the license notice instead of running,
+  and the server starts no engine.
+- The CLI asks on a terminal. Anywhere else it prints the notice and exits with status 77.
+- The Homebrew service, if you run it, stays up and starts nothing, and
+  `turf-mcp-server engine status` says `awaiting license`. In a container the engine and the console
+  print the notice and exit with status 77.
+
+There is no license key, no license server and no update check. With telemetry on, the engine's start
+event carries the terms version and the method; nothing else about your acceptance leaves the
+machine. The `turf` CLI's source is open under MPL-2.0.
+
 ## What was installed
+
+<Tabs syncKey="install">
+  <TabItem label="npx">
+Two npm packages, which npm keeps in its own cache. Nothing is put on your `PATH`.
+
+| Package | Carries |
+|---|---|
+| `@turfbuild/turf-mcp-server` | A small launcher, and one package for your platform with the server, the engine, its built-in provider and the console. |
+| `@restatedev/restate-server` | restate-server, the engine's dependency, from Restate's own package. |
+
+npm downloads about 180 MB and unpacks about 550 MB. No npm package carries the `turf` CLI: it comes
+with Homebrew or the script.
+  </TabItem>
+  <TabItem label="Homebrew">
+Five binaries from Turf's tap, and `restate-server`, the engine's dependency, from Restate's own tap.
+The table below says what each is.
+  </TabItem>
+  <TabItem label="One script">
+With Homebrew, the same as the Homebrew install. Without it, the release archive's five binaries and
+`restate-server`, in `~/.turf/bin`. The table below says what each is.
+  </TabItem>
+</Tabs>
 
 | Binary | Role |
 |---|---|
 | `turf-mcp-server` | The MCP server. Your agent runs it over stdio; in a cluster it serves HTTP. |
-| `turf-engine` | The engine: plans and applies durably, runs the providers. Started by the service. |
+| `turf-engine` | The engine: plans and applies durably, runs the providers. |
 | `turf-builtin-provider` | The engine's built-in provider, which carries turf actions. |
 | `turf-ui` | The console, a read-only web view of every run, at `http://127.0.0.1:8873`. |
-| `turf` | The Turf CLI: Turf's own agent, `turf up`, `turf destroy`, `turf console`. |
+| `turf` | The Turf CLI: Turf's own agent, `turf up`, `turf destroy`, `turf console`. Homebrew and the script only. |
 
-`restate-server` is the engine's dependency, from Restate's own tap. The engine is built on Restate
-for durable execution.
+The engine is built on Restate for durable execution.
 
-## The engine service
+## The engine
 
-`brew services start turf` starts the engine now and at every login. It runs restate-server, turf-engine
-and the console under `~/.turf/engine`. `turf-mcp-server engine status` says where it listens, whether
-it answers, its version, the console's address and where its logs are.
+The server starts this user's engine when a tool first needs it and none is running. That call waits
+up to 90 seconds; past that it says the engine is still starting, and to call again. The engine then
+runs in the background and keeps running when your agent quits, so a run waits in it between
+sessions. It runs restate-server, turf-engine and the console, and keeps its data under `~/.turf`.
 
-Providers run inside the engine, so they read the engine's environment, not your shell's. Cloud
-credentials for a service started by launchd go in `~/.homebrew/services/turf.env`; a configuration
-can also carry its own environment with mise. Both are in
+```sh
+npx -y @turfbuild/turf-mcp-server engine status
+npx -y @turfbuild/turf-mcp-server engine stop
+```
+
+`engine status` says where the engine listens, how it was started, whether it answers, its version,
+the console's address and where its logs are. `engine stop` stops it; the next call that needs it
+starts it again. With Homebrew or the script, the same commands are `turf-mcp-server engine status`
+and `turf-mcp-server engine stop`.
+
+**To start it at login instead**, run the Homebrew service: `brew services start turf`. It is the same
+engine, and it takes over one a server started. `TURF_ENGINE_AUTOSTART=off` in a server's environment
+keeps that server from starting one.
+
+**Provider credentials.** Providers run inside the engine, not in your shell or your agent.
+Credentials in their usual files (the default AWS profile, `~/.kube/config`, gcloud's
+application-default credentials, the `az` login) are read there with nothing set. A variable a
+provider needs goes in the `env` of Turf's entry in your agent, with `TURF_PROVIDER_ENV` naming it:
+
+```json
+"env": {
+  "AWS_PROFILE": "prod",
+  "TURF_PROVIDER_ENV": "AWS_PROFILE"
+}
+```
+
+Restart the agent, and the server sends the variables you named to the engine with each run:
+[Send a variable to providers](/docs/environment/provider-environment/). A configuration's own
+settings, such as a profile or a kubeconfig path that belongs to that directory, go in its
+`mise.local.toml` ([mise](/docs/environment/mise/)). The Homebrew service and
+`~/.homebrew/services/turf.env` are only for what the engine itself needs, such as a proxy:
 [The engine's environment](/docs/environment/engine-environment/).
 
 ## The console
 
 The console is a read-only web view of every workspace's runs, rounds and approvals, beside the engine.
 Only you can open it: run `turf console` once to sign your browser in, and every link your agent
-gives you opens directly after that. `TURF_CONSOLE_ADDR=off` in `turf.env` turns it off; another
-loopback address moves it. More in [The engine and the console](/docs/concepts/engine-and-console/).
+gives you opens directly after that. Without the CLI,
+`npx -y @turfbuild/turf-mcp-server engine console` signs in the same way. `TURF_CONSOLE_ADDR=off` in
+the engine's environment turns it off; another loopback address moves it. More in
+[The engine and the console](/docs/concepts/engine-and-console/).
 
 ## Upgrading
 
+<Tabs syncKey="install">
+  <TabItem label="npx">
+There is nothing to run. An entry that names no version asks npm at every start, so a new release is
+installed the next time your client starts the server. That start is slow again, about half a minute.
+
+The engine that is running stays the old one until it is stopped. Stop it, and the next call starts
+the new one:
+```sh
+npx -y @turfbuild/turf-mcp-server engine stop
+```
+After a patch release the server keeps using the running engine and says nothing. Only across a minor
+release, such as 1.5 to 1.6, does it refuse the older engine and name this remedy.
+
+To hold a version, pin it in the entry: `@turfbuild/turf-mcp-server@1.5.0`.
+  </TabItem>
+  <TabItem label="Homebrew">
 ```sh
 brew upgrade turfbuild/tap/turf
-brew services restart turf
+brew services restart turf          # if you run the service
+turf-mcp-server engine stop         # if a server started the engine
 ```
+Then restart your agent's MCP connection. After `engine stop`, the next call starts the new engine.
+  </TabItem>
+  <TabItem label="One script">
+Run the script again. With Homebrew it upgrades as above. Without it, the script unpacks the new
+release and says what to restart. Then restart your agent's MCP connection.
+  </TabItem>
+</Tabs>
 
-Then restart your agent's MCP connection. The Turf CLI and `turf-mcp-server` must be the same release.
+The Turf CLI and `turf-mcp-server` must be the same release.
+The first upgrade from a release before 1.5 also needs the license accepted, once
+([Accept the license](#accept-the-license)).
 A minor upgrade stops any rollout still running on the old engine: a run waiting for approval ends
 `cancelled` with the upgrade as the cause, and one in the middle of an apply finishes what is in flight
 and ends `partial`. Everything applied is kept; run `up` again and `plan` plans what remains.
 
-<Aside type="note" title="License and telemetry">
-Turf is free for noncommercial use under the PolyForm Noncommercial License 1.0.0. Commercial use,
-including a company's internal use, needs a license, and companies can evaluate Turf free for 60 days:
-[turf.build/licensing](https://turf.build/licensing/). The `turf` CLI is open source (MPL-2.0).
-
+<Aside type="note" title="Telemetry">
 Turf sends anonymous usage telemetry by default: the version, the platform, counts of resources,
 changes and runs, and an anonymous installation id. It never sends resource contents, credentials,
-state, variable values or names. `turf telemetry off && brew services restart turf` turns it off; so
-does `TURF_TELEMETRY=off` or `DO_NOT_TRACK=1` in the engine's environment (`turf.env`, not your shell).
-The field list is at [turf.build/telemetry](https://turf.build/telemetry/).
+state, variable values or names. To turn it off:
+
+- **npx**: put `DO_NOT_TRACK=1` in the `env` of Turf's entry in each agent that has one, reconnect
+  the agent, then run `npx -y @turfbuild/turf-mcp-server engine stop`. The next call starts the
+  engine with telemetry off.
+- **Homebrew, with the service**: `turf telemetry off && brew services restart turf`, or
+  `TURF_TELEMETRY=off` or `DO_NOT_TRACK=1` in `turf.env`, not your shell.
+- **Homebrew or the script, without the service**: `turf telemetry off`, then
+  `turf-mcp-server engine stop`; the next call starts the engine with it off.
+
+Restate's npm package reports anonymous install analytics through Scarf where npm installs it: in
+your agent, or in the shell that first runs Turf. `DO_NOT_TRACK=1` or `SCARF_ANALYTICS=false` there
+turns that off. The field list is at
+[turf.build/telemetry](https://turf.build/telemetry/).
 </Aside>
 
 ## Verify the binaries
@@ -97,10 +275,12 @@ Every release artifact is signed and logged in the public Sigstore transparency 
 gh attestation verify "$(command -v turf)" --repo turfbuild/turf
 ```
 
-The server binaries, the container image and the bills of materials are verified with cosign; every
-command is in [Verify a release](/docs/security/verify-releases/). For a network with no route to the
+The server binaries, the container image and the bills of materials are verified with cosign, and the
+npm packages are published with npm provenance; every command is in
+[Verify a release](/docs/security/verify-releases/). For a network with no route to the
 internet, see [Air-gapped installation](/docs/security/air-gapped/).
 
 ## Next
 
-[Connect your agent](/docs/start/connect/).
+[Connect your agent](/docs/start/connect/). With the npx install your agent is already connected:
+go to [Your first run](/docs/start/first-run/).

@@ -4,7 +4,7 @@ import FigureDefs from '../../components/FigureDefs.astro';
 import KagentFigure from '../../components/figures/KagentFigure.astro';
 // The page for *Agentic IaC for Platform Teams* (Turf on kagent 1.0). Its lede, the four
 // ideas, the page list, the Run it steps and the marks note are the paper's own words, from
-// headquarters/marketing/launch/refarch-kagent.md (v0.9): the cover, pages 2 to 6, "Run it" and the
+// headquarters/marketing/launch/refarch-kagent.md (v0.10): the cover, pages 2 to 6, "Run it" and the
 // marks paragraph. The figure is the paper's Figure 1. A new version of the paper means re-checking
 // this page against it. See "Papers" in CLAUDE.md.
 const title = 'Turf — Agentic IaC for Platform Teams on kagent 1.0';
@@ -32,8 +32,8 @@ const jsonLd = [
     description,
     url: `${site}/reference-architectures/agentic-iac-for-platform-teams/`,
     datePublished: '2026-11-16',
-    dateModified: '2026-11-18',
-    version: '0.9',
+    dateModified: '2026-11-27',
+    version: '0.10',
     inLanguage: 'en-US',
     isAccessibleForFree: true,
     author: publisher,
@@ -88,7 +88,7 @@ const parts = [
   <FigureDefs />
   <section class="subhero">
     <div class="wrap">
-      <p class="eyebrow"><span class="dot"></span> Reference architecture · v0.9 · November 2026</p>
+      <p class="eyebrow"><span class="dot"></span> Reference architecture · v0.10 · November 2026</p>
       <h1>Agentic IaC for Platform Teams.</h1>
       <p class="lede">Infrastructure as code with Turf™ on kagent 1.0. Ask in chat, approve the plan, and your
         cluster provisions it: cloud resources, clusters, anything with a Terraform® provider.
@@ -217,9 +217,9 @@ const parts = [
         called demo. Approve the plan, and the request that follows the agent’s check. Destroy the
         stacks before you delete the cluster: the functions are outside it.
         <a href="/docs/cluster/example-kagent/">The walkthrough in the docs</a> has each step.</p>
-      <p>Turf is available now, as a download. No form, no login. Free for noncommercial use;
-        commercial use, including a company’s internal use, requires a license, and companies evaluate
-        Turf under a free pilot.</p>
+      <p>Turf is available now, as a download. No form, no login. Free for individuals, education
+        and small businesses within the Community limits. Government and larger organizations need
+        a commercial license, and any organization can evaluate Turf in non-production for 30 days.</p>
       <p class="ctas">
         <a class="btn primary" href={pdfShared}>Read the PDF</a>
         <a class="btn ghost" href="/get-started/">Get started</a>

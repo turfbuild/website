@@ -7,57 +7,89 @@ sidebar:
 
 import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 
-Your agent needs one line of configuration: the path to `turf-mcp-server`. One command writes it for
-every agent on this machine.
+Your agent needs one entry in its configuration: how to start the Turf™ MCP server. One command
+writes it for every agent on this machine. The line depends on how you installed Turf.
 
+<Tabs syncKey="install">
+  <TabItem label="npx">
+```sh
+npx add-mcp@2 @turfbuild/turf-mcp-server --name turf -g
+# the first start downloads Turf: about a minute
+```
+This is the install command itself. If you ran it on [Install locally](/docs/start/install/), your
+agent is already connected. It needs Node 18 or later, on macOS or Linux, arm64 or x64.
+  </TabItem>
+  <TabItem label="Homebrew">
 ```sh
 npx add-mcp@2 "$(command -v turf-mcp-server)" --name turf -g
 ```
+It writes each config with the server's absolute path, so an app launched from the Dock finds it too.
+It needs Node 18 or later.
+  </TabItem>
+  <TabItem label="One script">
+```sh
+npx add-mcp@2 "$(command -v turf-mcp-server)" --name turf -g
+```
+It writes each config with the server's absolute path, so an app launched from the Dock finds it too.
+It needs Node 18 or later.
+  </TabItem>
+</Tabs>
 
-It needs Node 18 or later and uses [add-mcp](https://github.com/neon-solutions/add-mcp), Neon's
-open-source installer. It finds the agents you have installed, lets you pick from the list, and writes
-each config with the server's absolute path, so an app launched from the Dock finds it too. Running it
-again replaces the entry. Restart Claude Desktop or Cursor after the config changes.
+The command runs [add-mcp](https://github.com/neon-solutions/add-mcp), Neon's open-source installer.
+It finds the agents you have installed, asks which ones to add Turf to, and writes each one's config.
+Running it again replaces the entry. Restart Claude Desktop or Cursor after the config changes.
 
-In Claude Code and Claude Desktop, Turf™ runs on your Claude subscription. No model API key is needed.
+In Claude Code and Claude Desktop, Turf runs on your Claude subscription. No model API key is needed.
 
-## Without Node: your client's own command
+## Your client's own command
+
+Each client can also add the server itself.
 
 <Tabs>
   <TabItem label="Claude Code">
 ```sh
-claude mcp add turf --scope user -- turf-mcp-server
+claude mcp add turf --scope user -- npx -y @turfbuild/turf-mcp-server
 ```
   </TabItem>
   <TabItem label="Codex CLI">
 ```sh
-codex mcp add turf -- turf-mcp-server
+codex mcp add turf -- npx -y @turfbuild/turf-mcp-server
 ```
   </TabItem>
   <TabItem label="Gemini CLI">
 ```sh
-gemini mcp add -s user turf turf-mcp-server
+gemini mcp add -s user turf npx -y @turfbuild/turf-mcp-server
 ```
   </TabItem>
   <TabItem label="VS Code">
 ```sh
-code --add-mcp '{"name":"turf","command":"turf-mcp-server"}'
+code --add-mcp '{"name":"turf","command":"npx","args":["-y","@turfbuild/turf-mcp-server"]}'
 ```
   </TabItem>
   <TabItem label="Claude Desktop, Cursor">
-Both read the same block from their config file (`claude_desktop_config.json`, `~/.cursor/mcp.json`).
-Use the path `command -v turf-mcp-server` prints, then restart the app.
+Both read the same entry from their config file (`claude_desktop_config.json`, `~/.cursor/mcp.json`).
+Add it, then restart the app.
 ```json
-{
-  "mcpServers": {
-    "turf": {
-      "command": "/path/to/turf-mcp-server"
-    }
-  }
-}
+{ "mcpServers": { "turf": { "command": "npx", "args": ["-y", "@turfbuild/turf-mcp-server"] } } }
 ```
   </TabItem>
 </Tabs>
+
+With a Homebrew or script install, `turf-mcp-server` takes the place of
+`npx -y @turfbuild/turf-mcp-server` in each command, and no Node is needed:
+`claude mcp add turf --scope user -- turf-mcp-server`. In a config file, the `command` is the path
+`command -v turf-mcp-server` prints, with no `args`.
+
+## The first start
+
+The server starts the engine when a tool first needs it, so there is nothing to start by hand. With
+the npx install, the first start also downloads Turf, which takes about a minute. A client that waits
+30 seconds for a server may give up on that start: reconnect once. Later starts take several seconds.
+
+Providers run in that engine, not in your agent's session: they get the engine's environment and the
+variables you name for them ([Give providers a variable](#give-providers-a-variable)). Before a run
+that needs cloud credentials, read
+[Where credentials are read](/docs/environment/where-credentials-are-read/).
 
 ## What the agent gets
 
@@ -73,10 +105,104 @@ Ask your agent "what Turf tools do you have?", or in Claude Code run `/mcp` and 
 run `/turf:guide` for a short walkthrough.
 </Aside>
 
+## Before the license is accepted
+
+The server starts whether or not the license terms are accepted: it completes the handshake and lists
+its tools, prompts and resources. Until they are accepted, every tool call, prompt and resource read
+returns an error instead of running, and the agent sees this:
+
+```text
+Turf is proprietary software. To accept the Turf license terms (version 1.0,
+https://turf.build/license/v1/), run `turf license accept` or set TURF_ACCEPT_EULA=yes.
+Free for individuals, education and small businesses within the Community limits.
+Government and larger organizations need a commercial license.
+
+Turf's license terms have not been accepted, so this did not run. Ask your user to read
+https://turf.build/license/v1/ and confirm they accept. Only then run `turf license accept`,
+or set TURF_ACCEPT_EULA=yes in this server's environment, and retry. No restart is needed
+after `turf license accept`. Without the `turf` CLI, `turf-mcp-server license accept` does
+the same (through npx: `npx -y @turfbuild/turf-mcp-server license accept`).
+```
+
+Read the terms, then accept them in a terminal, or tell your agent that you accept and let it run the
+command:
+
+<Tabs syncKey="install">
+  <TabItem label="npx">
+```sh
+npx -y @turfbuild/turf-mcp-server license accept
+```
+  </TabItem>
+  <TabItem label="Homebrew">
+```sh
+turf license accept
+```
+  </TabItem>
+  <TabItem label="One script">
+```sh
+turf license accept
+```
+  </TabItem>
+</Tabs>
+
+Both write the same record, `~/.turf/license.json`. The server reads it on the next call, so there is
+nothing to restart; it starts no engine before that. A Homebrew engine service that was waiting starts
+within seconds.
+
+A server your client starts with npx, from Homebrew or from the script reads that record, so its
+entry needs nothing more. Where no one will run the command, `TURF_ACCEPT_EULA` in the entry's `env`
+accepts instead, for that server and an engine it starts. Setting it to `yes` accepts the terms at
+`https://turf.build/license/v1/`:
+
+```json
+{
+  "mcpServers": {
+    "turf": {
+      "command": "npx",
+      "args": ["-y", "@turfbuild/turf-mcp-server"],
+      "env": { "TURF_ACCEPT_EULA": "yes" }
+    }
+  }
+}
+```
+
+Restart the client's MCP connection after editing its configuration. The variable does not reach the
+Homebrew engine service, which reads the record, or `~/.homebrew/services/turf.env`.
+
+A server in a container cannot read the record: it reads only the container's environment. An entry's
+`env` reaches the process your client starts, which for a container is `docker`, not the container,
+unless the entry's args pass the variable in with `-e`. Each case is in
+[Accept the license](/docs/start/install/#accept-the-license).
+
+## Give providers a variable
+
+Credentials in their usual files (the default AWS profile, `~/.kube/config`) work with nothing set.
+When a provider needs a variable, put it in the `env` of Turf's entry and name it in
+`TURF_PROVIDER_ENV`:
+
+```json
+"env": {
+  "AWS_PROFILE": "prod",
+  "TURF_PROVIDER_ENV": "AWS_PROFILE"
+}
+```
+
+Then restart the agent: the list is read when the server starts. The server sends the variables you
+named to the engine with each run, and `status` shows their names, never a value. `PATH` and the
+engine's own variables are never sent.
+
+add-mcp writes the same two lines:
+
+```sh
+npx add-mcp@2 @turfbuild/turf-mcp-server --name turf -g --env AWS_PROFILE=prod --env TURF_PROVIDER_ENV=AWS_PROFILE
+```
+
+More in [Send a variable to providers](/docs/environment/provider-environment/).
+
 ## HTTP instead of stdio
 
-The server speaks MCP over stdio by default. `turf-mcp-server --transport http` serves HTTP on
-loopback instead, for a client that connects over the network. Bound to any other address it is
+The server speaks MCP over stdio by default. `turf-mcp-server --transport http` (with the npx install,
+`npx -y @turfbuild/turf-mcp-server --transport http`) serves HTTP on loopback instead, for a client that connects over the network. Bound to any other address it is
 unauthenticated unless `TURF_MCP_AUTH_TOKEN` sets a bearer token, so set one. That is how an agent in
 a cluster connects: see
 [Connecting clients](/docs/cluster/clients/).

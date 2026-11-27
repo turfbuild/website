@@ -18,7 +18,7 @@ A cluster deployment of Turf™ pulls from three places:
 ## The Turf image
 
 `ghcr.io/turfbuild/turf-mcp-server` is published for `linux/amd64` and `linux/arm64`, tagged with each
-release (`v1.4.0`) and `latest`. It is built on Alpine with `ca-certificates` and `git`, and runs as a
+release (`v1.5.0`) and `latest`. It is built on Alpine with `ca-certificates` and `git`, and runs as a
 non-root user, `turf`, whose home is `/home/turf`. Four binaries sit at its root:
 
 | Binary | What it is |
@@ -50,6 +50,24 @@ The image sets `TURF_DEPLOYMENT=container`, so usage telemetry reports the engin
 deployment. `TURF_TELEMETRY=off` or `DO_NOT_TRACK=1` in the engine's environment turns telemetry off
 for that engine.
 
+### Accept the license
+
+The image does not accept the license terms for you. Each container that runs it needs
+`TURF_ACCEPT_EULA=yes` in its environment, or the `--accept-eula` flag, and setting either is your
+acceptance of the terms at [turf.build/license/v1](https://turf.build/license/v1/). In a Deployment
+that is one entry in each container's `env:`, shown here commented out:
+
+```yaml
+env:
+  # Uncomment to accept the Turf license terms at https://turf.build/license/v1/.
+  # - name: TURF_ACCEPT_EULA
+  #   value: "yes"
+```
+
+Without it the engine and the console print the license notice and exit with status 77, which
+Kubernetes® shows as `CrashLoopBackOff`. The server starts and lists its tools, and every call returns
+the notice. [Minimal manifests](/docs/cluster/manifests/#the-license) carries the entry in all three.
+
 ### Verify the image
 
 The image is signed with cosign (keyless, through GitHub's OIDC issuer) and carries build provenance,
@@ -57,7 +75,7 @@ a CycloneDX SBOM and an OpenVEX disposition, all recorded in the public Rekor tr
 the signature and the SBOM attestation before you deploy:
 
 ```sh
-IMAGE=ghcr.io/turfbuild/turf-mcp-server:v1.4.0
+IMAGE=ghcr.io/turfbuild/turf-mcp-server:v1.5.0
 ID='^https://github.com/turfbuild/turf-mcp-server/'
 ISS=https://token.actions.githubusercontent.com
 
@@ -73,7 +91,7 @@ cosign verify-attestation --type cyclonedx "$IMAGE" \
 ## Configuration images
 
 A configuration image is one configuration directory at the root of an otherwise empty OCI image.
-Nothing runs in it. Mounted read-only as a Kubernetes® [image
+Nothing runs in it. Mounted read-only as a Kubernetes [image
 volume](https://kubernetes.io/docs/tasks/configure-pod-container/image-volumes/) where the server and
 the engine read the configuration, it is exactly the configuration that was tagged, and nothing has
 to be shared between the pods that read it.

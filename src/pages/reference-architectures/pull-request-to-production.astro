@@ -2,7 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 // The page for *Pull Request to Production*. Its abstract, the three at-a-glance ideas, the
 // chapter list and the marks note are the paper's own words, from
-// headquarters/marketing/launch/refarch-cicd.md (v0.4): the intro, "At a glance", the chapter
+// headquarters/marketing/launch/refarch-cicd.md (v0.5): the intro, "At a glance", the chapter
 // titles and the Marks section. A new version of the paper means re-checking this page against
 // it. See "Papers" in CLAUDE.md.
 const title = 'Turf — Pull Request to Production: Terraform CI/CD with an agent';
@@ -31,7 +31,8 @@ const jsonLd = [
     description,
     url: `${site}/reference-architectures/pull-request-to-production/`,
     datePublished: '2026-11-01',
-    version: '0.4',
+    dateModified: '2026-11-27',
+    version: '0.5',
     inLanguage: 'en-US',
     isAccessibleForFree: true,
     author: publisher,
@@ -86,7 +87,7 @@ const parts = [
 <Layout title={title} description={description} jsonLd={jsonLd}>
   <section class="subhero">
     <div class="wrap">
-      <p class="eyebrow"><span class="dot"></span> Reference architecture · v0.4 · November 2026</p>
+      <p class="eyebrow"><span class="dot"></span> Reference architecture · v0.5 · November 2026</p>
       <h1>Pull Request to Production.</h1>
       <p class="lede">A reference architecture for Terraform® delivery on GitHub® Agentic Workflows,
         with an agent in the pipeline. <strong>Turf™ is an autonomous infrastructure-as-code tool for
@@ -203,9 +204,9 @@ const parts = [
       <p>The pipeline in the paper is public, at
         <a href={repoUrl}>github.com/turfbuild/turf-agentic-workflows</a>: three workflows, two rules,
         and a <code>setup/</code> directory that builds the demonstration environment as Terraform. Turf
-        is available now, as a download. No form, no login. Free for noncommercial use; commercial use,
-        including a company’s internal use, requires a license, and companies evaluate Turf under a free
-        pilot.</p>
+        is available now, as a download. No form, no login. Free for individuals, education and small
+        businesses within the Community limits. Government and larger organizations need a commercial
+        license, and any organization can evaluate Turf in non-production for 30 days.</p>
       <p class="ctas">
         <a class="btn primary" href={pdfShared}>Read the PDF</a>
         <a class="btn ghost" href="/get-started/">Get started</a>

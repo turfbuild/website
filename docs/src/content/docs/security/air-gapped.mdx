@@ -12,6 +12,13 @@ There is no license server and no update check. What Turf fetches is the softwar
 providers and modules your configurations name, and, unless you turn them off, usage telemetry and a
 few lookups. Each has an answer below.
 
+Accepting the license is local too. `turf license accept` writes a record under `~/.turf` and
+contacts nothing, and `TURF_ACCEPT_EULA` is read from the process's own environment. The archive
+carries the whole agreement, so you can read it on the inside: `LICENSE`, the Turf Community Edition
+License, and `STANDARD-TERMS.md`, the Common Paper standard terms it builds on. With usage telemetry
+on, the engine's start event carries the terms version and the method; under `TURF_OFFLINE`
+telemetry is off, so nothing about your acceptance leaves the network.
+
 ## The switch
 
 Set `TURF_OFFLINE=1` and Turf makes no call of its own to the internet:
@@ -22,8 +29,9 @@ Set `TURF_OFFLINE=1` and Turf makes no call of its own to the internet:
 | The MCP server | `provider_search` does not call the public registry. It answers with what to do instead. |
 | The `turf` CLI | The model catalog comes from the copy built into the binary, never from models.dev. |
 
-Set it wherever each process starts: in `turf.env` for the Homebrew service, in your agent's server
-definition for the MCP server, in the pod's environment in a cluster, and in your shell for the CLI.
+Set it wherever each process starts: in your agent's server definition for the MCP server, which
+hands it to an engine it starts; in `turf.env` for the Homebrew service; in the pod's environment in
+a cluster; and in your shell for the CLI.
 
 The switch does not change where providers and modules come from. That is your configuration's
 business, covered in [Providers](#providers) and [Modules](#modules).
@@ -37,20 +45,24 @@ dependency, from [Restate's releases](https://github.com/restatedev/restate/rele
 redistribute it.
 
 Inside the network, either unpack the archive yourself or point the install script at a mirror.
+The npx install is not the path for an air gap: it asks the npm registry at every start. Install from
+the archive, and give your agent the server's path.
 
 ```sh title="By hand"
 mkdir -p ~/.turf/bin
-tar -xzf turf_v1.4.0_linux_amd64.tar.gz -C ~/.turf/bin
+tar -xzf turf_v1.5.0_linux_amd64.tar.gz -C ~/.turf/bin
 tar -xJf restate-server-x86_64-unknown-linux-musl.tar.xz --strip-components 1 \
   -C ~/.turf/bin restate-server-x86_64-unknown-linux-musl/restate-server
 export PATH="$HOME/.turf/bin:$PATH"
+# Read LICENSE and STANDARD-TERMS.md, unpacked beside the binaries, then accept the terms:
+turf license accept
 TURF_OFFLINE=1 turf-mcp-server engine run
 ```
 
 ```sh title="With the install script, from a mirror"
 export TURF_DOWNLOAD_URL=https://mirror.example.com/turf/releases
 export TURF_RESTATE_DOWNLOAD_URL=https://mirror.example.com/restate/releases
-sh install.sh --version v1.4.0 --no-telemetry
+sh install.sh --version v1.5.0 --no-telemetry
 ```
 
 A mirror keeps the path GitHub uses: `<mirror>/download/<tag>/<file>`. The script checks both
@@ -62,12 +74,14 @@ For a [cluster](/docs/cluster/images/), copy the images into your registry. `cos
 each image's signature and attestations with it, so you can verify again on the inside:
 
 ```sh
-cosign copy ghcr.io/turfbuild/turf-mcp-server:v1.4.0 registry.example.com/turf/turf-mcp-server:v1.4.0
+cosign copy ghcr.io/turfbuild/turf-mcp-server:v1.5.0 registry.example.com/turf/turf-mcp-server:v1.5.0
 cosign copy docker.io/restatedev/restate:1.8.1 registry.example.com/restate/restate:1.8.1
 ```
 
 A configuration image is copied the same way. In the manifests, set `TURF_OFFLINE=1` on the server
-and the engine, and `RESTATE_DISABLE_TELEMETRY=true` on restate-server.
+and the engine, and `RESTATE_DISABLE_TELEMETRY=true` on restate-server. License acceptance in a
+cluster is an `env` entry too, read in the pod: see
+[Minimal manifests](/docs/cluster/manifests/#the-license).
 
 ## Providers
 
@@ -119,6 +133,7 @@ Every host a default installation can reach, and what stops it:
 |---|---|---|---|
 | `get.turf.build`, `turf.build` | you | The install script | Carry the script in |
 | `github.com` | the install script, Homebrew | The release, restate-server | `TURF_DOWNLOAD_URL`, `TURF_RESTATE_DOWNLOAD_URL`, or unpack by hand |
+| `registry.npmjs.org` | npm, for the npx install | The npm packages, at the install and at each start of the server. Restate's package also reports anonymous install analytics through Scarf. | Install from the archive instead |
 | `ghcr.io`, `docker.io` | your cluster | The images | Your registry |
 | `registry.opentofu.org` and each provider's download host | the server, the engine | Providers, registry modules | A `provider_installation` mirror; internal module sources |
 | `api.opentofu.org` | the server | `provider_search` | `TURF_OFFLINE`, or `TURF_REGISTRY_API_URL` |

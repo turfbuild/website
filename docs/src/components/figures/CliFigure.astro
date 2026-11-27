@@ -7,7 +7,7 @@ const { caption } = Astro.props;
 ---
 
 <figure class="docfig">
-  <svg class="fig" viewBox="0 0 672 244" role="img" aria-label="Two clients over one server. The turf CLI runs an agent runtime with a model you bring: local through Docker Model Runner or Ollama, or hosted from Anthropic, OpenAI, Google and others. Your own agent, Claude Code, Cursor or Codex, uses its own model. Both talk MCP over stdio to turf-mcp-server, a separate binary on PATH, which drives the Turf engine, turf-engine and restate-server started by brew services, which runs the OpenTofu providers, downloaded on demand.">
+  <svg class="fig" viewBox="0 0 672 244" role="img" aria-label="Two clients over one server. The turf CLI runs an agent runtime with a model you bring: local through Docker Model Runner or Ollama, or hosted from Anthropic, OpenAI, Google and others. Your own agent, Claude Code, Cursor or Codex, uses its own model. Both talk MCP over stdio to turf-mcp-server, a separate binary on PATH, which drives the Turf engine, turf-engine and restate-server, started by the server on demand or by brew services at login, which runs the OpenTofu providers, downloaded on demand.">
     <defs>
       <marker id="cl-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-stroke"/></marker>
       <marker id="cl-inh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-inh"/></marker>
@@ -36,7 +36,7 @@ const { caption } = Astro.props;
 
     <rect x="0.5" y="164.5" width="671" height="40" rx="8" class="f-ok"/>
     <text x="14" y="182" class="t-name f-panel">the Turf engine</text>
-    <text x="14" y="196" class="t-mono f-okbg">turf-engine and restate-server · brew services start turf</text>
+    <text x="14" y="196" class="t-mono f-okbg">turf-engine and restate-server · started on demand, or at login by brew services</text>
     <line x1="40.5" y1="205" x2="40.5" y2="232" class="s-stroke" stroke-width="1.4" marker-end="url(#cl-ink)"/>
 
     <rect x="0.5" y="234.5" width="671" height="9" rx="0" class="f-none"/>

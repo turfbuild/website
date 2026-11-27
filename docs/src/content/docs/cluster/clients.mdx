@@ -77,10 +77,18 @@ system's secrets. Two server flags shape what such a client gets:
   30 seconds by default. The kagent example raises that to five minutes and runs the server with
   `--deadline=4m`, so an apply in AWS ends inside one call and kagent asks for approval once.
 
+A job that only connects to the server sets nothing for the license: acceptance belongs to the
+server and the engine, in their pods ([Minimal manifests](/docs/cluster/manifests/#the-license)). A
+job that runs Turf itself, the `turf` CLI or a server of its own, has no terminal to answer on, so
+without acceptance `turf` prints the license notice and exits with status 77. Set
+`TURF_ACCEPT_EULA=yes` in the job's environment. Setting it accepts the terms at
+`https://turf.build/license/v1/`, so it is a decision for whoever owns the pipeline, made once and
+kept in the CI system's variables.
+
 ## The Turf CLI on a laptop
 
 `TURF_RESTATE_URL` points the Turf CLI (or a server on your laptop) at an engine running elsewhere,
-such as in a cluster, instead of the local service. The server then runs on your laptop and the engine
+such as in a cluster, instead of the local engine. The server then runs on your laptop and the engine
 in the cluster, which settles three things:
 
 - **The configuration.** The engine reads each configuration itself, so it must find it: at the same
@@ -88,6 +96,9 @@ in the cluster, which settles three things:
   directory holding the same layout.
 - **Credentials.** The state backend's credentials and `TF_VAR_` come from your laptop's environment,
   where the server runs. Providers still run in the engine, with the engine pod's credentials.
+  Variables your server names in `TURF_PROVIDER_ENV` are sent there too, and a path among them names
+  a file on the engine pod: see
+  [Variables the server sends](/docs/cluster/credentials/#variables-the-server-sends).
 - **Versions.** The Turf CLI and `turf-mcp-server` must be the same release.
 
 <Aside type="caution">

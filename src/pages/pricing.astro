@@ -1,11 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
-// The three instruments of headquarters/marketing/licensing.md ("Who gets what"), in the site's
-// voice. No prices (launch plan D20): fees are set when a pilot converts. The sentences that
-// state the terms are /licensing/'s; this page only names the tiers.
-const title = 'Turf — Pricing: free noncommercial use, pilot, production';
+// Three ways to run Turf from release 1.5, in the site's voice: the Community Edition, an
+// evaluation or pilot, a commercial license. No prices and no plan names. The Community limits'
+// numbers are /licensing/'s and /license/v1/'s; this page only names the tiers and links there.
+const title = 'Turf — Pricing: Community Edition, evaluation, commercial';
 const description =
-  'One binary, three ways to run it: free for noncommercial use, a free 60-day pilot for companies evaluating Turf, and an annual subscription for production.';
+  'One binary, three ways to run it: the free Community Edition, a 30-day evaluation or a 60-day pilot, and a commercial license for larger organizations.';
 ---
 
 <Layout title={title} description={description}>
@@ -14,45 +14,46 @@ const description =
       <p class="eyebrow"><span class="dot"></span> Pricing</p>
       <h1>One binary. Three ways to run it.</h1>
       <p class="lede">Every Turf™ build is the same binary with the same features. The tiers differ
-        by paper and support, never by features, and nothing in the binary checks which one you
-        are in.</p>
+        by paper and support, never by features. There is no license key, and nothing in the binary
+        checks which one you are in.</p>
     </div>
   </section>
 
   <section class="section">
     <div class="wrap">
       <div class="tiers">
-        <div class="tier">
-          <span class="name">Noncommercial</span>
-          <div class="price">Free <small>· PolyForm Noncommercial 1.0.0</small></div>
-          <p class="blurb">For individuals, students and researchers, and for educational, public
-            research, charitable and government institutions.</p>
+        <div class="tier featured">
+          <span class="name">Community Edition</span>
+          <div class="price">Free <small>· within the Community limits</small></div>
+          <p class="blurb">For individuals, education, non-commercial open source projects and small
+            businesses.</p>
           <ul>
             <li>The full engine</li>
             <li>Download it; no sign-up</li>
             <li><a href="/community/">Community support</a></li>
             <li>Updates as they ship</li>
           </ul>
-          <div class="cta"><a class="btn ghost" href="/get-started/">Get started</a></div>
-        </div>
-
-        <div class="tier featured">
-          <span class="name">Pilot</span>
-          <div class="price">Free <small>· 60 days</small></div>
-          <p class="blurb">For a company evaluating Turf.</p>
-          <ul>
-            <li>The full engine, for internal evaluation</li>
-            <li>A direct support channel for the pilot</li>
-            <li>The Common Paper Pilot Agreement: a one-page cover page</li>
-            <li>Rolls into a production license</li>
-          </ul>
-          <div class="cta"><a class="btn primary" href="mailto:licensing@turf.build?subject=Pilot">Start a pilot</a></div>
+          <div class="cta"><a class="btn primary" href="/get-started/">Get started</a></div>
         </div>
 
         <div class="tier">
-          <span class="name">Production</span>
+          <span class="name">Evaluation</span>
+          <div class="price">Free <small>· 30 days, or a 60-day pilot</small></div>
+          <p class="blurb">For any organization trying Turf, government included.</p>
+          <ul>
+            <li>The full engine, in non-production, for 30 days with nothing to sign</li>
+            <li>For longer, a 60-day pilot with a direct support channel</li>
+            <li>The Common Paper Pilot Agreement: a one-page cover page</li>
+            <li>Rolls into a commercial license</li>
+          </ul>
+          <div class="cta"><a class="btn ghost" href="mailto:licensing@turf.build?subject=Pilot">Start a pilot</a></div>
+        </div>
+
+        <div class="tier">
+          <span class="name">Commercial</span>
           <div class="price">Subscription <small>· annual</small></div>
-          <p class="blurb">For a company running Turf in production.</p>
+          <p class="blurb">For government, larger organizations and use beyond the Community
+            limits.</p>
           <ul>
             <li>The full engine, updates and support</li>
             <li>A conformance warranty and IP indemnity</li>
@@ -63,10 +64,11 @@ const description =
         </div>
       </div>
 
-      <p class="foot-note">Commercial use, including a company’s internal use, requires a license. Fees
-        for production are set per deployment when a pilot converts, so no prices are listed here. The
-        agreements, the telemetry disclosure and the source licenses are on the
-        <a href="/licensing/">licensing page</a>.</p>
+      <p class="foot-note">This page lists no prices: for a commercial license, write to
+        <a href="mailto:licensing@turf.build">licensing@turf.build</a>. Who the Community Edition
+        covers, its limits, the agreements and the telemetry disclosure are on the
+        <a href="/licensing/">licensing page</a>, and the binding terms are at
+        <a href="/license/v1/">turf.build/license/v1</a>.</p>
     </div>
   </section>
 </Layout>

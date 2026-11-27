@@ -12,7 +12,7 @@ Each release on [GitHub](https://github.com/turfbuild/turf/releases) carries:
 
 | File | What it is |
 |---|---|
-| `turf_<tag>_<os>_<arch>.tar.gz` | The release archive: the five binaries, `LICENSE`, `NOTICE` |
+| `turf_<tag>_<os>_<arch>.tar.gz` | The release archive: the five binaries, `LICENSE`, `STANDARD-TERMS.md`, `NOTICE` |
 | `turf-mcp-server-<os>_<arch>` and the other server binaries | The same binaries as in the archive, one file each |
 | `<binary>.provenance.sigstore.json`, `.sbom.sigstore.json`, `.vex.sigstore.json` | Signed attestations for that binary |
 | `turf.cdx.json`, `turf-mcp-server.cdx.json` (and `.spdx.json`) | Software bills of materials, CycloneDX and SPDX |
@@ -37,7 +37,7 @@ build and the archives are attested through GitHub. The server, the engine and t
 in a private repository, so they are signed with cosign, which anyone can verify.
 
 ```sh title="The archive, or the turf binary: GitHub CLI"
-gh attestation verify turf_v1.4.0_linux_amd64.tar.gz --repo turfbuild/turf
+gh attestation verify turf_v1.5.0_linux_amd64.tar.gz --repo turfbuild/turf
 gh attestation verify "$(command -v turf)" --repo turfbuild/turf
 ```
 
@@ -64,13 +64,20 @@ curl -fsSL https://get.turf.build/install.sh | bash -s -- --verify
 
 It uses `gh` when you are signed in, and cosign otherwise.
 
+## The npm packages
+
+`@turfbuild/turf-mcp-server` and its platform packages are published with npm provenance from the
+`turfbuild/turf` repository's publish workflow. They carry the release's own binaries: the workflow
+checks each one by checksum and signature before it packs them. restate-server is not in Turf's
+packages; it comes from Restate's own, `@restatedev/restate-server`.
+
 ## The container image
 
 The image is signed by digest, and carries its provenance, bill of materials and disposition as
 attestations:
 
 ```sh
-IMAGE=ghcr.io/turfbuild/turf-mcp-server:v1.4.0
+IMAGE=ghcr.io/turfbuild/turf-mcp-server:v1.5.0
 
 cosign verify "$IMAGE" \
   --certificate-identity-regexp "$ID" --certificate-oidc-issuer "$ISS"
@@ -100,7 +107,9 @@ cosign verify-blob-attestation --type cyclonedx \
   turf-mcp-server-linux_amd64
 ```
 
-`turf license` prints the license and the third-party notices of the installed release.
+`turf license` prints the license and the third-party notices of the installed release. In the
+archive, `LICENSE` is the Turf Community Edition License, `STANDARD-TERMS.md` is the Common Paper
+standard terms it builds on, and `NOTICE` lists the third-party components and their licenses.
 
 ## Vulnerability disposition
 
