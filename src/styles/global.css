@@ -226,7 +226,7 @@ h2 {
 .band-head p { color: var(--muted); font-size: 16.5px; margin: 0; max-width: 62ch; }
 .band-head p strong { color: var(--ink); font-weight: 600; }
 .band-head .provenance { margin-top: 8px; font-size: 14px; color: var(--muted); }
-/* The non-affiliation sentence in a band head (the feature grid's): the footer fineprint's size and colour. */
+/* The non-affiliation sentence in the feature grid's and the drift band's heads: the footer fineprint's size and colour. */
 .band-head .fine { margin-top: 12px; max-width: none; font-size: 12.5px; line-height: 1.5; color: var(--faint); text-wrap: balance; }
 
 /* fear strip */
@@ -793,4 +793,18 @@ table.matrix td.c { text-align: center; white-space: nowrap; font-family: var(--
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
   .stackbuild, .stackbuild *, .stackbuild *::before { animation: none !important; }
+}
+
+/* ---------- continuous drift (2026-11-15): a second exchange under the first in the agent band; in the
+   grid, the drift tile's notices and the console as the full last row ---------- */
+.agentloop + .agentloop { margin-top: 16px; }
+.solutions .sol.wide.full { grid-column: 1 / -1; }
+.sol.wide .term { font-size: 11.5px; }
+.sol.wide .term-body { padding: 12px 14px 14px; }
+/* A figure drawn twice (figures/DriftFigure.astro): left to right, and top to bottom for a phone. */
+.fig.when-narrow { display: none; }
+@media (max-width: 560px) {
+  .fig.when-wide { display: none; }
+  .fig.when-narrow { display: block; }
+  .figwide .fig.when-narrow { min-width: 0; }
 }

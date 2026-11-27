@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import FigureDefs from '../components/FigureDefs.astro';
 import Hero from '../components/Hero.astro';
 import WhyEngine from '../components/WhyEngine.astro';
+import DriftDetection from '../components/DriftDetection.astro';
 import ActionsInPlan from '../components/ActionsInPlan.astro';
 import AgentInLoop from '../components/AgentInLoop.astro';
 import CompatibilityTeaser from '../components/CompatibilityTeaser.astro';
@@ -69,6 +70,7 @@ const jsonLd = [
       'Every change is a Terraform plan, approved before it runs',
       'A plan gate and an approval point every round; planfiles to plan in one place and apply in another',
       'Multi-round convergence of layered stacks in one run',
+      'Continuous drift detection for everything a Terraform provider manages: a paced sweep between plans, a notice to the agent, every fix a plan',
       'Terraform actions with lifecycle triggers and overlays',
       'Turf actions: checks, questions and notifications as steps of the apply',
       'Durable runs on Restate; provider calls that scale out; engine replicas in a cluster',
@@ -87,6 +89,7 @@ const jsonLd = [
   <FigureDefs />
   <Hero />
   <WhyEngine />
+  <DriftDetection />
   <ActionsInPlan />
   <AgentInLoop />
   <CompatibilityTeaser />
@@ -95,5 +98,5 @@ const jsonLd = [
   <UseCasesTeaser />
   <ExamplesTeaser />
   <Papers />
-  <Partner />
+  <Partner alt={false} />
 </Layout>

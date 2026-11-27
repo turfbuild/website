@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import FigureDefs from '../components/FigureDefs.astro';
 import EngineArchitectureFigure from '../components/figures/EngineArchitectureFigure.astro';
+import DriftEngineFigure from '../components/figures/DriftEngineFigure.astro';
 // The Turf 1.0 announcement (launch plan §3, §8: the descriptor, the two layers, the four
 // pillars, what is in 1.0, what comes next). Sources, in order of use: the launch paragraph and
 // the two-layer frame (launch-plan.md §1, §3); the engine list and the three-ecosystems chapter
@@ -10,6 +11,10 @@ import EngineArchitectureFigure from '../components/figures/EngineArchitectureFi
 // for what is in 1.0; the license line of /get-started/ (since release 1.5); Restate's own description
 // from docs.restate.dev (Eron, 2026-10-18: "be proud to be using Restate"). The headline is launch
 // plan D2's first candidate; see "Content provenance" in CLAUDE.md.
+// #drift (2026-11-15) is continuous drift detection in the engine's own terms: the sweep and its
+// read budget, the confirming read, durable timers, and the in-cluster sensor, which is coming soon
+// (2026-11-26: tagged in the figure, a pill on its beat, no docs link until its page exists). Its source is turf-engine's
+// continuous-drift design as built; no internal name is carried over, and no number.
 const title = 'Turf — Turf 1.0 is available now: autonomous IaC on OpenTofu';
 const description =
   'Turf 1.0 is out: a self-hosted, autonomous infrastructure-as-code tool built on OpenTofu, with an agent overseeing. What is in it, and how it works.';
@@ -44,6 +49,7 @@ const engine = [
   ['An MCP server and skills', 'For any agent, and for the provider’s own control plane.'],
   ['Encrypted at rest', 'State encryption with a passphrase or key; the engine’s store under the disk encryption it runs on.'],
   ['Convergence', 'Plans what it can, defers the rest, and plans again until nothing is left.'],
+  ['Continuous drift detection', 'Watches between plans, and tells the agent what changed outside Turf.'],
 ];
 ---
 
@@ -176,7 +182,61 @@ const engine = [
     </div>
   </section>
 
-  <section class="section alt" id="range">
+  <section class="section alt" id="drift">
+    <div class="wrap">
+      <div class="band-head">
+        <h2>Between runs, the engine keeps watching.</h2>
+        <p>A process that exits cannot watch. A service can: the engine hears of a change made outside
+          Turf, confirms it with one read, and tells the agent what holds up. It detects and notifies;
+          every change is still a plan, approved before it runs.</p>
+      </div>
+      <div class="figwide">
+        <DriftEngineFigure />
+        <p class="figcap"><b>Signals in, one read out.</b> The sweep is shipped: it sends every
+          managed object to the confirming read over a cycle you set, and the engine reads through
+          the provider and classifies what it finds. The sensor in a cluster, drawn dashed, is
+          coming soon. The read budget bounds these background reads; flow control for a run’s own
+          calls is the dashed valve in the figure above.</p>
+      </div>
+      <div class="pillars4">
+        <div class="beat">
+          <span class="k">The sweep</span>
+          <h3>A paced read of every managed object</h3>
+          <p>The sweep reads every managed object of any provider over a cycle you set, and steps
+            aside while a run holds the workspace. Its reads and the confirming ones draw on one
+            read budget per provider, shared by every workspace on the engine, with a reserve the
+            sweep cannot spend.</p>
+          <a class="runit" href="/docs/using/drift/">turning it on, and watching →</a>
+        </div>
+        <div class="beat">
+          <span class="k">The confirming read</span>
+          <h3>One provider read per signal</h3>
+          <p>A signal is a hint: only the provider’s own read yields the values a plan compares.
+            The engine reads each object once, and classifies the difference against the Terraform
+            configuration the last converged run applied. Noise is recorded and wakes nobody.</p>
+          <a class="runit" href="/docs/concepts/drift/">signals, notices and classes →</a>
+        </div>
+        <div class="beat">
+          <span class="k">Durable timers</span>
+          <h3>No loop to keep alive</h3>
+          <p>The settle window and the sweep’s next pass are durable timers on Restate, not a loop
+            in a process. Restart the engine and the cycle resumes where it stood; with replicas,
+            the next read lands on any of them.</p>
+          <a class="runit" href="/#drift">what the agent does with a notice →</a>
+        </div>
+        <div class="beat">
+          <span class="k">The sensor</span>
+          <h3>In a cluster, as it happens</h3>
+          <p><span class="pill soon">coming soon</span> The Turf sensor for Kubernetes: a small
+            read-only controller in the cluster, with get, list and watch and nothing else. It
+            reports that an object a workspace manages changed, as it happens. Nothing dials in,
+            and an object’s body never leaves the cluster.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="range">
     <div class="wrap">
       <div class="band-head">
         <h2>Built on three ecosystems.</h2>
@@ -212,7 +272,7 @@ const engine = [
     </div>
   </section>
 
-  <section class="section">
+  <section class="section alt">
     <div class="wrap prose">
       <h2>What’s in 1.0.</h2>
       <ul>

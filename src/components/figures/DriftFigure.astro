@@ -1,0 +1,147 @@
+---
+// Continuous drift detection, between runs: the signal source on the left (the paced sweep, for
+// any provider; the sensor for Kubernetes clusters is coming soon and is not drawn here: the band's
+// ticklist carries it), then signal → read → notice → agent →
+// plan, with noise dropping out after the read and before the notice. The engine's part is the
+// three middle nodes; the agent decides which side wins; the plan and its approval point are the
+// ones every change crosses. Few words on purpose: the caption and the band carry the prose.
+// Tokens only (global.css, "figures"), so it re-themes.
+// Drawn twice: left to right for a wide column, and top to bottom below 560px, where the wide one
+// would scroll its last three nodes (the notice, the agent, the plan) out of sight. CSS shows one
+// (`.fig.when-wide` / `.fig.when-narrow`); the figure defines no ids, so two renderings are safe.
+const label =
+  'Between runs. The sweep, a paced read of every managed object for any provider, raises a signal. In the engine, a signal is a hint that costs nothing; one provider read confirms and classifies it; noise drops out here and wakes nobody: status churn, Turf’s own applies, ignored fields, computed values nothing reads. What holds up becomes a drift notice, with the address, the class and the changed paths, never values. The notice reaches your agent through watch, status, the console or a webhook; the agent decides which side wins: remediate, adopt or suppress. The fix is a plan that reads only what drifted, stops at its approval point, and is applied; the notice clears.';
+const noise = ['status churn', 'Turf’s own applies', 'ignored fields', 'computed values nothing reads'];
+const noiseNarrow = ['status churn', 'Turf’s own applies', 'ignored fields', 'unread computed values'];
+const choices = ['remediate', 'adopt', 'suppress'];
+---
+
+<svg class="fig when-wide" viewBox="0 0 720 240" role="img" aria-label={label}>
+  <rect x="0.5" y="0.5" width="719" height="239" rx="12" class="f-ground s-hair"/>
+  <text x="14" y="22" class="t-cap">BETWEEN RUNS</text>
+
+  <!-- the signal source: the sweep -->
+  <rect x="14.5" y="70.5" width="136" height="44" rx="8" class="f-panel s-hair"/>
+  <text x="26" y="89" class="t-name">the sweep</text>
+  <text x="26" y="103" class="t-m7 f-muted">any provider, paced reads</text>
+  <line x1="151" y1="92.5" x2="170" y2="92.5" class="s-stroke" stroke-width="1.2" marker-end="url(#a-ink)"/>
+
+  <!-- in the engine: signal, read, notice -->
+  <text x="172" y="54" class="t-cap">IN THE ENGINE</text>
+  <rect x="172.5" y="64.5" width="78" height="56" rx="8" class="f-panel s-hair" stroke-dasharray="4 3"/>
+  <text x="211.5" y="86" text-anchor="middle" class="t-name">signal</text>
+  <text x="211.5" y="100" text-anchor="middle" class="t-m7 f-muted">a hint</text>
+  <text x="211.5" y="110" text-anchor="middle" class="t-m7 f-muted">costs nothing</text>
+  <line x1="251" y1="92.5" x2="270" y2="92.5" class="s-stroke" stroke-width="1.2" marker-end="url(#a-ink)"/>
+
+  <rect x="272.5" y="64.5" width="100" height="56" rx="8" class="f-panel s-hair"/>
+  <text x="322.5" y="86" text-anchor="middle" class="t-name">read</text>
+  <text x="322.5" y="100" text-anchor="middle" class="t-m7 f-muted">one provider read</text>
+  <text x="322.5" y="110" text-anchor="middle" class="t-m7 f-muted">then classified</text>
+  <line x1="373" y1="92.5" x2="392" y2="92.5" class="s-stroke" stroke-width="1.2" marker-end="url(#a-ink)"/>
+
+  <rect x="394.5" y="64.5" width="100" height="56" rx="8" class="f-partbg s-part"/>
+  <text x="444.5" y="86" text-anchor="middle" class="t-name f-part">drift notice</text>
+  <text x="444.5" y="100" text-anchor="middle" class="t-m7 f-part">address · class</text>
+  <text x="444.5" y="110" text-anchor="middle" class="t-m7 f-part">paths, never values</text>
+
+  <!-- noise drops out after the read, before the notice -->
+  <line x1="322.5" y1="121" x2="322.5" y2="148" class="s-stroke" stroke-width="1" stroke-dasharray="3 2.5" marker-end="url(#a-ink)"/>
+  <rect x="244.5" y="150.5" width="156" height="74" rx="8" class="f-none s-faint" stroke-dasharray="4 3"/>
+  <text x="256" y="167" class="t-cap">NOISE · WAKES NOBODY</text>
+  {noise.map((n, i) => <text x="256" y={181 + i * 11} class="t-m7 f-muted">{n}</text>)}
+
+  <!-- the agent: which side wins -->
+  <text x="505" y="54" text-anchor="middle" class="t-m7 f-inh">watch · status · the console · a webhook</text>
+  <line x1="495" y1="92.5" x2="514" y2="92.5" class="s-inh" stroke-width="1.3" marker-end="url(#a-inh)"/>
+  <rect x="516.5" y="64.5" width="92" height="56" rx="8" class="f-inhbg s-inh"/>
+  <text x="562.5" y="86" text-anchor="middle" class="t-name f-inh">your agent</text>
+  <text x="562.5" y="100" text-anchor="middle" class="t-m7 f-inh">decides which</text>
+  <text x="562.5" y="110" text-anchor="middle" class="t-m7 f-inh">side wins</text>
+  <line x1="562.5" y1="121" x2="562.5" y2="130" class="s-inh" stroke-width="1"/>
+  {choices.map((c, i) => (
+    <g>
+      <rect x="516.5" y={130.5 + i * 20} width="92" height="15" rx="7.5" class="f-panel s-inh"/>
+      <text x="562.5" y={141 + i * 20} text-anchor="middle" class="t-m7 f-inh">{c}</text>
+    </g>
+  ))}
+
+  <!-- the plan still governs -->
+  <line x1="609" y1="92.5" x2="628" y2="92.5" class="s-inh" stroke-width="1.3" marker-end="url(#a-inh)"/>
+  <rect x="630.5" y="64.5" width="76" height="56" rx="8" class="f-okbg s-ok"/>
+  <text x="668.5" y="86" text-anchor="middle" class="t-name f-okdeep">plan</text>
+  <text x="668.5" y="100" text-anchor="middle" class="t-m7 f-okdeep">reads only</text>
+  <text x="668.5" y="110" text-anchor="middle" class="t-m7 f-okdeep">what drifted</text>
+  <line x1="668.5" y1="121" x2="668.5" y2="130" class="s-ok" stroke-width="1"/>
+  <rect x="630.5" y="130.5" width="76" height="15" rx="7.5" class="f-ok s-ok"/>
+  <text x="668.5" y="141" text-anchor="middle" class="t-m7 f-panel" style="font-weight:700">approval point</text>
+  <line x1="668.5" y1="146" x2="668.5" y2="150" class="s-ok" stroke-width="1"/>
+  <rect x="630.5" y="150.5" width="76" height="15" rx="7.5" class="f-panel s-ok"/>
+  <text x="668.5" y="161" text-anchor="middle" class="t-m7 f-okdeep" style="font-weight:700">apply</text>
+  <text x="668.5" y="181" text-anchor="middle" class="t-m7 f-okdeep">the notice clears</text>
+</svg>
+
+<svg class="fig when-narrow" viewBox="0 0 284 430" role="img" aria-label={label}>
+  <rect x="0.5" y="0.5" width="283" height="429" rx="12" class="f-ground s-hair"/>
+  <text x="10" y="20" class="t-cap">BETWEEN RUNS</text>
+
+  <!-- the signal source: the sweep -->
+  <rect x="10.5" y="30.5" width="128" height="40" rx="8" class="f-panel s-hair"/>
+  <text x="20" y="47" class="t-name">the sweep</text>
+  <text x="20" y="60" class="t-m7 f-muted">any provider, paced reads</text>
+  <line x1="74.5" y1="71" x2="74.5" y2="88" class="s-stroke" stroke-width="1.2" marker-end="url(#a-ink)"/>
+
+  <!-- in the engine: signal, read, notice -->
+  <text x="150" y="126" class="t-cap">IN THE ENGINE</text>
+  <rect x="10.5" y="90.5" width="128" height="40" rx="8" class="f-panel s-hair" stroke-dasharray="4 3"/>
+  <text x="74.5" y="107" text-anchor="middle" class="t-name">signal</text>
+  <text x="74.5" y="120" text-anchor="middle" class="t-m7 f-muted">a hint · costs nothing</text>
+  <line x1="74.5" y1="131" x2="74.5" y2="144" class="s-stroke" stroke-width="1.2" marker-end="url(#a-ink)"/>
+
+  <rect x="10.5" y="146.5" width="128" height="48" rx="8" class="f-panel s-hair"/>
+  <text x="74.5" y="164" text-anchor="middle" class="t-name">read</text>
+  <text x="74.5" y="176" text-anchor="middle" class="t-m7 f-muted">one provider read</text>
+  <text x="74.5" y="186" text-anchor="middle" class="t-m7 f-muted">then classified</text>
+  <line x1="74.5" y1="195" x2="74.5" y2="212" class="s-stroke" stroke-width="1.2" marker-end="url(#a-ink)"/>
+
+  <!-- noise drops out after the read, before the notice -->
+  <line x1="139" y1="170.5" x2="148" y2="170.5" class="s-stroke" stroke-width="1" stroke-dasharray="3 2.5" marker-end="url(#a-ink)"/>
+  <rect x="150.5" y="146.5" width="124" height="72" rx="8" class="f-none s-faint" stroke-dasharray="4 3"/>
+  <text x="157" y="162" class="t-cap">NOISE · WAKES NOBODY</text>
+  {noiseNarrow.map((n, i) => <text x="158" y={176 + i * 11} class="t-m7 f-muted">{n}</text>)}
+
+  <rect x="10.5" y="214.5" width="128" height="48" rx="8" class="f-partbg s-part"/>
+  <text x="74.5" y="232" text-anchor="middle" class="t-name f-part">drift notice</text>
+  <text x="74.5" y="244" text-anchor="middle" class="t-m7 f-part">address · class</text>
+  <text x="74.5" y="254" text-anchor="middle" class="t-m7 f-part">paths, never values</text>
+
+  <!-- the agent: which side wins -->
+  <line x1="74.5" y1="263" x2="74.5" y2="296" class="s-inh" stroke-width="1.3" marker-end="url(#a-inh)"/>
+  <text x="84" y="277" class="t-m7 f-inh">watch · status</text>
+  <text x="84" y="287" class="t-m7 f-inh">the console · a webhook</text>
+  <rect x="10.5" y="298.5" width="128" height="48" rx="8" class="f-inhbg s-inh"/>
+  <text x="74.5" y="316" text-anchor="middle" class="t-name f-inh">your agent</text>
+  <text x="74.5" y="328" text-anchor="middle" class="t-m7 f-inh">decides which</text>
+  <text x="74.5" y="338" text-anchor="middle" class="t-m7 f-inh">side wins</text>
+  <line x1="139" y1="322.5" x2="150" y2="322.5" class="s-inh" stroke-width="1"/>
+  {choices.map((c, i) => (
+    <g>
+      <rect x="150.5" y={298.5 + i * 17} width="96" height="14" rx="7" class="f-panel s-inh"/>
+      <text x="198.5" y={308.5 + i * 17} text-anchor="middle" class="t-m7 f-inh">{c}</text>
+    </g>
+  ))}
+
+  <!-- the plan still governs -->
+  <line x1="74.5" y1="347" x2="74.5" y2="360" class="s-inh" stroke-width="1.3" marker-end="url(#a-inh)"/>
+  <rect x="10.5" y="362.5" width="128" height="48" rx="8" class="f-okbg s-ok"/>
+  <text x="74.5" y="380" text-anchor="middle" class="t-name f-okdeep">plan</text>
+  <text x="74.5" y="392" text-anchor="middle" class="t-m7 f-okdeep">reads only</text>
+  <text x="74.5" y="402" text-anchor="middle" class="t-m7 f-okdeep">what drifted</text>
+  <line x1="139" y1="377.5" x2="150" y2="377.5" class="s-ok" stroke-width="1"/>
+  <rect x="150.5" y="370.5" width="96" height="14" rx="7" class="f-ok s-ok"/>
+  <text x="198.5" y="380.5" text-anchor="middle" class="t-m7 f-panel" style="font-weight:700">approval point</text>
+  <line x1="198.5" y1="385" x2="198.5" y2="390" class="s-ok" stroke-width="1"/>
+  <rect x="150.5" y="390.5" width="96" height="14" rx="7" class="f-panel s-ok"/>
+  <text x="198.5" y="400.5" text-anchor="middle" class="t-m7 f-okdeep" style="font-weight:700">apply</text>
+  <text x="198.5" y="418" text-anchor="middle" class="t-m7 f-okdeep">the notice clears</text>
+</svg>
