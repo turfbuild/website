@@ -50,7 +50,7 @@ the archive, and give your agent the server's path.
 
 ```sh title="By hand"
 mkdir -p ~/.turf/bin
-tar -xzf turf_v1.4.0_linux_amd64.tar.gz -C ~/.turf/bin
+tar -xzf turf_v1.5.0_linux_amd64.tar.gz -C ~/.turf/bin
 tar -xJf restate-server-x86_64-unknown-linux-musl.tar.xz --strip-components 1 \
   -C ~/.turf/bin restate-server-x86_64-unknown-linux-musl/restate-server
 export PATH="$HOME/.turf/bin:$PATH"
@@ -62,7 +62,7 @@ TURF_OFFLINE=1 turf-mcp-server engine run
 ```sh title="With the install script, from a mirror"
 export TURF_DOWNLOAD_URL=https://mirror.example.com/turf/releases
 export TURF_RESTATE_DOWNLOAD_URL=https://mirror.example.com/restate/releases
-sh install.sh --version v1.4.0 --no-telemetry
+sh install.sh --version v1.5.0 --no-telemetry
 ```
 
 A mirror keeps the path GitHub uses: `<mirror>/download/<tag>/<file>`. The script checks both
@@ -74,7 +74,7 @@ For a [cluster](/docs/cluster/images/), copy the images into your registry. `cos
 each image's signature and attestations with it, so you can verify again on the inside:
 
 ```sh
-cosign copy ghcr.io/turfbuild/turf-mcp-server:v1.4.0 registry.example.com/turf/turf-mcp-server:v1.4.0
+cosign copy ghcr.io/turfbuild/turf-mcp-server:v1.5.0 registry.example.com/turf/turf-mcp-server:v1.5.0
 cosign copy docker.io/restatedev/restate:1.8.1 registry.example.com/restate/restate:1.8.1
 ```
 

@@ -18,7 +18,7 @@ A cluster deployment of Turf™ pulls from three places:
 ## The Turf image
 
 `ghcr.io/turfbuild/turf-mcp-server` is published for `linux/amd64` and `linux/arm64`, tagged with each
-release (`v1.4.0`) and `latest`. It is built on Alpine with `ca-certificates` and `git`, and runs as a
+release (`v1.5.0`) and `latest`. It is built on Alpine with `ca-certificates` and `git`, and runs as a
 non-root user, `turf`, whose home is `/home/turf`. Four binaries sit at its root:
 
 | Binary | What it is |
@@ -75,7 +75,7 @@ a CycloneDX SBOM and an OpenVEX disposition, all recorded in the public Rekor tr
 the signature and the SBOM attestation before you deploy:
 
 ```sh
-IMAGE=ghcr.io/turfbuild/turf-mcp-server:v1.4.0
+IMAGE=ghcr.io/turfbuild/turf-mcp-server:v1.5.0
 ID='^https://github.com/turfbuild/turf-mcp-server/'
 ISS=https://token.actions.githubusercontent.com
 

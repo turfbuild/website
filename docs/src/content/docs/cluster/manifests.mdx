@@ -57,7 +57,7 @@ mkdir -p .secrets && chmod 700 .secrets
 
 # identity.pem: the private half, which restate-server signs every request to the engine with.
 # public-key: the public half, which the engine checks every request against.
-docker run --rm --user "$(id -u)" -v "$PWD/.secrets:/k" ghcr.io/turfbuild/turf-mcp-server:v1.4.0 \
+docker run --rm --user "$(id -u)" -v "$PWD/.secrets:/k" ghcr.io/turfbuild/turf-mcp-server:v1.5.0 \
   turf-engine --identity-keygen /k/identity.pem > .secrets/public-key
 
 # No trailing newline: the server refuses a token with whitespace in it.
@@ -230,7 +230,7 @@ spec:
       containers:
         - name: turf-engine
           # The same tag as the server and the console.
-          image: ghcr.io/turfbuild/turf-mcp-server:v1.4.0
+          image: ghcr.io/turfbuild/turf-mcp-server:v1.5.0
           command: ["/turf-engine"]
           args:
             - --addr=0.0.0.0:9080
@@ -460,7 +460,7 @@ spec:
   deploymentMode: knative
   knative:
     # One tag per Turf minor release: change it with the image.
-    tag: v1-4
+    tag: v1-5
     minScale: 0
     maxScale: 4
     # Concurrent requests per pod before Knative adds one.
@@ -478,7 +478,7 @@ spec:
       timeoutSeconds: 3600
       containers:
         - name: turf-engine
-          image: ghcr.io/turfbuild/turf-mcp-server:v1.4.0
+          image: ghcr.io/turfbuild/turf-mcp-server:v1.5.0
           command: ["/turf-engine"]
           args:
             - --addr=0.0.0.0:9080
@@ -642,7 +642,7 @@ spec:
       serviceAccountName: turf-mcp-server
       containers:
         - name: turf-mcp-server
-          image: ghcr.io/turfbuild/turf-mcp-server:v1.4.0
+          image: ghcr.io/turfbuild/turf-mcp-server:v1.5.0
           args:
             - --transport=http
             - --addr=:3000
@@ -772,7 +772,7 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: turf-ui
-          image: ghcr.io/turfbuild/turf-mcp-server:v1.4.0
+          image: ghcr.io/turfbuild/turf-mcp-server:v1.5.0
           command: ["/turf-ui"]
           args:
             - --addr=0.0.0.0:8873

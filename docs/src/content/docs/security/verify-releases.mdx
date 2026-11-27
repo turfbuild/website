@@ -37,7 +37,7 @@ build and the archives are attested through GitHub. The server, the engine and t
 in a private repository, so they are signed with cosign, which anyone can verify.
 
 ```sh title="The archive, or the turf binary: GitHub CLI"
-gh attestation verify turf_v1.4.0_linux_amd64.tar.gz --repo turfbuild/turf
+gh attestation verify turf_v1.5.0_linux_amd64.tar.gz --repo turfbuild/turf
 gh attestation verify "$(command -v turf)" --repo turfbuild/turf
 ```
 
@@ -77,7 +77,7 @@ The image is signed by digest, and carries its provenance, bill of materials and
 attestations:
 
 ```sh
-IMAGE=ghcr.io/turfbuild/turf-mcp-server:v1.4.0
+IMAGE=ghcr.io/turfbuild/turf-mcp-server:v1.5.0
 
 cosign verify "$IMAGE" \
   --certificate-identity-regexp "$ID" --certificate-oidc-issuer "$ISS"
