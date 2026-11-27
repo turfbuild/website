@@ -242,9 +242,13 @@ OpenTelemetry® are registered trademarks, and Jaeger™ is a trademark, of the 
 OpenTofu® and Model Context Protocol® are registered trademarks of LF Projects, LLC. All other
 trademarks are the property of their respective owners. Turf is not affiliated with, endorsed by, or
 sponsored by HashiCorp, IBM, Red Hat, the Linux Foundation, LF Projects or the OpenTofu project."
-The catch-all sentence ("All other trademarks …") is part of the statement. The published PDFs in
-`public/papers/` and their text-of-record Marks sections still carry the old OpenTofu and Red Hat
-wording until each paper's next version. "Terraform" is only ever used nominatively (compatibility, comparison),
+The catch-all sentence ("All other trademarks …") is part of the statement. The PDFs in
+`public/papers/` and their text-of-record Marks sections carry the statement's wording since
+2026-11-27 (*Metal to Tokens* v1.2, *Pull Request to Production* v0.5, *Agentic IaC for Platform
+Teams* v0.10): "Terraform® is a trademark of HashiCorp", OpenTofu® a registered trademark of LF
+Projects, LLC, with LF Projects in the non-affiliation sentence, and Ansible® a trademark of Red
+Hat, LLC.
+"Terraform" is only ever used nominatively (compatibility, comparison),
 never in a product name, domain, or logo. Never write "the Terraform Registry" — its ToS restricts
 non-Terraform use; say "module registry", "modules", or "OpenTofu registry". (Decided 2026-10-03
 while the neocloud PDF was marked — source of truth: the Marks section of

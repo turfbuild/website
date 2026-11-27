@@ -70,6 +70,19 @@ at; through the port-forward above, `http://localhost:8873`. Every `up`, `plan`,
 agent's message about a plan links to that round at its approval point. The links never carry the
 token. Without `TURF_CONSOLE_URL`, a server driving an engine of your own returns no links.
 
+## The Drift tab
+
+A workspace's Drift tab shows it between runs: the open [drift notices](/docs/concepts/drift/), how
+many objects are swept or uncovered, and whether the sweep keeps to its cycle. A cleared notice names
+the run whose commit cleared it and links to that round, and the Runs tab shows on a run how many
+drift notices it cleared.
+
+The tab needs nothing set: the console reads drift from restate-server's ingress, as it reads
+everything else. It is read-only here too. A notice's continuation is text to copy, the console
+acknowledges nothing, and detection is turned on or off, and its settings changed, with the `drift`
+tool.
+[What the tab shows](/docs/cli/console/#what-it-shows).
+
 ## At a glance
 
 | Setting | On | What it does |

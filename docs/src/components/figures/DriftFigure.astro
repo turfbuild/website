@@ -1,0 +1,63 @@
+---
+// Drift between runs, in one line: the sweep's turn → an observation (one provider read)
+// → classify → a drift notice; then the agent, and an ordinary run whose plan is the verdict.
+// Tokens only (docs.css, "figures"); markers are local to this svg.
+interface Props { caption?: string }
+const { caption } = Astro.props;
+const engine = [
+  { x: 14, w: 146, name: 'the sweep', sub: ['a paced pass over', 'every managed object'] },
+  { x: 180, w: 146, name: 'observation', sub: ['one provider read,', 'report-only'] },
+  { x: 346, w: 146, name: 'classify', sub: ['against the', 'configuration'] },
+  { x: 512, w: 146, name: 'drift notice', sub: ['address, class,', 'paths, never values'] },
+];
+const run = [
+  { x: 14, w: 170, name: 'your agent', sub: ['status reads · watch waits', 'remediate · adopt · suppress'], cls: 'f-inhbg s-inh', ink: 'f-inh' },
+  { x: 206, w: 210, name: 'up, then plan', sub: ['plan with refresh_drift: true', 'reads only what drifted'], cls: 'f-panel s-hair', ink: '' },
+  { x: 438, w: 120, name: 'approval point', sub: ['the plan is', 'the verdict'], cls: 'f-panel s-ok', ink: '' },
+  { x: 580, w: 78, name: 'apply', sub: [], cls: 'f-ok', ink: 'f-panel' },
+];
+---
+
+<figure class="docfig">
+  <svg class="fig" viewBox="0 0 672 236" role="img" aria-label="Between runs the engine watches. The sweep, a paced pass over every managed object, gives each object its turn, and the engine makes an observation: one provider read that reports and never touches state. It classifies the read against the configuration; noise is recorded and never becomes a notice. What holds up becomes a drift notice: an address, a class and the changed attribute paths, never values. The agent reads notices with status and waits for them with watch, and decides: remediate, adopt or suppress. A change is an ordinary run: up, then plan with refresh_drift true, which reads only what drifted; the plan waits at its approval point, and apply applies it. Nothing applies on its own.">
+    <defs>
+      <marker id="df-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-stroke"/></marker>
+      <marker id="df-inh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-inh"/></marker>
+      <marker id="df-ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-ok"/></marker>
+    </defs>
+
+    <!-- between runs: the engine -->
+    <text x="0" y="10" class="t-cap">BETWEEN RUNS · THE ENGINE WATCHES</text>
+    <rect x="0.5" y="18.5" width="671" height="92" rx="11" class="f-panel2 s-hair"/>
+    {engine.map((b, i) => (
+      <g>
+        <rect x={b.x + 0.5} y="30.5" width={b.w - 1} height="52" rx="8" class="f-panel s-hair"/>
+        <text x={b.x + 10} y="48" class="t-name">{b.name}</text>
+        {b.sub.map((t, k) => <text x={b.x + 10} y={62 + k * 11} class="t-mono">{t}</text>)}
+        {i < engine.length - 1 && (
+          <line x1={b.x + b.w + 1} y1="56.5" x2={engine[i + 1].x - 1} y2="56.5" class="s-stroke" stroke-width="1.4" marker-end="url(#df-ink)"/>
+        )}
+      </g>
+    ))}
+    <text x="346" y="100" class="t-mono">noise is recorded, never a notice</text>
+
+    <!-- the notice reaches the agent -->
+    <path d="M600.5,83 V130.5 H99.5 V154" class="s-inh f-none" stroke-width="1.4" marker-end="url(#df-inh)"/>
+    <text x="112" y="125" class="t-mono f-inh">status shows it · watch wakes on it</text>
+
+    <!-- a run: the plan governs the change -->
+    <text x="206" y="148" class="t-cap">A RUN · THE PLAN GOVERNS THE CHANGE</text>
+    {run.map((b, i) => (
+      <g>
+        <rect x={b.x + 0.5} y="156.5" width={b.w - 1} height="52" rx="8" class={b.cls}/>
+        <text x={b.x + 10} y={b.sub.length ? 174 : 186} class={`t-name ${b.ink}`}>{b.name}</text>
+        {b.sub.map((t, k) => <text x={b.x + 10} y={188 + k * 11} class="t-mono">{t}</text>)}
+        {i < run.length - 1 && (
+          <line x1={b.x + b.w + 1} y1="182.5" x2={run[i + 1].x - 1} y2="182.5" class={i === 2 ? 's-ok' : 's-stroke'} stroke-width="1.4" marker-end={i === 2 ? 'url(#df-ok)' : 'url(#df-ink)'}/>
+        )}
+      </g>
+    ))}
+    <text x="14" y="229" class="t-mono">nothing applies on its own: the agent decides, and every change waits at an approval point</text>
+  </svg>
+  {caption && <figcaption class="figcap" set:html={caption} />}
+</figure>

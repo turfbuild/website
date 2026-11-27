@@ -42,7 +42,7 @@ those lines are rules. They are written for the agent; here is what each one mea
    edit. Setting a variable's value is deployment, not an edit. It never rewrites a configuration to
    stage an apply or hard-codes a value to skip a round.
 
-## Two more the agent lives by
+## Three more the agent lives by
 
 **Nothing runs off-plan.** `apply` is the approval of one plan, named by its digest. If the files change
 after the plan, the run ends `stale` and nothing is applied. There is no `-target`, and nothing is
@@ -51,5 +51,10 @@ cause and runs `up` again.
 
 **A plan goes to policy first.** Before a non-trivial plan, the agent hands the plan document to your
 policy tools, if you have them. A deny means do not apply.
+
+**Watching is the user's choice.** The agent turns drift detection on, or off, only when you ask or
+agree, the sweep above all: it reads every managed object unattended, with the engine's
+credentials. A drift notice changes nothing by itself, and the plan that answers it is approved as
+any plan is. [Approval](/docs/concepts/approval/#drift).
 
 The full text the server hands the agent is in [Server instructions](/docs/reference/instructions/).

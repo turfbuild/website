@@ -34,7 +34,7 @@ have seen the plan and said yes.
 
 **The MCP server** is what your agent talks to. `turf-mcp-server` speaks the Model Context Protocol®
 over stdio or HTTP, so it plugs into Claude Code, Claude Desktop, Cursor, Codex, Gemini CLI, VS Code,
-an agent running in a cluster, or your own. It exposes the Terraform commands as tools, three prompts
+an agent running in a cluster, or your own. It exposes the Terraform commands as tools, four prompts
 that show up as slash commands, and the skills that teach an agent how to use them.
 
 **The engine** is where plans are made and applied. It is a separate process, which the server starts
@@ -66,6 +66,9 @@ A run of `up` is a **convergence**: plan, approve, apply, until the configuratio
 During an apply the configuration can ask the agent to do a step itself: a backup, a check, a question
 for you, a message to the team. That is a **turf action**. The apply pauses for it and continues when
 the agent reports back.
+
+Between runs, the engine can keep watching. When something it manages changes outside Turf, your agent
+gets a [drift notice](/docs/concepts/drift/) and decides what to do, with a plan as always.
 
 The whole vocabulary, with a diagram, is in [Overview](/docs/concepts/overview/).
 

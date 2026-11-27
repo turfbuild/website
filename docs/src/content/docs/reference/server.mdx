@@ -51,12 +51,12 @@ credential handed to a server buys its tier's calls and no other. The default is
 
 | Tier | Tools it lists | What it may do |
 |---|---|---|
-| `read` | `init`, `open`, `close`, `status`, `list`, `show`, `output`, `state_list`, `provider_search`, `provider_describe`, `skill_deployment`, `skill_authoring`, `skill_guide`, `read_skill_file` | Read workspaces, states, plans, outputs and the provider registry. Nothing runs: `init`, `open` and `close` only bind the workspace a read needs. |
+| `read` | `init`, `open`, `close`, `status`, `list`, `watch`, `show`, `output`, `state_list`, `provider_search`, `provider_describe`, `skill_deployment`, `skill_authoring`, `skill_guide`, `read_skill_file` | Read workspaces, states, plans, outputs and the provider registry, and wait for drift. Nothing runs: `init`, `open` and `close` only bind the workspace a read needs. |
 | `plan` | the `read` tools, plus `up`, `destroy`, `refresh`, `import`, `invoke`, `plan`, `cancel` | Start runs, every one `plan_only`: it ends `planned`, with a planfile for an applier. `cancel` stops a convergence before its apply begins. |
 | `apply` | the `read` tools, plus `apply`, `cancel` | Apply a planfile, or approve a plan waiting at its approval point. It starts no run of its own. |
-| `full` | every tool: the above, plus `taint`, `untaint`, `delete` | Everything, `open`'s `force_unlock` included. |
+| `full` | every tool: the above, plus `taint`, `untaint`, `delete`, `drift` | Everything, `open`'s `force_unlock` included. `drift` changes what the engine reads unattended, so no other tier lists it, and `up` takes `drift: { … }` only here. |
 
-The `read` tier lists 14 tools, `plan` 21, `apply` 16 and `full` 25. Each tool's page says which tiers
+The `read` tier lists 15 tools, `plan` 22, `apply` 17 and `full` 27. Each tool's page says which tiers
 list it: [Tools](/docs/reference/tools/init/).
 
 Tiers split planning from applying. A plan-tier server plans and keeps each plan as a planfile; an
@@ -65,8 +65,10 @@ and `plan_digest`. See [Planfiles](/docs/reference/skills/deployment/planfiles/)
 
 The tier also shows in what the agent is offered:
 
-- The `up` and `destroy` [prompts](/docs/reference/prompts/) are listed at the `plan` and `full` tiers
-  only. `guide` is listed at every tier.
+- The `up`, `destroy` and `watch` [prompts](/docs/reference/prompts/) are listed at the `plan` and
+  `full` tiers only. `guide` is listed at every tier.
+- The `read` and `apply` tiers list no `up`. There, `watch` and `status` report drift and name no
+  next call, and their note says the `up` starts from a server at the `plan` or `full` tier.
 - At the `read`, `plan` and `apply` tiers the [server instructions](/docs/reference/instructions/) gain a
   section that names the tier and what it can do.
 
@@ -198,6 +200,18 @@ The default sits under the MCP TypeScript SDK's 60-second request timeout. A cli
 own can set it longer. `0` disables it. A `TURF_DEADLINE` that does not read as a duration (`55s`, `5m`
 or `0`) stops the server before it serves.
 
+### The watch deadline
+
+`--watch-deadline` (`TURF_WATCH_DEADLINE`) is how long one `watch` call waits for drift before it
+returns `waiting`, with a cursor and `next` naming the same watch. Left unset, `watch` takes
+`--deadline`.
+
+Each `waiting` return costs the agent a turn: about 65 an hour at 55 seconds, 2 an hour at `30m`. For
+a client that allows long tool calls, set it under the client's own limit; in Claude Code that is
+`MCP_TOOL_TIMEOUT`, in milliseconds. While a call waits, the server sends a progress notification
+every 15 seconds if the call carried a progress token. See
+[What an idle watch costs](/docs/using/drift/#what-an-idle-watch-costs).
+
 ## Logging
 
 | Flag | Default |
@@ -246,6 +260,7 @@ See [The engine and the console](/docs/concepts/engine-and-console/).
 | `--scopes` | `TURF_ENGINE_SCOPES` | `on` | Flow-control scopes, `on` or `off`; must match the engine's. |
 | `--workdir` | `TURF_WORKDIR` | empty: no mapping | Maps this server's working directory to an engine's own `--workdir`. Needs `--restate-url`. |
 | `--deadline` | `TURF_DEADLINE` | `55s` | How long a convergence call runs before it returns the stage; `0` disables. |
+| `--watch-deadline` | `TURF_WATCH_DEADLINE` | unset: `--deadline` | How long a `watch` call waits for drift before it returns `waiting`. |
 | `--console-url` | `TURF_CONSOLE_URL` | empty | Where a browser opens the console for an engine of your own. |
 | | `TURF_OFFLINE` | unset | The air-gap switch: `provider_search` makes no call to the public registry, and `engine run` starts the engine with telemetry off. See [Air-gapped installation](/docs/security/air-gapped/). |
 | | `TURF_REGISTRY_API_URL` | `https://api.opentofu.org` | The registry search service `provider_search` asks. Naming one keeps the search on under `TURF_OFFLINE`. |

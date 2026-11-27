@@ -88,9 +88,9 @@ stops at the next round's plan gate.
 
 **`plan`** plans the round and stops at its approval point (`awaiting_approval`). The result carries the
 plan's counts, its resource (`plan.uri`: the OpenTofu® JSON plan, as `tofu show -json` prints it,
-sensitive values redacted) and its digest (`plan.digest`). `show` reads the document. `refresh` and
-`replace` are that round's options alone. A round with nothing to apply needs no approval: `plan` runs
-it through to the next plan gate or the end.
+sensitive values redacted) and its digest (`plan.digest`). `show` reads the document. `refresh`,
+`replace`, `refresh_addresses` and `refresh_drift` are that round's options alone. A round with nothing
+to apply needs no approval: `plan` runs it through to the next plan gate or the end.
 
 **`apply` with the digest is the approval**, of that plan and no other. A digest of any other plan is
 refused, and nothing is applied. The apply stops at the next round's plan gate, at a turf action
@@ -127,6 +127,11 @@ The engine re-reads the configuration before applying. If a file the plan parsed
 | `workspace_alias` | Without `convergence_id`: the workspace whose run to plan. Omit it for the default. |
 | `refresh` | Read each managed object first (default `true`); `false` plans against the state as recorded. This round only. |
 | `replace` | Addresses to replace in this round, as `tofu plan -replace`. An `up`'s plan only. |
+| `refresh_addresses` | Managed resource instance addresses this round reads before planning. Every other row plans from its record, and one that then plans a change is read and planned again. An `up`'s plan only, never with `refresh: false`. This round only. |
+| `refresh_drift` | `true` reads what the workspace's open drift notices name; with `refresh_addresses`, both sets. With nothing open the round reads every object. An `up`'s plan only, never with `refresh: false`. This round only. When notices are open, the note at an `up`'s first plan gate names it. |
+
+With either of the last two, the result carries `refresh_scope`: what was read, and as `skipped` how
+many rows were planned unread. See [A scoped refresh](/docs/using/refresh/#a-scoped-refresh).
 
 `apply`:
 

@@ -25,7 +25,10 @@ open({ var: { region: "eu-west-1" }, var_file: ["/Users/you/secrets/prod.tfvars"
 up({ var: { image_tag: "v42" } })
 ```
 
-Nothing is written down. After the server restarts, `open` the workspace again with the same values.
+The server writes nothing down. After the server restarts, `open` the workspace again with the same
+values. The engine keeps one copy: the values of the last `up` that converged, with that run's
+configuration, for reading objects between runs. Sensitive values are in it; ephemeral ones never
+are. See [Drift](/docs/concepts/drift/#what-the-engine-reads-with).
 
 Keep a secret in a file and give the agent its path as `var_file`: the agent never needs to read it.
 
