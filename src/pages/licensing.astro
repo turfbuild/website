@@ -1,29 +1,79 @@
 ---
 import Layout from '../layouts/Layout.astro';
-// Every sentence here is drawn from headquarters/marketing/licensing.md ("Copy to publish");
-// the license sentence and the telemetry sentence are byte-identical to it. Change that
-// document first, then this page. See "Content provenance" in CLAUDE.md.
-const title = 'Turf — Licensing: free noncommercial use, pilots, production';
+// The plain-words summary of the Turf Community Edition License 1.0, which governs Turf from
+// release 1.5. The binding text is /license/v1/ (src/content/license/v1.md): every number and
+// rule here is that file's, so change the terms first, then this page. The pilot and commercial
+// paragraphs and the telemetry sentence are the ones the page carried before 1.5. No prices.
+// See "Content provenance" in CLAUDE.md.
+const title = 'Turf — Licensing: Community Edition, evaluation, commercial';
 const description =
-  'Free for noncommercial use under PolyForm Noncommercial 1.0.0. Companies evaluate Turf in a free 60-day pilot and license production use. One binary, no key.';
+  'Free for individuals, education and small businesses within the Community limits; government and larger organizations license Turf. The terms in plain words.';
 ---
 
 <Layout title={title} description={description}>
   <section class="subhero">
     <div class="wrap">
       <p class="eyebrow"><span class="dot"></span> Licensing</p>
-      <h1>Free for noncommercial use. Licensed for commercial use.</h1>
-      <p class="lede">Turf™ is free for individuals, students, researchers, educational institutions,
-        public research organizations, charities and government institutions, under the PolyForm
-        Noncommercial License 1.0.0. Commercial use, including a company’s internal use, requires a
-        license from Turf LLC.</p>
+      <h1>Free within the Community limits. Licensed beyond them.</h1>
+      <p class="lede">From release 1.5, Turf™ ships under the Turf Community Edition License 1.0. It
+        is free for individuals, education, non-commercial open source projects and small
+        businesses, within the Community limits. Government and larger organizations need a
+        commercial license. This page says it in plain words; the binding text is at
+        <a href="/license/v1/">turf.build/license/v1</a>.</p>
     </div>
   </section>
 
-  <section class="section" id="pilot">
+  <section class="section" id="community">
     <div class="wrap prose">
-      <h2>Evaluating Turf at a company?</h2>
-      <p>We offer a free 60-day evaluation under the Common Paper Pilot Agreement, a standard
+      <h2>Who uses Turf free</h2>
+      <p>The Community Edition is the whole of Turf, at no charge, for:</p>
+      <ul>
+        <li><strong>Individuals</strong>, for personal, non-commercial purposes.</li>
+        <li><strong>Education</strong>: an accredited educational institution, its students and its
+          staff, for teaching or non-commercial research.</li>
+        <li><strong>Non-commercial open source projects.</strong></li>
+        <li><strong>Small businesses</strong>: an organization that, together with its affiliates,
+          has fewer than 100 employees and contractors and had less than US$10 million in revenue in
+          its last fiscal year.</li>
+      </ul>
+      <p>You use it for your own purposes, and that includes building and operating infrastructure
+        and services you provide to your own customers. A government body or agency, or an
+        organization a government owns or controls, needs a commercial license at any size, unless
+        it is an educational institution.</p>
+      <p class="ctas"><a class="btn primary" href="/get-started/">Get started</a></p>
+    </div>
+  </section>
+
+  <section class="section alt" id="limits">
+    <div class="wrap prose">
+      <h2>The Community limits</h2>
+      <p>Free use stays within two limits, counted across your organization and its affiliates:</p>
+      <ul>
+        <li><strong>10 billable workspaces.</strong> That is up to 10 production workspaces managing
+          up to 10,000 resources between them, at any size each.</li>
+        <li><strong>32 GPUs</strong> in the infrastructure Turf manages, in production or not.</li>
+      </ul>
+      <p>A production workspace is one that manages production infrastructure. Workspaces used only
+        for development, staging, testing or previewing a change are not counted. Billable
+        workspaces is the greater of two numbers: how many production workspaces you run, and the
+        resources they manage, divided by 1,000 and rounded up.</p>
+      <p>An organization that outgrows eligibility or the limits has a 90-day grace period: it keeps
+        running Turf while it arranges a commercial license.</p>
+    </div>
+  </section>
+
+  <section class="section" id="evaluation">
+    <div class="wrap prose">
+      <h2>Evaluating Turf</h2>
+      <p>Any organization, government included, can evaluate Turf in non-production for 30 days
+        from its first use. There is nothing to sign: accept the terms and run it.</p>
+    </div>
+  </section>
+
+  <section class="section alt" id="pilot">
+    <div class="wrap prose">
+      <h2>A longer or supported trial?</h2>
+      <p>We offer a free 60-day pilot under the Common Paper Pilot Agreement, a standard
         contract you can read in full at
         <a href="https://commonpaper.com/standards/pilot-agreement/1.1/">commonpaper.com/standards/pilot-agreement</a>.
         Email <a href="mailto:licensing@turf.build?subject=Pilot">licensing@turf.build</a> and we
@@ -35,28 +85,75 @@ const description =
     </div>
   </section>
 
-  <section class="section alt" id="production">
+  <section class="section" id="production">
     <div class="wrap prose">
-      <h2>Running Turf in production?</h2>
-      <p>Production use is licensed under the Common Paper Software License Agreement
+      <h2>Commercial licenses</h2>
+      <p>Government, larger organizations and anyone beyond the Community limits run Turf under a
+        commercial license: the Common Paper Software License Agreement
         (<a href="https://commonpaper.com/standards/software-license-agreement/1.1/">commonpaper.com/standards/software-license-agreement</a>)
         with an annual subscription that includes updates, support, a conformance warranty and IP
-        indemnity. Embedding Turf in your own product is available under a redistribution license;
-        ask us.</p>
+        indemnity. Offering Turf to others as a hosted or managed service, or embedding it in your
+        own product, takes a commercial, OEM or redistribution license; ask us.</p>
+      <p>If your organization has a signed agreement with Turf LLC, that agreement governs your use,
+        not the Community terms.</p>
       <p class="ctas"><a class="btn ghost" href="mailto:licensing@turf.build?subject=Production%20license">Talk to us</a></p>
     </div>
   </section>
 
-  <section class="section" id="binary">
+  <section class="section alt" id="accept">
+    <div class="wrap prose">
+      <h2>Accepting the terms</h2>
+      <p>Turf asks you to accept the terms once, by an act of your own. Read them at
+        <a href="/license/v1/">turf.build/license/v1</a>, then do one of three things:</p>
+      <ul>
+        <li>Run <code>turf license accept</code>, or without the <code>turf</code> CLI,
+          <code>npx -y @turfbuild/turf-mcp-server license accept</code>. Either records your
+          acceptance in a file on your machine. Turf reads it at the next call, with nothing to
+          restart.</li>
+        <li>Answer yes when the <code>turf</code> CLI asks, on its first run in a terminal.</li>
+        <li>Set <code>TURF_ACCEPT_EULA=yes</code> where no one is there to answer: a container, a
+          CI job, a Kubernetes® pod, an MCP client's configuration. Setting it accepts the terms.</li>
+      </ul>
+      <p>If you accept for an organization, you confirm that you are authorized to bind it. A
+        script, a tool or an AI agent that does any of these for you accepts on your behalf.</p>
+      <p>Until the terms are accepted, the MCP server starts and lists its tools, and every call
+        returns the license notice instead of running. The CLI asks on a terminal and exits with
+        status 77 anywhere else. In a container, the engine and the console exit with status 77.
+        <a href="/docs/start/install/#accept-the-license">Accept the license</a> in the docs has
+        each case.</p>
+    </div>
+  </section>
+
+  <section class="section" id="terms">
+    <div class="wrap prose">
+      <h2>What else the terms say</h2>
+      <ul>
+        <li>Turf is proprietary software. The terms do not allow redistribution or reverse
+          engineering.</li>
+        <li>You may publish reviews, comparisons and benchmark results.</li>
+        <li>You may make the copies you need to install, run, back up and mirror Turf inside your
+          organization.</li>
+        <li>Running Turf as a contractor or integrator, to manage the infrastructure of an
+          organization that is not itself eligible, is not covered. Serving that organization as
+          your customer, from your own infrastructure, is.</li>
+        <li>The Community Edition comes as is, with no warranty and no support from Turf LLC. The
+          <a href="/community/">community channels</a> are open to everyone.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section alt" id="binary">
     <div class="wrap prose">
       <h2>One binary, no license key</h2>
       <p>Every Turf build is the same binary with the same features and ships with an SBOM. There
         is no license key and nothing to unlock: a commercial license is a contract and a support
         relationship. We trust companies to license what they run.</p>
+      <p>No license server and no update check. The acceptance record, which holds the terms
+        version, the time and the method, is a file on your machine.</p>
     </div>
   </section>
 
-  <section class="section alt" id="telemetry">
+  <section class="section" id="telemetry">
     <div class="wrap prose">
       <h2>Telemetry</h2>
       <p>Turf sends anonymous usage telemetry to Turf LLC by default: the version, the platform,
@@ -65,19 +162,33 @@ const description =
         <code>turf telemetry off</code>, or with <code>TURF_TELEMETRY=off</code> or
         <code>DO_NOT_TRACK=1</code> in the engine's environment; the full field list and the endpoint
         are at <a href="/telemetry/">turf.build/telemetry</a>.</p>
+      <p>With telemetry on, the engine's start event also carries the version of the terms and how
+        they were accepted. With telemetry off, nothing about your acceptance leaves your machine.</p>
     </div>
   </section>
 
-  <section class="section" id="source">
+  <section class="section alt" id="source">
     <div class="wrap prose">
       <h2>Source</h2>
       <p>The <code>turf</code> CLI’s source, at
         <a href="https://github.com/turfbuild/turf">github.com/turfbuild/turf</a>, is licensed under
-        the Mozilla Public License 2.0. Turf as a whole, the CLI together with the engine and the MCP
-        server in every release archive and in the Homebrew formula, is licensed under the
+        the Mozilla Public License 2.0, which governs the source and anything you build from it.
+        Turf as it ships, the <code>turf</code>, <code>turf-mcp-server</code>,
+        <code>turf-engine</code>, <code>turf-builtin-provider</code> and <code>turf-ui</code>
+        programs in every release archive, in the Homebrew formula and in the container images, is
+        licensed under the <a href="/license/v1/">Turf Community Edition License 1.0</a>. Every
+        release archive carries the terms as <code>LICENSE</code>, the standard terms they build on
+        as <code>STANDARD-TERMS.md</code>, and the third-party notices as <code>NOTICE</code>.</p>
+    </div>
+  </section>
+
+  <section class="section" id="earlier-releases">
+    <div class="wrap prose">
+      <h2>Releases 1.0 to 1.4</h2>
+      <p>Releases 1.0 to 1.4 remain under the
         <a href="https://polyformproject.org/licenses/noncommercial/1.0.0">PolyForm Noncommercial
-        License 1.0.0</a> (SPDX <code>PolyForm-Noncommercial-1.0.0</code>). The license text ships in
-        every release, with its required notice: Copyright Turf LLC.</p>
+        License 1.0.0</a>, the license they shipped with. The Community Edition terms apply from
+        release 1.5, and each release names the version of the terms that governs it.</p>
     </div>
   </section>
 

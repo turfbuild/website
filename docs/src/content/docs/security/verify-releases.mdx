@@ -1,0 +1,128 @@
+---
+title: Verify a release
+description: Check that a Turf download is the one Turf built. Checksums, signed build provenance, software bills of materials and the vulnerability disposition, with the commands.
+sidebar:
+  order: 1
+---
+
+Every Turf™ release is signed, and the signatures are recorded in the public Sigstore transparency
+log. This page shows how to check a download before you run it, and how to read what it is made of.
+
+Each release on [GitHub](https://github.com/turfbuild/turf/releases) carries:
+
+| File | What it is |
+|---|---|
+| `turf_<tag>_<os>_<arch>.tar.gz` | The release archive: the five binaries, `LICENSE`, `STANDARD-TERMS.md`, `NOTICE` |
+| `turf-mcp-server-<os>_<arch>` and the other server binaries | The same binaries as in the archive, one file each |
+| `<binary>.provenance.sigstore.json`, `.sbom.sigstore.json`, `.vex.sigstore.json` | Signed attestations for that binary |
+| `turf.cdx.json`, `turf-mcp-server.cdx.json` (and `.spdx.json`) | Software bills of materials, CycloneDX and SPDX |
+| `turf-assembly.cdx.json` | One bill of materials that ties the others to the archive |
+| `openvex.json` | The disposition of each known vulnerability |
+| `checksums.txt` | SHA-256 of every file above |
+
+## Checksums
+
+The install script always checks the archive against `checksums.txt`. By hand:
+
+```sh
+shasum -a 256 -c checksums.txt --ignore-missing
+```
+
+A checksum shows the file arrived intact. The signatures below show who built it.
+
+## Build provenance
+
+Two tools, because the release comes from two repositories. The `turf` CLI is open source, and its
+build and the archives are attested through GitHub. The server, the engine and the console are built
+in a private repository, so they are signed with cosign, which anyone can verify.
+
+```sh title="The archive, or the turf binary: GitHub CLI"
+gh attestation verify turf_v1.5.0_linux_amd64.tar.gz --repo turfbuild/turf
+gh attestation verify "$(command -v turf)" --repo turfbuild/turf
+```
+
+```sh title="A server binary: cosign"
+ID='^https://github.com/turfbuild/turf-mcp-server/'
+ISS=https://token.actions.githubusercontent.com
+
+cosign verify-blob-attestation --type slsaprovenance1 \
+  --bundle turf-mcp-server-linux_amd64.provenance.sigstore.json \
+  --certificate-identity-regexp "$ID" --certificate-oidc-issuer "$ISS" \
+  turf-mcp-server-linux_amd64
+```
+
+The same command verifies `turf-engine`, `turf-builtin-provider` and `turf-ui`, each with its own
+bundle. The binaries inside the archive are the same files, so a bundle also verifies the copy you
+unpacked.
+
+The install script does this for you with `--verify`. It stops before installing anything if the
+release does not verify:
+
+```sh
+curl -fsSL https://get.turf.build/install.sh | bash -s -- --verify
+```
+
+It uses `gh` when you are signed in, and cosign otherwise.
+
+## The npm packages
+
+`@turfbuild/turf-mcp-server` and its platform packages are published with npm provenance from the
+`turfbuild/turf` repository's publish workflow. They carry the release's own binaries: the workflow
+checks each one by checksum and signature before it packs them. restate-server is not in Turf's
+packages; it comes from Restate's own, `@restatedev/restate-server`.
+
+## The container image
+
+The image is signed by digest, and carries its provenance, bill of materials and disposition as
+attestations:
+
+```sh
+IMAGE=ghcr.io/turfbuild/turf-mcp-server:v1.5.0
+
+cosign verify "$IMAGE" \
+  --certificate-identity-regexp "$ID" --certificate-oidc-issuer "$ISS"
+
+cosign verify-attestation --type cyclonedx "$IMAGE" \
+  --certificate-identity-regexp "$ID" --certificate-oidc-issuer "$ISS"
+```
+
+To carry the image into a private registry with its signatures, see
+[Air-gapped installation](/docs/security/air-gapped/#images).
+
+## Bills of materials
+
+The bills of materials list every module each binary is built from, with versions and licenses. The
+server's is generated from its module graph. Feed either format to your own scanner:
+
+```sh
+grype sbom:turf-mcp-server.cdx.json
+```
+
+They are signed too. This checks that the bill of materials you hold is the one attested for a binary:
+
+```sh
+cosign verify-blob-attestation --type cyclonedx \
+  --bundle turf-mcp-server-linux_amd64.sbom.sigstore.json \
+  --certificate-identity-regexp "$ID" --certificate-oidc-issuer "$ISS" \
+  turf-mcp-server-linux_amd64
+```
+
+`turf license` prints the license and the third-party notices of the installed release. In the
+archive, `LICENSE` is the Turf Community Edition License, `STANDARD-TERMS.md` is the Common Paper
+standard terms it builds on, and `NOTICE` lists the third-party components and their licenses.
+
+## Vulnerability disposition
+
+`openvex.json` is an [OpenVEX](https://openvex.dev) document. For each known vulnerability in a
+dependency it says whether Turf is affected, not affected, fixed or under investigation, and why. A
+scanner that reads OpenVEX uses it to drop findings that do not apply. Its attestation is the
+`.vex.sigstore.json` bundle, verified as above with `--type openvex`.
+
+Turf scans each release before it is tagged and scans the bill of materials again before signing it.
+A release does not ship with a known high or critical finding that lacks a disposition.
+
+## Report a vulnerability
+
+Write to security@turf.build, or use GitHub's private vulnerability reporting on the affected
+repository. The policy is at
+[turfbuild/.github](https://github.com/turfbuild/.github/blob/main/SECURITY.md).

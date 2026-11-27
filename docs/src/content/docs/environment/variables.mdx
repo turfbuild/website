@@ -2,7 +2,7 @@
 title: Variables and TF_VAR_
 description: Variable values reach Turf through the MCP server, from open and each plan command, TF_VAR_ in its environment and auto-loaded tfvars files. Never from mise.
 sidebar:
-  order: 4
+  order: 5
 ---
 
 Variable values are read by the MCP server, never the engine. Your agent passes them to `open` or to
@@ -38,15 +38,27 @@ definition. Put it in the `env` block:
 {
   "mcpServers": {
     "turf": {
-      "command": "/path/to/turf-mcp-server",
+      "command": "npx",
+      "args": ["-y", "@turfbuild/turf-mcp-server"],
       "env": { "TF_VAR_region": "eu-west-1" }
     }
   }
 }
 ```
 
-Restart your agent's MCP connection after editing it. From the Turf™ CLI, the server has the
-environment of the shell you started `turf` in.
+With a Homebrew or script install the `command` is the server's path, as `command -v turf-mcp-server` prints
+it, with no `args`. Restart your agent's MCP connection after editing the entry. From the Turf™ CLI,
+the server has the environment of the shell you started `turf` in.
+
+The `env` block reaches the server. An engine the server started takes only Turf's own settings
+from it for its own environment. A variable a provider needs, such as `AWS_PROFILE`, goes in the same
+block with `TURF_PROVIDER_ENV` naming it, and the server sends it to the engine with each run: see
+[Send a variable to providers](/docs/environment/provider-environment/).
+
+The same `env` block can carry `TURF_ACCEPT_EULA`, where no one will run the accept command. Setting
+it to `yes` accepts the license terms at `https://turf.build/license/v1/` for that server and an
+engine it starts: see
+[Before the license is accepted](/docs/start/connect/#before-the-license-is-accepted).
 
 - `TF_VAR_` values load on their own, below `.tfvars` files and `var`.
 - They set declared variables only. A `TF_VAR_` for an undeclared variable is ignored.

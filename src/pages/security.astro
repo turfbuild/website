@@ -1,0 +1,119 @@
+---
+import Layout from '../layouts/Layout.astro';
+// Every claim here is documented step by step in the docs' Security group
+// (docs/src/content/docs/security/); a change to what a release carries lands there first.
+const title = 'Turf — Security: self-hosted, signed, and ready for an air gap';
+const description =
+  'Turf runs on your machines and keeps your state and credentials there. Every release is signed, ships a software bill of materials, and installs with no route to the internet.';
+---
+
+<Layout title={title} description={description}>
+  <section class="subhero">
+    <div class="wrap">
+      <p class="eyebrow"><span class="dot"></span> Security</p>
+      <h1>Turf runs inside your boundary.</h1>
+      <p class="lede">Turf™ is self-hosted. The server, the engine and the console run on your
+        machines, and your state, plans and credentials stay there. Every release is signed, lists
+        what it is built from, and installs on a network with no route to the internet.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <h2>Your data stays with you</h2>
+      <div class="prose">
+        <ul>
+          <li><strong>No hosted control plane.</strong> There is no Turf service between you and your
+            infrastructure. The engine runs beside your workloads, with the credentials you give it.</li>
+          <li><strong>No license server and no update check.</strong> Turf runs without calling home
+            for either. You accept the <a href="/licensing/">license terms</a> once, on your own
+            machine, with one command.</li>
+          <li><strong>Telemetry you can read and turn off.</strong> Turf sends anonymous usage counts
+            by default and never resource contents, credentials, state or names. One command turns
+            it off. <a href="/telemetry/">Every field is listed.</a></li>
+          <li><strong>A console only you can open.</strong> The console is read-only and asks for a
+            token. It loads nothing from outside.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section alt">
+    <div class="wrap">
+      <h2>Signed releases, with a bill of materials</h2>
+      <div class="prose">
+        <p>You can check that a download is the one Turf built, and read exactly what is in it.</p>
+        <ul>
+          <li><strong>Signed build provenance</strong> for every binary and for the container image,
+            recorded in the public Sigstore transparency log.</li>
+          <li><strong>A software bill of materials</strong> for each component, in CycloneDX and SPDX,
+            signed with the release.</li>
+          <li><strong>A vulnerability disposition</strong> in OpenVEX: for each known vulnerability in
+            a dependency, whether Turf is affected and why.</li>
+          <li><strong>Scanned before it ships.</strong> Each release is scanned before it is tagged,
+            and its bill of materials is scanned again before it is signed.</li>
+        </ul>
+        <p>The installer verifies the signatures for you with <code>--verify</code>.
+          <a href="/docs/security/verify-releases/">Verify a release</a> has every command.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <h2>Ready for an air gap</h2>
+      <div class="prose">
+        <p>Turf installs and runs with no route to the internet. Mirror the release and the images,
+          serve providers from your own mirror, and set one variable,
+          <code>TURF_OFFLINE=1</code>: Turf then makes no call of its own outside your network.</p>
+        <p><a href="/docs/security/air-gapped/">Air-gapped installation</a> walks through it and
+          lists every host a default installation contacts.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section alt">
+    <div class="wrap">
+      <h2>Every change is approved</h2>
+      <div class="prose">
+        <ul>
+          <li><strong>Approval names the plan.</strong> An approval carries the plan's digest and
+            applies that plan only. A plan that changed is refused.
+            <a href="/docs/concepts/approval/">How approval works.</a></li>
+          <li><strong>Policy reads the plan first.</strong> Your policy tools check each plan before
+            it is applied. <a href="/docs/using/policy/">Policy checks.</a></li>
+          <li><strong>A credential buys only its tier.</strong> A server started at the read, plan or
+            apply tier lists only that tier's tools.
+            <a href="/docs/reference/server/#tiers">Tiers.</a></li>
+          <li><strong>A record of every run.</strong> The console keeps each round's plan, its
+            approver and its result.
+            <a href="/docs/concepts/engine-and-console/">The engine and the console.</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <h2>Mapped to NIST SP 800-53</h2>
+      <div class="prose">
+        <p>For a system security plan, the docs map Turf's capabilities to the NIST SP 800-53 Rev. 5
+          controls an infrastructure tool touches, family by family, with the limits to plan around.
+          <a href="/docs/security/nist-800-53/">Read the control mapping.</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section alt">
+    <div class="wrap">
+      <h2>Report a vulnerability</h2>
+      <div class="prose">
+        <p>Write to <a href="mailto:security@turf.build">security@turf.build</a>, or use GitHub's
+          private vulnerability reporting on the affected repository. We aim to acknowledge a report within
+          three business days. The
+          <a href="https://github.com/turfbuild/.github/blob/main/SECURITY.md">security policy</a>
+          has the details.</p>
+      </div>
+    </div>
+  </section>
+</Layout>

@@ -2,21 +2,21 @@
 import Layout from '../../layouts/Layout.astro';
 import FigureDefs from '../../components/FigureDefs.astro';
 import KagentFigure from '../../components/figures/KagentFigure.astro';
-// The page for *An Agentic Infrastructure Control Plane* (Turf on kagent 1.0). Its lede, the four
+// The page for *Agentic IaC for Platform Teams* (Turf on kagent 1.0). Its lede, the four
 // ideas, the page list, the Run it steps and the marks note are the paper's own words, from
-// headquarters/marketing/launch/refarch-kagent.md (v0.5): the cover, pages 2 to 6, "Run it" and the
+// headquarters/marketing/launch/refarch-kagent.md (v0.9): the cover, pages 2 to 6, "Run it" and the
 // marks paragraph. The figure is the paper's Figure 1. A new version of the paper means re-checking
 // this page against it. See "Papers" in CLAUDE.md.
-const title = 'Turf — An Agentic Infrastructure Control Plane on kagent 1.0';
+const title = 'Turf — Agentic IaC for Platform Teams on kagent 1.0';
 const description =
-  'An Agentic Infrastructure Control Plane, a Turf reference architecture for kagent 1.0: ask in chat, approve the plan, and your cluster provisions it.';
+  'Agentic IaC for Platform Teams, a Turf reference architecture: infrastructure as code on kagent 1.0. Ask in chat, approve the plan, the cluster provisions it.';
 
 const site = 'https://turf.build';
 // Shared through Scarf, which counts the click and redirects to the turf.build copy; the tag
 // tells this page's clicks apart from the paper's other links (CLAUDE.md, "Papers").
-const pdfShared = 'https://get.turf.build/papers/turf-agentic-infrastructure-control-plane.pdf?src=refarch-kagent-page';
-const pdfHosted = `${site}/papers/turf-agentic-infrastructure-control-plane.pdf`;
-const cover = `${site}/papers/turf-agentic-infrastructure-control-plane-cover.jpg`;
+const pdfShared = 'https://get.turf.build/papers/turf-agentic-iac-for-platform-teams.pdf?src=refarch-kagent-page';
+const pdfHosted = `${site}/papers/turf-agentic-iac-for-platform-teams.pdf`;
+const cover = `${site}/papers/turf-agentic-iac-for-platform-teams-cover.jpg`;
 const repoUrl = 'https://github.com/turfbuild/turf-kagent';
 
 // See demo.astro: inlined, not an `@id` reference to the home page's node.
@@ -25,14 +25,15 @@ const jsonLd = [
   {
     '@context': 'https://schema.org',
     '@type': 'TechArticle',
-    '@id': `${site}/reference-architectures/agentic-infrastructure-control-plane/#paper`,
-    name: 'An Agentic Infrastructure Control Plane',
-    headline: 'An Agentic Infrastructure Control Plane',
+    '@id': `${site}/reference-architectures/agentic-iac-for-platform-teams/#paper`,
+    name: 'Agentic IaC for Platform Teams',
+    headline: 'Agentic IaC for Platform Teams',
     alternativeHeadline: 'A reference architecture for Turf on kagent 1.0',
     description,
-    url: `${site}/reference-architectures/agentic-infrastructure-control-plane/`,
+    url: `${site}/reference-architectures/agentic-iac-for-platform-teams/`,
     datePublished: '2026-11-16',
-    version: '0.5',
+    dateModified: '2026-11-18',
+    version: '0.9',
     inLanguage: 'en-US',
     isAccessibleForFree: true,
     author: publisher,
@@ -40,7 +41,7 @@ const jsonLd = [
     image: cover,
     associatedMedia: {
       '@type': 'MediaObject',
-      name: 'An Agentic Infrastructure Control Plane (PDF)',
+      name: 'Agentic IaC for Platform Teams (PDF)',
       contentUrl: pdfHosted,
       encodingFormat: 'application/pdf',
     },
@@ -51,7 +52,7 @@ const jsonLd = [
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Turf', item: `${site}/` },
       { '@type': 'ListItem', position: 2, name: 'Reference architectures', item: `${site}/reference-architectures/` },
-      { '@type': 'ListItem', position: 3, name: 'An Agentic Infrastructure Control Plane' },
+      { '@type': 'ListItem', position: 3, name: 'Agentic IaC for Platform Teams' },
     ],
   },
 ];
@@ -62,7 +63,7 @@ const parts = [
     k: 'The idea',
     chapters: [
       [2, 'The cluster is the control plane'],
-      [3, 'A management cluster that makes clusters'],
+      [3, 'One management cluster, a whole fleet'],
     ],
   },
   {
@@ -87,16 +88,16 @@ const parts = [
   <FigureDefs />
   <section class="subhero">
     <div class="wrap">
-      <p class="eyebrow"><span class="dot"></span> Reference architecture · v0.5 · November 2026</p>
-      <h1>An Agentic Infrastructure Control Plane.</h1>
-      <p class="lede">Turf™ on kagent 1.0. Ask for infrastructure in chat, approve the plan, and your
+      <p class="eyebrow"><span class="dot"></span> Reference architecture · v0.9 · November 2026</p>
+      <h1>Agentic IaC for Platform Teams.</h1>
+      <p class="lede">Infrastructure as code with Turf™ on kagent 1.0. Ask in chat, approve the plan, and your
         cluster provisions it: cloud resources, clusters, anything with a Terraform® provider.
         <strong>The agent plans. A person approves. Only the engine touches the cloud.</strong></p>
       <div class="cta-row">
         <a class="btn primary" href={pdfShared}>Read the PDF</a>
         <a class="btn ghost" href={repoUrl}>The repo on GitHub</a>
       </div>
-      <p class="meta">7 pages · PDF · for platform engineers who run agents on Kubernetes®</p>
+      <p class="meta">7 pages · PDF · runs on kagent 1.0 and Kubernetes®</p>
     </div>
   </section>
 
@@ -106,8 +107,8 @@ const parts = [
         <figure class="cover">
           <a href={pdfShared}>
             <img
-              src="/papers/turf-agentic-infrastructure-control-plane-cover.jpg"
-              alt="The cover of An Agentic Infrastructure Control Plane: the title over a cluster, labelled kagent and Turf, with three arrows out of it to cloud resources, clusters, and anything with a provider."
+              src="/papers/turf-agentic-iac-for-platform-teams-cover.jpg"
+              alt="The cover of Agentic IaC for Platform Teams: the title over a cluster, labelled kagent and Turf, with three arrows out of it to cloud resources, clusters, and anything with a provider."
               width="741"
               height="960"
               loading="lazy"
@@ -117,10 +118,10 @@ const parts = [
         <div class="prose">
           <p class="eyebrow"><span class="dot"></span> How it fits together</p>
           <h2>The cluster is the control plane.</h2>
-          <p>kagent 1.0 runs an agent in your cluster. Turf, an infrastructure-as-code tool built on
-            OpenTofu®, gives that agent Terraform plan and apply as tools. Ask in the kagent chat for
-            infrastructure outside the cluster, and it comes back as a plan for you to approve.</p>
-          <p>The cloud key stays with Turf’s engine. The agent’s sandbox holds no credentials: it can
+          <p>kagent 1.0 runs an agent in your cluster. Turf, an infrastructure-as-code toolset built on
+            OpenTofu®, gives that agent Terraform plan and apply as MCP tools. Ask in the kagent chat for
+            cloud infrastructure, and it comes back as a plan for you to approve.</p>
+          <p>The cloud credentials stay with Turf’s engine. The agent’s sandbox holds none: it can
             propose a plan, which waits for a person, and afterwards fetch a public URL to check the
             result.</p>
         </div>
@@ -128,7 +129,7 @@ const parts = [
       <div class="figwide planefig">
         <KagentFigure />
         <p class="figcap"><b>What runs where.</b> A person asks and approves in the kagent UI. The agent
-          plans through Turf’s MCP server. The engine applies, with the key, to what is outside the
+          plans through Turf’s MCP server. The engine applies, with the credentials, to what is outside the
           cluster, and the agent then fetches the public URLs of what it built.</p>
       </div>
     </div>
@@ -143,11 +144,14 @@ const parts = [
       <div class="beats two">
         <div class="beat">
           <span class="k">01 · What it is for</span>
-          <h3>A management cluster that makes clusters.</h3>
-          <p>Cluster API works this way: a management cluster makes workload clusters. Here the
-            workload cluster is a Terraform module. Turf plans the cluster first, then plans Argo CD in
-            a second round of the same run, and Argo CD syncs the addons and workloads from Git.
-            Making the cluster, and every change after, is a plan a person approves.</p>
+          <h3>One management cluster, a whole fleet.</h3>
+          <p>One management cluster makes a fleet of workload clusters and keeps watch over it. The
+            layout is familiar from Cluster API; Turf builds it with Terraform modules and Terraform
+            providers instead. Each cluster is a stack made from a Terraform module, and the module
+            decides who manages what runs in it: Argo CD, syncing addons and workloads from Git;
+            Turf, with both as Terraform resources; or a Turf of the cluster’s own. With drift
+            detection on, Turf watches what it manages: when something drifts, a watching agent gets
+            a notice and proposes a plan, approved like any other.</p>
         </div>
         <div class="beat">
           <span class="k">02 · A change, start to finish</span>
@@ -210,12 +214,12 @@ const parts = [
 <span class="ps1">$</span> ./setup/up.sh          <span class="cm"># kagent, Turf and the agent</span></pre>
       </div>
       <p>Then open the kagent UI, pick the agent <code>turf</code>, and ask it for a fleet as a stack
-        called demo. Approve the plan, then the agent’s report of what each URL answered. Destroy the
+        called demo. Approve the plan, and the request that follows the agent’s check. Destroy the
         stacks before you delete the cluster: the functions are outside it.
         <a href="/docs/cluster/example-kagent/">The walkthrough in the docs</a> has each step.</p>
-      <p>Turf is available now, as a download. No form, no login. Free for noncommercial use;
-        commercial use, including a company’s internal use, requires a license, and companies evaluate
-        Turf under a free pilot.</p>
+      <p>Turf is available now, as a download. No form, no login. Free for individuals, education
+        and small businesses within the Community limits. Government and larger organizations need
+        a commercial license, and any organization can evaluate Turf in non-production for 30 days.</p>
       <p class="ctas">
         <a class="btn primary" href={pdfShared}>Read the PDF</a>
         <a class="btn ghost" href="/get-started/">Get started</a>
@@ -229,9 +233,10 @@ const parts = [
 
       <p class="legal-note">Kubernetes® and Helm® are registered trademarks, and Knative and Argo
         trademarks, of the Linux Foundation. OpenTofu® is a registered trademark of LF Projects, LLC. Amazon Web Services, AWS, AWS Lambda and Amazon EKS are
-        trademarks of Amazon.com, Inc. or its affiliates. kagent is a Cloud Native Computing Foundation
+        trademarks of Amazon.com, Inc. or its affiliates. GKE is a trademark of Google LLC, and Azure, as in
+        Azure Kubernetes Service (AKS), of the Microsoft group of companies. kagent is a Cloud Native Computing Foundation
         project. Turf is not affiliated with, endorsed by, or sponsored by HashiCorp, IBM, the Linux
-        Foundation, the OpenTofu project, Amazon, Solo.io or Restate; every mark is used only to describe
+        Foundation, the OpenTofu project, Amazon, Google, Microsoft, Solo.io or Restate; every mark is used only to describe
         interoperability. All other marks belong to their owners.</p>
     </div>
   </section>

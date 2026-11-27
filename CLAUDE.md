@@ -52,8 +52,8 @@ gates the Google Analytics tag behind `import.meta.env.PROD` (so dev never sends
 `banner` slot, rendered above `TopNav`: only home fills it, with `components/Announcement.astro`: the
 *Metal to Tokens* strip until the 1.0 release (10/16; from 10/18 it linked `/reference-architectures/`),
 the Turf 1.0 strip linking `/engine/` from the release on (launch plan §8), and since 2026-11-07 the
-current release's strip (Turf 1.4: the console, planfiles, permission tiers) linking its notes at
-`/docs/releases/1-4/`; move it with each release.
+current release's strip (Turf 1.5: the Community Edition) linking its notes at
+`/docs/releases/1-5/`; move it with each release.
 
 Pages pass four props, all optional: `title`, `description`, `noindex`, `jsonLd`.
 - **`noindex`** emits `robots: noindex,follow` *and* suppresses `canonical`/`og:url` — only `404.astro`
@@ -66,8 +66,9 @@ Pages pass four props, all optional: `title`, `description`, `noindex`, `jsonLd`
   `BreadcrumbList`, each paper's page is a `TechArticle` whose `associatedMedia` is the PDF, and the
   index of papers is a `CollectionPage`.
   The `SoftwareApplication` node **deliberately omits `offers`** — a `price: 0` would assert the
-  product is free for everyone, when commercial use is licensed (`/pricing/`, `/licensing/`); its
-  `license` points at `/licensing/` instead. Don't add an offer.
+  product is free for everyone, when government, larger organizations and use beyond the Community
+  limits are licensed (`/pricing/`, `/licensing/`); its `license` points at the terms themselves,
+  `/license/v1/`, instead. Don't add an offer.
 - **Titles stay Turf-leading (`Turf — …`)** — reaffirmed 2026-08-25 — but must earn the full SERP
   budget: aim 50-60 characters and put query terms after the dash (`Turf — Get started: install the
   CLI and MCP server`, not `Turf — Get started`). **Descriptions run 140-158 characters, plain text**
@@ -153,7 +154,7 @@ carry Figure 1 (StackFigure), Figure 8 (ShellVsTurfFigure) and Figure 9 (FleetFi
 `headquarters/marketing/launch/refarch-neocloud.html`, plus five drawn in the same grammar
 (FanOutFigure, InstallerFigure, OpsEnvFigure, and WhyEngine's EngineMapFigure and
 RunTimelineFigure, whose lanes follow the console's grammar), PipelineFigure (Figure 1 of *Pull
-Request to Production*) and KagentFigure (Figure 1 of *An Agentic Infrastructure Control Plane*,
+Request to Production*) and KagentFigure (Figure 1 of *Agentic IaC for Platform Teams*,
 `headquarters/marketing/launch/refarch-kagent.html`: what runs where, with the loop as five numbered
 steps; its text sizes are the paper's, set inline, and the two labels that named the paper's pages
 are reworded), and two for continuous drift detection: DriftFigure
@@ -307,8 +308,9 @@ while the neocloud PDF was marked — source of truth: the Marks section of
 **Tone.** No lean-startup vocabulary in public copy — in particular avoid "pain" / "pain point". Do not
 imply existing customers, pilots, partners, or a team the company doesn't have: seeking pilot users
 is fine, naming one is not. Since 2026-10-14 the launch is Turf 1.0, "available now": never "beta",
-"alpha", "design partner", "evaluation license", "on request" or "waitlist" in copy, and the license
-terms are those of `headquarters/marketing/licensing.md` (launch plan §4). Page `<title>`s are
+"alpha", "design partner", "evaluation license", "on request" or "waitlist" in copy (the 30-day
+"evaluation" of the 1.5 terms is fine; an "evaluation license" is not a thing we offer), and the
+license terms are stated where "Content provenance" below says, nowhere else. Page `<title>`s are
 Turf-leading (`Turf — …`).
 
 **Locked messaging.** The hero headline is "**One tool, from metal to workload, at fleet scale.**"
@@ -345,7 +347,8 @@ starts. Treat the headline as fixed unless the user reopens it.
   (`/fonts/…`, `/demos/….mp4`) and anchors (`/#product`) must *not* get one.
 - **Stable off-site URLs are Astro `redirects`** in `astro.config.mjs`: `/discord/` and `/feedback/`
   go to the Discord invite (`DISCORD_INVITE`, the only place it lives: rotate it there, never in a
-  page), `/newsletter/` to `buttondown.com/turf`. The static build emits a meta-refresh page per
+  page), `/newsletter/` to `buttondown.com/turf`. `/license/` redirects to the current version of
+  the license terms, `/license/v1/`. The static build emits a meta-refresh page per
   route and the sitemap `filter` keeps them out. READMEs, the papers and the turf CLI print the
   `turf.build/...` form, never the invite. `pages/community.astro` is the channel map (Discord for
   questions and ideas, GitHub Issues for bugs and feature requests, the newsletter, email); its copy
@@ -384,9 +387,12 @@ starts. Treat the headline as fixed unless the user reopens it.
   `pages/reference-architectures/pull-request-to-production.astro`, `public/papers/turf-pull-request-to-production.pdf`
   and `-cover.jpg`, text of record `headquarters/marketing/launch/refarch-cicd.md`, download tag
   `?src=refarch-cicd-page`; the paper pages cross-link in an "Also" line.
-  The third, *An Agentic Infrastructure Control Plane* (2026-11-16, Turf on kagent 1.0), is
-  `pages/reference-architectures/agentic-infrastructure-control-plane.astro`,
-  `public/papers/turf-agentic-infrastructure-control-plane.pdf` and `-cover.jpg`, text of record
+  The third, *Agentic IaC for Platform Teams* (2026-11-16, Turf on kagent 1.0; until v0.6 it was
+  *An Agentic Infrastructure Control Plane* at `/reference-architectures/agentic-infrastructure-control-plane/`,
+  which is now an entry in `REDIRECTS`, and `public/papers/turf-agentic-infrastructure-control-plane.pdf`
+  is a symlink to the renamed PDF: never delete either), is
+  `pages/reference-architectures/agentic-iac-for-platform-teams.astro`,
+  `public/papers/turf-agentic-iac-for-platform-teams.pdf` and `-cover.jpg`, text of record
   `headquarters/marketing/launch/refarch-kagent.md`, download tag `?src=refarch-kagent-page`; its page
   carries the paper's Figure 1 (KagentFigure) and the Run it commands, which must match the
   turf-kagent README.
@@ -479,26 +485,89 @@ doc changes first and this page second. It is a disclosure, so it names restate-
 (launch plan §4.2, decided 2026-10-16). It promises no retention period, because Scarf's terms
 and DPA set none.
 
-`pages/licensing.astro` and `pages/pricing.astro` draw every sentence from
-`headquarters/marketing/licensing.md` ("Copy to publish" and "Who gets what"): PolyForm Noncommercial
-1.0.0, the Common Paper Pilot Agreement (free, 60 days) and Software License Agreement (the 1.1
-Standard Terms are linked), one binary, no license key, `licensing@turf.build`. The license sentence
-and the telemetry sentence are byte-identical to that document's (a launch hard line), and there are
-no prices (launch plan D20). The "Source" section mirrors turf's README License section (the CLI's
-source is MPL-2.0; Turf as a whole is PolyForm). Change the document first, then the page. The pilot
-band on home (`components/Partner.astro`) and `/contact/` repeat those sentences.
+**The license terms have a single source** (since release 1.5, 2026-11-23). From 1.5 Turf ships
+under the Turf Community Edition License 1.0, a public cover page on the Common Paper Software
+License Agreement Standard Terms 1.1, accepted by an explicit act (`turf license accept`, the CLI's
+first-run prompt, or `TURF_ACCEPT_EULA=yes`).
+- **The text** is `src/content/license/v1.md`: byte for byte the `LICENSE` file every release
+  archive ships. `pages/license/v1.astro` renders it at `/license/v1/` and fails the build if the
+  rendered words differ from the file's (which is also why `astro.config.mjs` turns smart
+  punctuation off). Never retype, reword or reflow the terms; replace the file with the shipped one.
+  A version of the terms never changes at its URL: a new version is a new file, a new page
+  (`/license/v2/`), a new `WEIGHTS` row, and the `/license` redirect moved to it.
+- **The plain-words summary** is `pages/licensing.astro` (`/licensing/`): who uses Turf free, the
+  Community limits, the 30-day evaluation, the pilot, commercial licenses, how to accept, and that
+  releases 1.0 to 1.4 remain under the PolyForm Noncommercial License 1.0.0. Every rule on it comes
+  from the text; change the text first, then the page.
+- **The limits' numbers** (workspaces, resources, GPUs, the small-business thresholds, the 30 and 90
+  days) appear on those two pages only; the docs install page (`docs/…/start/install.mdx`) may
+  carry them if it ever needs to, and today it links instead. Every other surface uses the license
+  line and links: "Turf is free for individuals, education and small businesses within the
+  Community limits, under the Turf Community Edition License 1.0. Government and larger
+  organizations need a commercial license, and any organization can evaluate Turf in non-production
+  for 30 days." Its short form drops the license's name or the evaluation clause; the words do not
+  otherwise vary. It is in both footers, the announcement strip, the pilot band
+  (`components/Partner.astro`), `/get-started/`, `/engine/`, `/contact/`, the papers index and the
+  three paper pages, `public/llms.txt`, the docs install and CLI overview pages, and release 1.5's
+  notes.
+- **The notice** that the binaries, the installer and the MCP server print is fixed, word for word
+  (line breaks may follow the medium): "Turf is proprietary software. To accept the Turf license
+  terms (version 1.0, https://turf.build/license/v1/), run `turf license accept` or set
+  TURF_ACCEPT_EULA=yes. Free for individuals, education and small businesses within the Community
+  limits. Government and larger organizations need a commercial license." The docs quote it where
+  a reader meets it (`start/connect.mdx`, `cli/troubleshooting.md`); `public/install.sh` prints it.
+- **Never write copy that accepts for the reader.** No install command, client configuration or
+  manifest shows `TURF_ACCEPT_EULA=yes` without the sentence beside it saying that setting it
+  accepts the terms at https://turf.build/license/v1/; a Kubernetes manifest shows the `env` entry
+  commented out, with that explanation.
+- **Still true, still said**: one binary, no license key, "No license server and no update check"
+  (`/security/`, the air-gapped page). Never call Turf as a whole "open source": the `turf` CLI's
+  source is open under MPL-2.0, and Turf as it ships is proprietary. **No prices** anywhere, and
+  `/pricing/` names no paid plan. The Common Paper Pilot Agreement (free, 60 days) and the
+  commercial Software License Agreement paragraphs and `licensing@turf.build` are as they were
+  before 1.5, and the telemetry sentence stays byte-identical to
+  `headquarters/marketing/licensing.md`'s (a launch hard line).
+- **Release pages 1.0 to 1.4 keep their published license line** (PolyForm Noncommercial 1.0.0):
+  that was their license. "PolyForm" appears there and in the "Releases 1.0 to 1.4" section of
+  `/licensing/`, and nowhere else on the site.
+
 `/get-started/` is the download page (launch plan D22, closed 2026-10-18; there is no `/download/`
-route, and posts and listings link `/get-started/`), so it prints that document's announcement
-line ("Turf is free for noncommercial use under PolyForm Noncommercial 1.0.0. Companies can evaluate
-Turf free for 60 days and license it for production at turf.build/licensing.") beside the install,
-above the telemetry sentence: a download surface carries both (launch plan §4.2).
+route, and posts and listings link `/get-started/`), so its install flow carries the telemetry
+sentence in step 1 and the acceptance step as step 2, with the license line.
+
+**The install copy is npx-first** (since release 1.5, 2026-11-26). The lead line on every surface
+(the hero and the footer band, `/get-started/` step 1, the docs install and connect pages,
+`public/llms.txt`, release 1.5's notes) is `npx add-mcp@2 @turfbuild/turf-mcp-server --name turf -g`,
+with its note, "the first start downloads Turf: about a minute"; accepting without the CLI is
+`npx -y @turfbuild/turf-mcp-server license accept`. Homebrew comes second, described by what it adds
+(the `turf` CLI and an engine that starts at login), with `brew services start turf` as an optional
+last line; the install script is third. Those lines, the four client commands and the JSON entry are
+the same bytes wherever they appear. Keep `@2`, never show add-mcp's own `-y` (`npx -y` is npm's),
+and say "macOS or Linux" with no Windows claim either way. The server starts the engine when a tool
+first needs it: never write that the Homebrew service is required or that the server never starts
+the engine, and never imply provider credentials need no setup: point at
+`docs/…/environment/provider-environment.mdx` (an engine the server started has a small fixed
+environment; credentials in their usual files need nothing set; a variable a provider needs goes in
+the `env` of Turf's entry with `TURF_PROVIDER_ENV` naming it, and the server sends it with each run;
+a configuration's own settings go in its `mise.local.toml`; `turf.env` is for what the engine
+itself needs). Never write that an entry's `env` does not reach providers, and never show a secret
+on the `--provider-env` flag. An engine setting
+passed through an agent's entry (`DO_NOT_TRACK=1`, `TURF_MISE=off`, …) takes three steps, and a page
+that gives the setting gives all three or links them: the `env` of Turf's entry in each agent that
+has one, reconnect the agent, then `engine stop`. On `/get-started/` the telemetry sentence stays
+byte-identical to `headquarters/marketing/licensing.md`'s (the launch hard line), and the npx
+reader's way is its own paragraph after it, with the steps at `/telemetry/`. A command given to an
+npx reader is spelled `npx -y @turfbuild/turf-mcp-server …`;
+`turf console`, `turf login` and `turf telemetry off` come with the CLI (Homebrew or the script).
+The behaviour of record is turf-mcp-server's README. In the docs, the tabs that depend on the install share
+`syncKey="install"` and the labels `npx`, `Homebrew`, `One script`.
 
 `pages/engine.astro` is the Turf 1.0 announcement (launch plan §3, §8). Its sources, in order: the
 launch paragraph and the two-layer frame from `headquarters/marketing/launch-plan.md` §1 and §3;
 the ten engine points and the three-ecosystems chapter of *Metal to Tokens* (`refarch-neocloud.md`,
 "The Turf engine" and chapter 9, whose counts are the paper's, dated October 2026); the 1.0
 acceptance pass (`headquarters/research/rc1-acceptance-2026-10-17.md`) for "What's in 1.0"; and
-`licensing.md`'s announcement line, byte for byte, under the CTAs. The headline is launch plan D2's
+the license line (see above) under the CTAs. The headline is launch plan D2's
 first candidate ("Turf 1.0 is available now."). The NVIDIA quotation is AICR's README ("Not a cluster
 provisioner or lifecycle management system"), so the page carries the NVIDIA marks note. Its
 `TechArticle`'s `datePublished` is 2026-10-18, the day the release and the page went live. Home's
@@ -522,8 +591,9 @@ so change it when they change:
   CI); bump them together, from the `.sha256` files on Restate's GitHub release;
 - `resolve_telemetry` is doof's `telemetryconf.Resolve`, and the `engine status` lines it reads
   come from doof's `cmd/turf-mcp-server/engine.go`;
-- its license and telemetry sentences come from `headquarters/marketing/licensing.md`. It names
-  restate-server, as install surfaces may (launch plan §4.2, D18).
+- its license lines (the comment and `header()`) are the notice above, word for word; its telemetry
+  sentences come from `headquarters/marketing/licensing.md`. It names restate-server, as install
+  surfaces may (launch plan §4.2, D18).
 
 `pages/demo.astro` mirrors the kind-crd example at `turfbuild/turf-examples`; the round labels and
 changes shown in the HCL diagram are exactly what `turf up` computes, so they must be re-checked

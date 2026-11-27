@@ -95,6 +95,38 @@ applied. Fix the cause (the configuration, a missing `var`, a provider's credent
 again. There is no `-target`: to go ahead while one resource stays broken, the configuration has to stop
 declaring it, and the agent asks before editing your files that way.
 
+## A provider finds no credentials
+
+*"No valid credential sources found"*, *"failed to get shared config profile"* and messages like them
+usually mean the provider wants a variable (`AWS_PROFILE`, `KUBECONFIG`,
+`GOOGLE_APPLICATION_CREDENTIALS`) that your shell or agent holds and nothing has named for providers.
+Providers run in the engine. They get its environment and the provider environment, the variables the
+server sends by name, not your whole session.
+
+Ask the agent for `status` and look at `provider_env`. It shows names only, never a value.
+
+- **The variable is not in `names`**, or there is no `provider_env`: add two lines to the `env` of
+  Turf's entry in your agent, restart the agent, and run `up` again.
+
+  ```json
+  "env": {
+    "AWS_PROFILE": "prod",
+    "TURF_PROVIDER_ENV": "AWS_PROFILE"
+  }
+  ```
+
+- **The variable is under `unset`**: it is named, but the server's environment does not hold it. Set
+  it in the entry's `env` too.
+- **The variable is in `names`**, and in the failed run's `provider_env_names`: the provider got it. Look at what the value names where the engine
+  runs (a profile, a file's path), and at the configuration's mise environment and the provider's
+  arguments in HCL, which win over it.
+
+A command that is not found (*"executable file not found in $PATH"*) is never fixed this way: `PATH`
+is not sent. That is the engine's own environment, or mise:
+[The engine's environment](/docs/environment/engine-environment/).
+
+More in [Send a variable to providers](/docs/environment/provider-environment/).
+
 ## `stale`, `stalled` and `exhausted`
 
 - **`stale`**: the configuration changed, or no longer loads, between the plan and the apply. Nothing
@@ -122,10 +154,12 @@ at an approval point ends `cancelled`, with the upgrade as the cause; `apply` on
 One in the middle of an apply finishes what is in flight, and its round ends `partial`. Everything
 applied is kept: run `up` again, and `plan` plans what remains.
 
-After upgrading the binaries, two messages say what to restart:
+After a minor upgrade, two messages say what to restart:
 
-- *"a Turf engine X is running for this user, and this server is Y"* with an older engine: restart it,
-  `brew services restart turf`.
+- *"a Turf engine X is running for this user, and this server is Y"* with an older engine: restart
+  the engine, as the message says. For one a server started, `turf-mcp-server engine stop`
+  (`npx -y @turfbuild/turf-mcp-server engine stop` with the npx install), and the next call starts
+  the new one. For the Homebrew service, `brew services restart turf`.
 - The same message with a newer engine: the MCP server is the old one. Start the client again; in Claude
   Code, reconnect turf with `/mcp`.
 
@@ -154,9 +188,36 @@ its `convergence_id` takes it up: at `awaiting_plan`, `plan`; otherwise `apply`.
 
 ## The engine
 
-*"the local Turf engine is not running"*: start it with `brew services start turf`, or
-`turf-mcp-server engine run` in a terminal. The agent asks before running either itself. Once it runs,
-call again: nothing needs reconnecting. `init`, the provider tools and the skills work without it.
+The server starts the engine when a tool first needs it, so these messages say why it has not:
+
+- *"the local Turf engine is still starting"*: the server started it for this call, and it did not
+  answer within 90 seconds. It goes on starting: call again in a moment.
+- *"the local Turf engine is not running, and …"*, or *"the local Turf engine did not start"*: the
+  message names the reason. `TURF_ENGINE_AUTOSTART=off` leaves the start to you:
+  `brew services start turf`, or `turf-mcp-server engine run` in a terminal; the agent asks before
+  running either itself. A server in a container needs an engine named by `TURF_RESTATE_URL`. A
+  missing `restate-server` or `turf-engine` is named with where the server looked. A start that
+  failed shows the end of `~/.turf/engine/supervisor.log`.
+- *"the local Turf engine is waiting for Turf's license terms to be accepted"*: accept them
+  ([Accept the license](/docs/start/install/#accept-the-license)); it starts within seconds.
+
+Once it is fixed, call again: nothing needs reconnecting. `init`, the provider tools and the skills
+work without the engine.
+
+**The first start with npx.** Whichever npx command runs Turf first downloads it, which takes about
+a minute. When that is your client starting the server, a client that waits 30 seconds may give up:
+reconnect once.
+
+**See or stop the engine.**
+
+```sh
+npx -y @turfbuild/turf-mcp-server engine status
+npx -y @turfbuild/turf-mcp-server engine stop
+```
+
+With Homebrew or the script, the same commands are `turf-mcp-server engine status` and
+`turf-mcp-server engine stop`. After `engine stop`, the next call that needs the engine starts it
+again.
 
 ## Locks
 

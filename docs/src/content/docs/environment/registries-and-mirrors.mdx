@@ -2,7 +2,7 @@
 title: State backend, registries and mirrors
 description: Backend credentials go in the MCP server's environment. Registry tokens and provider mirrors must reach both the server and the engine, read once at start.
 sidebar:
-  order: 5
+  order: 6
 ---
 
 
@@ -19,19 +19,25 @@ server's environment, plus `open`'s `backend_config`.
   credentials.
 - Put a secret in `open`'s `backend_config`, never in the block.
 - Set the backend's environment in your MCP client's `env` block, beside any
-  [`TF_VAR_`](/docs/environment/variables/). Providers do not see it: they read the
-  [engine's environment](/docs/environment/engine-environment/).
+  [`TF_VAR_`](/docs/environment/variables/). Providers see none of it unless `TURF_PROVIDER_ENV`
+  names it: see [Send a variable to providers](/docs/environment/provider-environment/).
 
 ```json title="An S3 backend's profile, in the server's definition"
 {
   "mcpServers": {
     "turf": {
-      "command": "/path/to/turf-mcp-server",
+      "command": "npx",
+      "args": ["-y", "@turfbuild/turf-mcp-server"],
       "env": { "AWS_PROFILE": "tfstate" }
     }
   }
 }
 ```
+
+With a Homebrew or script install the `command` is the server's path, as `command -v turf-mcp-server` prints
+it, with no `args`. This `AWS_PROFILE` is the backend's alone, unless `TURF_PROVIDER_ENV` also names
+it. When the backend and the providers need different profiles, send the providers' as a fixed value,
+`"TURF_PROVIDER_ENV": "AWS_PROFILE=prod"`, or set the provider's `profile` argument.
 
 ## Registry and `remote` backend tokens
 
@@ -40,10 +46,14 @@ authenticate with a token for their host. Two ways:
 
 - **`turf login <host>`**, the simplest. Like `tofu login`, it writes the token to
   `~/.terraform.d/credentials.tfrc.json`, which the server and the engine both read. A co-installed
-  `tofu` or `terraform` reads it too.
+  `tofu` or `terraform` reads it too. `turf login` is a command of the `turf` CLI, which comes with
+  Homebrew or the script; the npx install does not carry it.
 - **`TF_TOKEN_<host>`**, with the host's dots as underscores (`TF_TOKEN_app_terraform_io`). It works
   per process: the server's environment for the `remote` backend and `init`'s installs, the engine's
-  for the installs a plan makes. Set it in both, or use the credentials file.
+  own for the installs a plan makes. Set it in both, or use the credentials file. An engine the server
+  started gets no `TF_TOKEN_` variable, so for its installs the token must be in the credentials
+  file. Naming it in `TURF_PROVIDER_ENV` does not help: the variables the server sends reach
+  providers, not the engine's own installs.
 
 ```sh
 turf login app.terraform.io
@@ -76,22 +86,28 @@ provider_installation {
 }
 ```
 
-A `filesystem_mirror` takes a `path`; make it absolute, since the service has no working directory of
-yours.
+A `filesystem_mirror` takes a `path`; make it absolute, since the engine has no working directory of
+yours. [Air-gapped installation](/docs/security/air-gapped/) covers the rest of a network with no
+route to the internet.
 
 **The server and the engine must read the same block.** The server reads it for `init` and
 `provider_describe`, the engine for a plan's installs, and the engine checks what `init` locked.
 
-- For the local service, use `~/.tofurc`, or set `TF_CLI_CONFIG_FILE` in `turf.env` and in your
+- For an engine the server started, use `~/.tofurc`, or set `TF_CLI_CONFIG_FILE` in your agent's
+  server definition: the server hands it to the engine it starts.
+- For the Homebrew service, use `~/.tofurc`, or set `TF_CLI_CONFIG_FILE` in `turf.env` and in your
   agent's server definition.
 - In a cluster, mount one ConfigMap on both.
 
 **Each reads it once, at start.** After an edit, restart both:
 
 ```sh
-brew services restart turf
+turf-mcp-server engine stop     # an engine the server started; the next call starts it again
+brew services restart turf      # the Homebrew service
 # then restart your agent's MCP connection
 ```
+
+With the npx install, the first line is `npx -y @turfbuild/turf-mcp-server engine stop`.
 
 A CLI configuration in error stops either process from starting, where `tofu` warns and carries on.
 Turf™ stops because carrying on would install from the public registry what you meant to take from

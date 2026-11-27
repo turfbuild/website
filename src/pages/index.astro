@@ -21,9 +21,10 @@ const site = 'https://turf.build';
 // so crawlers read them as one graph rather than three unrelated entities.
 //
 // SoftwareApplication deliberately carries NO `offers` node: a price of 0 would
-// assert the product is free for everyone, when commercial use is licensed
-// (/pricing/, /licensing/). Its `license` points at /licensing/ instead. Don't
-// "fix" this by adding an offer.
+// assert the product is free for everyone, when government, larger organizations
+// and use beyond the Community limits are licensed (/pricing/, /licensing/). Its
+// `license` points at the terms themselves, /license/v1/, instead. Don't "fix"
+// this by adding an offer.
 const jsonLd = [
   {
     '@context': 'https://schema.org',
@@ -60,9 +61,9 @@ const jsonLd = [
     url: `${site}/`,
     downloadUrl: `${site}/get-started/`,
     softwareHelp: `${site}/docs/`,
-    license: `${site}/licensing/`,
-    softwareVersion: '1.4.0',
-    releaseNotes: `${site}/docs/releases/1-4/`,
+    license: `${site}/license/v1/`,
+    softwareVersion: '1.5.0',
+    releaseNotes: `${site}/docs/releases/1-5/`,
     description:
       'Turf is a new engine for infrastructure as code, built on OpenTofu and exposed to AI agents as an MCP server. It plans the whole stack as standard Terraform, resources and actions in one plan, and converges it in rounds; every change is a Terraform plan, approved before it runs.',
     featureList: [
