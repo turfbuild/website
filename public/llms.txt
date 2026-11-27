@@ -19,9 +19,12 @@ the agent as a drift notice (`watch`, `status`, the console, a webhook). A senso
 changes in a Kubernetes® cluster as they happen is coming soon. The agent remediates,
 adopts or suppresses; the fix is a plan that reads only what drifted and is approved like any
 other. The engine detects and notifies, and never applies on its own. The engine and its MCP server (`turf-mcp-server`) are the product. Install it and connect
-it to your agent in one command: `npx add-mcp@2 @turfbuild/turf-mcp-server --name turf -g` (Node 18
-or later; macOS or Linux, arm64 or x64). npm brings the server and its engine, and the engine starts
-when a tool first needs it; the first start downloads Turf, about a minute. Homebrew adds the
+it to your agent in two commands, after reading the license terms
+(https://turf.build/license/v1/): `npx -y @turfbuild/turf-mcp-server license accept` downloads Turf
+in the terminal (about a minute) and records the acceptance once, then
+`npx add-mcp@2 @turfbuild/turf-mcp-server --name turf -g` registers the server with the agents on
+the machine (Node 18 or later; macOS or Linux, arm64 or x64). npm brings the server and its engine,
+and the engine starts when a tool first needs it, quickly once the download is done. Homebrew adds the
 standalone CLI agent (`turf`), run with your own model key, and an engine that starts at login:
 `brew install restatedev/tap/restate-server turfbuild/tap/turf`, then
 `npx add-mcp@2 "$(command -v turf-mcp-server)" --name turf -g`.

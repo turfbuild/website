@@ -22,7 +22,10 @@ import StackBuild from './StackBuild.astro';
         <a class="btn ghost" href="/docs/">Read the docs</a>
         <a class="btn ghost" href="/licensing/#pilot">Pilot program</a>
       </div>
-      <div class="install"><span class="ps1">$</span> npx add-mcp@2 @turfbuild/turf-mcp-server --name turf -g</div>
+      <div class="install lines">
+        <div><span class="ps1">$</span> npx -y @turfbuild/turf-mcp-server license accept</div>
+        <div><span class="ps1">$</span> npx add-mcp@2 @turfbuild/turf-mcp-server --name turf -g</div>
+      </div>
       <div class="trust">
         <span class="chip mcp"><span class="sw"></span>Claude Code, Cursor, Codex &amp; any MCP client</span>
         <span class="chip tf"><span class="sw"></span>Terraform HCL &amp; modules</span>

@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 const title = 'Turf — Get started: add the Turf MCP server to your agent';
-const description = 'Add Turf to Claude Code, Cursor, Codex or any MCP client with one npx command, accept the license once, and deploy a first stack from your agent.';
+const description = 'Download Turf and accept its license in one npx command, add it to Claude Code, Cursor, Codex or any MCP client with a second, then deploy from your agent.';
 ---
 
 <Layout title={title} description={description}>
@@ -9,29 +9,38 @@ const description = 'Add Turf to Claude Code, Cursor, Codex or any MCP client wi
     <div class="wrap">
       <p class="eyebrow"><span class="dot"></span> Get started · Turf 1.5</p>
       <h1>Install Turf and connect it to your agent.</h1>
-      <p class="lede">One command adds the Turf™ MCP server to Claude Code, Claude Desktop, Cursor,
-        Codex, Gemini CLI or VS Code, and npm brings the server and its engine. In Claude Code and
-        Claude Desktop, Turf runs on your Claude subscription — no model API key.</p>
+      <p class="lede">Two commands: the first downloads Turf™ and accepts its license, the second
+        adds the MCP server to Claude Code, Claude Desktop, Cursor, Codex, Gemini CLI or VS Code. In
+        Claude Code and Claude Desktop, Turf runs on your Claude subscription — no model API key.</p>
     </div>
   </section>
 
   <section class="section">
     <div class="wrap prose">
-      <h2 id="connect">1 · Connect your agent</h2>
-      <p>One command adds Turf to the agents on this machine.</p>
+      <h2 id="connect">1 · Install and connect your agent</h2>
+      <p>Turf is free for individuals, education and small businesses within the Community limits,
+        under the Turf Community Edition License 1.0. Government and larger organizations need a
+        commercial license, and any organization can evaluate Turf in non-production for 30 days:
+        <a href="/licensing/">turf.build/licensing</a>.</p>
+      <p>Read the terms at <a href="/license/v1/">turf.build/license/v1</a> first: the first line
+        accepts them.</p>
       <div class="codeblock">
-        <div class="cb-head"><span>Add Turf to your agents</span></div>
-<pre><span class="ps1">$</span> npx add-mcp@2 @turfbuild/turf-mcp-server --name turf -g
-<span class="cm"># the first start downloads Turf: about a minute</span></pre>
+        <div class="cb-head"><span>Install Turf and add it to your agents</span></div>
+<pre><span class="ps1">$</span> npx -y @turfbuild/turf-mcp-server license accept   <span class="cm"># downloads Turf, about a minute, and accepts the terms</span>
+<span class="ps1">$</span> npx add-mcp@2 @turfbuild/turf-mcp-server --name turf -g</pre>
       </div>
+      <p>The first line downloads Turf here, in your terminal, which takes about a minute, and
+        records your acceptance once, in <code>~/.turf/license.json</code>. The second adds Turf to
+        the agents on this machine. Your agent's first start is then quick.</p>
       <p>It needs Node 18 or later, on macOS or Linux, arm64 or x64.</p>
-      <p>The command runs <a href="https://github.com/neon-solutions/add-mcp">add-mcp</a>, Neon's
+      <p>The second line runs <a href="https://github.com/neon-solutions/add-mcp">add-mcp</a>, Neon's
         open-source installer. It finds the agents you have installed, asks which ones to add Turf
         to, and writes each one's config; running it again replaces the entry. Restart Claude Desktop
         or Cursor after the config changes.</p>
-      <p>There is nothing else to install. npm brings the server and its engine the first time Turf
-        runs, and the engine starts when your agent first needs it. If your client gives up waiting
-        on that first start, reconnect once; later starts take several seconds.</p>
+      <p>There is nothing else to install. npm brings the server and its engine, and the engine
+        starts when your agent first needs it. If your agent's first start fails, turn Turf off in
+        your agent, run the first line in a terminal and let it finish, then reconnect. Later starts
+        take several seconds.</p>
       <p>Providers run in the engine, not in your agent's session. Cloud credentials in their usual
         files are read there with nothing set. A variable a provider needs goes in the
         <code>env</code> of Turf's entry, with <code>TURF_PROVIDER_ENV</code> naming it:
@@ -48,7 +57,8 @@ const description = 'Add Turf to Claude Code, Cursor, Codex or any MCP client wi
         <code>turf</code> CLI.</p>
 
       <h3>Your client's own command</h3>
-      <p>Each client can also add the server itself:</p>
+      <p>Each client can also add the server itself, in place of the second line. Run the first line
+        before it:</p>
       <div class="codeblock">
         <div class="cb-head"><span>Add the server</span></div>
 <pre><span class="cm"># Claude Code</span>
@@ -77,19 +87,7 @@ const description = 'Add Turf to Claude Code, Cursor, Codex or any MCP client wi
         server plans and keeps each plan as a planfile; an apply-tier server, with its own credentials,
         applies one.</p>
 
-      <h2 id="accept">2 · Accept the license</h2>
-      <p>Turf is free for individuals, education and small businesses within the Community limits,
-        under the Turf Community Edition License 1.0. Government and larger organizations need a
-        commercial license, and any organization can evaluate Turf in non-production for 30 days:
-        <a href="/licensing/">turf.build/licensing</a>.</p>
-      <p>Read the terms at <a href="/license/v1/">turf.build/license/v1</a>, then accept them once.</p>
-      <div class="codeblock">
-        <div class="cb-head"><span>Accept the terms, once</span></div>
-<pre><span class="ps1">$</span> npx -y @turfbuild/turf-mcp-server license accept</pre>
-      </div>
-      <p>Whichever npx command runs Turf first downloads it. If you accept before your agent has
-        started Turf, the download happens here, in your terminal, and your agent's first start is
-        then quick.</p>
+      <h3 id="accept">The license</h3>
       <p>Until you accept, the server connects and lists its tools, and every call answers with the
         license notice. Your acceptance is read at the next call, so there is nothing to restart.</p>
       <p>Where no one is there to answer, such as a container or a CI job, setting
@@ -98,7 +96,7 @@ const description = 'Add Turf to Claude Code, Cursor, Codex or any MCP client wi
         <a href="/docs/start/install/#accept-the-license">Accept the license</a> in the docs has
         each case.</p>
 
-      <h2>3 · Deploy from your agent</h2>
+      <h2>2 · Deploy from your agent</h2>
       <p>Turf's prompts are slash commands in Claude Code. Start with the walkthrough: it runs a real
         example from <a href="https://github.com/turfbuild/turf-examples">turf-examples</a> and shows
         the plan gate and the approval point on the way.</p>

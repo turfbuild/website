@@ -205,8 +205,15 @@ Once it is fixed, call again: nothing needs reconnecting. `init`, the provider t
 work without the engine.
 
 **The first start with npx.** Whichever npx command runs Turf first downloads it, which takes about
-a minute. When that is your client starting the server, a client that waits 30 seconds may give up:
-reconnect once.
+a minute. Let that happen in a terminal, with the first install line
+(`npx -y @turfbuild/turf-mcp-server license accept`), not in your agent. If your agent's first start
+fails, turn Turf off in your agent, run that line in a terminal and let it finish, then reconnect.
+
+**"… is installed without its binary".** An earlier install was interrupted, and npx keeps reusing it,
+so the server does not start. The message names the npx folder to remove and the steps: stop the
+engine, turn Turf off in your agent, remove that folder, run
+`npx -y @turfbuild/turf-mcp-server engine status` in a terminal and let the download finish, then turn
+Turf back on. From 1.5.1 the npx install says so itself.
 
 **See or stop the engine.**
 
