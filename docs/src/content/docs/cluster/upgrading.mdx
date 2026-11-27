@@ -69,6 +69,21 @@ after it restarts, `open` each workspace again with the same values.
 - On a Restate operator upgrade, check the operator's release notes: a CRD change may need applying
   before the new image rolls out.
 
+## Upgrading to 1.5
+
+1.5 ships under the Turf Community Edition License 1.0, and does nothing until the license terms are
+accepted. Besides the new tag:
+
+- add `TURF_ACCEPT_EULA=yes` as an `env` entry in each Turf container, the engine, the server and the
+  console, before 1.5 rolls out ([Minimal manifests](/docs/cluster/manifests/#the-license));
+- then replace every 1.4 replica before a 1.5 replica serves.
+
+Setting the entry accepts the terms at [turf.build/license/v1](https://turf.build/license/v1/), so
+read them first. The image does not set it for you. Without it:
+
+- the engine and the console exit with status 77, and their pods go to `CrashLoopBackOff`;
+- the server starts, and answers every call with the license notice.
+
 ## Upgrading to 1.4
 
 1.4 adds the console. Besides the new tag:
