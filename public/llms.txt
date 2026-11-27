@@ -12,7 +12,7 @@ Terraform and OpenTofu don't have: multi-round convergence of layered stacks, Te
 actions with overlays, turf actions (a check, a question or a notification as a step of the apply),
 durable runs on Restate, provider calls that scale out until the cloud API is the ceiling, state
 encrypted at rest, OpenTelemetry® built in, and since 1.4 a read-only console of every workspace's
-runs, rounds and approvals. The engine also watches between plans (continuous drift detection):
+runs, rounds and approvals. Since 1.5 the engine also watches between plans (continuous drift detection):
 a paced sweep of provider reads over every object a workspace manages, on a cycle you set, each
 signal confirmed by one read and classified, noise dropped, and what holds up sent to
 the agent as a drift notice (`watch`, `status`, the console, a webhook). A sensor that reports

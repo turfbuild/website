@@ -604,8 +604,9 @@ and `/demo/scalr/` dropped its backend still, which showed the retired plot flow
 1.0 with `headquarters/recordings/render.sh` (the Scalr `setup` still pins OpenTofu 1.12.5 and must
 be unpinned first), then re-derive each `VideoObject`'s `uploadDate` and `duration`.
 
-**Continuous drift detection** (2026-11-15; the release that carries it was not decided when the copy
-was written, so no banner, no release page and no version on it). Sources: turf-engine's
+**Continuous drift detection** (2026-11-15; it shipped in Turf 1.5, whose notes are
+`/docs/releases/1-5/`. The copy was written before the release was decided, so the bands carry no
+version; the announcement bar is the license's, and `llms.txt` says "Since 1.5"). Sources: turf-engine's
 continuous-drift design as built and the deployment skill's drift reference
 (private repos: no internal name is carried over). What exists and may be said in the present
 tense: the sweep for any provider, confirm and classify, notices,
