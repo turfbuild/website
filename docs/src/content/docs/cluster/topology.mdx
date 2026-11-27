@@ -38,7 +38,7 @@ node with its data on a PersistentVolume.
 
 | Port | What | Who reaches it |
 |---|---|---|
-| 8080 | the ingress | the MCP server, and the console's reads |
+| 8080 | the ingress | the MCP server and the console's reads |
 | 9070 | the admin API | the engine: its startup version check, and its registration |
 
 restate-server has no authentication of its own on either port, so NetworkPolicy decides who reaches

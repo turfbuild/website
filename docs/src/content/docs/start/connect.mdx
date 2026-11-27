@@ -93,10 +93,10 @@ that needs cloud credentials, read
 
 ## What the agent gets
 
-Once connected, the agent sees Turf's tools (`init`, `open`, `up`, `plan`, `apply`, …), three prompts
+Once connected, the agent sees Turf's tools (`init`, `open`, `up`, `plan`, `apply`, …), four prompts
 and five resources. In Claude Code the prompts are slash commands: `/turf:guide`, `/turf:up <dir>`,
-`/turf:destroy <dir>`. In any other client you ask in words: "deploy the configuration in ./infra
-with Turf". The server also hands the agent a page of instructions and three skills at connection, so
+`/turf:destroy <dir>`, `/turf:watch <dir>`. In any other client you ask in words: "deploy the
+configuration in ./infra with Turf". The server also hands the agent a page of instructions and three skills at connection, so
 it knows the loop and the safety rules before its first call. The details are in the
 [MCP reference](/docs/reference/server/).
 

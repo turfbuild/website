@@ -34,6 +34,27 @@ already trust; the turf-examples recordings never use it for a plan a viewer sho
 
 Every round is its own decision. Approving round 1 says nothing about round 2.
 
+## Drift
+
+A plan that answers a [drift notice](/docs/concepts/drift/) is approved as any plan is. The rules do
+not change because the plan came from drift. The run is an ordinary `up`: nothing marks it, and its
+plan says what would change.
+
+- **An in-place update that puts a setting back** to what the files say is low-risk. The agent may
+  approve it, and tells you.
+- **A replace, a delete, or a create of something that held data** comes to you. So does a
+  `contended` path, where another `up` will not hold.
+- **Keeping the change** means editing your files, so the agent asks first.
+
+**Turning detection on or off is your choice.** The sweep reads every managed object, unattended,
+against the provider's API with the engine's credentials, and no approval point stands in front of a
+read. The agent calls `drift`, or passes `drift` to an `up`, only when you ask or agree. Both belong
+to the `full` [tier](/docs/reference/server/#tiers): a server at the `read`, `plan` or `apply` tier
+cannot change what the engine does unattended.
+
+Detection itself changes nothing. An observation never writes state, and nothing is applied until a
+plan is approved.
+
 ## What the approval records
 
 `rounds[].approval` in every result says how each round's plan was applied: `asked` (someone approved
@@ -78,3 +99,4 @@ and decides again.
 - [Plan and apply by hand](/docs/using/plan-and-apply/)
 - [Safety rules](/docs/concepts/safety-rules/)
 - [Turf actions](/docs/concepts/turf-actions/): a step inside the apply, which is not an approval.
+- [Drift](/docs/concepts/drift/): what the engine notices between runs, and who decides.

@@ -1,0 +1,160 @@
+---
+title: Drift
+description: "How Turf finds drift between plans: the sweep reaches an object, one provider read observes it, the engine classifies it, and a drift notice reaches your agent."
+sidebar:
+  order: 5.5
+---
+
+import DriftFigure from '../../../components/figures/DriftFigure.astro';
+import Since from '../../../components/Since.astro';
+
+Terraform® and OpenTofu® look at the world only when someone runs a plan. Turf™ can also watch
+between runs, once you turn drift detection on. When an object it manages changes outside Turf, the
+engine's sweep finds it on its next pass and tells your agent what changed. The agent decides what to do about
+it, and any change it makes is an ordinary run: a plan, an approval point, an apply. Nothing applies
+on its own.
+
+<DriftFigure caption="<b>From a change to a plan.</b> The sweep reads each object in its turn. What changed reaches the agent as a notice, and a run does the rest." />
+
+## Four words
+
+**Sweep.** The engine's paced pass over everything the workspace manages. Each object gets its turn
+once a cycle, on a cycle you set. A sensor that reports changes in a Kubernetes® cluster as they
+happen is coming soon <Since />.
+
+**Observation.** One provider read of an object, compared with what state records. The sweep makes it
+when the object's turn comes. An observation reports and nothing more: it never writes state, and it
+changes nothing in the world.
+
+**Drift.** The verdict that a plan would change something. Only a plan gives it. Values flow from one
+resource to the next, so what an edit means for the configuration is known when a round plans it.
+
+**Drift notice.** What reaches your agent: for each address a class, the attribute paths that changed,
+what saw the change and when. Paths, never values; a plan's diff shows the values.
+
+How soon a change becomes a notice depends on the sweep's cycle.
+
+## What the engine reads with
+
+To read an object between runs the engine needs a provider configuration. To classify the read it
+needs the configuration's references and its `ignore_changes`. It keeps both from the last `up` that
+converged: the configuration as that run pinned it, with its variable values. This is the **standing
+seal**.
+
+- The engine keeps it after every converged `up`. The next converged `up` replaces it, and a converged
+  `destroy` removes it.
+- Sensitive variable values are kept with it, in the engine's store, for as long as it stands.
+  Ephemeral variables are never kept.
+- A provider configured from an ephemeral value cannot be configured from the seal, so its objects are
+  not read between runs. Credentials the provider takes from
+  [the engine's environment](/docs/environment/engine-environment/) work as in any run.
+- Variables the server sent by name (`TURF_PROVIDER_ENV`) are kept with it too, so a read with nobody
+  attached uses the last converged `up`'s values. After you rotate a credential, the next converged
+  `up` hands those reads the new one.
+
+With no standing seal nothing can be read between runs, and the sweep waits for one.
+
+## Classes
+
+The engine compares the read with the record, path by path, and gives each address one class.
+
+| Class | What the read found | What it asks of you |
+|---|---|---|
+| `gone` | The object is missing. | `up` plans it back as a create. Or, if it should stay gone, remove it from the configuration. |
+| `configured` | A setting the configuration makes was changed. | Remediate: `up` plans it back. Or adopt: change the files to keep the change, then `up`. |
+| `referenced` | A computed value that some expression reads has changed. | `up` plans what depends on it. The change shows on the dependents, not on this address. |
+| `contended` | The same paths drifted again after two runs put them back. | Another controller owns those paths, and another `up` will not hold. Suppress them with [`ignore_changes`](/docs/authoring/lifecycle/#a-contended-field), or stop the other controller. |
+| `unconfirmed` | The object is marked as changed, and nothing has read it. | `up` reads it and plans. |
+| `uncovered` | The object is marked as changed, and the engine cannot read it between runs. The console shows why. | `up` reads it and plans. |
+
+A notice is `unconfirmed` when no standing seal stands, when the confirming read is turned off, or
+when the read failed three times.
+
+**Noise never becomes a notice.** A computed attribute nothing reads, a path under `ignore_changes`, a
+status-only update, an unset collection read back as an empty one, Turf's own writes during a run:
+none of these is told to an agent.
+
+Where the engine cannot tell from the files whether the configuration sets a path (a `dynamic` block,
+an element of a set), it counts the path as set, and the notice is `configured`.
+
+## Coverage
+
+Between runs, every managed object is in one of two states. `status` and the console count them.
+
+| State | Meaning |
+|---|---|
+| Swept | The sweep reads it once a cycle. The sweep is off until you turn it on. |
+| Uncovered | Nothing reads it until the next run's plan. |
+
+An object is uncovered when:
+
+- the sweep is off;
+- no standing seal stands, or the confirming read is turned off;
+- its provider is configured from an ephemeral value, or from a data source state holds no value for;
+- the configuration directory is not on the engine's host;
+- it is tainted.
+
+What drift detection does not see, whatever the coverage:
+
+- **Objects Turf does not manage.** A new object nobody declared is not drift.
+- **Data sources.** They are read at every plan, never between runs.
+- **Objects inside a Helm® release.** A `helm_release` is read as the release. A change to an object
+  the release installed is not seen.
+- **Cloud audit logs.** The engine does not read a cloud's audit log. The sweep covers what a cloud
+  provider manages.
+- **A change made while a run commits the same address.** It is taken for the run's own write. The
+  sweep, or the next plan that reads the object, finds it.
+
+A sweep whose cycle is too short for the workspace falls behind, and `status` says so. How long a
+cycle a workspace needs: [Choosing a cycle](/docs/using/drift/#turn-it-on).
+
+## A notice is not yet a plan
+
+A notice says an object differs from its record. It does not say what a run would do about it.
+
+- It carries no values, so it cannot show a diff.
+- A change to a computed value plans nothing on the address that drifted. The resources that read the
+  value plan the change.
+- An object that is gone plans a create, and what depends on it may take further rounds.
+- A plan evaluates the whole configuration, as every Turf plan does. It may show more than the notice
+  named, or nothing at all.
+
+So every notice continues the same way: `up`, then `plan`. The plan is what you read and approve.
+
+## Drift at plan time, and between plans
+
+| | At plan time | Between plans |
+|---|---|---|
+| When | Someone runs `up` or `refresh`. | The sweep reaches the object. |
+| What is read | Every managed object. | Every swept object, once a cycle. |
+| What you get | The plan: `plan.drift` and the document's `resource_drift`, with values. | A notice: address, class, paths. |
+| What is written | `refresh` writes state, once you approve its plan. | Nothing. |
+
+The two meet at the plan. A round's `plan` reads every object by default; with `refresh_drift: true`
+it reads only what the open notices name. Any `up` takes that plan at its plan gate. See
+[Watching for drift](/docs/using/drift/#plan-only-what-drifted).
+
+## Who decides
+
+The engine detects and reports. Your agent, and you, decide which side wins:
+
+- **Remediate.** Run `up` and bring the object back to what the files say.
+- **Adopt.** Change the files to match, then `up`. The files are yours, so the agent asks first.
+- **Suppress.** Add `ignore_changes` for a field another controller owns.
+
+**Nothing marks the run.** The `up` that puts drift back is an ordinary run, with the plan, the
+digest and the approval point every run has. The engine records which run cleared each notice: in the
+console a cleared notice names that run, and the run shows how many notices it cleared.
+
+**On or off is yours too.** Detection is off until you turn it on. The agent turns it on or off only
+on your words. Turned off, its open notices close and its settings stand. [Turn it on](/docs/using/drift/#turn-it-on).
+
+The approval rules are the ones every plan has. An in-place update back to what the files say is
+low-risk, and the agent may approve it. A replace or a delete comes to you.
+[Approval](/docs/concepts/approval/#drift).
+
+## Related
+
+- [Watching for drift](/docs/using/drift/): turn it on, wait for notices, plan only what drifted.
+- [Refresh state](/docs/using/refresh/): drift at plan time.
+- [Rounds and deferrals](/docs/concepts/rounds/)

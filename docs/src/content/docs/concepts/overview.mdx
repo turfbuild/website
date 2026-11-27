@@ -54,6 +54,10 @@ and their triggers, laid over the configuration without editing it.
 configuration's `backend` block names it; the server's environment holds its credentials.
 [Where credentials are read](/docs/environment/where-credentials-are-read/).
 
+**Drift notice.** What the engine tells your agent when an object changed outside Turf between runs:
+an address, a class and the attribute paths that changed. A notice is not a plan. An ordinary `up`
+and its plan answer it. [Drift](/docs/concepts/drift/).
+
 ## Outcomes
 
 Every result carries three fields: `outcome`, where the run stands; `ended`, whether it is over; and
