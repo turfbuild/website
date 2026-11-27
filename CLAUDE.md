@@ -536,14 +536,29 @@ first-run prompt, or `TURF_ACCEPT_EULA=yes`).
   `/licensing/`, and nowhere else on the site.
 
 `/get-started/` is the download page (launch plan D22, closed 2026-10-18; there is no `/download/`
-route, and posts and listings link `/get-started/`), so its install flow carries the telemetry
-sentence in step 1 and the acceptance step as step 2, with the license line.
+route, and posts and listings link `/get-started/`), so step 1 of its install flow carries the
+license line, the two install lines and the telemetry sentence, and its "The license" subsection
+(`#accept`) what happens until the terms are accepted. Step 2 is the first deploy.
 
-**The install copy is npx-first** (since release 1.5, 2026-11-26). The lead line on every surface
-(the hero and the footer band, `/get-started/` step 1, the docs install and connect pages,
-`public/llms.txt`, release 1.5's notes) is `npx add-mcp@2 @turfbuild/turf-mcp-server --name turf -g`,
-with its note, "the first start downloads Turf: about a minute"; accepting without the CLI is
-`npx -y @turfbuild/turf-mcp-server license accept`. Homebrew comes second, described by what it adds
+**The install copy is npx-first** (since release 1.5, 2026-11-26), **and accept-first** (since
+2026-11-26). The lead block on every surface (the hero and the footer band, `/get-started/` step 1,
+the docs install and connect pages, `public/llms.txt`, release 1.5's notes) is two lines, in this
+order:
+
+```
+npx -y @turfbuild/turf-mcp-server license accept   # downloads Turf, about a minute, and accepts the terms
+npx add-mcp@2 @turfbuild/turf-mcp-server --name turf -g
+```
+
+The hero and the footer band show both lines without the comment, and the terms link is beside the
+block everywhere else ("read the terms first"). The order matters: the first download is about
+230 MB, and done by a client starting the server it can fail (on 2026-11-26 npm hit `ECOMPROMISED`
+writing restate-server, left a half-written install in `~/.npm/_npx`, and the client's retry reused
+it). Done in a terminal, the agent's first start is quick. So never advise "reconnect once" after a
+failed first start (a reconnect reuses a broken install): the advice is to turn Turf off in the
+agent, run the first line in a terminal and let it finish, then reconnect. An interrupted install
+says "… is installed without its binary" (the npx launcher, from 1.5.1); the docs troubleshooting
+page has the entry. Homebrew comes second, described by what it adds
 (the `turf` CLI and an engine that starts at login), with `brew services start turf` as an optional
 last line; the install script is third. Those lines, the four client commands and the JSON entry are
 the same bytes wherever they appear. Keep `@2`, never show add-mcp's own `-y` (`npx -y` is npm's),

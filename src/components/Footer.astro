@@ -8,13 +8,17 @@ const year = 2026;
 <footer id="get-started">
   <div class="wrap">
     <div class="foot-cta">
-      <p class="eyebrow"><span class="dot"></span> Get started in one command</p>
+      <p class="eyebrow"><span class="dot"></span> Get started in two commands</p>
       <h2>One tool, from <span class="plan-word">metal to workload</span>, at fleet scale.</h2>
       <div class="cta-row">
         <a class="btn primary" href="/get-started/">Try Turf free</a>
         <a class="btn ghost" href="mailto:contact@turf.build">Talk to us</a>
       </div>
-      <div class="install"><span class="ps1">$</span> npx add-mcp@2 @turfbuild/turf-mcp-server --name turf -g</div>
+      <div class="install lines">
+        <div><span class="ps1">$</span> npx -y @turfbuild/turf-mcp-server license accept</div>
+        <div><span class="ps1">$</span> npx add-mcp@2 @turfbuild/turf-mcp-server --name turf -g</div>
+      </div>
+      <p class="install-note">The first line accepts the <a href="/license/v1/">license terms</a>: read them first.</p>
     </div>
 
     <div class="foot-grid" id="sitemap">

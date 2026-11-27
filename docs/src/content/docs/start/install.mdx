@@ -1,33 +1,38 @@
 ---
 title: Install locally
-description: Install Turf with one npx command, with Homebrew or with one script, then accept the license once. The engine starts when your agent first needs it.
+description: Install Turf with two npx commands, with Homebrew or with one script, and accept the license once. The engine starts when your agent first needs it.
 sidebar:
   order: 2
 ---
 
 import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 
-One command puts Turf™ on your machine and adds it to your agent: the MCP server your agent talks to
+Two commands put Turf™ on your machine and add it to your agent: the MCP server your agent talks to
 and the engine that plans and applies. The engine starts when a tool first needs it and keeps running,
 so a rollout keeps going after the conversation that started it ends. Homebrew adds the `turf` CLI and
 an engine that starts at login.
 
 <Tabs syncKey="install">
   <TabItem label="npx">
+Read the terms at [turf.build/license/v1](https://turf.build/license/v1/) first: the first line
+accepts them.
 ```sh
+npx -y @turfbuild/turf-mcp-server license accept   # downloads Turf, about a minute, and accepts the terms
 npx add-mcp@2 @turfbuild/turf-mcp-server --name turf -g
-# the first start downloads Turf: about a minute
 ```
 It needs Node 18 or later, on macOS or Linux, arm64 or x64.
 
-The command runs [add-mcp](https://github.com/neon-solutions/add-mcp), Neon's open-source installer.
-It finds the agents you have installed, asks which ones to add Turf to, and writes each one's config.
-Running it again replaces the entry. Restart Claude Desktop or Cursor after the config changes.
+The first line downloads Turf in your terminal, which takes about a minute, and records your
+acceptance once, in `~/.turf/license.json`. The second registers the server with the agents on this
+machine: it runs [add-mcp](https://github.com/neon-solutions/add-mcp), Neon's open-source
+installer, which finds the agents you have installed, asks which ones to add Turf to, and writes each
+one's config. Running it again replaces the entry. Restart Claude Desktop or Cursor after the config
+changes.
 
-There is nothing else to install. npm brings the server, the engine and the console the first time
-Turf runs, and the engine starts when a tool first needs it. A client that waits 30
-seconds for a server may give up on that first start: reconnect once. Later starts take several
-seconds.
+There is nothing else to install. npm brings the server, the engine and the console, and the engine
+starts when a tool first needs it. Your agent's first start is quick, since the download is done. If
+it fails, turn Turf off in your agent, run the first line in a terminal and let it finish, then
+reconnect. Later starts take several seconds.
 
 This install has no `turf` CLI. Where these pages run `turf-mcp-server`, run
 `npx -y @turfbuild/turf-mcp-server` in its place.
@@ -76,8 +81,8 @@ Read the terms at [turf.build/license/v1](https://turf.build/license/v1/), then 
 ```sh
 npx -y @turfbuild/turf-mcp-server license accept
 ```
-Whichever npx command runs Turf first downloads it. If you accept before your agent has started Turf,
-the download happens here, in your terminal, and your agent's first start is then quick.
+This is the first line of the npx install. Run it before your agent starts Turf: it downloads Turf
+here, in your terminal, and your agent's first start is then quick.
   </TabItem>
   <TabItem label="Homebrew">
 ```sh

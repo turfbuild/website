@@ -13,11 +13,14 @@ writes it for every agent on this machine. The line depends on how you installed
 <Tabs syncKey="install">
   <TabItem label="npx">
 ```sh
+npx -y @turfbuild/turf-mcp-server license accept   # downloads Turf, about a minute, and accepts the terms
 npx add-mcp@2 @turfbuild/turf-mcp-server --name turf -g
-# the first start downloads Turf: about a minute
 ```
-This is the install command itself. If you ran it on [Install locally](/docs/start/install/), your
-agent is already connected. It needs Node 18 or later, on macOS or Linux, arm64 or x64.
+These are the install lines themselves. If you ran them on [Install locally](/docs/start/install/),
+your agent is already connected. Read the terms at
+[turf.build/license/v1](https://turf.build/license/v1/) before the first line, which downloads Turf
+in your terminal and records your acceptance once, in `~/.turf/license.json`. The second registers
+the server with your agents. It needs Node 18 or later, on macOS or Linux, arm64 or x64.
   </TabItem>
   <TabItem label="Homebrew">
 ```sh
@@ -43,7 +46,8 @@ In Claude Code and Claude Desktop, Turf runs on your Claude subscription. No mod
 
 ## Your client's own command
 
-Each client can also add the server itself.
+Each client can also add the server itself. With the npx install, run the first install line in a
+terminal before it, so the download happens there.
 
 <Tabs>
   <TabItem label="Claude Code">
@@ -83,8 +87,9 @@ With a Homebrew or script install, `turf-mcp-server` takes the place of
 ## The first start
 
 The server starts the engine when a tool first needs it, so there is nothing to start by hand. With
-the npx install, the first start also downloads Turf, which takes about a minute. A client that waits
-30 seconds for a server may give up on that start: reconnect once. Later starts take several seconds.
+the npx install, the first install line has already downloaded Turf, so that start is quick. If your
+agent's first start fails, turn Turf off in your agent, run the first line in a terminal and let it
+finish, then reconnect. Later starts take several seconds.
 
 Providers run in that engine, not in your agent's session: they get the engine's environment and the
 variables you name for them ([Give providers a variable](#give-providers-a-variable)). Before a run
