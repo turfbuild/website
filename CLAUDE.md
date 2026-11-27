@@ -225,11 +225,11 @@ OpenTofu® and Model Context Protocol® are registered trademarks of LF Projects
 trademarks are the property of their respective owners. Turf is not affiliated with, endorsed by, or
 sponsored by HashiCorp, IBM, Red Hat, the Linux Foundation, LF Projects or the OpenTofu project."
 The catch-all sentence ("All other trademarks …") is part of the statement. The PDFs in
-`public/papers/` and their text-of-record Marks sections carry the current OpenTofu and Red Hat
-wording since 2026-11-27 (*Metal to Tokens* v1.2, *Pull Request to Production* v0.5; the kagent
-paper has had it since v0.6): OpenTofu® a registered trademark of LF Projects, LLC, with LF Projects
-in the non-affiliation sentence, and Ansible® a trademark of Red Hat, LLC. Their Terraform
-attribution is still "a registered trademark of HashiCorp, Inc.", not the statement's form above.
+`public/papers/` and their text-of-record Marks sections carry the statement's wording since
+2026-11-27 (*Metal to Tokens* v1.2, *Pull Request to Production* v0.5, *Agentic IaC for Platform
+Teams* v0.10): "Terraform® is a trademark of HashiCorp", OpenTofu® a registered trademark of LF
+Projects, LLC, with LF Projects in the non-affiliation sentence, and Ansible® a trademark of Red
+Hat, LLC.
 "Terraform" is only ever used nominatively (compatibility, comparison),
 never in a product name, domain, or logo. Never write "the Terraform Registry" — its ToS restricts
 non-Terraform use; say "module registry", "modules", or "OpenTofu registry". (Decided 2026-10-03
