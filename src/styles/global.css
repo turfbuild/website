@@ -811,3 +811,6 @@ table.matrix td.c { text-align: center; white-space: nowrap; font-family: var(--
   .fig.when-narrow { display: block; }
   .figwide .fig.when-narrow { min-width: 0; }
 }
+
+.install-note { margin: 8px 0 0; font-size: 13px; color: var(--muted, inherit); opacity: .85; }
+.install-note a { color: inherit; text-decoration: underline; }
